@@ -1,0 +1,327 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  Button,
+  LinearProgress,
+  Chip,
+  Avatar,
+  Paper,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Alert,
+} from '@mui/material';
+import {
+  PlayCircleOutline,
+  Timer,
+  CheckCircle,
+  TrendingUp,
+  School,
+  Psychology,
+  Science,
+  EmojiEvents,
+  ArrowForward,
+  InfoOutlined,
+} from '@mui/icons-material';
+import { motion } from 'framer-motion';
+
+const MotionCard = motion(Card);
+
+function Dashboard() {
+  const navigate = useNavigate();
+
+  // Datos de ejemplo
+  const modulos = [
+    {
+      id: 'MOD-001',
+      titulo: 'Introducción a la Protección de Datos',
+      descripcion: 'Fundamentos legales y conceptos básicos de la Ley N° 21.719',
+      duracion: '45 min',
+      progreso: 100,
+      estado: 'completado',
+      icono: '📖',
+    },
+    {
+      id: 'MOD-002',
+      titulo: 'El Arte de Descubrir Datos',
+      descripcion: 'Técnicas de levantamiento y entrevistas efectivas',
+      duracion: '90 min',
+      progreso: 60,
+      estado: 'en_progreso',
+      icono: '🔍',
+      actual: true,
+    },
+    {
+      id: 'MOD-003',
+      titulo: 'Taller Práctico: Tu Primer RAT',
+      descripcion: 'Aprende haciendo - Documenta una actividad real',
+      duracion: '120 min',
+      progreso: 0,
+      estado: 'bloqueado',
+      icono: '🛠️',
+    },
+  ];
+
+  const proximasActividades = [
+    {
+      tipo: 'leccion',
+      titulo: 'Simulación: Entrevista con RRHH',
+      tiempo: '30 min',
+      modulo: 'MOD-002',
+    },
+    {
+      tipo: 'ejercicio',
+      titulo: 'Identificar datos sensibles',
+      tiempo: '15 min',
+      modulo: 'MOD-002',
+    },
+    {
+      tipo: 'quiz',
+      titulo: 'Quiz: Bases de Licitud',
+      tiempo: '10 min',
+      modulo: 'MOD-001',
+    },
+  ];
+
+  const logros = [
+    { nombre: 'Primera Entrevista', obtenido: true, icono: '🎤' },
+    { nombre: 'Explorador de Datos', obtenido: true, icono: '🔍' },
+    { nombre: 'Maestro del RAT', obtenido: false, icono: '📋' },
+    { nombre: 'Guardián de Datos', obtenido: false, icono: '🛡️' },
+  ];
+
+  return (
+    <Box>
+      {/* Mensaje de Bienvenida */}
+      <Alert 
+        severity="info" 
+        icon={<InfoOutlined />}
+        sx={{ mb: 3 }}
+      >
+        <Typography variant="subtitle1" fontWeight={600}>
+          ¡Bienvenido al Sistema de Capacitación!
+        </Typography>
+        <Typography variant="body2">
+          Este es un ambiente 100% educativo. Todo lo que hagas aquí es para aprender sobre la Ley de Protección de Datos Personales.
+        </Typography>
+      </Alert>
+
+      {/* Header con estadísticas */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={3}>
+          <Paper sx={{ p: 3, bgcolor: 'primary.light', color: 'white' }}>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Box>
+                <Typography variant="h4" fontWeight={600}>35%</Typography>
+                <Typography variant="body2">Progreso Total</Typography>
+              </Box>
+              <TrendingUp fontSize="large" />
+            </Box>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Paper sx={{ p: 3 }}>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Box>
+                <Typography variant="h4" fontWeight={600}>3</Typography>
+                <Typography variant="body2">Módulos Completados</Typography>
+              </Box>
+              <CheckCircle fontSize="large" color="success" />
+            </Box>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Paper sx={{ p: 3 }}>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Box>
+                <Typography variant="h4" fontWeight={600}>4.5h</Typography>
+                <Typography variant="body2">Tiempo Invertido</Typography>
+              </Box>
+              <Timer fontSize="large" color="primary" />
+            </Box>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Paper sx={{ p: 3 }}>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Box>
+                <Typography variant="h4" fontWeight={600}>2</Typography>
+                <Typography variant="body2">Logros Obtenidos</Typography>
+              </Box>
+              <EmojiEvents fontSize="large" color="warning" />
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Módulos de Capacitación */}
+      <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
+        Tu Ruta de Aprendizaje
+      </Typography>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {modulos.map((modulo, index) => (
+          <Grid item xs={12} md={4} key={modulo.id}>
+            <MotionCard
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              sx={{
+                height: '100%',
+                position: 'relative',
+                opacity: modulo.estado === 'bloqueado' ? 0.7 : 1,
+              }}
+            >
+              {modulo.actual && (
+                <Chip
+                  label="EN CURSO"
+                  color="primary"
+                  size="small"
+                  sx={{
+                    position: 'absolute',
+                    top: 16,
+                    right: 16,
+                  }}
+                />
+              )}
+              <CardContent>
+                <Box display="flex" alignItems="center" mb={2}>
+                  <Avatar sx={{ bgcolor: 'primary.light', width: 56, height: 56 }}>
+                    <Typography variant="h4">{modulo.icono}</Typography>
+                  </Avatar>
+                  <Box ml={2}>
+                    <Typography variant="h6" fontWeight={600}>
+                      {modulo.titulo}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      <Timer fontSize="small" sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+                      {modulo.duracion}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Typography variant="body2" color="text.secondary" mb={2}>
+                  {modulo.descripcion}
+                </Typography>
+                <Box>
+                  <Box display="flex" justifyContent="space-between" mb={1}>
+                    <Typography variant="body2">Progreso</Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                      {modulo.progreso}%
+                    </Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={modulo.progreso}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      bgcolor: 'grey.200',
+                    }}
+                  />
+                </Box>
+              </CardContent>
+              <CardActions>
+                <Button
+                  fullWidth
+                  variant={modulo.estado === 'en_progreso' ? 'contained' : 'outlined'}
+                  disabled={modulo.estado === 'bloqueado'}
+                  startIcon={<PlayCircleOutline />}
+                  onClick={() => navigate(`/modulo/${modulo.id}`)}
+                >
+                  {modulo.estado === 'completado' ? 'Repasar' : 
+                   modulo.estado === 'en_progreso' ? 'Continuar' : 'Bloqueado'}
+                </Button>
+              </CardActions>
+            </MotionCard>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Sección de Práctica */}
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" fontWeight={600} mb={2}>
+                Próximas Actividades
+              </Typography>
+              <List>
+                {proximasActividades.map((actividad, index) => (
+                  <ListItem
+                    key={index}
+                    secondaryAction={
+                      <IconButton edge="end" onClick={() => navigate(`/modulo/${actividad.modulo}`)}>
+                        <ArrowForward />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemIcon>
+                      {actividad.tipo === 'leccion' && <School color="primary" />}
+                      {actividad.tipo === 'ejercicio' && <Psychology color="secondary" />}
+                      {actividad.tipo === 'quiz' && <Science color="success" />}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={actividad.titulo}
+                      secondary={`${actividad.tiempo} • Módulo ${actividad.modulo}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+            <CardActions>
+              <Button 
+                fullWidth 
+                variant="contained" 
+                color="secondary"
+                onClick={() => navigate('/sandbox')}
+              >
+                Ir al Modo Práctica (Sandbox)
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" fontWeight={600} mb={2}>
+                Tus Logros
+              </Typography>
+              <Grid container spacing={2}>
+                {logros.map((logro, index) => (
+                  <Grid item xs={6} key={index}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        textAlign: 'center',
+                        opacity: logro.obtenido ? 1 : 0.3,
+                        filter: logro.obtenido ? 'none' : 'grayscale(100%)',
+                      }}
+                    >
+                      <Typography variant="h2">{logro.icono}</Typography>
+                      <Typography variant="caption">{logro.nombre}</Typography>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            </CardContent>
+            <CardActions>
+              <Button fullWidth onClick={() => navigate('/mi-progreso')}>
+                Ver Todos los Logros
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+}
+
+export default Dashboard;
