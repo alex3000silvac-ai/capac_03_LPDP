@@ -1,9 +1,7 @@
 [build]
 builder = "nixpacks"
-nixpacksPlan = { providers = ["node"] }
-buildCommand = "cd frontend && npm install && npm run build"
+buildCommand = "npm install --prefix frontend && npm run build --prefix frontend"
 
 [deploy]
-startCommand = "cd frontend && npm install -g serve && serve -s build -l $PORT"
-healthcheckPath = "/"
+startCommand = "npx serve frontend/build -l $PORT"
 restartPolicyType = "on_failure"
