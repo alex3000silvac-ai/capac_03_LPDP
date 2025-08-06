@@ -1,0 +1,2 @@
+# Este archivo está vacío intencionalmente
+# Esto es un proyecto Node.js, no Python

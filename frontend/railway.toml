@@ -1,5 +1,6 @@
 [build]
 builder = "nixpacks"
+nixpacksPlan = { providers = ["node"] }
 buildCommand = "npm install && CI=false npm run build"
 
 [deploy]
