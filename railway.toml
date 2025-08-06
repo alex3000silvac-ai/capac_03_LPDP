@@ -4,6 +4,6 @@ nixpacksPlan = { providers = ["node"] }
 buildCommand = "cd frontend && npm install && npm run build"
 
 [deploy]
-startCommand = "cd frontend && node -e \"const handler = require('serve-handler'); const http = require('http'); const server = http.createServer((req, res) => handler(req, res, {public: 'build'})); server.listen(process.env.PORT || 3000);\""
+startCommand = "cd frontend && npm install -g serve && serve -s build -l $PORT"
 healthcheckPath = "/"
 restartPolicyType = "on_failure"
