@@ -88,6 +88,7 @@ const theme = createTheme({
 });
 
 function App() {
+  // Deploy trigger
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
