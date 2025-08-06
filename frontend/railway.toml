@@ -1,8 +1,0 @@
-[build]
-builder = "nixpacks"
-nixpacksPlan = { providers = ["node"] }
-buildCommand = "npm ci && CI=false npm run build"
-
-[deploy]
-startCommand = "npm start"
-restartPolicyType = "on_failure"
