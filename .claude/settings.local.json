@@ -15,7 +15,8 @@
       "Bash(ls:*)",
       "WebFetch(domain:docs.railway.com)",
       "Bash(git rm:*)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
