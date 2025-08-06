@@ -88,7 +88,7 @@ const theme = createTheme({
 });
 
 function App() {
-  // Deploy trigger
+  // Deploy trigger - force rebuild
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
