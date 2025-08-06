@@ -1,0 +1,5 @@
+// Configuración de la aplicación
+export const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
+
+// Para desarrollo local, cambiar a:
+// export const API_BASE_URL = 'http://localhost:8000';
