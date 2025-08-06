@@ -2,10 +2,10 @@
 nixPkgs = ["nodejs-18_x", "npm"]
 
 [phases.install]
-cmds = ["npm install"]
+cmds = ["npm ci"]
 
 [phases.build]
 cmds = ["CI=false npm run build"]
 
 [start]
-cmd = "npx serve -s build -l $PORT"
+cmd = "npm start"
