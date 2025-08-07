@@ -4,25 +4,29 @@ services:
     name: scldp-backend
     runtime: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "cd backend && gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT"
+    startCommand: "gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT"
     rootDir: backend
     envVars:
       - key: DATABASE_URL
-        sync: false  # La agregarás manualmente con tu URL de Supabase
+        sync: false  # Configurar manualmente con tu URL de Supabase
       - key: SECRET_KEY
-        value: KL4um-775jA5N*P
+        generateValue: true  # Render generará una clave segura automáticamente
       - key: FRONTEND_URL
         value: https://scldp-frontend.onrender.com
       - key: ENVIRONMENT
         value: production
 
-  # Frontend Static Site
+  # Frontend Service
   - type: web
     name: scldp-frontend
-    runtime: static
-    buildCommand: "cd frontend && npm install && npm run build"
-    staticPublishPath: frontend/build
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    runtime: node
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm start"
+    rootDir: frontend
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://scldp-backend.onrender.com
+      - key: REACT_APP_ENVIRONMENT
+        value: production
+      - key: NODE_VERSION
+        value: "18.0.0"
