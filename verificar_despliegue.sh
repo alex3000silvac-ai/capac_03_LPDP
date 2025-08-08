@@ -11,7 +11,7 @@ FRONTEND_URL="https://scldp-frontend.onrender.com"
 
 # Verificar Backend
 echo -n "✓ Verificando Backend API... "
-BACKEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/api/v1/health" 2>/dev/null)
+BACKEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL" 2>/dev/null)
 if [ "$BACKEND_STATUS" = "200" ]; then
     echo "✅ Funcionando correctamente"
 else

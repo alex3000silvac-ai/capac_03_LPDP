@@ -16,24 +16,29 @@ import Layout from './components/Layout';
 // Tema personalizado
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#1976d2',
-      light: '#42a5f5',
-      dark: '#1565c0',
+      main: '#2196f3',
+      light: '#64b5f6',
+      dark: '#1976d2',
     },
     secondary: {
       main: '#00bcd4',
-      light: '#26c6da',
-      dark: '#00acc1',
+      light: '#4dd0e1',
+      dark: '#00838f',
     },
     success: {
-      main: '#4caf50',
-      light: '#66bb6a',
-      dark: '#388e3c',
+      main: '#66bb6a',
+      light: '#81c784',
+      dark: '#4caf50',
     },
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
+      default: '#0a0a0a',
+      paper: '#1a1a1a',
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: 'rgba(255, 255, 255, 0.7)',
     },
   },
   typography: {

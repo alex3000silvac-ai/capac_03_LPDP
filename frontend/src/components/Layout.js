@@ -89,19 +89,23 @@ function Layout({ children }) {
         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
           <Avatar
             sx={{
-              bgcolor: theme.palette.primary.main,
-              width: 48,
-              height: 48,
-              fontSize: '1.5rem',
+              bgcolor: 'transparent',
+              border: '2px solid',
+              borderColor: theme.palette.primary.main,
+              width: 56,
+              height: 56,
+              fontSize: '1.8rem',
+              fontWeight: 'bold',
+              color: theme.palette.primary.main,
             }}
           >
-            📚
+            JD
           </Avatar>
           <Box sx={{ ml: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
-              SCLDP
+            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2, letterSpacing: '0.5px' }}>
+              Jurídica Digital SPA
             </Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
               Sistema de Capacitación LPDP
             </Typography>
           </Box>
@@ -160,14 +164,20 @@ function Layout({ children }) {
 
       <Divider />
       <Box sx={{ p: 2 }}>
-        <Box sx={{ p: 2, bgcolor: 'primary.light', borderRadius: 2, color: 'white' }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+        <Box sx={{ 
+          p: 2, 
+          background: 'linear-gradient(135deg, #1976d2 0%, #2196f3 100%)',
+          borderRadius: 2, 
+          color: 'white',
+          boxShadow: '0 4px 20px 0 rgba(0,0,0,0.4)',
+        }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.9 }}>
             Tu Progreso
           </Typography>
-          <Typography variant="h4" sx={{ mt: 1 }}>
+          <Typography variant="h4" sx={{ mt: 1, fontWeight: 700 }}>
             35%
           </Typography>
-          <Typography variant="caption">
+          <Typography variant="caption" sx={{ opacity: 0.9 }}>
             3 de 8 módulos completados
           </Typography>
         </Box>
@@ -184,7 +194,8 @@ function Layout({ children }) {
           ml: { md: `${drawerWidth}px` },
           bgcolor: 'background.paper',
           color: 'text.primary',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.5)',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
         }}
       >
         <Toolbar>
@@ -199,7 +210,7 @@ function Layout({ children }) {
           </IconButton>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="h6" noWrap component="div">
-              {menuItems.find(item => item.path === location.pathname)?.text || 'SCLDP'}
+              {menuItems.find(item => item.path === location.pathname)?.text || 'Jurídica Digital'}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

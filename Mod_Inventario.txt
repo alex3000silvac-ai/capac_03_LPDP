@@ -1,0 +1,100 @@
+Capítulo 3: Módulo de Inventario y Mapeo de Datos
+
+Este capítulo detalla el procedimiento para crear y mantener un inventario exhaustivo de todos los activos de datos personales que la organización trata. Este inventario, también conocido como Registro de Actividades de Tratamiento (RAT), es la piedra angular de todo el sistema de cumplimiento. Sin un conocimiento claro de qué datos se tienen, dónde están, por qué se tienen, cómo fluyen y cuándo deben ser eliminados, es imposible cumplir con los demás principios y obligaciones de la Ley N° 21.719.
+
+3.1. Procedimientos para el Personal (Creación y Mantenimiento del Inventario)
+
+
+Procedimiento de Mapeo Inicial de Datos (Data Discovery)
+
+1. Conformación del Equipo de Trabajo: El DPO debe liderar un equipo multidisciplinario para el levantamiento inicial del inventario. Este equipo debe incluir representantes de todas las áreas clave que tratan datos personales: RRHH, Finanzas, Marketing, Ventas, Operaciones, TI y Legal.1
+2. Metodología de Levantamiento: El proceso no debe centrarse en preguntar "¿qué bases de datos tienen?", sino en "¿qué actividades o procesos realizan que involucren información de personas?". Se deben realizar entrevistas estructuradas y talleres con los dueños de los procesos en cada departamento para identificar y documentar cada actividad de tratamiento.1
+? Ejemplo de Preguntas para RRHH: "¿Cuál es el proceso completo desde que reciben un currículum hasta que se contrata a una persona? ¿Qué información solicitan? ¿Dónde la guardan? ¿Con quién la comparten (ej. empresa de exámenes preocupacionales)? ¿Por cuánto tiempo la conservan si la persona no es contratada?".
+3. Documentación de Actividades de Tratamiento: Para cada actividad identificada, el equipo debe documentar en el sistema de cumplimiento la siguiente información, que corresponde a los elementos de un RAT:
+? Nombre de la actividad de tratamiento: (ej. "Proceso de Reclutamiento y Selección").
+? Finalidad(es) del tratamiento: (ej. "Evaluar la idoneidad de los candidatos para vacantes laborales").
+? Base de licitud: (ej. "Consentimiento del candidato", "Medidas precontractuales").
+? Categorías de titulares de datos: (ej. "Postulantes a empleos").
+? Categorías de datos personales tratados: (ej. "Datos de identificación, historial académico, experiencia laboral, datos de contacto").
+? Categorías de destinatarios (internos y externos): (ej. "Gerentes de área, empresa externa de verificación de antecedentes").
+? Transferencias internacionales (si aplica): (País de destino y garantías).
+? Plazos de conservación y supresión: (ej. "Currículums de candidatos no seleccionados se eliminan después de 6 meses").
+? Descripción de las medidas de seguridad técnicas y organizativas.
+
+Clasificación de Datos por Sensibilidad
+
+Una vez identificados los datos, es crucial clasificarlos correctamente, ya que la ley impone requisitos más estrictos para ciertas categorías.
+? Datos Personales Comunes: Información de identificación, contacto, datos laborales, etc.
+? Datos Sensibles (Art. 2, lit. g): El personal debe ser capacitado para identificar y etiquetar datos que revelen origen étnico, afiliación sindical, convicciones religiosas o filosóficas, datos de salud, datos biométricos, vida u orientación sexual. Una novedad crucial de la ley chilena es la inclusión de la "situación socioeconómica" como dato sensible.1 Esto significa que datos como el nivel de ingresos, historial crediticio o la elegibilidad para beneficios sociales, comúnmente manejados por RRHH o áreas financieras, deben ser tratados con el máximo nivel de protección.1
+? Datos de Niños, Niñas y Adolescentes (NNA): Cualquier dato perteneciente a menores de edad debe ser clasificado como tal, ya que su tratamiento requiere el consentimiento de los padres o tutores y la consideración del interés superior del niño.1
+
+Documentación de Flujos de Datos (Data Flows)
+
+El inventario no es solo una lista estática, sino un mapa dinámico. El personal debe documentar cómo se mueven los datos:
+? Flujos Internos: Trazar el recorrido de los datos entre los sistemas internos. Por ejemplo, cuando un nuevo cliente se registra en la web, sus datos viajan desde el servidor web al CRM, luego al ERP para la facturación, y quizás a un sistema de business intelligence para análisis.1
+? Flujos Externos: Documentar todas las transferencias de datos a terceros, ya sean encargados del tratamiento (ej. un proveedor de cloud, una agencia de marketing) o cesionarios. Esto incluye identificar al tercero, el propósito de la transferencia y la base legal que la ampara.
+? Riesgos Específicos del Sector: En la industria salmonera, se debe prestar especial atención a los flujos de datos provenientes de tecnologías avanzadas. Por ejemplo, los datos generados en tiempo real por sensores de IoT en los centros de cultivo (temperatura del agua, niveles de oxígeno, alimentación automática) o los datos de geolocalización del personal en terreno.1 Aunque estos datos pueden no parecer personales a primera vista, si pueden vincularse a un centro de cultivo específico o a un operario, quedan bajo el ámbito de la ley y sus flujos deben ser mapeados.
+
+Gestión de Retención y Eliminación
+
+Basándose en el principio de proporcionalidad (limitación del plazo de conservación), el DPO, junto con el área legal y los dueños de los procesos, debe definir políticas de retención para cada categoría de datos.1
+? Definición de Políticas: La política debe establecer por cuánto tiempo se conservará un dato y cuál es la justificación (ej. "Las facturas de clientes se conservan por 6 años para cumplir con obligaciones tributarias").
+? Procedimiento de Eliminación: Se debe definir un procedimiento para la eliminación segura o la anonimización de los datos una vez que expira su período de retención. Este procedimiento debe ser ejecutado periódicamente por el personal de TI, y su ejecución debe ser verificada y registrada.
+
+3.2. Especificaciones Técnicas del Sistema (Plataforma de Gobernanza de Datos)
+
+El sistema de cumplimiento debe actuar como una plataforma centralizada de gobernanza de datos.
+
+Módulo de Registro de Actividades de Tratamiento (RAT)
+
+? Interfaz de Usuario: El sistema debe ofrecer una interfaz web intuitiva que permita al personal no técnico (dueños de procesos) documentar fácilmente las actividades de tratamiento, guiándolos a través de los campos requeridos (finalidad, categorías de datos, base legal, etc.).
+? Base de Datos del Inventario: Se requiere una base de datos relacional para almacenar el inventario. Las tablas principales podrían incluir:
+? processing_activities: Almacena la descripción de cada actividad.
+? data_assets: Cataloga los sistemas y bases de datos donde residen los datos.
+? data_categories: Define las diferentes categorías de datos personales.
+? data_flows: Mapea las transferencias de datos entre data_assets y con terceros.
+? Estas tablas deben estar interrelacionadas para permitir consultas complejas (ej. "¿Qué actividades tratan datos de salud y en qué sistemas se almacenan?").
+
+Funcionalidad de Mapeo y Visualización de Flujos
+
+? Herramientas de Visualización: El sistema debería integrar herramientas de visualización que generen diagramas de flujo de datos automáticamente a partir de la información registrada en el inventario. Esto permite al DPO y a los auditores comprender rápidamente cómo se mueven los datos a través de la organización y hacia el exterior, identificando posibles riesgos o cuellos de botella.
+? Integración y Descubrimiento Automatizado: Para mantener el inventario actualizado, el sistema podría integrarse con herramientas de descubrimiento de datos (data discovery) que escaneen periódicamente las redes y bases de datos de la organización para identificar nuevos almacenamientos de datos personales que necesiten ser inventariados.
+
+Motor de Políticas de Retención
+
+? Definición de Reglas: El sistema debe permitir al DPO o al administrador definir políticas de retención de forma declarativa (ej. "Para todos los datos en la categoría 'Currículums No Seleccionados', aplicar un período de retención de 180 días desde la fecha de creación").
+? Automatización de la Ejecución: El sistema debe incluir un motor de automatización (ej. un cron job o un worker de Celery) que se ejecute periódicamente para:
+1. Identificar todos los registros de datos que han excedido su período de retención definido.
+2. Ejecutar la acción definida:
+? Eliminación Segura: Invocar una API en el sistema de origen para realizar un borrado físico de los datos.
+? Anonimización: Aplicar un script de anonimización que reemplace los campos de identificación personal con valores no identificables.
+3. Registro de Auditoría: Cada acción de eliminación o anonimización debe ser registrada de forma detallada en los logs inmutables del sistema de cumplimiento, incluyendo qué dato se eliminó, cuándo y en base a qué política.
+
+Tabla 3.1: Plantilla de Registro de Actividad de Tratamiento (RAT)
+
+Campo del Registro
+Ejemplo de Contenido (Actividad: Monitoreo de Salud de Biomasa)
+ID de Actividad
+PROD-001
+Nombre de la Actividad
+Monitoreo de salud y alimentación de biomasa mediante IA
+Responsable del Proceso
+Gerente de Producción
+Finalidad(es)
+Optimizar la alimentación, detectar tempranamente enfermedades, asegurar el bienestar animal, cumplir con normativas sanitarias.
+Base de Licitud
+Interés legítimo (eficiencia productiva y bienestar animal), Cumplimiento de obligación legal (normativa sanitaria).
+Categorías de Titulares
+No aplica directamente a personas naturales.
+Categorías de Datos
+Datos de sensores (O2, temp.), imágenes de video de los peces, datos de alimentación, registros de mortalidad. Nota: Si los datos pueden vincularse a un operario específico, se convierte en dato personal.
+Sistemas Implicados
+Sensores IoT, Software de Acuicultura (ej. Mercatus AS), Plataforma de IA, ERP (SAP).
+Destinatarios (Internos/Externos)
+Equipo de Producción, Veterinarios, SERNAPESCA (reportes agregados).
+Transferencias Internacionales
+Sí, a proveedor de plataforma de IA en EE.UU. (Ver Módulo 6).
+Plazo de Conservación
+Datos brutos: 2 años. Informes agregados: 10 años.
+Medidas de Seguridad
+Cifrado de datos en tránsito y en reposo, control de acceso basado en roles (RBAC) a la plataforma de IA.
