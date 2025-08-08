@@ -23,42 +23,30 @@ share/python-wheels/
 MANIFEST
 
 # Virtual Environment
+env/
 venv/
 ENV/
-env/
+env.bak/
+venv.bak/
 .venv
-
-# PyCharm
-.idea/
-
-# VS Code
-.vscode/
-*.code-workspace
-
-# Jupyter Notebook
-.ipynb_checkpoints
 
 # Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 
-# Database
-*.db
-*.sqlite3
-postgres_data/
-redis_data/
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
 # OS
 .DS_Store
@@ -69,37 +57,117 @@ lerna-debug.log*
 ehthumbs.db
 Thumbs.db
 
-# Node
-node_modules/
-/frontend/build
-/frontend/.pnp
-.pnp.js
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
-# Testing
-/coverage
-/frontend/coverage
+# Database
+*.db
+*.sqlite3
+*.sqlite
 
-# Production
-/build
-/frontend/build
-
-# Misc
-.eslintcache
-.npm
-.yarn-integrity
-
-# Docker
-docker-compose.override.yml
-
-# Alembic
-alembic/versions/*
-!alembic/versions/.gitkeep
-
-# Uploaded files
+# Uploads and media
 uploads/
 media/
+static/collected/
+
+# Node modules (frontend)
+node_modules/
+.npm
+.eslintcache
+.node_repl_history
+*.tsbuildinfo
+.yarn-integrity
+
+# Production builds
+build/
+dist/
+.cache/
+.parcel-cache
+.next/
+out/
+.nuxt
+.vuepress/dist
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.vercel
+
+# Testing
+coverage/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.pytest_cache/
+cover/
+*.cover
+*.py,cover
+.coverage.*
+nosetests.xml
+coverage.xml
+*.coveragerc
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# Cython
+cython_debug/
+
+# Backup files
+*.bak
+*.backup
+*~
 
 # Temporary files
 *.tmp
 *.temp
-.~*
+.temp/
+.tmp/
+
+# SSL certificates (local development)
+*.pem
+*.key
+*.crt
+
+# Docker volumes (local)
+postgres-data/
+redis-data/
