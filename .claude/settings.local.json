@@ -17,7 +17,10 @@
       "Bash(git rm:*)",
       "Bash(npm install)",
       "Bash(find:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(cat:*)",
+      "Bash(./verificar_despliegue.sh:*)",
+      "Bash(./backend/verificar_despliegue.sh:*)"
     ],
     "deny": []
   }
