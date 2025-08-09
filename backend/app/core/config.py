@@ -76,6 +76,10 @@ class Settings(BaseSettings):
     def assemble_cors_origins(cls, v: List[str]) -> List[str]:
         return [origin for origin in v if origin]
     
+    # Entorno
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
+    DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
+    
     class Config:
         case_sensitive = True
         env_file = ".env"

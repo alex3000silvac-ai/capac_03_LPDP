@@ -14,7 +14,12 @@ from app.api.v1.endpoints import (
     dpia,
     transferencias,
     auditoria,
-    capacitacion
+    capacitacion,
+    # Endpoints anteriores que siguen funcionando
+    actividades,
+    categorias,
+    entrevistas,
+    reportes
 )
 
 api_router = APIRouter()
@@ -101,4 +106,29 @@ api_router.include_router(
     capacitacion.router,
     prefix="/capacitacion",
     tags=["Sistema de Capacitación"]
+)
+
+# Endpoints anteriores (compatibilidad)
+api_router.include_router(
+    actividades.router,
+    prefix="/actividades",
+    tags=["actividades"]
+)
+
+api_router.include_router(
+    categorias.router,
+    prefix="/categorias",
+    tags=["categorias"]
+)
+
+api_router.include_router(
+    entrevistas.router,
+    prefix="/entrevistas",
+    tags=["entrevistas"]
+)
+
+api_router.include_router(
+    reportes.router,
+    prefix="/reportes",
+    tags=["reportes"]
 )
