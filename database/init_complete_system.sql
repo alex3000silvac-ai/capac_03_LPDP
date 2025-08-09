@@ -449,13 +449,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Crear roles predefinidos
-INSERT INTO roles (id, name, code, description, permissions, is_system) VALUES
-    (uuid_generate_v4(), 'Administrador', 'admin', 'Administrador del sistema', '["*"]', true),
-    (uuid_generate_v4(), 'DPO', 'dpo', 'Data Protection Officer', '["privacy.*", "audit.*", "reports.*"]', true),
-    (uuid_generate_v4(), 'Usuario', 'user', 'Usuario estándar', '["capacitacion.*", "recursos.read"]', true),
-    (uuid_generate_v4(), 'Auditor', 'auditor', 'Auditor de cumplimiento', '["audit.read", "reports.*"]', true)
-ON CONFLICT DO NOTHING;
+-- Los roles se crearán en cada esquema de tenant, no en público
 
 -- Insertar datos de ejemplo para desarrollo
 -- Crear tenant de prueba
@@ -488,6 +482,21 @@ ON CONFLICT DO NOTHING;
 
 -- Crear esquema para tenant demo
 SELECT create_tenant_schema('tenant_demo');
+
+-- Crear roles predefinidos en el tenant demo
+INSERT INTO tenant_demo.roles (id, name, code, description, permissions, is_system, tenant_id) VALUES
+    (uuid_generate_v4(), 'Administrador', 'admin', 'Administrador del sistema', '["*"]', true, '550e8400-e29b-41d4-a716-446655440000'),
+    (uuid_generate_v4(), 'DPO', 'dpo', 'Data Protection Officer', '["privacy.*", "audit.*", "reports.*"]', true, '550e8400-e29b-41d4-a716-446655440000'),
+    (uuid_generate_v4(), 'Usuario', 'user', 'Usuario estándar', '["capacitacion.*", "recursos.read"]', true, '550e8400-e29b-41d4-a716-446655440000'),
+    (uuid_generate_v4(), 'Auditor', 'auditor', 'Auditor de cumplimiento', '["audit.read", "reports.*"]', true, '550e8400-e29b-41d4-a716-446655440000')
+ON CONFLICT DO NOTHING;
+
+-- Crear usuario administrador demo
+INSERT INTO tenant_demo.users (id, tenant_id, username, email, password_hash, first_name, last_name, is_active, is_superuser, is_dpo, email_verified) VALUES
+    (uuid_generate_v4(), '550e8400-e29b-41d4-a716-446655440000', 'admin', 'admin@demo.cl', 
+     '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewKyNiGczCRJyWFK', -- password: Admin123!@#
+     'Admin', 'Demo', true, false, true, true)
+ON CONFLICT DO NOTHING;
 
 -- Mensaje de confirmación
 DO $$
