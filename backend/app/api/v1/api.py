@@ -14,11 +14,11 @@ from app.api.v1.endpoints import (
     dpia,
     transferencias,
     auditoria,
-    capacitacion,
+    # capacitacion,  # COMENTADO: Usa modelos antiguos que causan conflicto
     # Endpoints anteriores que siguen funcionando
     # actividades,  # COMENTADO: Conflicto con inventario
     # categorias,  # COMENTADO: Usa modelos antiguos que causan conflicto
-    entrevistas,
+    # entrevistas,  # COMENTADO: Usa modelos antiguos que causan conflicto
     # reportes  # COMENTADO: Usa modelos antiguos (ActividadDato) que causan conflicto
 )
 
@@ -109,12 +109,13 @@ api_router.include_router(
     tags=["MOD-7: Auditoría y Cumplimiento"]
 )
 
+# COMENTADO: Usa modelos antiguos que causan conflicto
 # Sistema de Capacitación
-api_router.include_router(
-    capacitacion.router,
-    prefix="/capacitacion",
-    tags=["Sistema de Capacitación"]
-)
+# api_router.include_router(
+#     capacitacion.router,
+#     prefix="/capacitacion",
+#     tags=["Sistema de Capacitación"]
+# )
 
 # Endpoints anteriores (compatibilidad) - COMENTADO POR CONFLICTO
 # api_router.include_router(
@@ -130,11 +131,12 @@ api_router.include_router(
 #     tags=["categorias"]
 # )
 
-api_router.include_router(
-    entrevistas.router,
-    prefix="/entrevistas",
-    tags=["entrevistas"]
-)
+# COMENTADO: Usa modelos antiguos que causan conflicto
+# api_router.include_router(
+#     entrevistas.router,
+#     prefix="/entrevistas",
+#     tags=["entrevistas"]
+# )
 
 # COMENTADO: Usa modelos antiguos que causan conflicto
 # api_router.include_router(
