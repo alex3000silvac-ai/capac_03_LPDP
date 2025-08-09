@@ -1,32 +1,29 @@
 services:
-  # Backend Service
   - type: web
-    name: scldp-backend
+    name: lpdp-capacitacion-api
     runtime: python
-    buildCommand: "chmod +x build.sh && ./build.sh"
-    startCommand: "gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT"
-    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: DATABASE_URL
-        sync: false  # Configurar manualmente con tu URL de Supabase
+        fromDatabase:
+          name: lpdp-db
+          property: connectionString
       - key: SECRET_KEY
-        generateValue: true  # Render generará una clave segura automáticamente
-      - key: FRONTEND_URL
-        value: https://scldp-frontend.onrender.com
+        generateValue: true
+      - key: LICENSE_ENCRYPTION_KEY
+        generateValue: true
       - key: ENVIRONMENT
         value: production
+      - key: DEBUG
+        value: false
+      - key: PYTHONPATH
+        value: /opt/render/project/src/backend
 
-  # Frontend Service
-  - type: web
-    name: scldp-frontend
-    runtime: node
-    buildCommand: "npm install && npm run build"
-    startCommand: "npm start"
-    rootDir: frontend
-    envVars:
-      - key: REACT_APP_API_URL
-        value: https://scldp-backend.onrender.com
-      - key: REACT_APP_ENVIRONMENT
-        value: production
-      - key: NODE_VERSION
-        value: "18.0.0"
+databases:
+  - name: lpdp-db
+    databaseName: lpdp_capacitacion
+    user: lpdp_admin
+    region: oregon
+    plan: starter
+    postgresMajorVersion: 15

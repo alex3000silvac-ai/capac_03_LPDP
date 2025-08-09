@@ -31,6 +31,14 @@ api_router.include_router(
     tags=["autenticación"]
 )
 
+# Administración Comercial (solo superadmin)
+from app.api.v1.endpoints import admin_comercial
+api_router.include_router(
+    admin_comercial.router,
+    prefix="/admin-comercial", 
+    tags=["Administración Comercial"]
+)
+
 # Gestión de Tenants (solo superadmin)
 api_router.include_router(
     tenants.router,
