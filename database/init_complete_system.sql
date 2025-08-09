@@ -455,7 +455,7 @@ $$ LANGUAGE plpgsql;
 -- Crear tenant de prueba
 INSERT INTO tenants (id, name, domain, schema_name, is_active) VALUES
     ('550e8400-e29b-41d4-a716-446655440000', 'Empresa Demo', 'demo.juridicadigital.cl', 'tenant_demo', true)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (id) DO NOTHING;
 
 -- Crear empresa demo
 INSERT INTO empresas (id, tenant_id, rut, razon_social, giro, comuna, ciudad, email_contacto) VALUES

@@ -17,7 +17,7 @@ from app.api.v1.endpoints import (
     capacitacion,
     # Endpoints anteriores que siguen funcionando
     # actividades,  # COMENTADO: Conflicto con inventario
-    categorias,
+    # categorias,  # COMENTADO: Usa modelos antiguos que causan conflicto
     entrevistas,
     reportes
 )
@@ -123,11 +123,12 @@ api_router.include_router(
 #     tags=["actividades"]
 # )
 
-api_router.include_router(
-    categorias.router,
-    prefix="/categorias",
-    tags=["categorias"]
-)
+# COMENTADO: Usa modelos antiguos que causan conflicto
+# api_router.include_router(
+#     categorias.router,
+#     prefix="/categorias",
+#     tags=["categorias"]
+# )
 
 api_router.include_router(
     entrevistas.router,
