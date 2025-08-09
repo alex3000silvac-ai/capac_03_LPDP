@@ -1,7 +1,7 @@
 """
 Modelos de usuarios y autenticación
 """
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Table, Text, JSON
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Table, Text, JSON, Integer
 from sqlalchemy.orm import relationship
 from .base import TenantBaseModel, Base
 

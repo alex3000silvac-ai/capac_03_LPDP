@@ -1,7 +1,7 @@
 """
 Modelos para gestión de consentimientos (Módulo 1)
 """
-from sqlalchemy import Column, String, Boolean, DateTime, JSON, Text, ForeignKey, Table, Enum
+from sqlalchemy import Column, String, Boolean, DateTime, JSON, Text, ForeignKey, Table, Enum, Integer
 from sqlalchemy.orm import relationship
 from .base import TenantBaseModel, EncryptedMixin
 import enum
