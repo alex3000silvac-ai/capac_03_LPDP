@@ -2,10 +2,10 @@ from sqlalchemy import Column, String, Text, Integer, Boolean, ForeignKey, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from app.models.base import TenantBaseModel
+from app.models.base import BaseModel
 
 
-class ModuloCapacitacion(TenantBaseModel):
+class ModuloCapacitacion(BaseModel):
     __tablename__ = "modulos_capacitacion"
     
     codigo = Column(String(50), unique=True, nullable=False)
@@ -21,7 +21,7 @@ class ModuloCapacitacion(TenantBaseModel):
     evaluaciones = relationship("EvaluacionModulo", back_populates="modulo")
 
 
-class LeccionCapacitacion(TenantBaseModel):
+class LeccionCapacitacion(BaseModel):
     __tablename__ = "lecciones_capacitacion"
     
     modulo_id = Column(UUID(as_uuid=True), ForeignKey("modulos_capacitacion.id"))
@@ -39,7 +39,7 @@ class LeccionCapacitacion(TenantBaseModel):
     progresos = relationship("ProgresoLeccion", back_populates="leccion")
 
 
-class EjercicioPractico(TenantBaseModel):
+class EjercicioPractico(BaseModel):
     __tablename__ = "ejercicios_practicos"
     
     codigo = Column(String(50), unique=True, nullable=False)
@@ -58,7 +58,7 @@ class EjercicioPractico(TenantBaseModel):
     casos_uso = relationship("CasoUsoEjercicio", back_populates="ejercicio")
 
 
-class CasoEstudio(TenantBaseModel):
+class CasoEstudio(BaseModel):
     __tablename__ = "casos_estudio"
     
     codigo = Column(String(50), unique=True, nullable=False)
@@ -79,7 +79,7 @@ class CasoEstudio(TenantBaseModel):
     ejercicios = relationship("CasoUsoEjercicio", back_populates="caso_estudio")
 
 
-class CasoUsoEjercicio(TenantBaseModel):
+class CasoUsoEjercicio(BaseModel):
     __tablename__ = "caso_uso_ejercicios"
     
     caso_estudio_id = Column(UUID(as_uuid=True), ForeignKey("casos_estudio.id"))
@@ -91,7 +91,7 @@ class CasoUsoEjercicio(TenantBaseModel):
     ejercicio = relationship("EjercicioPractico", back_populates="casos_uso")
 
 
-class ProgresoLeccion(TenantBaseModel):
+class ProgresoLeccion(BaseModel):
     __tablename__ = "progreso_lecciones"
     
     usuario_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
@@ -107,7 +107,7 @@ class ProgresoLeccion(TenantBaseModel):
     leccion = relationship("LeccionCapacitacion", back_populates="progresos")
 
 
-class EvaluacionModulo(TenantBaseModel):
+class EvaluacionModulo(BaseModel):
     __tablename__ = "evaluaciones_modulo"
     
     modulo_id = Column(UUID(as_uuid=True), ForeignKey("modulos_capacitacion.id"))

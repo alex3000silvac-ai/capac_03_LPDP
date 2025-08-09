@@ -2,10 +2,10 @@ from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Text, Uniq
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from app.models.base import TenantBaseModel
+from app.models.base import BaseModel
 
 
-class ProgresoCapacitacion(TenantBaseModel):
+class ProgresoCapacitacion(BaseModel):
     __tablename__ = "progreso_capacitacion"
     __table_args__ = (
         UniqueConstraint('usuario_id', 'modulo'),
@@ -23,7 +23,7 @@ class ProgresoCapacitacion(TenantBaseModel):
     usuario = relationship("Usuario", back_populates="progreso_capacitacion")
 
 
-class SesionEntrevista(TenantBaseModel):
+class SesionEntrevista(BaseModel):
     __tablename__ = "sesiones_entrevista"
     
     organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
@@ -40,7 +40,7 @@ class SesionEntrevista(TenantBaseModel):
     respuestas = relationship("RespuestaEntrevista", back_populates="sesion", cascade="all, delete-orphan")
 
 
-class RespuestaEntrevista(TenantBaseModel):
+class RespuestaEntrevista(BaseModel):
     __tablename__ = "respuestas_entrevista"
     
     sesion_id = Column(UUID(as_uuid=True), ForeignKey("sesiones_entrevista.id", ondelete="CASCADE"))

@@ -51,35 +51,37 @@ from .auditoria import (
     ReporteCumplimiento
 )
 
+# COMENTADO: Los modelos antiguos causan conflictos con SQLAlchemy
 # Importar modelos antiguos para compatibilidad
-try:
-    from .organizacion import Organizacion
-    from .usuario import Usuario
-    # COMENTADO: Conflicto con ActividadTratamiento del módulo inventario
-    # from .actividad import (
-    #     ActividadTratamiento as ActividadTratamientoOld,
-    #     CategoriaDato,
-    #     ActividadDato,
-    #     CategoriaTitular,
-    #     ActividadTitular,
-    #     SistemaActivo,
-    #     ActividadSistema,
-    #     Destinatario,
-    #     ActividadFlujo
-    # )
-    from .capacitacion import ProgresoCapacitacion, SesionEntrevista, RespuestaEntrevista
-    
-    # Agregar a __all__ si existen
-    modelos_antiguos = [
-        "Organizacion",
-        "Usuario",
-        "ProgresoCapacitacion",
-        "SesionEntrevista",
-        "RespuestaEntrevista"
-    ]
-except ImportError:
-    # Si no existen los modelos antiguos, continuar sin ellos
-    modelos_antiguos = []
+# try:
+#     from .organizacion import Organizacion
+#     from .usuario import Usuario
+#     # COMENTADO: Conflicto con ActividadTratamiento del módulo inventario
+#     # from .actividad import (
+#     #     ActividadTratamiento as ActividadTratamientoOld,
+#     #     CategoriaDato,
+#     #     ActividadDato,
+#     #     CategoriaTitular,
+#     #     ActividadTitular,
+#     #     SistemaActivo,
+#     #     ActividadSistema,
+#     #     Destinatario,
+#     #     ActividadFlujo
+#     # )
+#     from .capacitacion import ProgresoCapacitacion, SesionEntrevista, RespuestaEntrevista
+#     
+#     # Agregar a __all__ si existen
+#     modelos_antiguos = [
+#         "Organizacion",
+#         "Usuario",
+#         "ProgresoCapacitacion",
+#         "SesionEntrevista",
+#         "RespuestaEntrevista"
+#     ]
+# except ImportError:
+#     # Si no existen los modelos antiguos, continuar sin ellos
+#     modelos_antiguos = []
+modelos_antiguos = []
 
 __all__ = [
     # Base

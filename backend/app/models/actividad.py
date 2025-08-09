@@ -2,10 +2,10 @@ from sqlalchemy import Column, String, Text, Boolean, ForeignKey, ARRAY, UniqueC
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from app.models.base import TenantBaseModel
+from app.models.base import BaseModel
 
 
-class ActividadTratamiento(TenantBaseModel):
+class ActividadTratamiento(BaseModel):
     __tablename__ = "actividades_tratamiento"
     
     organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
@@ -34,7 +34,7 @@ class ActividadTratamiento(TenantBaseModel):
     flujos = relationship("ActividadFlujo", back_populates="actividad", cascade="all, delete-orphan")
 
 
-class CategoriaDato(TenantBaseModel):
+class CategoriaDato(BaseModel):
     __tablename__ = "categorias_datos"
     
     organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
@@ -49,7 +49,7 @@ class CategoriaDato(TenantBaseModel):
     actividades = relationship("ActividadDato", back_populates="categoria_dato")
 
 
-class ActividadDato(TenantBaseModel):
+class ActividadDato(BaseModel):
     __tablename__ = "actividad_datos"
     __table_args__ = (
         UniqueConstraint('actividad_id', 'categoria_dato_id'),
@@ -67,7 +67,7 @@ class ActividadDato(TenantBaseModel):
     categoria_dato = relationship("CategoriaDato", back_populates="actividades")
 
 
-class CategoriaTitular(TenantBaseModel):
+class CategoriaTitular(BaseModel):
     __tablename__ = "categorias_titulares"
     
     organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
@@ -81,7 +81,7 @@ class CategoriaTitular(TenantBaseModel):
     actividades = relationship("ActividadTitular", back_populates="categoria_titular")
 
 
-class ActividadTitular(TenantBaseModel):
+class ActividadTitular(BaseModel):
     __tablename__ = "actividad_titulares"
     __table_args__ = (
         UniqueConstraint('actividad_id', 'categoria_titular_id'),
@@ -97,7 +97,7 @@ class ActividadTitular(TenantBaseModel):
     categoria_titular = relationship("CategoriaTitular", back_populates="actividades")
 
 
-class SistemaActivo(TenantBaseModel):
+class SistemaActivo(BaseModel):
     __tablename__ = "sistemas_activos"
     
     organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
@@ -114,7 +114,7 @@ class SistemaActivo(TenantBaseModel):
     actividades = relationship("ActividadSistema", back_populates="sistema")
 
 
-class ActividadSistema(TenantBaseModel):
+class ActividadSistema(BaseModel):
     __tablename__ = "actividad_sistemas"
     __table_args__ = (
         UniqueConstraint('actividad_id', 'sistema_id'),
@@ -130,7 +130,7 @@ class ActividadSistema(TenantBaseModel):
     sistema = relationship("SistemaActivo", back_populates="actividades")
 
 
-class Destinatario(TenantBaseModel):
+class Destinatario(BaseModel):
     __tablename__ = "destinatarios"
     
     organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
@@ -147,7 +147,7 @@ class Destinatario(TenantBaseModel):
     flujos = relationship("ActividadFlujo", back_populates="destinatario")
 
 
-class ActividadFlujo(TenantBaseModel):
+class ActividadFlujo(BaseModel):
     __tablename__ = "actividad_flujos"
     __table_args__ = (
         UniqueConstraint('actividad_id', 'destinatario_id'),
