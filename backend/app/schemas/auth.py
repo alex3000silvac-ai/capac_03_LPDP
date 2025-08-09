@@ -19,6 +19,13 @@ class TokenRefresh(BaseModel):
     refresh_token: str
 
 
+class TokenData(BaseModel):
+    """Datos del token decodificado"""
+    sub: str
+    tenant_id: Optional[str] = None
+    exp: Optional[int] = None
+
+
 class LoginRequest(BaseModel):
     """Solicitud de login"""
     username: str
@@ -56,7 +63,7 @@ class PasswordChange(BaseModel):
     new_password: str
     
     class Config:
-        min_anystr_length = 8
+        str_min_length = 8
 
 
 class PasswordReset(BaseModel):
@@ -70,4 +77,4 @@ class PasswordResetConfirm(BaseModel):
     new_password: str
     
     class Config:
-        min_anystr_length = 8
+        str_min_length = 8
