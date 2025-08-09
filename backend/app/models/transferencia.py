@@ -266,7 +266,8 @@ class EvaluacionPais(TenantBaseModel):
     requiere_actualizacion = Column(Boolean, default=False)
     
     # Relaciones
-    transferencias = relationship("TransferenciaInternacional", back_populates="evaluacion_pais")
+    # COMENTADO: Relación sin foreign key causa error
+    # transferencias = relationship("TransferenciaInternacional", back_populates="evaluacion_pais")
     
     def __repr__(self):
         return f"<EvaluacionPais(pais={self.nombre_pais}, nivel={self.nivel_proteccion})>"
