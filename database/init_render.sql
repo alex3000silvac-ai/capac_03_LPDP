@@ -1,5 +1,5 @@
--- Script simplificado de inicialización
--- Solo las tablas esenciales para empezar
+-- Script de inicialización para Render
+-- Sin DO blocks para evitar traducciones automáticas
 
 -- Extensiones
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS modulos_acceso (
     UNIQUE(empresa_id, modulo_codigo)
 );
 
--- Función simplificada para crear esquema tenant
+-- Función para crear esquema tenant
 CREATE OR REPLACE FUNCTION create_tenant_schema(schema_name TEXT)
 RETURNS VOID AS $$
 BEGIN
@@ -110,122 +110,90 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Insertar tenant demo
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM tenants WHERE id = '550e8400-e29b-41d4-a716-446655440000') THEN
-        INSERT INTO tenants (id, name, domain, schema_name, is_active) 
-        VALUES ('550e8400-e29b-41d4-a716-446655440000', 'Empresa Demo', 'demo.juridicadigital.cl', 'tenant_demo', true);
-    END IF;
-END $$;
+INSERT INTO tenants (id, name, domain, schema_name, is_active) 
+VALUES ('550e8400-e29b-41d4-a716-446655440000', 'Empresa Demo', 'demo.juridicadigital.cl', 'tenant_demo', true)
+ON CONFLICT (id) DO NOTHING;
 
 -- Insertar empresa demo
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM empresas WHERE id = '550e8400-e29b-41d4-a716-446655440000') THEN
-        INSERT INTO empresas (id, tenant_id, rut, razon_social, giro, comuna, ciudad, email_contacto) 
-        VALUES (
-            '550e8400-e29b-41d4-a716-446655440000', 
-            '550e8400-e29b-41d4-a716-446655440000',
-            '76.123.456-7', 
-            'Empresa Demo S.A.', 
-            'Tecnología', 
-            'Las Condes', 
-            'Santiago', 
-            'admin@demo.cl'
-        );
-    END IF;
-END $$;
+INSERT INTO empresas (id, tenant_id, rut, razon_social, giro, comuna, ciudad, email_contacto) 
+VALUES (
+    '550e8400-e29b-41d4-a716-446655440000', 
+    '550e8400-e29b-41d4-a716-446655440000',
+    '76.123.456-7', 
+    'Empresa Demo S.A.', 
+    'Tecnología', 
+    'Las Condes', 
+    'Santiago', 
+    'admin@demo.cl'
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- Insertar licencia demo
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM licencias WHERE empresa_id = '550e8400-e29b-41d4-a716-446655440000') THEN
-        INSERT INTO licencias (empresa_id, tipo_licencia, fecha_inicio, fecha_expiracion, clave_licencia, max_usuarios) 
-        VALUES (
-            '550e8400-e29b-41d4-a716-446655440000', 
-            'demo', 
-            CURRENT_DATE, 
-            CURRENT_DATE + INTERVAL '90 days',
-            'DEMO-2024-0001', 
-            50
-        );
-    END IF;
-END $$;
+INSERT INTO licencias (empresa_id, tipo_licencia, fecha_inicio, fecha_expiracion, clave_licencia, max_usuarios) 
+VALUES (
+    '550e8400-e29b-41d4-a716-446655440000', 
+    'demo', 
+    CURRENT_DATE, 
+    CURRENT_DATE + INTERVAL '90 days',
+    'DEMO-2024-0001', 
+    50
+)
+ON CONFLICT (clave_licencia) DO NOTHING;
 
 -- Insertar acceso a módulos
-DO $$
-DECLARE
-    modulo VARCHAR;
-    modulos VARCHAR[] := ARRAY['MOD-1', 'MOD-2', 'MOD-3', 'MOD-4', 'MOD-5', 'MOD-6', 'MOD-7'];
-BEGIN
-    FOREACH modulo IN ARRAY modulos
-    LOOP
-        INSERT INTO modulos_acceso (empresa_id, modulo_codigo, fecha_activacion)
-        VALUES ('550e8400-e29b-41d4-a716-446655440000', modulo, CURRENT_DATE)
-        ON CONFLICT (empresa_id, modulo_codigo) DO NOTHING;
-    END LOOP;
-END $$;
+INSERT INTO modulos_acceso (empresa_id, modulo_codigo, fecha_activacion)
+VALUES 
+    ('550e8400-e29b-41d4-a716-446655440000', 'MOD-1', CURRENT_DATE),
+    ('550e8400-e29b-41d4-a716-446655440000', 'MOD-2', CURRENT_DATE),
+    ('550e8400-e29b-41d4-a716-446655440000', 'MOD-3', CURRENT_DATE),
+    ('550e8400-e29b-41d4-a716-446655440000', 'MOD-4', CURRENT_DATE),
+    ('550e8400-e29b-41d4-a716-446655440000', 'MOD-5', CURRENT_DATE),
+    ('550e8400-e29b-41d4-a716-446655440000', 'MOD-6', CURRENT_DATE),
+    ('550e8400-e29b-41d4-a716-446655440000', 'MOD-7', CURRENT_DATE)
+ON CONFLICT (empresa_id, modulo_codigo) DO NOTHING;
 
 -- Crear esquema tenant demo
 SELECT create_tenant_schema('tenant_demo');
 
 -- Insertar roles en tenant demo
-DO $$
-BEGIN
-    -- Admin role
-    INSERT INTO tenant_demo.roles (tenant_id, name, code, description, permissions, is_system)
-    VALUES (
+INSERT INTO tenant_demo.roles (tenant_id, name, code, description, permissions, is_system)
+VALUES 
+    (
         '550e8400-e29b-41d4-a716-446655440000',
         'Administrador',
         'admin',
         'Administrador del sistema',
         '["*"]',
         true
-    ) ON CONFLICT (tenant_id, code) DO NOTHING;
-    
-    -- User role
-    INSERT INTO tenant_demo.roles (tenant_id, name, code, description, permissions, is_system)
-    VALUES (
+    ),
+    (
         '550e8400-e29b-41d4-a716-446655440000',
         'Usuario',
         'user',
         'Usuario estándar',
         '["capacitacion.*", "recursos.read"]',
         true
-    ) ON CONFLICT (tenant_id, code) DO NOTHING;
-END $$;
+    )
+ON CONFLICT (tenant_id, code) DO NOTHING;
 
 -- Insertar usuario admin demo
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM tenant_demo.users WHERE email = 'admin@demo.cl') THEN
-        INSERT INTO tenant_demo.users (
-            tenant_id, 
-            username, 
-            email, 
-            password_hash, 
-            first_name, 
-            last_name, 
-            is_active, 
-            is_dpo
-        ) VALUES (
-            '550e8400-e29b-41d4-a716-446655440000',
-            'admin',
-            'admin@demo.cl',
-            '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewKyNiGczCRJyWFK', -- Admin123!@#
-            'Admin',
-            'Demo',
-            true,
-            true
-        );
-    END IF;
-END $$;
-
--- Confirmación
-DO $$
-BEGIN
-    RAISE NOTICE 'Inicialización completada';
-    RAISE NOTICE 'Tenant: demo.juridicadigital.cl';
-    RAISE NOTICE 'Usuario: admin@demo.cl';
-    RAISE NOTICE 'Password: Admin123!@#';
-END $$;
+INSERT INTO tenant_demo.users (
+    tenant_id, 
+    username, 
+    email, 
+    password_hash, 
+    first_name, 
+    last_name, 
+    is_active, 
+    is_dpo
+) VALUES (
+    '550e8400-e29b-41d4-a716-446655440000',
+    'admin',
+    'admin@demo.cl',
+    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewKyNiGczCRJyWFK',
+    'Admin',
+    'Demo',
+    true,
+    true
+)
+ON CONFLICT (tenant_id, email) DO NOTHING;

@@ -20,8 +20,8 @@ def init_database():
         
         print("📊 Ejecutando script de inicialización...")
         
-        # Leer y ejecutar el script SQL
-        with open('database/init_complete_system.sql', 'r') as f:
+        # Leer y ejecutar el script SQL (usar versión para Render sin DO blocks)
+        with open('database/init_render.sql', 'r') as f:
             sql_script = f.read()
             cur.execute(sql_script)
         
