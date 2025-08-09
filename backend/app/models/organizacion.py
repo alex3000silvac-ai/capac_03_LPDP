@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String, Boolean
 from sqlalchemy.orm import relationship
 
-from app.models.base import BaseModel
+from app.models.base import TenantBaseModel
 
 
-class Organizacion(BaseModel):
+class Organizacion(TenantBaseModel):
     __tablename__ = "organizaciones"
     
     nombre = Column(String(255), nullable=False)

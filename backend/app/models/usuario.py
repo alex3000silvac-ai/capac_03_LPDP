@@ -2,10 +2,10 @@ from sqlalchemy import Column, String, Boolean, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from app.models.base import BaseModel
+from app.models.base import TenantBaseModel
 
 
-class Usuario(BaseModel):
+class Usuario(TenantBaseModel):
     __tablename__ = "usuarios"
     
     organizacion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.organizaciones.id"))
