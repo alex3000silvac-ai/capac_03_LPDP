@@ -142,3 +142,5 @@ api_router.include_router(
 #     prefix="/reportes",
 #     tags=["reportes"]
 # )
+
+# NOTA: Organizaciones no está incluido en el router principal

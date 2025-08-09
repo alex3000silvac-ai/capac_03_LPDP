@@ -81,6 +81,14 @@ class EmpresaInfo(EmpresaBase):
         from_attributes = True
 
 
+class ModuloAccesoCreate(BaseModel):
+    """Crear acceso a módulo"""
+    modulo_codigo: str
+    activo: bool = True
+    fecha_activacion: Optional[datetime] = None
+    fecha_expiracion: Optional[datetime] = None
+
+
 class ModuloAccesoInfo(BaseModel):
     """Información de acceso a módulo"""
     id: str
