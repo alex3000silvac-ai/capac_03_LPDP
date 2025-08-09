@@ -24,7 +24,7 @@ class ModuloCapacitacion(TenantBaseModel):
 class LeccionCapacitacion(TenantBaseModel):
     __tablename__ = "lecciones_capacitacion"
     
-    modulo_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.modulos_capacitacion.id"))
+    modulo_id = Column(UUID(as_uuid=True), ForeignKey("modulos_capacitacion.id"))
     codigo = Column(String(50), unique=True, nullable=False)
     titulo = Column(String(255), nullable=False)
     tipo = Column(String(50))  # teoria, video, ejercicio_guiado, caso_practico, quiz
@@ -82,8 +82,8 @@ class CasoEstudio(TenantBaseModel):
 class CasoUsoEjercicio(TenantBaseModel):
     __tablename__ = "caso_uso_ejercicios"
     
-    caso_estudio_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.casos_estudio.id"))
-    ejercicio_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.ejercicios_practicos.id"))
+    caso_estudio_id = Column(UUID(as_uuid=True), ForeignKey("casos_estudio.id"))
+    ejercicio_id = Column(UUID(as_uuid=True), ForeignKey("ejercicios_practicos.id"))
     orden = Column(Integer)
     
     # Relaciones
@@ -94,8 +94,8 @@ class CasoUsoEjercicio(TenantBaseModel):
 class ProgresoLeccion(TenantBaseModel):
     __tablename__ = "progreso_lecciones"
     
-    usuario_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.usuarios.id"))
-    leccion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.lecciones_capacitacion.id"))
+    usuario_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
+    leccion_id = Column(UUID(as_uuid=True), ForeignKey("lecciones_capacitacion.id"))
     estado = Column(String(50))  # no_iniciado, en_progreso, completado
     tiempo_dedicado = Column(Integer)  # segundos
     intentos = Column(Integer, default=0)
@@ -110,8 +110,8 @@ class ProgresoLeccion(TenantBaseModel):
 class EvaluacionModulo(TenantBaseModel):
     __tablename__ = "evaluaciones_modulo"
     
-    modulo_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.modulos_capacitacion.id"))
-    usuario_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.usuarios.id"))
+    modulo_id = Column(UUID(as_uuid=True), ForeignKey("modulos_capacitacion.id"))
+    usuario_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
     tipo = Column(String(50))  # quiz, ejercicio_completo, proyecto_final
     puntaje_obtenido = Column(Integer)
     puntaje_maximo = Column(Integer)

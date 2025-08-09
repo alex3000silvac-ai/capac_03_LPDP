@@ -12,7 +12,7 @@ class ProgresoCapacitacion(TenantBaseModel):
         {"schema": "lpdp"}
     )
     
-    usuario_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.usuarios.id"))
+    usuario_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
     modulo = Column(String(100))
     estado = Column(String(50))  # no_iniciado, en_progreso, completado
     porcentaje_completado = Column(Integer, default=0)
@@ -26,9 +26,9 @@ class ProgresoCapacitacion(TenantBaseModel):
 class SesionEntrevista(TenantBaseModel):
     __tablename__ = "sesiones_entrevista"
     
-    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.organizaciones.id"))
-    entrevistador_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.usuarios.id"))
-    entrevistado_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.usuarios.id"))
+    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
+    entrevistador_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
+    entrevistado_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
     area_negocio = Column(String(100))
     estado = Column(String(50))  # programada, en_progreso, completada, cancelada
     notas = Column(Text)
@@ -43,10 +43,10 @@ class SesionEntrevista(TenantBaseModel):
 class RespuestaEntrevista(TenantBaseModel):
     __tablename__ = "respuestas_entrevista"
     
-    sesion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.sesiones_entrevista.id", ondelete="CASCADE"))
+    sesion_id = Column(UUID(as_uuid=True), ForeignKey("sesiones_entrevista.id", ondelete="CASCADE"))
     pregunta_clave = Column(String(100))  # identificar_actividad, entender_proposito, etc
     respuesta = Column(Text)
-    actividad_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.actividades_tratamiento.id"))
+    actividad_id = Column(UUID(as_uuid=True), ForeignKey("actividades_tratamiento.id"))
     orden = Column(Integer)
     
     # Relaciones

@@ -8,7 +8,7 @@ from app.models.base import TenantBaseModel
 class Usuario(TenantBaseModel):
     __tablename__ = "usuarios"
     
-    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.organizaciones.id"))
+    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
     email = Column(String(255), unique=True, nullable=False)
     nombre = Column(String(255), nullable=False)
     password_hash = Column(String(255))

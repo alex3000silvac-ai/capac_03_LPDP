@@ -8,11 +8,11 @@ from app.models.base import TenantBaseModel
 class ActividadTratamiento(TenantBaseModel):
     __tablename__ = "actividades_tratamiento"
     
-    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.organizaciones.id"))
+    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
     codigo_actividad = Column(String(50), unique=True, nullable=False)
     nombre_actividad = Column(String(255), nullable=False)
     descripcion = Column(Text)
-    responsable_proceso = Column(UUID(as_uuid=True), ForeignKey("lpdp.usuarios.id"))
+    responsable_proceso = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
     area_negocio = Column(String(100))
     finalidad_principal = Column(Text, nullable=False)
     finalidades_adicionales = Column(ARRAY(Text))
@@ -22,8 +22,8 @@ class ActividadTratamiento(TenantBaseModel):
     politica_eliminacion = Column(Text)
     medidas_seguridad_desc = Column(Text)
     estado = Column(String(50), default="borrador")
-    creado_por = Column(UUID(as_uuid=True), ForeignKey("lpdp.usuarios.id"))
-    actualizado_por = Column(UUID(as_uuid=True), ForeignKey("lpdp.usuarios.id"))
+    creado_por = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
+    actualizado_por = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
     
     # Relaciones
     organizacion = relationship("Organizacion", back_populates="actividades_tratamiento")
@@ -37,7 +37,7 @@ class ActividadTratamiento(TenantBaseModel):
 class CategoriaDato(TenantBaseModel):
     __tablename__ = "categorias_datos"
     
-    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.organizaciones.id"))
+    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
     nombre = Column(String(255), nullable=False)
     descripcion = Column(Text)
     clasificacion_sensibilidad = Column(String(50), nullable=False)
@@ -56,8 +56,8 @@ class ActividadDato(TenantBaseModel):
         {"schema": "lpdp"}
     )
     
-    actividad_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.actividades_tratamiento.id", ondelete="CASCADE"))
-    categoria_dato_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.categorias_datos.id"))
+    actividad_id = Column(UUID(as_uuid=True), ForeignKey("actividades_tratamiento.id", ondelete="CASCADE"))
+    categoria_dato_id = Column(UUID(as_uuid=True), ForeignKey("categorias_datos.id"))
     clasificacion_sensibilidad = Column(String(50), nullable=False)
     detalle_datos = Column(Text)
     es_obligatorio = Column(Boolean, default=False)
@@ -70,7 +70,7 @@ class ActividadDato(TenantBaseModel):
 class CategoriaTitular(TenantBaseModel):
     __tablename__ = "categorias_titulares"
     
-    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.organizaciones.id"))
+    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
     nombre = Column(String(255), nullable=False)
     descripcion = Column(Text)
     es_nna = Column(Boolean, default=False)
@@ -88,8 +88,8 @@ class ActividadTitular(TenantBaseModel):
         {"schema": "lpdp"}
     )
     
-    actividad_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.actividades_tratamiento.id", ondelete="CASCADE"))
-    categoria_titular_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.categorias_titulares.id"))
+    actividad_id = Column(UUID(as_uuid=True), ForeignKey("actividades_tratamiento.id", ondelete="CASCADE"))
+    categoria_titular_id = Column(UUID(as_uuid=True), ForeignKey("categorias_titulares.id"))
     cantidad_aproximada = Column(String(50))
     
     # Relaciones
@@ -100,12 +100,12 @@ class ActividadTitular(TenantBaseModel):
 class SistemaActivo(TenantBaseModel):
     __tablename__ = "sistemas_activos"
     
-    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.organizaciones.id"))
+    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
     nombre = Column(String(255), nullable=False)
     tipo = Column(String(50))
     descripcion = Column(Text)
     ubicacion = Column(String(255))
-    responsable_tecnico = Column(UUID(as_uuid=True), ForeignKey("lpdp.usuarios.id"))
+    responsable_tecnico = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
     nivel_seguridad = Column(String(50))
     activo = Column(Boolean, default=True)
     
@@ -121,8 +121,8 @@ class ActividadSistema(TenantBaseModel):
         {"schema": "lpdp"}
     )
     
-    actividad_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.actividades_tratamiento.id", ondelete="CASCADE"))
-    sistema_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.sistemas_activos.id"))
+    actividad_id = Column(UUID(as_uuid=True), ForeignKey("actividades_tratamiento.id", ondelete="CASCADE"))
+    sistema_id = Column(UUID(as_uuid=True), ForeignKey("sistemas_activos.id"))
     tipo_uso = Column(String(50))
     
     # Relaciones
@@ -133,7 +133,7 @@ class ActividadSistema(TenantBaseModel):
 class Destinatario(TenantBaseModel):
     __tablename__ = "destinatarios"
     
-    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.organizaciones.id"))
+    organizacion_id = Column(UUID(as_uuid=True), ForeignKey("organizaciones.id"))
     nombre = Column(String(255), nullable=False)
     tipo = Column(String(50), nullable=False)
     rut = Column(String(20))
@@ -154,8 +154,8 @@ class ActividadFlujo(TenantBaseModel):
         {"schema": "lpdp"}
     )
     
-    actividad_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.actividades_tratamiento.id", ondelete="CASCADE"))
-    destinatario_id = Column(UUID(as_uuid=True), ForeignKey("lpdp.destinatarios.id"))
+    actividad_id = Column(UUID(as_uuid=True), ForeignKey("actividades_tratamiento.id", ondelete="CASCADE"))
+    destinatario_id = Column(UUID(as_uuid=True), ForeignKey("destinatarios.id"))
     proposito_transferencia = Column(Text)
     frecuencia = Column(String(50))
     medio_transferencia = Column(String(100))
