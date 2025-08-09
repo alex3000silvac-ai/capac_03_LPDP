@@ -20,10 +20,26 @@ def init_database():
         
         print("📊 Ejecutando script de inicialización...")
         
-        # Leer y ejecutar el script SQL (usar versión para Render sin DO blocks)
-        with open('database/init_render.sql', 'r') as f:
-            sql_script = f.read()
-            cur.execute(sql_script)
+        # Primero verificar si hay tablas mal creadas
+        cur.execute("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'tenants' 
+            AND table_schema = 'public'
+        """)
+        columns = [col[0] for col in cur.fetchall()]
+        
+        if columns and 'name' not in columns:
+            print("⚠️  Detectada estructura incorrecta. Recreando tablas...")
+            # Usar script de fix
+            with open('database/fix_render.sql', 'r') as f:
+                sql_script = f.read()
+                cur.execute(sql_script)
+        else:
+            # Usar script normal
+            with open('database/init_render.sql', 'r') as f:
+                sql_script = f.read()
+                cur.execute(sql_script)
         
         print("✅ Base de datos inicializada correctamente")
         
