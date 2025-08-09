@@ -125,7 +125,8 @@ class TransferenciaInternacional(TenantBaseModel):
     # Relaciones
     garantias = relationship("GarantiaAdecuada", back_populates="transferencia")
     clausulas = relationship("ClausulaContractual", back_populates="transferencia")
-    evaluacion_pais = relationship("EvaluacionPais", back_populates="transferencias")
+    # COMENTADO: Relación sin foreign key causa error
+    # evaluacion_pais = relationship("EvaluacionPais", back_populates="transferencias")
     
     def __repr__(self):
         return f"<TransferenciaInternacional(codigo={self.codigo}, pais={self.importador_pais})>"
