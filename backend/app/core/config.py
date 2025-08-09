@@ -1,7 +1,7 @@
 """
 Configuración central del sistema multi-tenant
 """
-from typing import List, Optional
+from typing import List, Optional, Dict, ClassVar
 from pydantic_settings import BaseSettings
 from pydantic import validator
 import secrets
@@ -62,7 +62,7 @@ class Settings(BaseSettings):
     ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "Admin123!@#")
     
     # Precios base de módulos (CLP)
-    MODULE_PRICES = {
+    MODULE_PRICES: ClassVar[Dict[str, int]] = {
         "MOD-1": 150000,  # Consentimientos
         "MOD-2": 120000,  # ARCOPOL
         "MOD-3": 180000,  # Inventario
