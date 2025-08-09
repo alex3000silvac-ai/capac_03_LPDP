@@ -16,7 +16,7 @@ from app.api.v1.endpoints import (
     auditoria,
     capacitacion,
     # Endpoints anteriores que siguen funcionando
-    actividades,
+    # actividades,  # COMENTADO: Conflicto con inventario
     categorias,
     entrevistas,
     reportes
@@ -116,12 +116,12 @@ api_router.include_router(
     tags=["Sistema de Capacitación"]
 )
 
-# Endpoints anteriores (compatibilidad)
-api_router.include_router(
-    actividades.router,
-    prefix="/actividades",
-    tags=["actividades"]
-)
+# Endpoints anteriores (compatibilidad) - COMENTADO POR CONFLICTO
+# api_router.include_router(
+#     actividades.router,
+#     prefix="/actividades",
+#     tags=["actividades"]
+# )
 
 api_router.include_router(
     categorias.router,

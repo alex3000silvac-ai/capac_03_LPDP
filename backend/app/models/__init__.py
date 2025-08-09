@@ -55,31 +55,24 @@ from .auditoria import (
 try:
     from .organizacion import Organizacion
     from .usuario import Usuario
-    from .actividad import (
-        ActividadTratamiento as ActividadTratamientoOld,
-        CategoriaDato,
-        ActividadDato,
-        CategoriaTitular,
-        ActividadTitular,
-        SistemaActivo,
-        ActividadSistema,
-        Destinatario,
-        ActividadFlujo
-    )
+    # COMENTADO: Conflicto con ActividadTratamiento del módulo inventario
+    # from .actividad import (
+    #     ActividadTratamiento as ActividadTratamientoOld,
+    #     CategoriaDato,
+    #     ActividadDato,
+    #     CategoriaTitular,
+    #     ActividadTitular,
+    #     SistemaActivo,
+    #     ActividadSistema,
+    #     Destinatario,
+    #     ActividadFlujo
+    # )
     from .capacitacion import ProgresoCapacitacion, SesionEntrevista, RespuestaEntrevista
     
     # Agregar a __all__ si existen
     modelos_antiguos = [
         "Organizacion",
         "Usuario",
-        "CategoriaDato",
-        "ActividadDato",
-        "CategoriaTitular",
-        "ActividadTitular",
-        "SistemaActivo",
-        "ActividadSistema",
-        "Destinatario",
-        "ActividadFlujo",
         "ProgresoCapacitacion",
         "SesionEntrevista",
         "RespuestaEntrevista"
