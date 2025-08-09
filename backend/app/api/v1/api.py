@@ -19,7 +19,7 @@ from app.api.v1.endpoints import (
     # actividades,  # COMENTADO: Conflicto con inventario
     # categorias,  # COMENTADO: Usa modelos antiguos que causan conflicto
     entrevistas,
-    reportes
+    # reportes  # COMENTADO: Usa modelos antiguos (ActividadDato) que causan conflicto
 )
 
 api_router = APIRouter()
@@ -136,8 +136,9 @@ api_router.include_router(
     tags=["entrevistas"]
 )
 
-api_router.include_router(
-    reportes.router,
-    prefix="/reportes",
-    tags=["reportes"]
-)
+# COMENTADO: Usa modelos antiguos que causan conflicto
+# api_router.include_router(
+#     reportes.router,
+#     prefix="/reportes",
+#     tags=["reportes"]
+# )
