@@ -55,7 +55,7 @@ app.add_middleware(
 # Middleware de hosts confiables
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*.juridicadigital.cl", "localhost", "127.0.0.1"]
+    allowed_hosts=["*.juridicadigital.cl", "*.onrender.com", "localhost", "127.0.0.1"]
 )
 
 
