@@ -14,12 +14,8 @@ from app.api.v1.endpoints import (
     dpia,
     transferencias,
     auditoria,
-    # capacitacion,  # COMENTADO: Usa modelos antiguos que causan conflicto
-    # Endpoints anteriores que siguen funcionando
-    # actividades,  # COMENTADO: Conflicto con inventario
-    # categorias,  # COMENTADO: Usa modelos antiguos que causan conflicto
-    # entrevistas,  # COMENTADO: Usa modelos antiguos que causan conflicto
-    # reportes  # COMENTADO: Usa modelos antiguos (ActividadDato) que causan conflicto
+    categorias,
+    reportes
 )
 
 api_router = APIRouter()
@@ -109,40 +105,16 @@ api_router.include_router(
     tags=["MOD-7: Auditoría y Cumplimiento"]
 )
 
-# COMENTADO: Usa modelos antiguos que causan conflicto
-# Sistema de Capacitación
-# api_router.include_router(
-#     capacitacion.router,
-#     prefix="/capacitacion",
-#     tags=["Sistema de Capacitación"]
-# )
+api_router.include_router(
+    categorias.router,
+    prefix="/categorias",
+    tags=["categorias"]
+)
 
-# Endpoints anteriores (compatibilidad) - COMENTADO POR CONFLICTO
-# api_router.include_router(
-#     actividades.router,
-#     prefix="/actividades",
-#     tags=["actividades"]
-# )
-
-# COMENTADO: Usa modelos antiguos que causan conflicto
-# api_router.include_router(
-#     categorias.router,
-#     prefix="/categorias",
-#     tags=["categorias"]
-# )
-
-# COMENTADO: Usa modelos antiguos que causan conflicto
-# api_router.include_router(
-#     entrevistas.router,
-#     prefix="/entrevistas",
-#     tags=["entrevistas"]
-# )
-
-# COMENTADO: Usa modelos antiguos que causan conflicto
-# api_router.include_router(
-#     reportes.router,
-#     prefix="/reportes",
-#     tags=["reportes"]
-# )
+api_router.include_router(
+    reportes.router,
+    prefix="/reportes",
+    tags=["reportes"]
+)
 
 # NOTA: Organizaciones no está incluido en el router principal

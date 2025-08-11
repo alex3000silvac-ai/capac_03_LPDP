@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -7,10 +7,8 @@ from sqlalchemy import func
 from app.core.database import get_db
 from app.models import (
     ActividadTratamiento,
-    ActividadDato,
-    CategoriaDato,
-    ActividadFlujo,
-    Destinatario
+    CategoriaDatos,
+    DestinatarioDatos
 )
 
 router = APIRouter()
@@ -18,45 +16,40 @@ router = APIRouter()
 
 @router.get("/resumen-general")
 def obtener_resumen_general(
-    organizacion_id: UUID = None,
+    organizacion_id: Optional[UUID] = None,
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """Obtener resumen general del inventario de datos"""
     # Base query
     query_base = db.query(ActividadTratamiento)
     if organizacion_id:
-        query_base = query_base.filter(ActividadTratamiento.organizacion_id == organizacion_id)
+        query_base = query_base.filter(ActividadTratamiento.tenant_id == organizacion_id)
     
-    # Total de actividades por estado
-    actividades_por_estado = dict(
-        query_base.with_entities(
-            ActividadTratamiento.estado,
-            func.count(ActividadTratamiento.id)
-        ).group_by(ActividadTratamiento.estado).all()
-    )
+    # Total de actividades por estado (using is_active field)
+    actividades_activas = query_base.filter(ActividadTratamiento.is_active == True).count()
+    actividades_inactivas = query_base.filter(ActividadTratamiento.is_active == False).count()
+    
+    actividades_por_estado = {
+        "activo": actividades_activas,
+        "inactivo": actividades_inactivas
+    }
     
     # Total de actividades por área
     actividades_por_area = dict(
         query_base.with_entities(
-            ActividadTratamiento.area_negocio,
+            ActividadTratamiento.area_responsable,
             func.count(ActividadTratamiento.id)
-        ).group_by(ActividadTratamiento.area_negocio).all()
+        ).group_by(ActividadTratamiento.area_responsable).all()
     )
     
-    # Datos sensibles
-    datos_sensibles = db.query(func.count(ActividadDato.id)).join(
-        CategoriaDato
-    ).filter(
-        CategoriaDato.clasificacion_sensibilidad == "sensible"
+    # Datos sensibles - simplified since ActividadDato doesn't exist
+    datos_sensibles = db.query(func.count(CategoriaDatos.id)).filter(
+        CategoriaDatos.es_sensible == True
     ).scalar()
     
-    # Transferencias internacionales
-    transferencias_internacionales = db.query(
-        func.count(func.distinct(ActividadFlujo.actividad_id))
-    ).join(
-        Destinatario
-    ).filter(
-        Destinatario.es_transferencia_internacional == True
+    # Transferencias internacionales - simplified since ActividadFlujo doesn't exist
+    transferencias_internacionales = db.query(func.count(DestinatarioDatos.id)).filter(
+        DestinatarioDatos.es_internacional == True
     ).scalar()
     
     return {
@@ -77,62 +70,51 @@ def obtener_actividades_riesgo(
     """Identificar actividades de alto riesgo que requieren atención"""
     riesgos = []
     
-    # 1. Actividades con datos sensibles sin medidas de seguridad documentadas
-    actividades_sensibles_sin_seguridad = db.query(ActividadTratamiento).join(
-        ActividadDato
-    ).join(
-        CategoriaDato
-    ).filter(
-        CategoriaDato.clasificacion_sensibilidad == "sensible",
-        (ActividadTratamiento.medidas_seguridad_desc == None) | 
-        (ActividadTratamiento.medidas_seguridad_desc == "")
-    ).distinct().all()
+    # 1. Actividades con transferencias internacionales
+    actividades_internacional = db.query(ActividadTratamiento).filter(
+        ActividadTratamiento.tiene_transferencia_internacional == True
+    ).all()
     
-    for actividad in actividades_sensibles_sin_seguridad:
+    for actividad in actividades_internacional:
         riesgos.append({
             "actividad_id": actividad.id,
-            "codigo": actividad.codigo_actividad,
-            "nombre": actividad.nombre_actividad,
-            "tipo_riesgo": "datos_sensibles_sin_seguridad",
-            "descripcion": "Actividad que trata datos sensibles sin medidas de seguridad documentadas",
+            "codigo": actividad.codigo,
+            "nombre": actividad.nombre,
+            "tipo_riesgo": "transferencia_internacional",
+            "descripcion": "Actividad con transferencias internacionales que requiere revisión",
             "nivel_riesgo": "alto"
         })
     
-    # 2. Actividades con transferencias internacionales sin garantías
-    actividades_internacional_sin_garantias = db.query(ActividadTratamiento).join(
-        ActividadFlujo
-    ).join(
-        Destinatario
-    ).filter(
-        Destinatario.es_transferencia_internacional == True,
-        (Destinatario.garantias_transferencia == None) |
-        (Destinatario.garantias_transferencia == "")
-    ).distinct().all()
-    
-    for actividad in actividades_internacional_sin_garantias:
-        riesgos.append({
-            "actividad_id": actividad.id,
-            "codigo": actividad.codigo_actividad,
-            "nombre": actividad.nombre_actividad,
-            "tipo_riesgo": "transferencia_internacional_sin_garantias",
-            "descripcion": "Transferencia internacional de datos sin garantías documentadas",
-            "nivel_riesgo": "alto"
-        })
-    
-    # 3. Actividades sin política de retención definida
+    # 2. Actividades sin política de retención definida
     actividades_sin_retencion = db.query(ActividadTratamiento).filter(
-        (ActividadTratamiento.plazo_conservacion_general == None) |
-        (ActividadTratamiento.plazo_conservacion_general == "")
+        (ActividadTratamiento.periodo_retencion == None) |
+        (ActividadTratamiento.periodo_retencion == "")
     ).all()
     
     for actividad in actividades_sin_retencion:
         riesgos.append({
             "actividad_id": actividad.id,
-            "codigo": actividad.codigo_actividad,
-            "nombre": actividad.nombre_actividad,
+            "codigo": actividad.codigo,
+            "nombre": actividad.nombre,
             "tipo_riesgo": "sin_politica_retencion",
             "descripcion": "Actividad sin política de retención de datos definida",
             "nivel_riesgo": "medio"
+        })
+    
+    # 3. Actividades que requieren DPIA pero no la tienen
+    actividades_sin_dpia = db.query(ActividadTratamiento).filter(
+        ActividadTratamiento.requiere_dpia == True,
+        ActividadTratamiento.dpia_realizada == False
+    ).all()
+    
+    for actividad in actividades_sin_dpia:
+        riesgos.append({
+            "actividad_id": actividad.id,
+            "codigo": actividad.codigo,
+            "nombre": actividad.nombre,
+            "tipo_riesgo": "dpia_pendiente",
+            "descripcion": "Actividad que requiere DPIA pero no se ha realizado",
+            "nivel_riesgo": "alto"
         })
     
     return {
@@ -151,42 +133,28 @@ def obtener_mapa_datos_sensibles(
     db: Session = Depends(get_db),
 ):
     """Obtener mapa de dónde se encuentran los datos sensibles"""
-    # Query para obtener actividades con datos sensibles y sus sistemas
-    resultado = db.query(
-        ActividadTratamiento.codigo_actividad,
-        ActividadTratamiento.nombre_actividad,
-        ActividadTratamiento.area_negocio,
-        CategoriaDato.nombre.label("categoria_dato"),
-        func.array_agg(func.distinct(Destinatario.nombre)).label("destinatarios")
-    ).join(
-        ActividadDato
-    ).join(
-        CategoriaDato
-    ).outerjoin(
-        ActividadFlujo
-    ).outerjoin(
-        Destinatario
-    ).filter(
-        CategoriaDato.clasificacion_sensibilidad == "sensible"
-    ).group_by(
-        ActividadTratamiento.codigo_actividad,
-        ActividadTratamiento.nombre_actividad,
-        ActividadTratamiento.area_negocio,
-        CategoriaDato.nombre
+    actividades = db.query(ActividadTratamiento).filter(
+        ActividadTratamiento.is_active == True
+    ).all()
+    
+    categorias_sensibles = db.query(CategoriaDatos).filter(
+        CategoriaDatos.es_sensible == True
     ).all()
     
     mapa_sensibles = []
-    for row in resultado:
-        mapa_sensibles.append({
-            "codigo_actividad": row.codigo_actividad,
-            "nombre_actividad": row.nombre_actividad,
-            "area_negocio": row.area_negocio,
-            "categoria_dato_sensible": row.categoria_dato,
-            "compartido_con": [d for d in row.destinatarios if d] if row.destinatarios else []
-        })
+    for actividad in actividades:
+        for categoria in categorias_sensibles:
+            mapa_sensibles.append({
+                "codigo_actividad": actividad.codigo,
+                "nombre_actividad": actividad.nombre,
+                "area_negocio": actividad.area_responsable,
+                "categoria_dato_sensible": categoria.nombre,
+                "sistemas": actividad.sistemas if actividad.sistemas else []
+            })
     
     return {
-        "total_actividades_con_datos_sensibles": len(set(r["codigo_actividad"] for r in mapa_sensibles)),
+        "total_actividades": len(actividades),
+        "total_categorias_sensibles": len(categorias_sensibles),
         "detalle": mapa_sensibles
     }
 
@@ -203,26 +171,24 @@ def evaluar_cumplimiento_principios(
     
     # Principio de Licitud - Actividades con base legal definida
     con_base_legal = db.query(func.count(ActividadTratamiento.id)).filter(
-        ActividadTratamiento.base_licitud != None,
-        ActividadTratamiento.base_licitud != ""
+        ActividadTratamiento.base_legal_id != None
     ).scalar()
     
     # Principio de Finalidad - Actividades con finalidad clara
     con_finalidad = db.query(func.count(ActividadTratamiento.id)).filter(
-        ActividadTratamiento.finalidad_principal != None,
-        ActividadTratamiento.finalidad_principal != ""
+        ActividadTratamiento.proposito_principal != None,
+        ActividadTratamiento.proposito_principal != ""
     ).scalar()
     
     # Principio de Proporcionalidad - Actividades con retención definida
     con_retencion = db.query(func.count(ActividadTratamiento.id)).filter(
-        ActividadTratamiento.plazo_conservacion_general != None,
-        ActividadTratamiento.plazo_conservacion_general != ""
+        ActividadTratamiento.periodo_retencion != None,
+        ActividadTratamiento.periodo_retencion != ""
     ).scalar()
     
-    # Principio de Seguridad - Actividades con medidas documentadas
+    # Principio de Seguridad - Actividades con evaluación de riesgo
     con_seguridad = db.query(func.count(ActividadTratamiento.id)).filter(
-        ActividadTratamiento.medidas_seguridad_desc != None,
-        ActividadTratamiento.medidas_seguridad_desc != ""
+        ActividadTratamiento.evaluacion_riesgo != None
     ).scalar()
     
     return {
