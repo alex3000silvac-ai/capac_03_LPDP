@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { modulesService } from '../services/modules';
 import {
   Box,
   Grid,
@@ -38,8 +37,6 @@ const MotionCard = motion(Card);
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   // Datos de ejemplo
   const modulos = [

@@ -28,7 +28,6 @@ import {
   Science as ScienceIcon,
   Timeline as TimelineIcon,
   EmojiEvents as TrophyIcon,
-  ChevronLeft as ChevronLeftIcon,
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
