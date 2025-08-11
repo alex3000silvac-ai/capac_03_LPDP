@@ -27,15 +27,10 @@ import {
   DialogActions,
   Avatar,
   Divider,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
 import {
   Science,
   Business,
-  People,
-  Storage,
-  Security,
   CheckCircle,
   Error,
   Info,

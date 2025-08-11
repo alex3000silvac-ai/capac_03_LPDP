@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Grid,
@@ -10,12 +10,10 @@ import {
   Stepper,
   Step,
   StepLabel,
-  StepContent,
   Paper,
   List,
   ListItem,
   ListItemText,
-  Chip,
   LinearProgress,
   Alert,
   Radio,
@@ -25,14 +23,12 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from '@mui/material';
 import {
-  PlayCircle,
   CheckCircle,
   ExpandMore,
   Lightbulb,
@@ -46,7 +42,6 @@ import {
 import Confetti from 'react-confetti';
 
 function ModuloCapacitacion() {
-  const { moduloId } = useParams();
   const navigate = useNavigate();
   const [leccionActual, setLeccionActual] = useState(0);
   const [respuestaQuiz, setRespuestaQuiz] = useState('');
@@ -251,7 +246,7 @@ function ModuloCapacitacion() {
                           {seccion.contenido}
                         </Typography>
                         {seccion.ejemplo && (
-                          <Paper sx={{ p: 2, bgcolor: 'warning.light', bgcolor: 'warning.50' }}>
+                          <Paper sx={{ p: 2, bgcolor: 'warning.light' }}>
                             <Typography variant="body2">
                               <strong>Ejemplo:</strong> {seccion.ejemplo}
                             </Typography>
