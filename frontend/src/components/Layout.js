@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import {
   Box,
   Drawer,
@@ -15,6 +16,7 @@ import {
   ListItemText,
   Avatar,
   Chip,
+  Button,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
@@ -26,7 +28,6 @@ import {
   Science as ScienceIcon,
   Timeline as TimelineIcon,
   EmojiEvents as TrophyIcon,
-  ChevronLeft as ChevronLeftIcon,
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
@@ -71,6 +72,7 @@ function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout, user } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -220,8 +222,15 @@ function Layout({ children }) {
               color="primary"
               variant="outlined"
             />
+            <Button 
+              color="inherit" 
+              onClick={logout}
+              sx={{ ml: 2 }}
+            >
+              Cerrar Sesión ({user?.username})
+            </Button>
             <Avatar sx={{ bgcolor: theme.palette.secondary.main }}>
-              JD
+              {user?.username?.charAt(0)?.toUpperCase() || 'U'}
             </Avatar>
           </Box>
         </Toolbar>

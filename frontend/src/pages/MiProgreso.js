@@ -29,15 +29,11 @@ import {
   School,
   CheckCircle,
   Lock,
-  TrendingUp,
-  Timer,
   Download,
   Star,
   WorkspacePremium,
-  Psychology,
-  Science,
 } from '@mui/icons-material';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 function MiProgreso() {
   // Datos de ejemplo
@@ -114,7 +110,6 @@ function MiProgreso() {
     { nombre: 'Bases de Licitud', valor: 70 },
   ];
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
     <Box>

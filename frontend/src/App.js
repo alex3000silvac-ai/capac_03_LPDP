@@ -3,7 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+
 // Páginas
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ModuloCapacitacion from './pages/ModuloCapacitacion';
 import SimulacionEntrevista from './pages/SimulacionEntrevista';
@@ -92,23 +95,59 @@ const theme = createTheme({
   },
 });
 
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Layout><Dashboard /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/modulo/:moduloId" element={
+        <ProtectedRoute>
+          <Layout><ModuloCapacitacion /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/simulacion/:area" element={
+        <ProtectedRoute>
+          <Layout><SimulacionEntrevista /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/sandbox" element={
+        <ProtectedRoute>
+          <Layout><PracticaSandbox /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/mi-progreso" element={
+        <ProtectedRoute>
+          <Layout><MiProgreso /></Layout>
+        </ProtectedRoute>
+      } />
+    </Routes>
+  );
+}
+
 function App() {
-  // Deploy trigger - force rebuild
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/modulo/:moduloId" element={<ModuloCapacitacion />} />
-            <Route path="/simulacion/:area" element={<SimulacionEntrevista />} />
-            <Route path="/sandbox" element={<PracticaSandbox />} />
-            <Route path="/mi-progreso" element={<MiProgreso />} />
-          </Routes>
-        </Layout>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

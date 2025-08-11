@@ -22,12 +22,8 @@ import {
   DialogContent,
   DialogActions,
   Divider,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
 import {
-  Chat,
-  Person,
   Timer,
   CheckCircle,
   Error,
@@ -35,9 +31,7 @@ import {
   Send,
   Help,
   Psychology,
-  School,
   TipsAndUpdates,
-  Refresh,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
@@ -47,7 +41,7 @@ function SimulacionEntrevista() {
   const { area } = useParams();
   const [mensajes, setMensajes] = useState([]);
   const [preguntaActual, setPreguntaActual] = useState('');
-  const [tiempoTranscurrido, setTiempoTranscurrido] = useState(0);
+  const [tiempoTranscurrido] = useState(0);
   const [pistasUsadas, setPistasUsadas] = useState(0);
   const [dialogPista, setDialogPista] = useState(false);
   const [retroalimentacion, setRetroalimentacion] = useState(null);
