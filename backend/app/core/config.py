@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # Base de datos principal (master)
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
-        "postgresql://postgres:password@localhost/juridica_digital_master"
+        "postgresql://postgres:password@localhost:5432/juridica_digital_master"
     )
     
     # Seguridad
@@ -40,6 +40,8 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://localhost:8080",
         "https://app.juridicadigital.cl",
+        "https://*.onrender.com",
+        "https://scldp-frontend.onrender.com",
     ]
     
     # Email
