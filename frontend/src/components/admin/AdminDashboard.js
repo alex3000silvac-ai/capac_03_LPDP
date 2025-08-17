@@ -36,6 +36,7 @@ import {
   Refresh as RefreshIcon,
   Download as DownloadIcon,
   Visibility as ViewIcon,
+  Info as InfoIcon,
 } from '@mui/icons-material';
 import { API_BASE_URL } from '../../config';
 
