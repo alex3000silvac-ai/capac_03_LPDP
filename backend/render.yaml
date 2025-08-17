@@ -1,56 +1,40 @@
 services:
   - type: web
-    name: lpdp-backend
+    name: scldp-backend
     env: python
-    plan: starter
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      alembic upgrade head
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.16
+        value: 3.11
       - key: DATABASE_URL
-        fromDatabase:
-          name: lpdp-postgres
-          property: connectionString
-      - key: DATABASE_URL_MASTER
-        fromDatabase:
-          name: lpdp-postgres
-          property: connectionString
+        sync: false
       - key: SECRET_KEY
-        generateValue: true
-      - key: LICENSE_ENCRYPTION_KEY
-        generateValue: true
-      - key: ALGORITHM
-        value: HS256
-      - key: ACCESS_TOKEN_EXPIRE_MINUTES
-        value: 30
-      - key: TENANT_SCHEMA_PREFIX
-        value: tenant_
+        sync: false
       - key: ENVIRONMENT
         value: production
       - key: DEBUG
         value: false
-      - key: SMTP_HOST
-        value: smtp.gmail.com
-      - key: SMTP_PORT
-        value: 587
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASSWORD
-        sync: false
-      - key: EMAILS_FROM_EMAIL
-        value: noreply@lpdp.cl
-      - key: EMAILS_FROM_NAME
-        value: Sistema LPDP
-      - key: ADMIN_EMAIL
-        value: admin@lpdp.cl
-      - key: ADMIN_PASSWORD
-        value: Admin123!
-      - key: MODULE_PRICES
-        value: '{"consentimientos": 50000, "arcopol": 30000, "inventario": 40000, "brechas": 35000, "dpia": 60000, "transferencias": 25000, "auditoria": 45000}'
-
-databases:
-  - name: lpdp-postgres
-    databaseName: lpdp_master
-    user: lpdp_user
-    plan: starter
+      - key: ALLOWED_ORIGINS
+        value: https://scldp-frontend.onrender.com
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: DB_POOL_SIZE
+        value: 10
+      - key: DB_MAX_OVERFLOW
+        value: 20
+      - key: DB_POOL_TIMEOUT
+        value: 30
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ENABLE_ACCESS_LOG
+        value: true
+      - key: BCRYPT_ROUNDS
+        value: 12
+      - key: SESSION_TIMEOUT
+        value: 3600
