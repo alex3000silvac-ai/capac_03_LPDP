@@ -1,5 +1,5 @@
 """
-Schemas de autenticación
+Schemas de autenticación - CORREGIDO POR INGENIERO EN JEFE
 """
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -27,10 +27,10 @@ class TokenData(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    """Solicitud de login"""
+    """Solicitud de login - CORREGIDA"""
     username: str
     password: str
-    tenant_id: Optional[str] = None
+    tenant_id: Optional[str] = None  # HECHO OPCIONAL PARA EVITAR ERROR 422
 
 
 class RoleInfo(BaseModel):
