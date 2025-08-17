@@ -11,6 +11,7 @@ from .brecha_service import BrechaService
 from .dpia_service import DPIAService
 from .transferencia_service import TransferenciaService
 from .auditoria_service import AuditoriaService
+from .email_service import EmailService, email_service
 
 __all__ = [
     "AuthService",
@@ -22,5 +23,7 @@ __all__ = [
     "BrechaService",
     "DPIAService",
     "TransferenciaService",
-    "AuditoriaService"
+    "AuditoriaService",
+    "EmailService",
+    "email_service"
 ]

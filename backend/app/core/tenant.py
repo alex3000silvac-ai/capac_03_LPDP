@@ -1,299 +1,242 @@
 """
-Sistema de gestión multi-tenant
+Middleware y utilidades para manejo de tenants
 """
-from typing import Optional, Dict, Any
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import Session, sessionmaker, scoped_session
-from sqlalchemy.pool import NullPool
-from contextlib import contextmanager
+from typing import Optional
+from fastapi import Request, HTTPException, status
+from sqlalchemy.orm import Session
 import logging
-from ..models.base import Base
-from ..models.tenant import Tenant
-from .config import settings
+
+from app.core.database import get_master_db, get_tenant_db
+from app.models.tenant import Tenant
+from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
-# Cache de conexiones por tenant
-_tenant_engines: Dict[str, Any] = {}
-_tenant_sessions: Dict[str, Any] = {}
-
-
-def get_master_db() -> Session:
-    """Obtiene una sesión a la base de datos master"""
-    engine = create_engine(
-        settings.DATABASE_URL,
-        pool_size=5,
-        max_overflow=10
-    )
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    return SessionLocal()
-
-
-def create_tenant_schema(tenant_id: str, db: Session) -> bool:
+async def get_tenant_from_request(request: Request) -> Optional[str]:
     """
-    Crea un nuevo esquema para un tenant
+    Extrae el tenant ID de la request
     """
-    try:
-        schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{tenant_id}"
-        
-        # Crear esquema
-        db.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_name}"))
-        db.commit()
-        
-        # Crear tablas en el esquema
-        engine = create_engine(
-            settings.DATABASE_URL,
-            connect_args={"options": f"-csearch_path={schema_name}"}
-        )
-        
-        # Crear todas las tablas del tenant
-        Base.metadata.create_all(bind=engine, tables=[
-            table for table in Base.metadata.tables.values()
-            if table.schema is None  # Solo tablas de tenant
-        ])
-        
-        logger.info(f"Schema created successfully for tenant: {tenant_id}")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Error creating schema for tenant {tenant_id}: {str(e)}")
-        db.rollback()
-        return False
-
-
-def drop_tenant_schema(tenant_id: str, db: Session) -> bool:
-    """
-    Elimina el esquema de un tenant (CUIDADO: elimina todos los datos)
-    """
-    try:
-        schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{tenant_id}"
-        
-        # Cerrar conexiones existentes
-        if tenant_id in _tenant_engines:
-            _tenant_engines[tenant_id].dispose()
-            del _tenant_engines[tenant_id]
-        
-        if tenant_id in _tenant_sessions:
-            del _tenant_sessions[tenant_id]
-        
-        # Eliminar esquema
-        db.execute(text(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE"))
-        db.commit()
-        
-        logger.info(f"Schema dropped successfully for tenant: {tenant_id}")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Error dropping schema for tenant {tenant_id}: {str(e)}")
-        db.rollback()
-        return False
-
-
-def get_tenant_db(tenant_id: str) -> Session:
-    """
-    Obtiene una sesión de base de datos para un tenant específico
-    """
-    if tenant_id not in _tenant_engines:
-        schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{tenant_id}"
-        
-        # Crear engine con schema específico
-        engine = create_engine(
-            settings.DATABASE_URL,
-            poolclass=NullPool,  # Sin pool para tenants
-            connect_args={
-                "options": f"-csearch_path={schema_name},{settings.MASTER_SCHEMA}"
-            }
-        )
-        
-        _tenant_engines[tenant_id] = engine
-        
-        # Crear session factory
-        session_factory = sessionmaker(
-            autocommit=False,
-            autoflush=False,
-            bind=engine
-        )
-        
-        _tenant_sessions[tenant_id] = scoped_session(session_factory)
-    
-    return _tenant_sessions[tenant_id]()
-
-
-@contextmanager
-def tenant_context(tenant_id: str):
-    """
-    Context manager para operaciones en un tenant
-    """
-    db = get_tenant_db(tenant_id)
-    try:
-        yield db
-        db.commit()
-    except Exception:
-        db.rollback()
-        raise
-    finally:
-        db.close()
-
-
-def get_tenant_from_request(request) -> Optional[str]:
-    """
-    Extrae el tenant_id de una request
-    
-    Puede venir de:
-    1. Header X-Tenant-ID
-    2. JWT token
-    3. Subdominio
-    4. Query parameter
-    """
-    # 1. Header
+    # Opción 1: Desde header X-Tenant-ID
     tenant_id = request.headers.get("X-Tenant-ID")
     if tenant_id:
         return tenant_id
     
-    # 2. JWT Token
-    if hasattr(request.state, "user") and request.state.user:
-        return request.state.user.get("tenant_id")
+    # Opción 2: Desde query parameter
+    tenant_id = request.query_params.get("tenant_id")
+    if tenant_id:
+        return tenant_id
     
-    # 3. Subdominio (ejemplo: empresa1.app.juridicadigital.cl)
+    # Opción 3: Desde path parameter (ej: /api/v1/tenants/{tenant_id}/...)
+    path_parts = request.url.path.split("/")
+    for i, part in enumerate(path_parts):
+        if part == "tenants" and i + 1 < len(path_parts):
+            potential_tenant = path_parts[i + 1]
+            if potential_tenant and potential_tenant != "me":
+                return potential_tenant
+    
+    # Opción 4: Desde subdominio
     host = request.headers.get("host", "")
     if "." in host:
         subdomain = host.split(".")[0]
-        if subdomain not in ["app", "www", "api"]:
+        if subdomain and subdomain not in ["www", "api", "localhost", "127"]:
             return subdomain
     
-    # 4. Query parameter (solo para ciertas rutas públicas)
-    return request.query_params.get("tenant_id")
+    return None
 
-
-def validate_tenant(tenant_id: str, db: Session) -> Optional[Tenant]:
+async def validate_tenant_access(request: Request, tenant_id: str) -> bool:
     """
-    Valida que un tenant existe y está activo
+    Valida que el usuario tenga acceso al tenant
     """
-    tenant = db.query(Tenant).filter(
-        Tenant.tenant_id == tenant_id,
-        Tenant.is_active == True
-    ).first()
-    
-    return tenant
-
-
-def get_tenant_config(tenant_id: str, category: str, key: str, db: Session) -> Any:
-    """
-    Obtiene una configuración específica del tenant
-    """
-    from ..models.tenant import TenantConfig
-    
-    config = db.query(TenantConfig).filter(
-        TenantConfig.tenant_id == tenant_id,
-        TenantConfig.category == category,
-        TenantConfig.key == key
-    ).first()
-    
-    if config:
-        return config.value
-    
-    # Retornar valor por defecto según la clave
-    defaults = {
-        "security": {
-            "require_mfa": False,
-            "session_timeout": 3600,
-            "max_login_attempts": 5
-        },
-        "ui": {
-            "theme": "light",
-            "language": "es",
-            "date_format": "DD/MM/YYYY"
-        },
-        "features": {
-            "enable_api": True,
-            "enable_webhooks": False,
-            "enable_exports": True
-        }
-    }
-    
-    return defaults.get(category, {}).get(key)
-
-
-def set_tenant_config(
-    tenant_id: str,
-    category: str,
-    key: str,
-    value: Any,
-    db: Session
-) -> bool:
-    """
-    Establece una configuración del tenant
-    """
-    from ..models.tenant import TenantConfig
-    
     try:
-        config = db.query(TenantConfig).filter(
-            TenantConfig.tenant_id == tenant_id,
-            TenantConfig.category == category,
-            TenantConfig.key == key
-        ).first()
+        # Obtener usuario del token
+        user = getattr(request.state, 'user', None)
+        if not user:
+            return False
         
-        if config:
-            config.value = value
-        else:
-            config = TenantConfig(
-                tenant_id=tenant_id,
-                category=category,
-                key=key,
-                value=value
-            )
-            db.add(config)
+        # Superusuarios tienen acceso a todos los tenants
+        if user.is_superuser:
+            return True
         
-        db.commit()
+        # Verificar que el usuario pertenezca al tenant
+        if user.tenant_id != tenant_id:
+            return False
+        
         return True
         
     except Exception as e:
-        logger.error(f"Error setting tenant config: {str(e)}")
-        db.rollback()
+        logger.error(f"Error validando acceso al tenant {tenant_id}: {e}")
         return False
 
+async def get_tenant_db(request: Request) -> Session:
+    """
+    Obtiene la sesión de base de datos para el tenant actual
+    """
+    tenant_id = getattr(request.state, 'tenant_id', None)
+    if not tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Tenant ID no especificado"
+        )
+    
+    return get_tenant_db(tenant_id)
 
-def cleanup_tenant_connections():
+async def get_master_db() -> Session:
     """
-    Limpia conexiones inactivas de tenants
+    Obtiene la sesión de base de datos master
     """
-    for tenant_id, engine in list(_tenant_engines.items()):
-        try:
-            # Verificar si hay conexiones activas
-            pool_status = engine.pool.status()
-            if "0 connections" in pool_status:
-                engine.dispose()
-                del _tenant_engines[tenant_id]
-                if tenant_id in _tenant_sessions:
-                    del _tenant_sessions[tenant_id]
-                logger.info(f"Cleaned up connections for tenant: {tenant_id}")
-        except Exception as e:
-            logger.error(f"Error cleaning up tenant {tenant_id}: {str(e)}")
+    return get_master_db()
 
+async def create_tenant_schema(tenant_id: str) -> bool:
+    """
+    Crea el esquema de base de datos para un nuevo tenant
+    """
+    try:
+        from app.core.database import create_tenant_schema as _create_schema
+        _create_schema(tenant_id)
+        logger.info(f"Esquema creado exitosamente para tenant {tenant_id}")
+        return True
+    except Exception as e:
+        logger.error(f"Error creando esquema para tenant {tenant_id}: {e}")
+        return False
 
-def get_tenant_stats(tenant_id: str, db: Session) -> Dict[str, Any]:
+async def drop_tenant_schema(tenant_id: str) -> bool:
     """
-    Obtiene estadísticas de uso del tenant
+    Elimina el esquema de base de datos de un tenant
     """
-    with tenant_context(tenant_id) as tenant_db:
-        stats = {
-            "users": tenant_db.execute(
-                text("SELECT COUNT(*) FROM users WHERE is_active = true")
-            ).scalar(),
-            "data_subjects": tenant_db.execute(
-                text("SELECT COUNT(*) FROM titulares_datos")
-            ).scalar(),
-            "consents": tenant_db.execute(
-                text("SELECT COUNT(*) FROM consentimientos WHERE estado = 'activo'")
-            ).scalar(),
-            "arcopol_requests": tenant_db.execute(
-                text("SELECT COUNT(*) FROM solicitudes_arcopol WHERE estado != 'completada'")
-            ).scalar(),
-            "storage_mb": tenant_db.execute(
-                text("""
-                    SELECT pg_database_size(current_database()) / 1024 / 1024
-                """)
-            ).scalar()
-        }
+    try:
+        from app.core.database import drop_tenant_schema as _drop_schema
+        _drop_schema(tenant_id)
+        logger.info(f"Esquema eliminado exitosamente para tenant {tenant_id}")
+        return True
+    except Exception as e:
+        logger.error(f"Error eliminando esquema para tenant {tenant_id}: {e}")
+        return False
+
+async def get_tenant_info(tenant_id: str) -> Optional[Tenant]:
+    """
+    Obtiene información del tenant
+    """
+    try:
+        with get_master_db() as db:
+            tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+            return tenant
+    except Exception as e:
+        logger.error(f"Error obteniendo información del tenant {tenant_id}: {e}")
+        return None
+
+async def list_active_tenants() -> list:
+    """
+    Lista todos los tenants activos
+    """
+    try:
+        with get_master_db() as db:
+            tenants = db.query(Tenant).filter(Tenant.is_active == True).all()
+            return tenants
+    except Exception as e:
+        logger.error(f"Error listando tenants activos: {e}")
+        return []
+
+async def check_tenant_license(tenant_id: str, module_code: str) -> bool:
+    """
+    Verifica si un tenant tiene licencia para un módulo específico
+    """
+    try:
+        tenant = await get_tenant_info(tenant_id)
+        if not tenant:
+            return False
         
-        return stats
+        # Verificar si el tenant tiene acceso al módulo
+        # Esto dependerá de tu modelo de licencias
+        return True  # Por ahora retorna True
+        
+    except Exception as e:
+        logger.error(f"Error verificando licencia del tenant {tenant_id} para módulo {module_code}: {e}")
+        return False
+
+async def get_tenant_user_count(tenant_id: str) -> int:
+    """
+    Obtiene el número de usuarios en un tenant
+    """
+    try:
+        with get_tenant_db(tenant_id) as db:
+            from app.models.user import User
+            count = db.query(User).count()
+            return count
+    except Exception as e:
+        logger.error(f"Error contando usuarios del tenant {tenant_id}: {e}")
+        return 0
+
+async def validate_tenant_limits(tenant_id: str) -> dict:
+    """
+    Valida los límites del tenant (usuarios, módulos, etc.)
+    """
+    try:
+        tenant = await get_tenant_info(tenant_id)
+        if not tenant:
+            return {"valid": False, "error": "Tenant no encontrado"}
+        
+        user_count = await get_tenant_user_count(tenant_id)
+        
+        # Verificar límite de usuarios
+        if tenant.max_users and user_count >= tenant.max_users:
+            return {
+                "valid": False,
+                "error": "Límite de usuarios alcanzado",
+                "current": user_count,
+                "limit": tenant.max_users
+            }
+        
+        # Verificar si es trial y ha expirado
+        if tenant.is_trial and tenant.trial_expires_at:
+            from datetime import datetime
+            if datetime.utcnow() > tenant.trial_expires_at:
+                return {
+                    "valid": False,
+                    "error": "Período de prueba expirado",
+                    "expired_at": tenant.trial_expires_at.isoformat()
+                }
+        
+        return {"valid": True}
+        
+    except Exception as e:
+        logger.error(f"Error validando límites del tenant {tenant_id}: {e}")
+        return {"valid": False, "error": str(e)}
+
+# Middleware para inyectar tenant_id en request.state
+async def tenant_middleware(request: Request, call_next):
+    """
+    Middleware que inyecta el tenant_id en request.state
+    """
+    try:
+        # Obtener tenant_id de la request
+        tenant_id = await get_tenant_from_request(request)
+        
+        if tenant_id:
+            # Validar acceso al tenant
+            has_access = await validate_tenant_access(request, tenant_id)
+            if not has_access:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Acceso denegado al tenant"
+                )
+            
+            # Inyectar tenant_id en request.state
+            request.state.tenant_id = tenant_id
+            
+            # Obtener información del tenant
+            tenant_info = await get_tenant_info(tenant_id)
+            if tenant_info:
+                request.state.tenant_info = tenant_info
+        
+        # Continuar con la request
+        response = await call_next(request)
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error en tenant middleware: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno del servidor"
+        )

@@ -1,113 +1,142 @@
 """
-Dependencias para FastAPI
+Dependencias para autenticación y autorización
 """
-from typing import Optional
-from fastapi import Depends, HTTPException, status
+from typing import Optional, List
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+from jose import JWTError, jwt
+from datetime import datetime
 
-from app.core.database import get_db
-from app.core.security import decode_token
-from app.models import User
+from app.core.config import settings
+from app.core.database import get_master_db
+from app.models.user import User
+from app.models.role import Role
+from app.models.permission import Permission
 
+# Esquema de autenticación
 security = HTTPBearer()
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_master_db)
 ) -> User:
     """
-    Obtiene el usuario actual desde el token JWT
+    Obtiene el usuario actual basado en el token JWT
     """
-    token = credentials.credentials
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="No se pudieron validar las credenciales",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     
-    # Decodificar token
-    payload = decode_token(token)
-    if not payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido",
-            headers={"WWW-Authenticate": "Bearer"}
+    try:
+        payload = jwt.decode(
+            credentials.credentials, 
+            settings.SECRET_KEY, 
+            algorithms=[settings.ALGORITHM]
         )
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
     
-    username = payload.get("sub")
-    tenant_id = payload.get("tenant_id")
-    
-    if not username:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    
-    # Buscar usuario
-    user = db.query(User).filter(
-        User.username == username,
-        User.tenant_id == tenant_id
-    ).first()
-    
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario no encontrado",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario inactivo",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+    # Buscar usuario en DB master primero
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise credentials_exception
     
     return user
 
-def get_current_superuser(
-    current_user: User = Depends(get_current_user)
-) -> User:
+def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
+    """
+    Verifica que el usuario actual esté activo
+    """
+    if not current_user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Usuario inactivo"
+        )
+    return current_user
+
+def get_current_superuser(current_user: User = Depends(get_current_active_user)) -> User:
     """
     Verifica que el usuario actual sea superadministrador
     """
     if not current_user.is_superuser:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tiene permisos de administrador"
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Acceso denegado: Se requieren privilegios de superadministrador"
         )
-    
     return current_user
 
-def get_current_active_user(
-    current_user: User = Depends(get_current_user)
+def require_permission(required_permissions: List[str]):
+    """
+    Decorador para verificar permisos específicos
+    """
+    def permission_checker(
+        current_user: User = Depends(get_current_active_user),
+        db: Session = Depends(get_master_db)
+    ) -> bool:
+        # Superusuarios tienen todos los permisos
+        if current_user.is_superuser:
+            return True
+        
+        # Verificar permisos del usuario
+        user_permissions = set()
+        for role in current_user.roles:
+            for permission in role.permissions:
+                user_permissions.add(permission.code)
+        
+        # Verificar si tiene todos los permisos requeridos
+        for required_perm in required_permissions:
+            if required_perm not in user_permissions:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Acceso denegado: Se requiere el permiso '{required_perm}'"
+                )
+        
+        return True
+    
+    return permission_checker
+
+def get_tenant_user(
+    request: Request,
+    current_user: User = Depends(get_current_active_user)
 ) -> User:
     """
-    Verifica que el usuario esté activo
+    Obtiene el usuario en el contexto del tenant actual
     """
-    if not current_user.is_active:
+    tenant_id = getattr(request.state, 'tenant_id', None)
+    if not tenant_id:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario inactivo"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Tenant ID no especificado"
+        )
+    
+    # Verificar que el usuario pertenezca al tenant
+    if current_user.tenant_id != tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario no pertenece al tenant especificado"
         )
     
     return current_user
 
-def verify_module_access(module_code: str):
-    """
-    Dependency factory para verificar acceso a módulos específicos
-    """
-    def _verify_access(
-        current_user: User = Depends(get_current_active_user),
-        db: Session = Depends(get_db)
-    ) -> User:
-        # TODO: Verificar que la empresa tenga acceso al módulo
-        # Por ahora, solo verificar que el usuario esté activo
-        return current_user
-    
-    return _verify_access
-
-def get_tenant_context(
+def get_optional_tenant_user(
+    request: Request,
     current_user: User = Depends(get_current_active_user)
-) -> str:
+) -> Optional[User]:
     """
-    Obtiene el contexto del tenant actual
+    Obtiene el usuario en el contexto del tenant (opcional)
     """
-    return current_user.tenant_id
+    tenant_id = getattr(request.state, 'tenant_id', None)
+    if not tenant_id:
+        return None
+    
+    # Verificar que el usuario pertenezca al tenant
+    if current_user.tenant_id != tenant_id:
+        return None
+    
+    return current_user

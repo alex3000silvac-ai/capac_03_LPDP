@@ -30,6 +30,8 @@ from app.schemas.user import (
     RoleInfo
 )
 import logging
+import secrets
+import string
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -357,3 +359,85 @@ async def create_role(
     db.refresh(role)
     
     return role
+
+
+@router.post("/{user_id}/reset-password")
+async def reset_user_password(
+    request: Request,
+    user_id: str,
+    current_user: User = Depends(get_current_active_user),
+    _: bool = Depends(require_permission(["users.manage", "users.reset_password"]))
+) -> Any:
+    """
+    Resetear la contraseña de un usuario y enviarla por email
+    """
+    db = get_tenant_db(request.state.tenant_id)
+    
+    # Obtener el usuario
+    user = db.query(User).filter(
+        User.id == user_id,
+        User.tenant_id == request.state.tenant_id
+    ).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+    
+    # Generar nueva contraseña segura
+    def generate_secure_password(length: int = 12) -> str:
+        """Genera una contraseña segura"""
+        alphabet = string.ascii_letters + string.digits + "!@#$%"
+        password = ''.join(secrets.choice(alphabet) for _ in range(length))
+        return password
+    
+    new_password = generate_secure_password()
+    
+    # Actualizar la contraseña del usuario
+    user.password_hash = get_password_hash(new_password)
+    user.password_reset_token = None
+    user.password_reset_expires = None
+    
+    # Registrar el cambio
+    user.updated_at = datetime.utcnow()
+    user.updated_by = current_user.id
+    
+    db.commit()
+    
+    # Desencriptar datos del usuario para el email
+    user_name = user.username  # Por defecto usar username
+    if user.first_name and user.last_name:
+        try:
+            first_name = decrypt_field(user.first_name, user.encryption_key_id)
+            last_name = decrypt_field(user.last_name, user.encryption_key_id)
+            user_name = f"{first_name} {last_name}"
+        except:
+            pass
+    
+    # Obtener información de la empresa/tenant
+    from app.models.tenant import Tenant
+    tenant = db.query(Tenant).filter(Tenant.id == request.state.tenant_id).first()
+    company_name = tenant.company_name if tenant else "Sistema LPDP"
+    
+    # Enviar email con la nueva contraseña
+    from app.services.email_service import email_service
+    
+    email_sent = email_service.send_password_reset_email(
+        to_email=user.email,
+        user_name=user_name,
+        new_password=new_password,
+        company_name=company_name
+    )
+    
+    # Log de auditoría
+    logger.info(f"Contraseña reseteada para usuario {user.username} por {current_user.username}")
+    
+    return {
+        "success": True,
+        "message": "Contraseña reseteada exitosamente",
+        "email_sent": email_sent,
+        "user_id": user_id,
+        "username": user.username,
+        "email": user.email
+    }

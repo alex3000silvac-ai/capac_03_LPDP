@@ -8,80 +8,84 @@ import secrets
 import os
 
 class Settings(BaseSettings):
-    # Configuración básica
-    PROJECT_NAME: str = "Jurídica Digital SPA - Sistema de Capacitación LPDP"
-    VERSION: str = "1.0.0"
+    # Configuración de Base de Datos
+    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/lpdp_master"
+    DATABASE_URL_MASTER: Optional[str] = None
+    
+    # Configuración de Supabase
+    SUPABASE_URL: Optional[str] = None
+    SUPABASE_KEY: Optional[str] = None
+    SUPABASE_ANON_KEY: Optional[str] = None
+    SUPABASE_SERVICE_ROLE_KEY: Optional[str] = None
+    
+    # Configuración de Seguridad
+    SECRET_KEY: str = "tu_clave_secreta_muy_larga_y_compleja_aqui_2024"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    # Configuración de Encriptación
+    LICENSE_ENCRYPTION_KEY: str = "tu_clave_de_encriptacion_32_caracteres_aqui_2024"
+    
+    # Configuración Multi-Tenant
+    TENANT_SCHEMA_PREFIX: str = "tenant_"
+    TENANT_DEFAULT_SCHEMA: str = "public"
+    
+    # Configuración de Email (SMTP)
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    EMAILS_FROM_EMAIL: str = "noreply@lpdp.cl"
+    EMAILS_FROM_NAME: str = "Sistema LPDP"
+    
+    # Configuración del Sistema
+    ENVIRONMENT: str = "development"
+    DEBUG: bool = True
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+    
+    # Configuración de API
     API_V1_STR: str = "/api/v1"
     
-    # Base de datos principal (master)
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_URL",
-        "postgresql://postgres:password@localhost/juridica_digital_master"
-    )
+    # Configuración de Admin
+    ADMIN_EMAIL: str = "admin@lpdp.cl"
+    ADMIN_PASSWORD: str = "Admin123!"
     
-    # Seguridad
-    SECRET_KEY: str = os.getenv("SECRET_KEY", secrets.token_urlsafe(32))
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 horas
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
-    
-    # Encriptación de licencias
-    LICENSE_ENCRYPTION_KEY: str = os.getenv(
-        "LICENSE_ENCRYPTION_KEY", 
-        secrets.token_urlsafe(32)
-    )
-    
-    # Multi-tenant
-    TENANT_SCHEMA_PREFIX: str = "tenant_"
-    MASTER_SCHEMA: str = "public"
-    
-    # CORS
-    BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:8080",
-        "https://app.juridicadigital.cl",
-    ]
-    
-    # Email
-    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    SMTP_PORT: int = 587
-    SMTP_USER: str = os.getenv("SMTP_USER", "")
-    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
-    EMAILS_FROM_EMAIL: str = "sistema@juridicadigital.cl"
-    EMAILS_FROM_NAME: str = "Jurídica Digital SPA"
-    
-    # Storage para documentos
-    UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "/app/uploads")
-    MAX_UPLOAD_SIZE: int = 50 * 1024 * 1024  # 50MB
-    
-    # Redis
-    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-    
-    # Administrador del sistema
-    ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@juridicadigital.cl")
-    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "Admin123!@#")
-    
-    # Precios base de módulos (CLP)
-    MODULE_PRICES: ClassVar[Dict[str, int]] = {
-        "MOD-1": 150000,  # Consentimientos
-        "MOD-2": 120000,  # ARCOPOL
-        "MOD-3": 180000,  # Inventario
-        "MOD-4": 100000,  # Brechas
-        "MOD-5": 140000,  # DPIA
-        "MOD-6": 90000,   # Transferencias
-        "MOD-7": 160000,  # Auditoría
+    # Precios de Módulos (CLP)
+    MODULE_PRICES: dict = {
+        "consentimientos": 50000,
+        "arcopol": 30000,
+        "inventario": 40000,
+        "brechas": 35000,
+        "dpia": 60000,
+        "transferencias": 25000,
+        "auditoria": 45000
     }
     
-    @validator("BACKEND_CORS_ORIGINS", pre=True)
-    def assemble_cors_origins(cls, v: List[str]) -> List[str]:
-        return [origin for origin in v if origin]
-    
-    # Entorno
-    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-    DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
+    # Configuración de Testing
+    TESTING: bool = False
     
     class Config:
-        case_sensitive = True
         env_file = ".env"
+        case_sensitive = True
+
+    @property
+    def is_supabase(self) -> bool:
+        """Verifica si estamos usando Supabase"""
+        return bool(self.SUPABASE_URL and self.SUPABASE_KEY)
+    
+    @property
+    def database_url(self) -> str:
+        """Retorna la URL de base de datos apropiada"""
+        if self.is_supabase:
+            return self.SUPABASE_URL
+        return self.DATABASE_URL
+    
+    @property
+    def master_database_url(self) -> str:
+        """Retorna la URL de la base de datos master"""
+        if self.DATABASE_URL_MASTER:
+            return self.DATABASE_URL_MASTER
+        return self.database_url
 
 settings = Settings()

@@ -26,7 +26,9 @@
       "Bash(# Probar variaciones de endpoints\necho \"\"=== Probando variaciones de endpoints ===\"\"\ncurl -L -s -w \"\"\\n/organizaciones: %{http_code}\\n\"\" https://scldp-backend.onrender.com/organizaciones -o /dev/null\ncurl -L -s -w \"\"/api/organizaciones: %{http_code}\\n\"\" https://scldp-backend.onrender.com/api/organizaciones -o /dev/null\ncurl -L -s -w \"\"/v1/organizaciones: %{http_code}\\n\"\" https://scldp-backend.onrender.com/v1/organizaciones -o /dev/null\n\n# Verificar si requiere autenticación\necho -e \"\"\\n=== Probando con header de autenticación ===\"\"\ncurl -L -s -w \"\"\\nCon Authorization Bearer: %{http_code}\\n\"\" -H \"\"Authorization: Bearer test-token\"\" https://scldp-backend.onrender.com/api/v1/organizaciones)",
       "Bash(grep:*)",
       "Bash(python:*)",
-      "Bash(./scripts/deploy_render.sh:*)"
+      "Bash(./scripts/deploy_render.sh:*)",
+      "Bash(nslookup:*)",
+      "Bash(host:*)"
     ],
     "deny": []
   }

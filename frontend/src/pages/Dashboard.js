@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -18,6 +18,7 @@ import {
   ListItemText,
   IconButton,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
   PlayCircleOutline,
@@ -32,43 +33,89 @@ import {
   InfoOutlined,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import { API_BASE_URL } from '../config';
 
 const MotionCard = motion(Card);
 
 function Dashboard() {
   const navigate = useNavigate();
+  const [modulos, setModulos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Datos de ejemplo
-  const modulos = [
-    {
-      id: 'MOD-001',
-      titulo: 'Introducción a la Protección de Datos',
-      descripcion: 'Fundamentos legales y conceptos básicos de la Ley N° 21.719',
-      duracion: '45 min',
-      progreso: 100,
-      estado: 'completado',
-      icono: '📖',
-    },
-    {
-      id: 'MOD-002',
-      titulo: 'El Arte de Descubrir Datos',
-      descripcion: 'Técnicas de levantamiento y entrevistas efectivas',
-      duracion: '90 min',
-      progreso: 60,
-      estado: 'en_progreso',
-      icono: '🔍',
-      actual: true,
-    },
-    {
-      id: 'MOD-003',
-      titulo: 'Taller Práctico: Tu Primer RAT',
-      descripcion: 'Aprende haciendo - Documenta una actividad real',
-      duracion: '120 min',
-      progreso: 0,
-      estado: 'bloqueado',
-      icono: '🛠️',
-    },
-  ];
+  useEffect(() => {
+    // Función para cargar los módulos desde la API
+    const cargarModulos = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Intenta obtener datos de la API real
+        const response = await fetch(`${API_BASE_URL}/api/v1/capacitacion/modulos`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Transforma los datos de la API al formato esperado
+          const modulosFormateados = data.modulos.map((modulo, index) => ({
+            id: modulo.id || `MOD-00${index + 1}`,
+            titulo: modulo.nombre || modulo.titulo,
+            descripcion: modulo.descripcion,
+            duracion: `${modulo.duracion_estimada || 45} min`,
+            progreso: modulo.progreso || (index === 0 ? 100 : index === 1 ? 60 : 0),
+            estado: modulo.estado || (index === 0 ? 'completado' : index === 1 ? 'en_progreso' : 'bloqueado'),
+            icono: modulo.icono || (index === 0 ? '📖' : index === 1 ? '🔍' : '🛠️'),
+            actual: index === 1,
+          }));
+          
+          setModulos(modulosFormateados);
+        } else {
+          throw new Error('No se pudo obtener los módulos');
+        }
+      } catch (err) {
+        console.error('Error al cargar módulos:', err);
+        setError('No se pudieron cargar los módulos. Mostrando datos de ejemplo.');
+        
+        // Si falla la API, usa datos de ejemplo
+        const modulosEjemplo = [
+          {
+            id: 'MOD-001',
+            titulo: 'Introducción a la Protección de Datos',
+            descripcion: 'Fundamentos legales y conceptos básicos de la Ley N° 21.719',
+            duracion: '45 min',
+            progreso: 100,
+            estado: 'completado',
+            icono: '📖',
+          },
+          {
+            id: 'MOD-002',
+            titulo: 'El Arte de Descubrir Datos',
+            descripcion: 'Técnicas de levantamiento y entrevistas efectivas',
+            duracion: '90 min',
+            progreso: 60,
+            estado: 'en_progreso',
+            icono: '🔍',
+            actual: true,
+          },
+          {
+            id: 'MOD-003',
+            titulo: 'Taller Práctico: Tu Primer RAT',
+            descripcion: 'Aprende haciendo - Documenta una actividad real',
+            duracion: '120 min',
+            progreso: 0,
+            estado: 'bloqueado',
+            icono: '🛠️',
+          },
+        ];
+        
+        setModulos(modulosEjemplo);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarModulos();
+  }, []); // Se ejecuta solo una vez al montar el componente
 
   const proximasActividades = [
     {
@@ -162,12 +209,30 @@ function Dashboard() {
         </Grid>
       </Grid>
 
+      {/* Mensaje de error si existe */}
+      {error && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
       {/* Módulos de Capacitación */}
       <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
         Tu Ruta de Aprendizaje
       </Typography>
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {modulos.map((modulo, index) => (
+      
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress sx={{ mb: 2 }} />
+            <Typography variant="body1" color="text.secondary">
+              Cargando cursos...
+            </Typography>
+          </Box>
+        </Box>
+      ) : (
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {modulos.map((modulo, index) => (
           <Grid item xs={12} md={4} key={modulo.id}>
             <MotionCard
               initial={{ opacity: 0, y: 20 }}
@@ -241,8 +306,9 @@ function Dashboard() {
               </CardActions>
             </MotionCard>
           </Grid>
-        ))}
-      </Grid>
+          ))}
+        </Grid>
+      )}
 
       {/* Sección de Práctica */}
       <Grid container spacing={3}>

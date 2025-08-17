@@ -7,9 +7,11 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import logging
+import os
+
 from app.core.config import settings
 from app.api.v1.api import api_router
-from app.core.tenant import cleanup_tenant_connections
+from app.core.tenant import cleanup_tenant_connections, get_tenant_db, tenant_middleware
 
 # Configurar logging
 logging.basicConfig(
@@ -23,40 +25,55 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Gestión del ciclo de vida de la aplicación"""
     # Startup
-    logger.info("Starting up Jurídica Digital LPDP System...")
-    
+    print("🚀 Iniciando Sistema LPDP en Render...")
+    print(f"🌐 Entorno: {os.getenv('ENVIRONMENT', 'development')}")
+    print(f"🗄️ Base de datos: {os.getenv('DATABASE_URL', 'No configurada')[:50]}...")
     yield
-    
     # Shutdown
-    logger.info("Shutting down...")
+    print("🛑 Cerrando Sistema LPDP...")
     cleanup_tenant_connections()
 
 
 # Crear aplicación
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version=settings.VERSION,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    docs_url=f"{settings.API_V1_STR}/docs",
-    redoc_url=f"{settings.API_V1_STR}/redoc",
+    title="Sistema LPDP - Ley 21.719",
+    description="Sistema integral de cumplimiento de la Ley de Protección de Datos Personales de Chile",
+    version="1.0.0",
+    openapi_url="/api/openapi.json",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
     lifespan=lifespan
 )
 
-# Configurar CORS
+# Configuración de CORS para producción
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origins=[
+        "https://lpdp-frontend.onrender.com",
+        "https://sistema-lpdp.onrender.com",
+        "http://localhost:3000",  # Para desarrollo local
+        "http://localhost:8000",  # Para desarrollo local
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["X-Total-Count", "X-Page", "X-Per-Page"]
 )
 
-# Middleware de hosts confiables
+# Middleware de hosts confiables para producción
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*.juridicadigital.cl", "*.onrender.com", "localhost", "127.0.0.1"]
+    allowed_hosts=[
+        "lpdp-backend.onrender.com",
+        "sistema-lpdp.onrender.com",
+        "localhost",
+        "127.0.0.1",
+    ]
 )
+
+# Middleware personalizado para multi-tenant
+@app.middleware("http")
+async def tenant_middleware_wrapper(request: Request, call_next):
+    return await tenant_middleware(request, call_next)
 
 
 @app.middleware("http")
@@ -86,26 +103,30 @@ async def catch_exceptions(request: Request, call_next):
         )
 
 
-# Incluir routers
-app.include_router(api_router, prefix=settings.API_V1_STR)
+# Incluir todas las rutas de la API
+app.include_router(api_router, prefix="/api/v1")
 
-
-@app.get("/")
-async def root():
-    """Endpoint raíz"""
-    return {
-        "name": settings.PROJECT_NAME,
-        "version": settings.VERSION,
-        "status": "active",
-        "docs": f"{settings.API_V1_STR}/docs"
-    }
-
-
+# Ruta de salud para Render
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
     return {
         "status": "healthy",
-        "service": settings.PROJECT_NAME,
-        "version": settings.VERSION
+        "service": "Sistema LPDP Backend",
+        "version": "1.0.0",
+        "environment": os.getenv("ENVIRONMENT", "development")
     }
+
+# Ruta raíz
+@app.get("/")
+async def root():
+    return {
+        "message": "Sistema LPDP - Ley 21.719",
+        "version": "1.0.0",
+        "docs": "/api/docs",
+        "health": "/health"
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

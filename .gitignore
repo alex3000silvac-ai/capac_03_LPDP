@@ -171,3 +171,4 @@ cython_debug/
 # Docker volumes (local)
 postgres-data/
 redis-data/
+.aider*
