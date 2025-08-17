@@ -1,130 +1,97 @@
 """
-Modelos de usuarios y autenticación
+Modelo de Usuario - CORREGIDO Y UNIFICADO
 """
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Table, Text, JSON, Integer
+from sqlalchemy import Column, String, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from .base import TenantBaseModel, Base
+from datetime import datetime
+import uuid
 
+from app.models.base import Base
 
-# Tabla de asociación para muchos a muchos
-user_roles = Table(
-    'user_roles',
-    Base.metadata,
-    Column('user_id', String(36), ForeignKey('users.id')),
-    Column('role_id', String(36), ForeignKey('roles.id')),
-    schema=None  # Se establece dinámicamente por tenant
-)
-
-
-class User(TenantBaseModel):
+class User(Base):
     """
-    Usuario del sistema
+    Modelo de Usuario - CORREGIDO
     """
     __tablename__ = "users"
-    
-    # Autenticación
-    username = Column(String(100), nullable=False)
-    email = Column(String(255), nullable=False)
-    password_hash = Column(String(255), nullable=False)
-    
-    # Información personal (encriptada)
-    first_name = Column(String(255))  # Encriptado
-    last_name = Column(String(255))   # Encriptado
-    rut = Column(String(20))          # Encriptado
-    phone = Column(String(50))        # Encriptado
-    
-    # Estado
-    is_active = Column(Boolean, default=True, nullable=False)
-    is_superuser = Column(Boolean, default=False, nullable=False)
-    is_dpo = Column(Boolean, default=False, nullable=False)  # Data Protection Officer
-    
-    # Seguridad
-    mfa_enabled = Column(Boolean, default=False)
-    mfa_secret = Column(String(255))  # Encriptado
-    last_login = Column(DateTime(timezone=True))
-    last_ip = Column(String(45))
-    failed_login_attempts = Column(Integer, default=0)
-    locked_until = Column(DateTime(timezone=True))
-    
-    # Tokens
-    email_verified = Column(Boolean, default=False)
-    email_verification_token = Column(String(255))
-    password_reset_token = Column(String(255))
-    password_reset_expires = Column(DateTime(timezone=True))
-    
-    # Preferencias
-    language = Column(String(5), default="es")
-    timezone = Column(String(50), default="America/Santiago")
-    ui_preferences = Column(JSON)
-    
-    # Notificaciones
-    notification_preferences = Column(JSON, default={
-        "email": {
-            "consent_updates": True,
-            "arcopol_requests": True,
-            "breach_notifications": True,
-            "system_alerts": True
-        },
-        "in_app": {
-            "all": True
-        }
-    })
-    
-    # Relaciones
-    roles = relationship("Role", secondary=user_roles, back_populates="users")
-    
-    # Departamento/Área
-    department = Column(String(100))
-    position = Column(String(100))
-    
-    def __repr__(self):
-        return f"<User(email={self.email}, tenant_id={self.tenant_id})>"
 
-
-class Role(TenantBaseModel):
-    """
-    Roles del sistema
-    """
-    __tablename__ = "roles"
-    
-    name = Column(String(100), nullable=False)
-    code = Column(String(50), nullable=False)  # admin, dpo, user, auditor, etc.
-    description = Column(Text)
-    
-    # Permisos como JSON
-    permissions = Column(JSON, default=[])
-    
-    # Control
-    is_system = Column(Boolean, default=False)  # Roles predefinidos del sistema
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    username = Column(String(50), unique=True, nullable=False, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    hashed_password = Column(String(255), nullable=False)  # CORREGIDO: usar hashed_password
+    first_name = Column(String(100), nullable=True)
+    last_name = Column(String(100), nullable=True)
+    is_superuser = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
-    
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=True)
+    empresa_id = Column(UUID(as_uuid=True), ForeignKey("empresas.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)
+    failed_login_attempts = Column(String(10), default="0")
+
     # Relaciones
-    users = relationship("User", secondary=user_roles, back_populates="roles")
-    
-    def __repr__(self):
-        return f"<Role(name={self.name}, code={self.code})>"
+    tenant = relationship("Tenant", back_populates="users")
+    empresa = relationship("Empresa", back_populates="users")
 
-
-class UserRole(TenantBaseModel):
-    """
-    Asignación de roles a usuarios con metadata adicional
-    """
-    __tablename__ = "user_role_assignments"
-    
-    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-    role_id = Column(String(36), ForeignKey('roles.id'), nullable=False)
-    
-    # Asignación temporal
-    valid_from = Column(DateTime(timezone=True))
-    valid_until = Column(DateTime(timezone=True))
-    
-    # Contexto de la asignación
-    assigned_by = Column(String(36))
-    assignment_reason = Column(Text)
-    
-    # Restricciones adicionales
-    module_restrictions = Column(JSON)  # Limitar rol a ciertos módulos
-    data_scope = Column(JSON)  # Limitar acceso a ciertos datos
-    
     def __repr__(self):
-        return f"<UserRole(user_id={self.user_id}, role_id={self.role_id})>"
+        return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
+
+    @property
+    def full_name(self):
+        """Nombre completo del usuario"""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        elif self.first_name:
+            return self.first_name
+        elif self.last_name:
+            return self.last_name
+        return self.username
+
+    @property
+    def is_authenticated(self):
+        """Verifica si el usuario está autenticado"""
+        return self.is_active
+
+    def check_password(self, password: str) -> bool:
+        """Verifica si la contraseña es correcta"""
+        from passlib.context import CryptContext
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        return pwd_context.verify(password, self.hashed_password)
+
+    def set_password(self, password: str):
+        """Establece una nueva contraseña hasheada"""
+        from passlib.context import CryptContext
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self.hashed_password = pwd_context.hash(password)
+
+    def increment_failed_login(self):
+        """Incrementa el contador de intentos fallidos de login"""
+        try:
+            current = int(self.failed_login_attempts or "0")
+            self.failed_login_attempts = str(current + 1)
+        except ValueError:
+            self.failed_login_attempts = "1"
+
+    def reset_failed_login(self):
+        """Resetea el contador de intentos fallidos de login"""
+        self.failed_login_attempts = "0"
+        self.last_login = datetime.utcnow()
+
+    def to_dict(self):
+        """Convierte el usuario a diccionario"""
+        return {
+            "id": str(self.id),
+            "username": self.username,
+            "email": self.email,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "is_superuser": self.is_superuser,
+            "is_active": self.is_active,
+            "tenant_id": str(self.tenant_id) if self.tenant_id else None,
+            "empresa_id": str(self.empresa_id) if self.empresa_id else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "last_login": self.last_login.isoformat() if self.last_login else None,
+            "full_name": self.full_name
+        }

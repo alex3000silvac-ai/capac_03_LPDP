@@ -1,138 +1,263 @@
 """
-Endpoints de autenticación
+Endpoints de autenticación - CORREGIDO Y UNIFICADO
 """
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.core.auth import AuthService
-from app.core.tenant import get_master_db, get_tenant_from_request, validate_tenant
 from app.core.config import settings
-from app.schemas.auth import Token, TokenRefresh, LoginRequest, UserInfo
-from app.core.security import decode_token, create_access_token, decrypt_field
-from app.core.auth import get_current_user
+from app.core.database import get_master_db
+from app.schemas.auth import Token, LoginRequest
+from app.models.user import User
+from passlib.context import CryptContext
+from jose import JWTError, jwt
+import logging
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
+# Configuración de contraseñas
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifica una contraseña contra su hash"""
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Crea un token JWT de acceso"""
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
 
 @router.post("/login", response_model=Token)
 async def login(
     request: Request,
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    login_data: LoginRequest,
     db: Session = Depends(get_master_db)
 ) -> Any:
     """
-    OAuth2 compatible token login
+    Login unificado - CORREGIDO
     """
-    # Obtener tenant_id
-    tenant_id = get_tenant_from_request(request)
-    if not tenant_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Tenant ID required"
+    try:
+        logger.info(f"Intento de login para usuario: {login_data.username}")
+        
+        # Obtener tenant_id del header o del body
+        tenant_id = request.headers.get("X-Tenant-ID") or login_data.tenant_id or "demo"
+        logger.info(f"Tenant ID: {tenant_id}")
+        
+        # Buscar usuario por username (no por email para simplificar)
+        user = db.query(User).filter(
+            User.username == login_data.username,
+            User.is_active == True
+        ).first()
+        
+        if not user:
+            logger.warning(f"Usuario no encontrado: {login_data.username}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Usuario o contraseña incorrectos"
+            )
+        
+        # Verificar contraseña
+        if not verify_password(login_data.password, user.hashed_password):
+            logger.warning(f"Contraseña incorrecta para usuario: {login_data.username}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Usuario o contraseña incorrectos"
+            )
+        
+        # Verificar que el usuario esté activo
+        if not user.is_active:
+            logger.warning(f"Usuario inactivo: {login_data.username}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Usuario inactivo"
+            )
+        
+        # Crear token de acceso
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={
+                "sub": str(user.id),
+                "username": user.username,
+                "email": user.email,
+                "tenant_id": tenant_id,
+                "is_superuser": user.is_superuser or False,
+                "first_name": user.first_name,
+                "last_name": user.last_name
+            },
+            expires_delta=access_token_expires
         )
-    
-    # Validar tenant
-    tenant = validate_tenant(tenant_id, db)
-    if not tenant:
+        
+        logger.info(f"Login exitoso para usuario: {login_data.username}")
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error en login: {str(e)}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid tenant"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno del servidor"
         )
-    
-    # Autenticar usuario
-    user = AuthService.authenticate_user(
-        tenant_id=tenant_id,
-        username=form_data.username,
-        password=form_data.password
-    )
-    
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    # Crear tokens
-    tokens = AuthService.create_tokens(user, tenant_id)
-    
-    return {
-        "access_token": tokens["access_token"],
-        "refresh_token": tokens["refresh_token"],
-        "token_type": "bearer",
-        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
-    }
-
 
 @router.post("/refresh", response_model=Token)
 async def refresh_token(
-    token_data: TokenRefresh,
+    request: Request,
     db: Session = Depends(get_master_db)
 ) -> Any:
     """
-    Refresh access token using refresh token
+    Refrescar token - CORREGIDO
     """
-    # Decodificar refresh token
-    payload = decode_token(token_data.refresh_token)
-    
-    if not payload or payload.get("type") != "refresh":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid refresh token"
+    try:
+        # Obtener token del header Authorization
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token requerido"
+            )
+        
+        token = auth_header.split(" ")[1]
+        
+        # Decodificar token
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+            username = payload.get("username")
+            if not username:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Token inválido"
+                )
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token inválido o expirado"
+            )
+        
+        # Buscar usuario
+        user = db.query(User).filter(
+            User.username == username,
+            User.is_active == True
+        ).first()
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Usuario no encontrado"
+            )
+        
+        # Crear nuevo token
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={
+                "sub": str(user.id),
+                "username": user.username,
+                "email": user.email,
+                "tenant_id": payload.get("tenant_id", "demo"),
+                "is_superuser": user.is_superuser or False,
+                "first_name": user.first_name,
+                "last_name": user.last_name
+            },
+            expires_delta=access_token_expires
         )
-    
-    # Crear nuevo access token
-    user_data = {
-        "sub": payload["sub"],
-        "tenant_id": payload["tenant_id"],
-        "email": payload["email"],
-        "roles": payload.get("roles", []),
-        "is_superuser": payload.get("is_superuser", False),
-        "is_dpo": payload.get("is_dpo", False)
-    }
-    
-    new_access_token = create_access_token(user_data)
-    
-    return {
-        "access_token": new_access_token,
-        "refresh_token": token_data.refresh_token,  # Mismo refresh token
-        "token_type": "bearer",
-        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
-    }
-
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error refrescando token: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno del servidor"
+        )
 
 @router.post("/logout")
 async def logout() -> Any:
     """
-    Logout (invalidar token en cliente)
+    Logout - CORREGIDO
     """
-    # En una implementación real, aquí se podría:
-    # 1. Agregar el token a una blacklist
-    # 2. Eliminar sesiones del servidor
-    # 3. Limpiar cache
-    
-    return {"message": "Successfully logged out"}
+    # En JWT, el logout se maneja en el cliente eliminando el token
+    return {"message": "Logout exitoso"}
 
-
-@router.get("/me", response_model=UserInfo)
+@router.get("/me")
 async def get_current_user_info(
-    current_user: Any = Depends(get_current_user)
+    request: Request,
+    db: Session = Depends(get_master_db)
 ) -> Any:
     """
-    Get current user information
+    Obtener información del usuario actual - CORREGIDO
     """
-    return {
-        "id": current_user.id,
-        "email": current_user.email,
-        "username": current_user.username,
-        "first_name": decrypt_field(current_user.first_name),
-        "last_name": decrypt_field(current_user.last_name),
-        "is_active": current_user.is_active,
-        "is_superuser": current_user.is_superuser,
-        "is_dpo": current_user.is_dpo,
-        "roles": [{"code": role.code, "name": role.name} for role in current_user.roles],
-        "tenant_id": current_user.tenant_id,
-        "last_login": current_user.last_login
-    }
+    try:
+        # Obtener token del header Authorization
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token requerido"
+            )
+        
+        token = auth_header.split(" ")[1]
+        
+        # Decodificar token
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+            username = payload.get("username")
+            if not username:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Token inválido"
+                )
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token inválido o expirado"
+            )
+        
+        # Buscar usuario
+        user = db.query(User).filter(
+            User.username == username,
+            User.is_active == True
+        ).first()
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Usuario no encontrado"
+            )
+        
+        return {
+            "id": str(user.id),
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "is_superuser": user.is_superuser or False,
+            "is_active": user.is_active,
+            "tenant_id": payload.get("tenant_id", "demo")
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error obteniendo usuario actual: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno del servidor"
+        )
