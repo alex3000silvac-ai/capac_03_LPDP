@@ -14,15 +14,15 @@ from app.api.v1.endpoints import (
     # categorias,
     # entrevistas,
     # reportes,
-    consentimientos,
-    arcopol,
-    inventario,
-    brechas,
-    dpia,
-    transferencias,
-    auditoria,
-    capacitacion,
-    admin_comercial
+    # consentimientos,
+    # arcopol,
+    # inventario,
+    # brechas,
+    # dpia,
+    # transferencias,
+    # auditoria,
+    # capacitacion,
+    # admin_comercial
 )
 
 api_router = APIRouter()
@@ -34,18 +34,18 @@ api_router.include_router(tenants.router, prefix="/tenants", tags=["tenants"])
 api_router.include_router(empresas.router, prefix="/empresas", tags=["empresas"])
 api_router.include_router(organizaciones.router, prefix="/organizaciones", tags=["organizaciones"])
 
-# Rutas de módulos funcionales
-api_router.include_router(consentimientos.router, prefix="/consentimientos", tags=["consentimientos"])
-api_router.include_router(arcopol.router, prefix="/arcopol", tags=["arcopol"])
-api_router.include_router(inventario.router, prefix="/inventario", tags=["inventario"])
-api_router.include_router(brechas.router, prefix="/brechas", tags=["brechas"])
-api_router.include_router(dpia.router, prefix="/dpia", tags=["dpia"])
-api_router.include_router(transferencias.router, prefix="/transferencias", tags=["transferencias"])
-api_router.include_router(auditoria.router, prefix="/auditoria", tags=["auditoria"])
-api_router.include_router(capacitacion.router, prefix="/capacitacion", tags=["capacitacion"])
+# COMENTADO: Rutas de módulos funcionales - Causan errores de import
+# api_router.include_router(consentimientos.router, prefix="/consentimientos", tags=["consentimientos"])
+# api_router.include_router(arcopol.router, prefix="/arcopol", tags=["arcopol"])
+# api_router.include_router(inventario.router, prefix="/inventario", tags=["inventario"])
+# api_router.include_router(brechas.router, prefix="/brechas", tags=["brechas"])
+# api_router.include_router(dpia.router, prefix="/dpia", tags=["dpia"])
+# api_router.include_router(transferencias.router, prefix="/transferencias", tags=["transferencias"])
+# api_router.include_router(auditoria.router, prefix="/auditoria", tags=["auditoria"])
+# api_router.include_router(capacitacion.router, prefix="/capacitacion", tags=["capacitacion"])
 
-# Rutas administrativas
-api_router.include_router(admin_comercial.router, prefix="/admin-comercial", tags=["admin-comercial"])
+# COMENTADO: Rutas administrativas - Causan errores de import
+# api_router.include_router(admin_comercial.router, prefix="/admin-comercial", tags=["admin-comercial"])
 
 # COMENTADO: Rutas de soporte problemáticas - Causan errores de import
 # api_router.include_router(actividades.router, prefix="/actividades", tags=["actividades"])

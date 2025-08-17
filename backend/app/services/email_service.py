@@ -15,12 +15,13 @@ class EmailService:
     """Servicio para envío de emails"""
     
     def __init__(self):
-        self.smtp_host = settings.SMTP_HOST
-        self.smtp_port = settings.SMTP_PORT
-        self.smtp_user = settings.SMTP_USER
-        self.smtp_password = settings.SMTP_PASSWORD
-        self.from_email = settings.EMAILS_FROM_EMAIL
-        self.from_name = settings.EMAILS_FROM_NAME
+        # Configuración por defecto para desarrollo
+        self.smtp_host = getattr(settings, 'SMTP_HOST', 'localhost')
+        self.smtp_port = getattr(settings, 'SMTP_PORT', 587)
+        self.smtp_user = getattr(settings, 'SMTP_USER', '')
+        self.smtp_password = getattr(settings, 'SMTP_PASSWORD', '')
+        self.from_email = getattr(settings, 'EMAILS_FROM_EMAIL', 'noreply@example.com')
+        self.from_name = getattr(settings, 'EMAILS_FROM_NAME', 'Sistema LPDP')
     
     def send_email(
         self,
@@ -43,7 +44,7 @@ class EmailService:
         """
         try:
             # En desarrollo, solo log el email
-            if settings.ENVIRONMENT == "development":
+            if getattr(settings, 'ENVIRONMENT', 'development') == "development":
                 logger.info(f"Email simulado para: {to_email}")
                 logger.info(f"Asunto: {subject}")
                 logger.info(f"Contenido: {body_text or body_html}")

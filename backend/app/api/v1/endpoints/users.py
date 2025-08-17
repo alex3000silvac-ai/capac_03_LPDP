@@ -16,18 +16,14 @@ from app.core.security import (
     get_password_hash,
     verify_password,
     encrypt_field,
-    decrypt_field,
-    hash_for_search
+    decrypt_field
 )
-from app.models.user import User, Role
+from app.models.user import User
 from app.schemas.user import (
     UserCreate,
     UserUpdate,
     UserInfo,
-    UserList,
-    RoleCreate,
-    RoleUpdate,
-    RoleInfo
+    UserList
 )
 import logging
 import secrets
@@ -68,8 +64,8 @@ async def list_users(
     if is_active is not None:
         query = query.filter(User.is_active == is_active)
     
-    if role_code:
-        query = query.join(User.roles).filter(Role.code == role_code)
+    # if role_code:  # COMENTADO: Roles no disponibles
+    #     query = query.join(User.roles).filter(Role.code == role_code)
     
     users = query.offset(skip).limit(limit).all()
     
@@ -80,12 +76,12 @@ async def list_users(
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "first_name": decrypt_field(user.first_name, user.encryption_key_id),
-            "last_name": decrypt_field(user.last_name, user.encryption_key_id),
+            "first_name": user.first_name,  # SIMPLIFICADO: Sin encriptación
+            "last_name": user.last_name,    # SIMPLIFICADO: Sin encriptación
             "is_active": user.is_active,
             "is_superuser": user.is_superuser,
-            "is_dpo": user.is_dpo,
-            "roles": [{"code": r.code, "name": r.name} for r in user.roles],
+            "is_dpo": False,  # SIMPLIFICADO: Campo no disponible
+            "roles": [],      # SIMPLIFICADO: Roles no disponibles
             "last_login": user.last_login,
             "created_at": user.created_at
         }
@@ -298,67 +294,68 @@ async def delete_user(
     return {"message": "User deleted successfully"}
 
 
-# Endpoints de Roles
+# Endpoints de Roles - COMENTADOS: No disponibles en configuración mínima
 
-@router.get("/roles/", response_model=List[RoleInfo])
-async def list_roles(
-    request: Request,
-    current_user: User = Depends(get_current_active_user),
-    _: bool = Depends(require_permission(["roles.read", "users.manage"]))
-) -> Any:
-    """
-    Listar roles disponibles
-    """
-    db = get_tenant_db(request.state.tenant_id)
-    
-    roles = db.query(Role).filter(
-        Role.tenant_id == request.state.tenant_id,
-        Role.is_active == True
-    ).all()
-    
-    return roles
+# @router.get("/roles/", response_model=List[RoleInfo])
+# async def list_roles(
+#     request: Request,
+#     current_user: User = Depends(get_current_active_user),
+#     _: bool = Depends(require_permission(["roles.read", "users.manage"]))
+# ) -> Any:
+#     """
+#     Listar roles disponibles
+#     """
+#     db = get_tenant_db(request.state.tenant_id)
+#     
+#     roles = db.query(Role).filter(
+#         Role.tenant_id == request.state.tenant_id,
+#         Role.is_active == True
+#     ).all()
+#     
+#     return roles
 
 
-@router.post("/roles/", response_model=RoleInfo)
-async def create_role(
-    request: Request,
-    role_data: RoleCreate,
-    current_user: User = Depends(get_current_active_user),
-    _: bool = Depends(require_permission(["roles.create", "users.manage"]))
-) -> Any:
-    """
-    Crear nuevo rol
-    """
-    db = get_tenant_db(request.state.tenant_id)
-    
-    # Verificar si ya existe
-    existing = db.query(Role).filter(
-        Role.tenant_id == request.state.tenant_id,
-        Role.code == role_data.code
-    ).first()
-    
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Role code already exists"
-        )
-    
-    # Crear rol
-    role = Role(
-        tenant_id=request.state.tenant_id,
-        name=role_data.name,
-        code=role_data.code,
-        description=role_data.description,
-        permissions=role_data.permissions,
-        is_system=False,
-        created_by=current_user.id
-    )
-    
-    db.add(role)
-    db.commit()
-    db.refresh(role)
-    
-    return role
+# @router.post("/roles/", response_model=RoleInfo)
+# async def create_role(
+#     request: Request,
+#     role_data: RoleCreate,
+#     current_user: User = Depends(get_current_active_user),
+#     _: bool = Depends(require_permission(["roles.create", "users.manage"]))
+# ) -> Any:
+#     """
+#     Crear nuevo rol
+#     """
+#     db = get_tenant_db(request.state.tenant_id)
+#     
+#     # Verificar si ya existe
+#     existing = db.query(Role).filter(
+#         Role.tenant_id == request.state.tenant_id,
+#         Role.code == role_data.code
+#     ).first()
+#     
+#     if existing:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="Role code already exists"
+#         )
+#     
+#     # Crear rol
+#     role = Role(
+#         tenant_id=request.state.tenant_id,
+#         Role.tenant_id,
+#         name=role_data.name,
+#         code=role_data.code,
+#         description=role_data.description,
+#         permissions=role_data.permissions,
+#         is_system=False,
+#         created_by=current_user.id
+#     )
+#     
+#     db.add(role)
+#     db.commit()
+#     db.refresh(role)
+#     
+#     return role
 
 
 @router.post("/{user_id}/reset-password")

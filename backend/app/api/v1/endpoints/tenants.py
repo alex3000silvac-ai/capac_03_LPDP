@@ -12,7 +12,7 @@ from app.core.tenant import (
     get_tenant_stats
 )
 from app.models.tenant import Tenant, TenantConfig
-from app.models.user import User, Role
+from app.models.user import User
 from app.schemas.tenant import (
     TenantCreate,
     TenantUpdate,

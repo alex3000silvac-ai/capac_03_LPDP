@@ -3,7 +3,7 @@ Modelos de base de datos para el sistema multi-tenant
 """
 from .base import Base, TenantMixin
 from .tenant import Tenant, TenantConfig
-from .user import User, Role, UserRole
+from .user import User
 from .empresa import Empresa, ModuloAcceso, Licencia
 from .consentimiento import (
     TitularDatos,
@@ -51,11 +51,13 @@ from .auditoria import (
     ReporteCumplimiento
 )
 
-# COMENTADO: Los modelos antiguos causan conflictos con SQLAlchemy
-# Importar modelos antiguos para compatibilidad
-# try:
-#     from .organizacion import Organizacion
-#     from .usuario import Usuario
+# Modelos básicos del sistema
+try:
+    from .organizacion import Organizacion
+    from .role import Role
+    from .permission import Permission
+except ImportError:
+    pass
 #     # COMENTADO: Conflicto con ActividadTratamiento del módulo inventario
 #     # from .actividad import (
 #     #     ActividadTratamiento as ActividadTratamientoOld,
@@ -94,8 +96,6 @@ __all__ = [
     
     # Usuario
     "User",
-    "Role",
-    "UserRole",
     
     # Empresa
     "Empresa",

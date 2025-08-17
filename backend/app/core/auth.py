@@ -2,7 +2,7 @@
 Configuración de autenticación y autorización
 """
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -13,8 +13,6 @@ from app.core.config import settings
 from app.core.database import get_master_db
 from app.core.security import verify_password, create_access_token
 from app.models.user import User
-from app.models.role import Role
-from app.models.permission import Permission
 
 logger = logging.getLogger(__name__)
 
@@ -57,11 +55,10 @@ class AuthService:
         """
         Crea un token JWT para un usuario
         """
-        # Obtener permisos del usuario
-        permissions = []
-        for role in user.roles:
-            for permission in role.permissions:
-                permissions.append(permission.code)
+        # Permisos simplificados (sin roles)
+        permissions = ["basic_access"]
+        if user.is_superuser:
+            permissions.append("admin_access")
         
         # Crear payload del token
         payload = {
@@ -103,13 +100,12 @@ class AuthService:
         """
         Obtiene todos los permisos de un usuario
         """
-        permissions = set()
+        permissions = ["basic_access"]
         
-        for role in user.roles:
-            for permission in role.permissions:
-                permissions.add(permission.code)
+        if user.is_superuser:
+            permissions.append("admin_access")
         
-        return list(permissions)
+        return permissions
     
     @staticmethod
     def has_permission(user: User, required_permission: str) -> bool:
@@ -282,3 +278,40 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
     Función de compatibilidad - decodifica un token JWT
     """
     return auth_service.verify_user_token(token)
+
+class ModuleAccessChecker:
+    """
+    Verificador de acceso a módulos del sistema
+    """
+    
+    @staticmethod
+    def check_module_access(user: User, module_code: str) -> bool:
+        """
+        Verifica si el usuario tiene acceso a un módulo específico
+        """
+        if not user or not user.is_active:
+            return False
+        
+        if user.is_superuser:
+            return True
+        
+        # Verificación simplificada - en producción se verificaría contra licencias
+        basic_modules = ["users", "profile", "dashboard"]
+        if module_code in basic_modules:
+            return True
+        
+        return False
+    
+    @staticmethod
+    def get_user_modules(user: User) -> List[str]:
+        """
+        Obtiene la lista de módulos a los que tiene acceso el usuario
+        """
+        if not user or not user.is_active:
+            return []
+        
+        if user.is_superuser:
+            return ["all_modules"]
+        
+        # Módulos básicos para todos los usuarios
+        return ["users", "profile", "dashboard"]

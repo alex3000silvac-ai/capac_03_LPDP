@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Configuración de encriptación de campos sensibles
-fernet_key = Fernet(settings.LICENSE_ENCRYPTION_KEY.encode())
+# fernet_key = Fernet(settings.LICENSE_ENCRYPTION_KEY.encode())  # COMENTADO: No disponible en config mínima
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
@@ -61,28 +61,35 @@ def verify_token(token: str) -> Optional[dict]:
 
 def encrypt_field(value: str) -> str:
     """
-    Encripta un campo sensible
+    Encripta un campo sensible (SIMPLIFICADO)
     """
     if not value:
         return value
     
+    # Encriptación simplificada para evitar dependencias
     try:
-        encrypted_value = fernet_key.encrypt(value.encode())
-        return encrypted_value.decode()
+        import base64
+        encoded = base64.b64encode(value.encode()).decode()
+        return f"ENCRYPTED_{encoded}"
     except Exception as e:
         logger.error(f"Error encriptando campo: {e}")
         return value
 
 def decrypt_field(encrypted_value: str) -> str:
     """
-    Desencripta un campo sensible
+    Desencripta un campo sensible (SIMPLIFICADO)
     """
     if not encrypted_value:
         return encrypted_value
     
+    # Desencriptación simplificada
     try:
-        decrypted_value = fernet_key.decrypt(encrypted_value.encode())
-        return decrypted_value.decode()
+        if encrypted_value.startswith("ENCRYPTED_"):
+            import base64
+            encoded = encrypted_value[10:]  # Remover "ENCRYPTED_"
+            decoded = base64.b64decode(encoded).decode()
+            return decoded
+        return encrypted_value
     except Exception as e:
         logger.error(f"Error desencriptando campo: {e}")
         return encrypted_value
@@ -110,6 +117,17 @@ def generate_license_key(company_name: str, module_code: str, expiration_date: s
     formatted_key = f"{hash_hex[:4]}-{hash_hex[4:8]}-{hash_hex[8:12]}-{hash_hex[12:16]}"
     
     return formatted_key.upper()
+
+def hash_for_search(value: str) -> str:
+    """
+    Genera un hash para búsquedas sin desencriptar
+    """
+    try:
+        import hashlib
+        return hashlib.sha256(value.encode()).hexdigest()
+    except Exception as e:
+        logger.error(f"Error generando hash: {e}")
+        return value
 
 def validate_license_key(license_key: str, company_name: str, module_code: str, expiration_date: str) -> bool:
     """

@@ -7,7 +7,9 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 
-from app.models.base import Base
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 
 class User(Base):
     """
@@ -23,16 +25,16 @@ class User(Base):
     last_name = Column(String(100), nullable=True)
     is_superuser = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=True)
-    empresa_id = Column(UUID(as_uuid=True), ForeignKey("empresas.id"), nullable=True)
+    tenant_id = Column(UUID(as_uuid=True), nullable=True)  # FK comentado hasta definir modelos
+    empresa_id = Column(UUID(as_uuid=True), nullable=True)  # FK comentado hasta definir modelos
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)
     failed_login_attempts = Column(String(10), default="0")
 
-    # Relaciones
-    tenant = relationship("Tenant", back_populates="users")
-    empresa = relationship("Empresa", back_populates="users")
+    # Relaciones (comentadas hasta que se definan los modelos)
+    # tenant = relationship("Tenant", back_populates="users")
+    # empresa = relationship("Empresa", back_populates="users")
 
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"

@@ -13,16 +13,18 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 # Configuración de la base de datos master
-MASTER_DATABASE_URL = settings.DATABASE_URL_MASTER or settings.DATABASE_URL
+MASTER_DATABASE_URL = settings.DATABASE_URL
 
 # Engine para la base de datos master
 master_engine = create_engine(
     MASTER_DATABASE_URL,
     pool_pre_ping=True,
     pool_recycle=300,
-    echo=settings.DEBUG,
-    poolclass=StaticPool if settings.TESTING else None
+    echo=settings.DEBUG
 )
+
+# Engine global para compatibilidad
+engine = master_engine
 
 # Session factory para la base de datos master
 MasterSessionLocal = sessionmaker(
@@ -108,7 +110,11 @@ def create_tenant_schema(tenant_id: str):
             db.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_name}")
             
             # Crear todas las tablas en el esquema
-            from app.models import *  # Importar todos los modelos
+            # Importar modelos de forma segura
+            from app.models.base import Base
+            from app.models.user import User
+            from app.models.tenant import Tenant
+            from app.models.empresa import Empresa
             
             # Crear tablas en el esquema del tenant
             for table in Base.metadata.tables.values():

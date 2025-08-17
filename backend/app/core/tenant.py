@@ -99,6 +99,52 @@ async def create_tenant_schema(tenant_id: str) -> bool:
         logger.error(f"Error creando esquema para tenant {tenant_id}: {e}")
         return False
 
+async def cleanup_tenant_connections():
+    """
+    Limpia las conexiones de base de datos de tenants
+    """
+    try:
+        logger.info("Limpiando conexiones de tenants...")
+        # Por ahora solo log, implementar lógica de limpieza si es necesario
+        return True
+    except Exception as e:
+        logger.error(f"Error limpiando conexiones de tenants: {e}")
+        return False
+
+async def get_tenant_stats(tenant_id: str) -> dict:
+    """
+    Obtiene estadísticas del tenant
+    """
+    try:
+        db = get_master_db()
+        
+        # Contar usuarios
+        user_count = db.query(User).filter(User.tenant_id == tenant_id).count()
+        
+        # Contar empresas (si existe el modelo)
+        empresa_count = 0
+        try:
+            from app.models.empresa import Empresa
+            empresa_count = db.query(Empresa).filter(Empresa.tenant_id == tenant_id).count()
+        except ImportError:
+            pass
+        
+        return {
+            "tenant_id": tenant_id,
+            "user_count": user_count,
+            "empresa_count": empresa_count,
+            "status": "active"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error obteniendo stats del tenant {tenant_id}: {e}")
+        return {
+            "tenant_id": tenant_id,
+            "user_count": 0,
+            "empresa_count": 0,
+            "status": "error"
+        }
+
 async def drop_tenant_schema(tenant_id: str) -> bool:
     """
     Elimina el esquema de base de datos de un tenant
