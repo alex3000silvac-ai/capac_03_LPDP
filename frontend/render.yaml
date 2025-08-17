@@ -7,7 +7,7 @@ services:
     staticPublishPath: ./build
     envVars:
       - key: REACT_APP_API_URL
-        value: https://lpdp-backend.onrender.com/api/v1
+        value: https://scldp-backend.onrender.com
       - key: REACT_APP_APP_NAME
         value: Sistema LPDP
       - key: REACT_APP_VERSION
