@@ -1,10 +1,10 @@
-// Configuración principal del frontend
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// Configuración principal del frontend - CORREGIDA POR INGENIERO EN JEFE
+export const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
 
 export const APP_CONFIG = {
   name: 'SCLDP - Sistema de Cumplimiento LPDP',
   version: '1.0.0',
-  environment: process.env.REACT_APP_ENVIRONMENT || 'development',
+  environment: process.env.REACT_APP_ENVIRONMENT || 'production',
   apiTimeout: 30000,
   pagination: {
     defaultPageSize: 10,
@@ -25,3 +25,6 @@ export const FEATURE_FLAGS = {
   enableReports: true,
   enableNotifications: true
 };
+
+// NOTA: Esta configuración asume que el backend está desplegado en Render
+// Si el backend no responde, verificar que esté desplegado y funcionando
