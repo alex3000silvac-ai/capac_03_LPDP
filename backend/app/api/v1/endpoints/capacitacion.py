@@ -4,8 +4,31 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_master_db
-from app.core.auth import get_current_user
-from app.models.user import User
+from app.core.security import verify_token
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer()
+
+class SimpleUser:
+    def __init__(self, username: str, first_name: str = "", last_name: str = ""):
+        self.id = username
+        self.username = username
+        self.first_name = first_name
+        self.last_name = last_name
+
+def get_simple_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    Obtiene el usuario actual desde el token JWT (versión simplificada)
+    """
+    payload = verify_token(credentials.credentials)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Token inválido")
+    
+    return SimpleUser(
+        username=payload.get("username", "usuario"),
+        first_name=payload.get("first_name", ""),
+        last_name=payload.get("last_name", "")
+    )
 
 router = APIRouter()
 
@@ -60,7 +83,7 @@ def listar_modulos_capacitacion():
 
 @router.get("/progreso")
 def obtener_progreso_usuario(
-    current_user: User = Depends(get_current_user),
+    current_user: SimpleUser = Depends(get_simple_current_user),
 ):
     """Obtener el progreso de capacitación del usuario actual"""
     # Por ahora devolver progreso simulado para el usuario actual
@@ -100,7 +123,7 @@ def obtener_progreso_usuario(
 @router.post("/progreso/{modulo_id}/iniciar")
 def iniciar_modulo(
     modulo_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: SimpleUser = Depends(get_simple_current_user),
 ):
     """Iniciar un módulo de capacitación"""
     if modulo_id not in MODULOS_CAPACITACION:
@@ -119,7 +142,7 @@ def iniciar_modulo(
 def actualizar_progreso_modulo(
     modulo_id: str,
     porcentaje: int,
-    current_user: User = Depends(get_current_user),
+    current_user: SimpleUser = Depends(get_simple_current_user),
 ):
     """Actualizar el progreso de un módulo"""
     if modulo_id not in MODULOS_CAPACITACION:
@@ -141,7 +164,7 @@ def actualizar_progreso_modulo(
 
 @router.get("/estadisticas")
 def obtener_estadisticas_capacitacion(
-    current_user: User = Depends(get_current_user),
+    current_user: SimpleUser = Depends(get_simple_current_user),
 ):
     """Obtener estadísticas generales de capacitación"""
     
