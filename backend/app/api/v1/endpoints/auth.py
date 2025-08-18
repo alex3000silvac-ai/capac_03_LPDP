@@ -101,10 +101,22 @@ async def login(
             expires_delta=access_token_expires
         )
         
+        # Crear refresh token con mayor duración
+        refresh_token_expires = timedelta(days=7)  # 7 días
+        refresh_token = create_access_token(
+            data={
+                "sub": login_data.username,
+                "type": "refresh",
+                "tenant_id": tenant_id
+            },
+            expires_delta=refresh_token_expires
+        )
+        
         logger.info(f"Login exitoso para usuario: {login_data.username}")
         
         return {
             "access_token": access_token,
+            "refresh_token": refresh_token,
             "token_type": "bearer",
             "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         }
@@ -179,8 +191,20 @@ async def refresh_token(
             expires_delta=access_token_expires
         )
         
+        # Crear nuevo refresh token
+        refresh_token_expires = timedelta(days=7)
+        refresh_token = create_access_token(
+            data={
+                "sub": username,
+                "type": "refresh",
+                "tenant_id": payload.get("tenant_id", "demo")
+            },
+            expires_delta=refresh_token_expires
+        )
+        
         return {
             "access_token": access_token,
+            "refresh_token": refresh_token,
             "token_type": "bearer",
             "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         }
