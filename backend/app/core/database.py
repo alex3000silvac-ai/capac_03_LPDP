@@ -39,7 +39,7 @@ Base = declarative_base()
 # Metadata para la base de datos master
 master_metadata = MetaData()
 
-def get_master_db() -> Session:
+def get_master_db():
     """
     Obtiene una sesión de base de datos para la base master
     """
@@ -172,7 +172,7 @@ def init_database():
         return False
 
 # Función de compatibilidad para endpoints existentes
-def get_db() -> Session:
+def get_db():
     """
     Función de compatibilidad - retorna la base master
     """
