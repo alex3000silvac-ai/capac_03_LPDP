@@ -24,14 +24,34 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verifica una contraseña contra su hash
+    Soporta tanto bcrypt como SHA-256 para compatibilidad
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    # Intentar primero con bcrypt (para compatibilidad con datos existentes)
+    try:
+        if pwd_context.verify(plain_password, hashed_password):
+            return True
+    except:
+        pass
+    
+    # Si falla bcrypt, intentar con SHA-256 + salt (nuevo sistema)
+    try:
+        expected_hash = hashlib.sha256((plain_password + settings.PASSWORD_SALT).encode()).hexdigest()
+        return expected_hash == hashed_password
+    except:
+        return False
 
 def get_password_hash(password: str) -> str:
     """
-    Genera el hash de una contraseña
+    Genera el hash de una contraseña usando bcrypt (recomendado)
     """
     return pwd_context.hash(password)
+
+def get_password_hash_sha256(password: str) -> str:
+    """
+    Genera el hash de una contraseña usando SHA-256 + salt
+    (para compatibilidad con configuración de usuarios JSON)
+    """
+    return hashlib.sha256((password + settings.PASSWORD_SALT).encode()).hexdigest()
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """

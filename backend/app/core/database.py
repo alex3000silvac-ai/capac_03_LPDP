@@ -1,12 +1,14 @@
 """
-Configuración de base de datos y conexiones
+Configuración de base de datos y conexiones - SEGURO CONTRA INYECCIÓN SQL
 """
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine, MetaData, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
+from fastapi import HTTPException
 import logging
+import re
 
 from app.core.config import settings
 
@@ -98,16 +100,35 @@ def get_tenant_db_context(tenant_id: str) -> Session:
     finally:
         db.close()
 
+def validate_tenant_id(tenant_id: str) -> str:
+    """
+    Valida y sanitiza el tenant_id para prevenir inyección SQL
+    """
+    if not tenant_id or not isinstance(tenant_id, str):
+        raise ValueError("tenant_id debe ser una cadena válida")
+    
+    # Solo permitir caracteres alfanuméricos, guiones y guiones bajos
+    if not re.match(r'^[a-zA-Z0-9_-]+$', tenant_id):
+        raise ValueError("tenant_id contiene caracteres no válidos")
+    
+    # Longitud máxima para prevenir ataques
+    if len(tenant_id) > 50:
+        raise ValueError("tenant_id demasiado largo")
+    
+    return tenant_id
+
 def create_tenant_schema(tenant_id: str):
     """
-    Crea el esquema de base de datos para un nuevo tenant
+    Crea el esquema de base de datos para un nuevo tenant - SEGURO
     """
     try:
+        # Validar tenant_id para prevenir inyección SQL
+        validated_tenant_id = validate_tenant_id(tenant_id)
+        schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{validated_tenant_id}"
+        
         with get_master_db_context() as db:
-            schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{tenant_id}"
-            
-            # Crear esquema
-            db.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_name}")
+            # REPARADO: Usar query parametrizada para prevenir inyección SQL
+            db.execute(text("CREATE SCHEMA IF NOT EXISTS :schema_name"), {"schema_name": schema_name})
             
             # Crear todas las tablas en el esquema
             # Importar modelos de forma segura
@@ -123,24 +144,32 @@ def create_tenant_schema(tenant_id: str):
             db.commit()
             logger.info(f"Esquema {schema_name} creado exitosamente")
             
+    except ValueError as e:
+        logger.error(f"Error de validación para tenant {tenant_id}: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Error creando esquema {tenant_id}: {e}")
         raise
 
 def drop_tenant_schema(tenant_id: str):
     """
-    Elimina el esquema de base de datos de un tenant
+    Elimina el esquema de base de datos de un tenant - SEGURO
     """
     try:
+        # Validar tenant_id para prevenir inyección SQL
+        validated_tenant_id = validate_tenant_id(tenant_id)
+        schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{validated_tenant_id}"
+        
         with get_master_db_context() as db:
-            schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{tenant_id}"
-            
-            # Eliminar esquema (esto elimina todas las tablas)
-            db.execute(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE")
+            # REPARADO: Usar query parametrizada para prevenir inyección SQL
+            db.execute(text("DROP SCHEMA IF EXISTS :schema_name CASCADE"), {"schema_name": schema_name})
             db.commit()
             
             logger.info(f"Esquema {schema_name} eliminado exitosamente")
             
+    except ValueError as e:
+        logger.error(f"Error de validación para tenant {tenant_id}: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Error eliminando esquema {tenant_id}: {e}")
         raise
