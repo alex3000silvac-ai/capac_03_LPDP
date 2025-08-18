@@ -101,6 +101,18 @@ async def catch_exceptions(request: Request, call_next):
 # Incluir todas las rutas de la API
 app.include_router(api_router, prefix="/api/v1")
 
+# Ruta de compatibilidad para el frontend (sin /api/v1)
+@app.get("/tenants/available")
+async def get_available_tenants_compat():
+    """Obtener tenants disponibles para login (compatibilidad frontend)"""
+    return [
+        {
+            "tenant_id": "demo",
+            "company_name": "Empresa Demo",
+            "description": "Empresa de demostración del sistema LPDP"
+        }
+    ]
+
 # Ruta de salud para Render
 @app.get("/health")
 async def health_check():
