@@ -1,516 +1,0 @@
-
-Manual de Procedimiento y Técnico para la Implementación de un Sistema de Cumplimiento de la Ley de Protección de Datos en Chile (Ley N° 21.719)
-
-
-Introducción
-
-
-Propósito y Audiencia
-
-Este manual constituye una guía de implementación eminentemente práctica y accionable, diseñada para servir como referencia técnica y procedimental para Delegados de Protección de Datos (DPO), equipos de tecnología de la información (TI), departamentos legales y áreas de cumplimiento normativo. El objetivo primordial de este documento es traducir los requisitos abstractos de la Ley N° 21.719 sobre Protección de Datos Personales en un conjunto de procedimientos operativos, flujos de trabajo definidos y especificaciones técnicas concretas. Se busca proporcionar un marco de trabajo que permita a las organizaciones no solo cumplir con la ley, sino también demostrar dicho cumplimiento de manera proactiva y auditable.
-
-Enfoque Metodológico
-
-El presente manual se enfoca de manera exclusiva en el "cómo se hace", omitiendo deliberadamente definiciones legales básicas, antecedentes históricos de la normativa o análisis teóricos extensos. La premisa es que la audiencia ya posee un conocimiento fundamental de la ley y requiere una guía para su aplicación práctica. Cada capítulo está estructurado para abordar, en primer lugar, los procesos y responsabilidades que recaen sobre el personal de la organización y, en segundo lugar, las especificaciones del sistema informático de cumplimiento que debe soportar y automatizar dichos procesos. Este enfoque dual asegura que tanto las dimensiones humanas como las tecnológicas del cumplimiento sean abordadas de manera integral.
-
-Estructura del Manual
-
-El manual se encuentra dividido en siete capítulos, cada uno correspondiente a un módulo funcional clave para la gestión del cumplimiento de la ley de protección de datos. Estos módulos son: Gestión de Consentimientos, Derechos ARCOPOL, Inventario de Datos, Notificación de Brechas, Evaluaciones de Impacto (DPIA), Transferencias Internacionales, y Auditoría y Cumplimiento. Si bien cada capítulo se aborda de forma individual para mayor claridad, es fundamental comprender la profunda interconexión que existe entre ellos. Un sistema de cumplimiento robusto no es la suma de sus partes, sino un ecosistema integrado donde el inventario de datos nutre la gestión de derechos, la gestión de consentimientos informa los límites del tratamiento, y la auditoría proporciona la evidencia transversal de todas las operaciones. Por tanto, se recomienda una lectura y aplicación holística de los procedimientos aquí descritos.
-
-Capítulo 1: Módulo de Gestión de Consentimientos
-
-Este capítulo detalla el proceso crítico de obtener, registrar, gestionar y revocar el consentimiento de los titulares de datos, un pilar fundamental para la licitud del tratamiento bajo la Ley N° 21.719. La correcta implementación de este módulo es esencial para construir una relación de confianza con los titulares y para cumplir con la obligación de responsabilidad proactiva.
-
-1.1. Procedimientos para el Personal (Flujos de Trabajo y Responsabilidades)
-
-
-Procedimiento de Obtención de Consentimiento
-
-La obtención de un consentimiento válido es un proceso multifactorial que requiere la coordinación entre el dueño del proceso de negocio y los equipos de cumplimiento.
-1. Identificación de la Base Legal: El primer paso para cualquier actividad de tratamiento de datos es la determinación de su base de licitud. El responsable del proceso (ej. Gerente de Marketing para una campaña, Jefe de RRHH para un nuevo beneficio) debe evaluar si el tratamiento es estrictamente necesario para la ejecución de un contrato o para el cumplimiento de una obligación legal.1 Si el tratamiento excede estos supuestos, el consentimiento se convierte en la base de licitud preferente y obligatoria. Esta evaluación inicial debe ser documentada.
-2. Información Previa y Transparente (Art. 12): Antes de que el titular realice cualquier acción para consentir, el personal responsable del punto de contacto debe asegurarse de que se le proporcione información clara, sencilla y específica. Esta información, como mínimo, debe incluir: la(s) finalidad(es) explícita(s) del tratamiento, los tipos de datos que se recolectarán para cada finalidad, y la mención explícita de su derecho a revocar el consentimiento en cualquier momento y de forma sencilla.1
-3. Implementación de la Granularidad: La ley prohíbe explícitamente el uso de consentimientos genéricos o la práctica de vincular el consentimiento para el tratamiento de datos a la aceptación global de términos y condiciones de un servicio.1 Esta prohibición legal impone un requisito de diseño fundamental en todos los puntos de recolección de datos. El personal de las áreas de desarrollo de productos, marketing y legal debe colaborar para diseñar interfaces y documentos que presenten opciones de consentimiento separadas y no pre-marcadas para cada finalidad de tratamiento que sea distinta.
-? Ejemplo Práctico: En un formulario de registro de clientes en un sitio web, no es suficiente un único checkbox que diga "Acepto los términos y la política de privacidad". Se deben presentar opciones granulares, tales como:
-? [ ] Acepto recibir comunicaciones comerciales y ofertas personalizadas por correo electrónico.
-? [ ] Autorizo el análisis de mi comportamiento de navegación para mejorar y personalizar mi experiencia en el sitio.
-? [ ] Consiento en que mis datos de compra anonimizados se utilicen para fines estadísticos de la industria.
-Cada una de estas opciones debe ser independiente, permitiendo al titular aceptar unas y rechazar otras.1
-
-Flujos de Trabajo por Departamento
-
-? Recursos Humanos (RRHH): Durante el proceso de contratación, el especialista de RRHH es responsable de presentar al candidato un anexo específico al contrato de trabajo. Este documento debe detallar y solicitar consentimiento para todos aquellos tratamientos que excedan la gestión estrictamente necesaria de la relación laboral. Ejemplos incluyen el uso de la imagen del empleado para comunicaciones corporativas, la recopilación de datos de salud para la inscripción en seguros complementarios voluntarios, o la monitorización de la ubicación mediante GPS en vehículos de empresa para fines no esenciales de seguridad.1 La firma de este anexo constituye la prueba del consentimiento.
-? Marketing y Ventas: El equipo de marketing debe configurar todas las campañas de captación digital (formularios en landing pages, pop-ups de suscripción, banners de cookies) para presentar opciones de consentimiento claras, granulares y explícitas. Es su responsabilidad integrar la Plataforma de Gestión de Consentimiento (CMP) del sistema de cumplimiento en estas herramientas, asegurando que la elección del usuario (aceptar o rechazar) se registre de forma inmediata y auditable en la base de datos centralizada.1
-? Relaciones Comunitarias y RSE: Al organizar eventos comunitarios, diálogos participativos o inscribir a beneficiarios en programas de responsabilidad social empresarial, el personal a cargo debe utilizar formularios (ya sean digitales en tablets o en formato físico) que expliquen de forma sencilla para qué se usarán los datos personales de los participantes (ej. para contactarlos para futuras iniciativas, para reportar el número de beneficiarios, etc.). Se debe obtener una firma o una acción afirmativa clara (como marcar un checkbox) que sirva como evidencia del consentimiento informado.1
-
-Procedimiento de Revocación de Consentimiento (Art. 12)
-
-La ley es taxativa en que el proceso para revocar el consentimiento debe ser tan simple y accesible como el proceso para otorgarlo.1
-1. Capacitación del Personal: Todo el personal que interactúa con titulares de datos (atención al cliente, ventas, RRHH) debe ser capacitado para reconocer una solicitud de revocación y conocer el procedimiento. Deben ser capaces de guiar a los titulares al portal de autogestión o, si el canal lo permite (ej. llamada telefónica), procesar la solicitud directamente en nombre del titular tras verificar su identidad.
-2. Procesamiento y Verificación: Una vez que el titular presenta la solicitud de revocación a través de cualquier canal habilitado, el sistema debe procesarla de forma inmediata y automatizada. Esto implica cambiar el estado del consentimiento a 'revoked' en la base de datos central. El sistema debe, a su vez, propagar esta actualización a todos los sistemas integrados (CRM, plataforma de email marketing, etc.) para cesar de inmediato el tratamiento de datos para la finalidad revocada. El personal responsable (o el DPO) debe tener un procedimiento de verificación para confirmar periódicamente que las revocaciones se sincronizan correctamente en todo el ecosistema de aplicaciones.
-
-1.2. Especificaciones Técnicas del Sistema (Arquitectura de Datos y API)
-
-
-Arquitectura de la Base de Datos (SQL Server 2019+)
-
-? Aislamiento de Datos: Se debe implementar una arquitectura multi-tenant de tipo schema-per-tenant. En este modelo, cada cliente (empresa) que utiliza la plataforma de cumplimiento tiene su propio esquema de base de datos, lógicamente separado de los demás. Esto garantiza un aislamiento total de los datos, impidiendo cualquier posibilidad de filtración o acceso cruzado entre clientes.1
-? Estructura de la Tabla de Consentimientos: La base de datos debe estar diseñada para la granularidad. Una tabla central, denominada consents, es crucial y debe tener, como mínimo, la siguiente estructura para cumplir con los requisitos legales:
-? consent_id (PK, UUID): Identificador único del registro de consentimiento.
-? data_subject_id (FK, UUID): Clave foránea que referencia al titular en la tabla data_subjects.
-? purpose_id (FK, UUID): Clave foránea que referencia la finalidad específica en la tabla purposes.
-? status (VARCHAR): Estado actual del consentimiento (ej. 'granted', 'revoked').
-? timestamp (DATETIME): Marca de tiempo precisa (UTC) de cuándo se otorgó o revocó el consentimiento.
-? policy_version (VARCHAR): Versión de la política de privacidad o del texto de consentimiento que el titular aceptó.
-? proof_of_consent_hash (VARCHAR, SHA-256): Hash criptográfico que sirve como prueba inmutable del consentimiento.1
-? collection_method (VARCHAR): Método de recolección (ej. 'web_form', 'paper_form', 'api').
-
-API de Gestión de Consentimientos (FastAPI)
-
-El sistema debe exponer una API RESTful segura para gestionar los consentimientos de forma programática.
-? Endpoint de Registro (POST /api/v1/consents): Este endpoint permite a las aplicaciones cliente (formularios web, aplicaciones móviles, sistemas de RRHH) registrar un nuevo consentimiento o una revocación.
-? Payload de la solicitud: Debe incluir data_subject_id, purpose_id, status y un objeto con los metadatos necesarios para generar la prueba del consentimiento (ej. dirección IP, User-Agent, texto exacto del consentimiento presentado al usuario).1
-? Lógica del backend: Al recibir la solicitud, el backend debe validar los datos, generar el hash de la prueba del consentimiento y crear o actualizar el registro en la tabla consents.
-? Endpoint de Verificación (GET /api/v1/subjects/{id}/consents): Este endpoint es fundamental para la operatividad del cumplimiento. Permite a los sistemas de negocio (ej. un CRM antes de enviar un correo masivo, o un sistema de análisis antes de procesar datos) consultar en tiempo real si existe un consentimiento válido para un titular y una finalidad específicos.1 La respuesta debe ser rápida y clara, indicando el estado actual del consentimiento.
-
-Mecanismo de Prueba del Consentimiento (Carga de la Prueba - Art. 12)
-
-La inversión de la carga de la prueba, que obliga al responsable a "acreditar la licitud" del tratamiento, tiene una consecuencia técnica directa: los logs del sistema se convierten en evidencia legal.1 El sistema debe estar diseñado para generar y proteger esta evidencia.
-? Generación del Hash: Cuando se registra un consentimiento, el sistema no solo guarda el estado 'granted'. Debe concatenar una serie de datos contextuales inmutables: el data_subject_id, el purpose_id, el timestamp exacto, la dirección IP de origen, el User-Agent del navegador y el policy_version. Luego, debe aplicar una función de hash criptográfico (como SHA-256) a esta cadena de texto. El resultado es un hash único que se almacena en el campo proof_of_consent_hash.1
-? Valor Probatorio: Este hash actúa como una "huella digital" del momento exacto del consentimiento. Si en el futuro se cuestiona la validez de ese consentimiento, el responsable puede volver a generar el hash con los mismos datos de entrada y demostrar que coincide con el almacenado, probando así que el registro no ha sido alterado. Este procedimiento establece una "cadena de custodia digital" para la evidencia del consentimiento.
-
-Portal de Autogestión para Titulares
-
-El sistema debe proveer una interfaz de usuario final (portal web) segura y de fácil uso. A través de este portal, los titulares de datos deben poder, previa autenticación, visualizar de forma clara y separada cada una de las finalidades para las que han otorgado consentimiento. Junto a cada finalidad, debe existir un mecanismo simple (ej. un interruptor o un botón) para revocar dicho consentimiento. La acción de revocar en el portal debe invocar en tiempo real el endpoint POST /api/v1/consents con el estado 'revoked', asegurando que la solicitud se procese de manera inmediata y automatizada.
-
-Tabla 1.1: Matriz de Recolección de Consentimiento por Escenario
-
-Escenario de RecolecciónTipo de Datos PersonalesFinalidad del TratamientoInformación a Proveer al Titular (Art. 12)Método de Acción Afirmativa SugeridoResponsable del ProcesoContratación de EmpleadoDatos de salud (voluntario)Inscripción en seguro complementario de saludFinalidad, tipo de datos, carácter voluntario, derecho a revocar.Firma en anexo de consentimiento específico del contrato.Departamento de RRHHRegistro en NewsletterCorreo electrónicoEnvío de comunicaciones comerciales y marketingFinalidad, frecuencia de envío, derecho a darse de baja fácilmente.Checkbox no pre-marcado en formulario web.Departamento de MarketingParticipación en Programa ComunitarioNombre, RUT, contacto, imagenRegistro de beneficiarios, difusión del programaUso de la imagen, contacto para futuras actividades, derecho a suprimir datos.Firma en formulario de inscripción (físico o digital).Departamento de RSE / ComunicacionesUso de App CorporativaDatos de geolocalizaciónOptimización de rutas para personal en terrenoFinalidad, período de recolección, si los datos se comparten, derecho a desactivar.Aceptación explícita en pop-up dentro de la aplicación.Departamento de Operaciones / TIEsta matriz es una herramienta operativa crucial que traduce el requisito legal abstracto de "consentimiento informado y específico" en una guía práctica y contextualizada para los diferentes departamentos de la empresa. Estandariza la recolección de consentimiento, reduce el riesgo de errores humanos y facilita la capacitación del personal, cerrando la brecha entre la norma general y la operación diaria de la compañía.
-
-Capítulo 2: Módulo de Gestión de Derechos ARCOPOL
-
-Este capítulo establece el protocolo completo para recibir, verificar, procesar y responder a las solicitudes de los titulares para ejercer sus derechos de Acceso, Rectificación, Supresión (Olvido), Oposición, Portabilidad y Bloqueo (ARCOPOL), conforme a los Artículos 4 al 11 de la Ley N° 21.719.1 La gestión eficiente y conforme a la ley de estos derechos es una de las obligaciones más visibles y críticas del responsable del tratamiento.
-
-2.1. Procedimientos para el Personal (Protocolo de Respuesta a Solicitudes)
-
-
-Recepción y Registro de la Solicitud (Art. 11)
-
-1. Canales de Solicitud: La organización debe establecer y publicitar canales de comunicación claros, sencillos y de fácil acceso para que los titulares puedan ejercer sus derechos. Como mínimo, se deben habilitar:
-? Una dirección de correo electrónico dedicada (ej. privacidad@empresa.cl).
-? Un formulario web accesible desde la política de privacidad del sitio corporativo.1
-
-Estos canales deben ser monitoreados constantemente por el personal designado.
-2. Registro y Acuse de Recibo: Al recibir una solicitud por cualquier canal, el empleado responsable (miembro del equipo de privacidad o el DPO) tiene la obligación de registrarla inmediatamente en el sistema de cumplimiento. El sistema debe asignar un número de caso único para su seguimiento. Inmediatamente después del registro, se debe enviar un acuse de recibo automático al titular, confirmando la recepción de su solicitud, informándole del número de caso y de los plazos legales para la respuesta.1
-
-Verificación de Identidad del Solicitante (Art. 11)
-
-1. Procedimiento de Verificación: Para proteger los datos personales contra accesos no autorizados, es imperativo verificar la identidad del solicitante. El personal debe solicitar al titular la documentación necesaria para acreditar su identidad, típicamente una copia de su cédula de identidad por ambos lados. Este proceso debe realizarse a través de un canal seguro, como una plataforma de carga de archivos en el portal del titular, evitando el intercambio de documentos sensibles por correo electrónico no cifrado.1
-2. Principio de Proporcionalidad: El proceso de verificación debe ser robusto pero no debe imponer barreras excesivas o desproporcionadas que dificulten u obstaculicen el ejercicio del derecho. Si la solicitud proviene de un correo electrónico previamente registrado y verificado por el titular, se pueden considerar métodos de verificación más ligeros, como una confirmación a través de un segundo factor.
-
-Análisis y Procesamiento de la Solicitud (Plazo: 30 días corridos - Art. 11)
-
-Una vez verificada la identidad, el empleado responsable debe analizar y procesar la solicitud según el derecho invocado:
-? Derecho de Acceso (Art. 5): El empleado utiliza la funcionalidad del sistema para generar un informe completo. Este informe no solo debe contener los datos personales del titular, sino también toda la información contextual exigida por la ley: el origen de los datos, la(s) finalidad(es) del tratamiento, las categorías de destinatarios a quienes se han comunicado los datos, el período de conservación, los intereses legítimos invocados si esa fue la base de licitud, y, crucialmente, información significativa sobre la lógica aplicada en caso de decisiones automatizadas.1
-? Derecho de Rectificación (Art. 6): El empleado debe contactar al titular para que especifique los datos que considera inexactos o incompletos y, si es razonable, aporte antecedentes que sustenten la corrección. La rectificación debe realizarse en el sistema maestro de datos (ej. el ERP para datos de clientes, el sistema de RRHH para empleados). El sistema de cumplimiento debe entonces propagar esta actualización a todos los sistemas secundarios integrados. Una obligación crítica para el empleado es identificar a todos los terceros a quienes se les hayan cedido los datos originales y comunicarles la rectificación para que actualicen sus propios registros.1
-? Derecho de Supresión (Art. 7): El empleado debe evaluar si concurre alguna de las causales legales para la supresión (ej. los datos ya no son necesarios, se revocó el consentimiento) y, de igual importancia, verificar que no exista una excepción que obligue a conservar los datos (ej. una obligación legal de retención por motivos fiscales, la necesidad de los datos para la defensa en un litigio).1 Si la supresión procede, el empleado ejecuta la acción a través del sistema, que debe registrar la operación de forma indeleble en sus logs de auditoría.
-? Derecho de Oposición (Art. 8):
-? Marketing Directo: Si la oposición se refiere a marketing directo, el empleado debe aceptarla sin más trámite y asegurar que el titular sea excluido de todas las listas de distribución comercial.1
-? Interés Legítimo: Si el tratamiento se basa en el interés legítimo de la empresa, el empleado, con el apoyo del DPO y el área legal, debe realizar una ponderación documentada. Se debe evaluar si existen "motivos legítimos imperiosos" para el tratamiento que prevalezcan sobre los derechos y libertades del titular. Esta decisión debe ser cuidadosamente justificada en la respuesta.1
-? Derecho a la Portabilidad (Art. 9): El empleado utiliza la herramienta de exportación del sistema. Es fundamental que el procedimiento distinga y exporte únicamente los datos "que el titular haya facilitado al responsable", excluyendo explícitamente los datos que la empresa haya derivado o inferido (ej. perfiles de cliente, scores de riesgo).1 El archivo exportado debe estar en un formato electrónico estructurado, genérico y de uso común, como JSON o CSV.
-
-Formulación y Envío de la Respuesta
-
-La respuesta final al titular debe ser por escrito, utilizando un lenguaje claro y sencillo. En caso de denegación total o parcial de la solicitud, la respuesta debe estar debidamente fundada en la normativa aplicable. La comunicación debe ser enviada a través del medio indicado por el titular (correo electrónico o domicilio) dentro del plazo máximo de 30 días corridos desde la recepción de la solicitud.1 El sistema de cumplimiento debe almacenar una copia íntegra de la respuesta enviada y la prueba de su despacho (ej. logs del servidor de correo).
-
-2.2. Especificaciones Técnicas del Sistema (Portal del Titular y Automatización)
-
-
-Portal del Titular de Datos (Frontend)
-
-El sistema debe ofrecer un portal web seguro, accesible y fácil de usar para los titulares de datos.
-? Autenticación: Requiere un sistema de autenticación robusto (ej. usuario/contraseña con opción de MFA) para garantizar que solo el titular o su representante accedan a la información.
-? Funcionalidades Clave:
-1. Formulario de Solicitud: Un formulario web estructurado para presentar nuevas solicitudes de derechos ARCOPOL, con campos que guíen al usuario a proporcionar la información necesaria.
-2. Carga Segura de Documentos: Un mecanismo para la carga cifrada de documentos de identidad para el proceso de verificación.
-3. Dashboard de Seguimiento: Un panel de control donde el titular pueda ver el estado en tiempo real de todas sus solicitudes, con un historial de las ya completadas.
-4. Descarga Segura: Un repositorio donde el titular pueda descargar de forma segura los informes generados en respuesta a sus solicitudes de Acceso y Portabilidad.
-
-Backend y Flujo de Datos Automatizado (Celery Workers)
-
-? API para Solicitudes (POST /api/v1/dsr/requests): El sistema debe exponer un endpoint para la creación de solicitudes de derechos del titular (Data Subject Requests - DSR). Este endpoint será consumido por el portal del titular y, potencialmente, por otros sistemas internos.1
-? Orquestación del Flujo de Trabajo: La recepción de una solicitud a través de la API debe desencadenar un flujo de trabajo automatizado, gestionado por un sistema de colas de tareas como Celery y RabbitMQ:
-1. La solicitud se registra en la tabla data_subject_requests con estado 'pendiente'.
-2. Se crea una tarea en la cola para notificar al equipo de privacidad/DPO.
-3. Se genera una entrada inmutable en la tabla de auditoría audit_logs, registrando la recepción de la solicitud.1
-
-Módulo de Generación de Informes (Acceso y Portabilidad)
-
-El sistema debe contar con un motor de generación de informes capaz de:
-? Conectividad: Conectarse a las diversas fuentes de datos identificadas en el Inventario de Datos (Capítulo 3), como ERPs, CRMs, bases de datos de producción, etc., para consolidar una vista de 360 grados de los datos de un titular.
-? Linaje de Datos y Etiquetado: La distinción legal entre datos "facilitados" y datos "inferidos" 1 crea un requisito técnico ineludible: el sistema debe soportar el linaje de datos. Cada dato o atributo en el sistema debe tener un metadato que indique su origen (ej.
-source: 'user_provided.registration_form' vs. source: 'internal.risk_algorithm'). Al generar un informe de portabilidad, el motor de informes debe filtrar y exportar únicamente aquellos datos cuyo metadato de origen corresponda a "facilitado por el titular". Esta capacidad de etiquetado en el origen es una especificación crítica que debe ser implementada en todos los procesos de ingesta y generación de datos de la organización.
-
-Módulo de Supresión Segura
-
-La funcionalidad de supresión no puede ser un simple DELETE en la base de datos. Debe ser un proceso robusto y auditable.
-? Borrado Lógico y Físico: Una implementación recomendada es un borrado en dos fases. Primero, un borrado lógico (soft delete) que marca el registro como inactivo pero lo conserva por un breve período de gracia (ej. 30 días) para permitir la recuperación en caso de error. Transcurrido este período, un proceso automatizado realiza el borrado físico permanente.
-? Anonimización Irreversible: Como alternativa al borrado, el sistema debe ofrecer una función de anonimización que reemplace los datos personales con valores aleatorios o generalizados de forma irreversible, conservando la integridad referencial del registro si es necesario para análisis estadísticos.1 Ambas operaciones (borrado y anonimización) deben ser registradas detalladamente en los logs de auditoría.
-
-Tabla 2.1: Protocolo de Actuación y Plazos para Derechos ARCOPOL
-
-DerechoPaso 1: Recepción y VerificaciónPaso 2: Análisis y Acción InternaPaso 3: Formulación de RespuestaPlazo Legal Total (Art. 11)Consideraciones ClaveAccesoRegistrar solicitud. Verificar identidad del titular.Generar informe completo con datos y metadatos (finalidad, destinatarios, lógica automatizada, etc.).Entregar informe en formato claro y accesible.30 días corridosIncluir TODOS los elementos del Art. 5.RectificaciónRegistrar solicitud. Verificar identidad. Solicitar detalle y evidencia de la corrección.Realizar la corrección en el sistema maestro y propagar a sistemas integrados. Notificar a terceros cesionarios.Confirmar la rectificación al titular.30 días corridosLa notificación a terceros es obligatoria (Art. 6).SupresiónRegistrar solicitud. Verificar identidad.Evaluar causal y verificar si aplican excepciones legales (ej. obligación de retención). Ejecutar supresión o anonimización.Confirmar la supresión o explicar fundadamente la denegación por excepción legal.30 días corridosDocumentar rigurosamente la justificación si se deniega.OposiciónRegistrar solicitud. Verificar identidad.Si es marketing directo, aceptar. Si es interés legítimo, realizar y documentar ponderación de intereses.Comunicar la aceptación de la oposición o la justificación de "motivos legítimos imperiosos".30 días corridosLa ponderación de intereses debe ser un análisis formal y documentado.PortabilidadRegistrar solicitud. Verificar identidad.Exportar únicamente los datos "facilitados por el titular" en formato estructurado (JSON/CSV), excluyendo datos inferidos.Entregar el archivo de datos al titular a través de un canal seguro.30 días corridosEl filtrado entre datos facilitados e inferidos es un desafío técnico crítico.BloqueoRegistrar solicitud. Verificar identidad.Aplicar un "flag" o estado de bloqueo en la base de datos para suspender temporalmente el tratamiento (excepto almacenamiento).Confirmar el bloqueo temporal mientras se resuelve la solicitud principal (rectificación, etc.).2 días hábiles (para la solicitud de bloqueo)La implementación técnica debe asegurar que los datos bloqueados no sean usados en ningún proceso operativo.Esta tabla sirve como una guía de referencia rápida y un checklist operativo para el equipo de privacidad, consolidando los procedimientos complejos y los plazos estrictos en un formato visual y fácil de seguir, lo que minimiza el riesgo de incumplimiento y facilita la capacitación.
-
-Capítulo 3: Módulo de Inventario y Mapeo de Datos
-
-Este capítulo detalla el procedimiento para crear y mantener un inventario exhaustivo de todos los activos de datos personales que la organización trata. Este inventario, también conocido como Registro de Actividades de Tratamiento (RAT), es la piedra angular de todo el sistema de cumplimiento. Sin un conocimiento claro de qué datos se tienen, dónde están, por qué se tienen, cómo fluyen y cuándo deben ser eliminados, es imposible cumplir con los demás principios y obligaciones de la Ley N° 21.719.
-
-3.1. Procedimientos para el Personal (Creación y Mantenimiento del Inventario)
-
-
-Procedimiento de Mapeo Inicial de Datos (Data Discovery)
-
-1. Conformación del Equipo de Trabajo: El DPO debe liderar un equipo multidisciplinario para el levantamiento inicial del inventario. Este equipo debe incluir representantes de todas las áreas clave que tratan datos personales: RRHH, Finanzas, Marketing, Ventas, Operaciones, TI y Legal.1
-2. Metodología de Levantamiento: El proceso no debe centrarse en preguntar "¿qué bases de datos tienen?", sino en "¿qué actividades o procesos realizan que involucren información de personas?". Se deben realizar entrevistas estructuradas y talleres con los dueños de los procesos en cada departamento para identificar y documentar cada actividad de tratamiento.1
-? Ejemplo de Preguntas para RRHH: "¿Cuál es el proceso completo desde que reciben un currículum hasta que se contrata a una persona? ¿Qué información solicitan? ¿Dónde la guardan? ¿Con quién la comparten (ej. empresa de exámenes preocupacionales)? ¿Por cuánto tiempo la conservan si la persona no es contratada?".
-3. Documentación de Actividades de Tratamiento: Para cada actividad identificada, el equipo debe documentar en el sistema de cumplimiento la siguiente información, que corresponde a los elementos de un RAT:
-? Nombre de la actividad de tratamiento: (ej. "Proceso de Reclutamiento y Selección").
-? Finalidad(es) del tratamiento: (ej. "Evaluar la idoneidad de los candidatos para vacantes laborales").
-? Base de licitud: (ej. "Consentimiento del candidato", "Medidas precontractuales").
-? Categorías de titulares de datos: (ej. "Postulantes a empleos").
-? Categorías de datos personales tratados: (ej. "Datos de identificación, historial académico, experiencia laboral, datos de contacto").
-? Categorías de destinatarios (internos y externos): (ej. "Gerentes de área, empresa externa de verificación de antecedentes").
-? Transferencias internacionales (si aplica): (País de destino y garantías).
-? Plazos de conservación y supresión: (ej. "Currículums de candidatos no seleccionados se eliminan después de 6 meses").
-? Descripción de las medidas de seguridad técnicas y organizativas.
-
-Clasificación de Datos por Sensibilidad
-
-Una vez identificados los datos, es crucial clasificarlos correctamente, ya que la ley impone requisitos más estrictos para ciertas categorías.
-? Datos Personales Comunes: Información de identificación, contacto, datos laborales, etc.
-? Datos Sensibles (Art. 2, lit. g): El personal debe ser capacitado para identificar y etiquetar datos que revelen origen étnico, afiliación sindical, convicciones religiosas o filosóficas, datos de salud, datos biométricos, vida u orientación sexual. Una novedad crucial de la ley chilena es la inclusión de la "situación socioeconómica" como dato sensible.1 Esto significa que datos como el nivel de ingresos, historial crediticio o la elegibilidad para beneficios sociales, comúnmente manejados por RRHH o áreas financieras, deben ser tratados con el máximo nivel de protección.1
-? Datos de Niños, Niñas y Adolescentes (NNA): Cualquier dato perteneciente a menores de edad debe ser clasificado como tal, ya que su tratamiento requiere el consentimiento de los padres o tutores y la consideración del interés superior del niño.1
-
-Documentación de Flujos de Datos (Data Flows)
-
-El inventario no es solo una lista estática, sino un mapa dinámico. El personal debe documentar cómo se mueven los datos:
-? Flujos Internos: Trazar el recorrido de los datos entre los sistemas internos. Por ejemplo, cuando un nuevo cliente se registra en la web, sus datos viajan desde el servidor web al CRM, luego al ERP para la facturación, y quizás a un sistema de business intelligence para análisis.1
-? Flujos Externos: Documentar todas las transferencias de datos a terceros, ya sean encargados del tratamiento (ej. un proveedor de cloud, una agencia de marketing) o cesionarios. Esto incluye identificar al tercero, el propósito de la transferencia y la base legal que la ampara.
-? Riesgos Específicos del Sector: En la industria salmonera, se debe prestar especial atención a los flujos de datos provenientes de tecnologías avanzadas. Por ejemplo, los datos generados en tiempo real por sensores de IoT en los centros de cultivo (temperatura del agua, niveles de oxígeno, alimentación automática) o los datos de geolocalización del personal en terreno.1 Aunque estos datos pueden no parecer personales a primera vista, si pueden vincularse a un centro de cultivo específico o a un operario, quedan bajo el ámbito de la ley y sus flujos deben ser mapeados.
-
-Gestión de Retención y Eliminación
-
-Basándose en el principio de proporcionalidad (limitación del plazo de conservación), el DPO, junto con el área legal y los dueños de los procesos, debe definir políticas de retención para cada categoría de datos.1
-? Definición de Políticas: La política debe establecer por cuánto tiempo se conservará un dato y cuál es la justificación (ej. "Las facturas de clientes se conservan por 6 años para cumplir con obligaciones tributarias").
-? Procedimiento de Eliminación: Se debe definir un procedimiento para la eliminación segura o la anonimización de los datos una vez que expira su período de retención. Este procedimiento debe ser ejecutado periódicamente por el personal de TI, y su ejecución debe ser verificada y registrada.
-
-3.2. Especificaciones Técnicas del Sistema (Plataforma de Gobernanza de Datos)
-
-El sistema de cumplimiento debe actuar como una plataforma centralizada de gobernanza de datos.
-
-Módulo de Registro de Actividades de Tratamiento (RAT)
-
-? Interfaz de Usuario: El sistema debe ofrecer una interfaz web intuitiva que permita al personal no técnico (dueños de procesos) documentar fácilmente las actividades de tratamiento, guiándolos a través de los campos requeridos (finalidad, categorías de datos, base legal, etc.).
-? Base de Datos del Inventario: Se requiere una base de datos relacional para almacenar el inventario. Las tablas principales podrían incluir:
-? processing_activities: Almacena la descripción de cada actividad.
-? data_assets: Cataloga los sistemas y bases de datos donde residen los datos.
-? data_categories: Define las diferentes categorías de datos personales.
-? data_flows: Mapea las transferencias de datos entre data_assets y con terceros.
-? Estas tablas deben estar interrelacionadas para permitir consultas complejas (ej. "¿Qué actividades tratan datos de salud y en qué sistemas se almacenan?").
-
-Funcionalidad de Mapeo y Visualización de Flujos
-
-? Herramientas de Visualización: El sistema debería integrar herramientas de visualización que generen diagramas de flujo de datos automáticamente a partir de la información registrada en el inventario. Esto permite al DPO y a los auditores comprender rápidamente cómo se mueven los datos a través de la organización y hacia el exterior, identificando posibles riesgos o cuellos de botella.
-? Integración y Descubrimiento Automatizado: Para mantener el inventario actualizado, el sistema podría integrarse con herramientas de descubrimiento de datos (data discovery) que escaneen periódicamente las redes y bases de datos de la organización para identificar nuevos almacenamientos de datos personales que necesiten ser inventariados.
-
-Motor de Políticas de Retención
-
-? Definición de Reglas: El sistema debe permitir al DPO o al administrador definir políticas de retención de forma declarativa (ej. "Para todos los datos en la categoría 'Currículums No Seleccionados', aplicar un período de retención de 180 días desde la fecha de creación").
-? Automatización de la Ejecución: El sistema debe incluir un motor de automatización (ej. un cron job o un worker de Celery) que se ejecute periódicamente para:
-1. Identificar todos los registros de datos que han excedido su período de retención definido.
-2. Ejecutar la acción definida:
-? Eliminación Segura: Invocar una API en el sistema de origen para realizar un borrado físico de los datos.
-? Anonimización: Aplicar un script de anonimización que reemplace los campos de identificación personal con valores no identificables.
-3. Registro de Auditoría: Cada acción de eliminación o anonimización debe ser registrada de forma detallada en los logs inmutables del sistema de cumplimiento, incluyendo qué dato se eliminó, cuándo y en base a qué política.
-
-Tabla 3.1: Plantilla de Registro de Actividad de Tratamiento (RAT)
-
-Campo del RegistroEjemplo de Contenido (Actividad: Monitoreo de Salud de Biomasa)ID de ActividadPROD-001Nombre de la ActividadMonitoreo de salud y alimentación de biomasa mediante IAResponsable del ProcesoGerente de ProducciónFinalidad(es)Optimizar la alimentación, detectar tempranamente enfermedades, asegurar el bienestar animal, cumplir con normativas sanitarias.Base de LicitudInterés legítimo (eficiencia productiva y bienestar animal), Cumplimiento de obligación legal (normativa sanitaria).Categorías de TitularesNo aplica directamente a personas naturales.Categorías de DatosDatos de sensores (O2, temp.), imágenes de video de los peces, datos de alimentación, registros de mortalidad. Nota: Si los datos pueden vincularse a un operario específico, se convierte en dato personal.Sistemas ImplicadosSensores IoT, Software de Acuicultura (ej. Mercatus AS), Plataforma de IA, ERP (SAP).Destinatarios (Internos/Externos)Equipo de Producción, Veterinarios, SERNAPESCA (reportes agregados).Transferencias InternacionalesSí, a proveedor de plataforma de IA en EE.UU. (Ver Módulo 6).Plazo de ConservaciónDatos brutos: 2 años. Informes agregados: 10 años.Medidas de SeguridadCifrado de datos en tránsito y en reposo, control de acceso basado en roles (RBAC) a la plataforma de IA.
-Capítulo 4: Módulo de Notificación de Brechas de Seguridad
-
-Este capítulo establece el procedimiento técnico y organizacional para la detección, gestión, notificación y remediación de incidentes de seguridad que afecten a datos personales. Dada la probable calificación de las empresas salmoneras como Operadores de Importancia Vital (OIV) bajo la Ley N° 21.663, los plazos de notificación son extremadamente cortos, lo que exige un plan de respuesta a incidentes bien definido, ensayado y parcialmente automatizado.1
-
-4.1. Procedimientos para el Personal (Plan de Respuesta a Incidentes)
-
-El Plan de Respuesta a Incidentes de Seguridad de Datos (PRISD) debe ser un documento formal, conocido y accesible para todo el personal clave.
-
-Fases del Plan de Respuesta
-
-1. Fase 1: Detección y Análisis Inicial
-? Detección: Cualquier empleado que sospeche de un incidente de seguridad (ej. un correo de phishing, un comportamiento anómalo en un sistema, una pérdida de un dispositivo) tiene la obligación de notificarlo inmediatamente al equipo de Seguridad de TI a través de los canales designados (ej. un correo a seguridad@empresa.cl o un ticket en el sistema de helpdesk).
-? Registro y Triaje: El analista de seguridad de TI que recibe la alerta es el responsable de realizar un triaje inicial. Debe registrar el incidente en el módulo de Notificación de Brechas del sistema de cumplimiento, documentando la hora de la detección, la fuente de la alerta, los sistemas potencialmente afectados y una descripción inicial del evento.1 Esta marca de tiempo es crítica, ya que el plazo de 3 horas para la primera notificación comienza a correr desde este momento.1
-2. Fase 2: Contención, Erradicación y Recuperación
-? Contención: El equipo de Seguridad de TI, siguiendo sus playbooks técnicos, debe tomar medidas inmediatas para contener el incidente y evitar que se propague (ej. aislar un servidor de la red, bloquear una cuenta de usuario comprometida).
-? Investigación y Evaluación de Impacto: Paralelamente, se debe convocar al Equipo de Respuesta a Incidentes (ERI), compuesto por el DPO, un representante legal, un representante de comunicaciones y el líder de Seguridad de TI. La tarea del ERI es evaluar la naturaleza y el alcance de la brecha:
-? ¿Qué datos personales se vieron afectados (comunes, sensibles, de NNA)?
-? ¿Cuántos titulares de datos fueron afectados?
-? ¿Cuál es el riesgo para los derechos y libertades de los titulares? (ej. riesgo de fraude, daño reputacional, discriminación). Esta evaluación determina la obligación de notificar.1
-3. Fase 3: Notificación (Plazos Críticos)
-? Notificación a la Autoridad (CSIRT Nacional y APDP): Basado en la evaluación del ERI, el DPO y el equipo legal son responsables de preparar y enviar las notificaciones a las autoridades competentes, utilizando las plantillas y canales del sistema de cumplimiento. Los plazos son ineludibles 1:
-? Dentro de las 3 horas desde la detección: Envío de una alerta temprana al CSIRT Nacional.
-? Dentro de 72 horas (o 24 horas si afecta servicios esenciales, lo cual es probable para un OIV): Envío de un segundo reporte más detallado al CSIRT Nacional.
-? "Sin dilaciones indebidas" (Art. 14 sexies): Envío de la notificación a la Agencia de Protección de Datos Personales (APDP).1
-? Notificación a los Titulares Afectados (Art. 14 sexies): Si la brecha afecta datos sensibles, de NNA o datos económicos, y presenta un riesgo razonable, es obligatorio notificar a los titulares afectados.1 El equipo de comunicaciones, en coordinación con el DPO y Legal, debe redactar una comunicación en lenguaje claro y sencillo que explique la naturaleza de la brecha, los datos afectados, las posibles consecuencias y las medidas que la empresa está tomando y que los titulares pueden tomar para protegerse.1
-4. Fase 4: Actividades Post-Incidente
-? Análisis Forense y Lecciones Aprendidas: El equipo de Seguridad de TI debe realizar un análisis forense completo para determinar la causa raíz del incidente. El ERI debe llevar a cabo una reunión de "lecciones aprendidas" para identificar fallos en los procesos o controles y proponer mejoras.
-? Documentación Final: Toda la gestión del incidente, desde la detección hasta la resolución y las lecciones aprendidas, debe ser documentada exhaustivamente en el sistema de cumplimiento. Esta documentación es vital para demostrar la debida diligencia ante las autoridades.
-
-Simulacros de Incidentes
-
-Es un procedimiento obligatorio realizar simulacros de brechas de seguridad al menos dos veces al año. Estos ejercicios deben involucrar a todos los miembros del ERI (Seguridad TI, Legal, Comunicaciones, DPO) y deben probar la efectividad del plan de respuesta, especialmente la capacidad de cumplir con los estrictos plazos de notificación.1 Los resultados de los simulacros deben usarse para identificar y corregir puntos débiles en el proceso.
-
-4.2. Especificaciones Técnicas del Sistema (Plataforma de Gestión de Incidentes)
-
-El sistema de cumplimiento debe proporcionar un módulo robusto para la gestión centralizada de incidentes.
-
-Detección y Registro de Incidentes
-
-? Integración con Herramientas de Seguridad: El módulo debe poder integrarse vía API con las herramientas de seguridad existentes en la organización, como sistemas SIEM (Security Information and Event Management), EDR (Endpoint Detection and Response) o IDS/IPS (Intrusion Detection/Prevention Systems). Esto permitiría la creación automática de un registro de incidente en el sistema de cumplimiento cuando estas herramientas detecten una anomalía grave.
-? Formulario de Registro Manual: Para las detecciones manuales, el sistema debe ofrecer un formulario estructurado que guíe al analista de seguridad para registrar la información inicial crítica: incident_timestamp, detection_timestamp, source_system, affected_data_categories, initial_description, etc.
-
-Módulo de Evaluación de Impacto y Notificación
-
-? Checklists Guiados: El sistema debe proporcionar checklists digitales basados en los requisitos del Art. 14 sexies para guiar al ERI en la evaluación del riesgo. El checklist debe ayudar a determinar si existe un "riesgo razonable para los derechos y libertades de los titulares", que es el umbral para la notificación.1
-? Generación Automatizada de Notificaciones: Basado en la información registrada sobre el incidente, el sistema debe tener plantillas pre-aprobadas por el área legal para generar borradores de las notificaciones requeridas:
-? Alerta temprana al CSIRT.
-? Reporte detallado al CSIRT.
-? Notificación a la APDP.
-? Comunicación a los titulares afectados.
-Esto acelera drásticamente el proceso, permitiendo al equipo centrarse en la revisión y aprobación en lugar de la redacción desde cero.1
-
-Gestión de Respuesta y Documentación Forense
-
-? Bitácora Centralizada del Incidente: El sistema debe funcionar como una bitácora centralizada e inmutable para cada incidente. Cada acción tomada por el ERI (una medida de contención, una decisión de notificación, una comunicación enviada) debe ser registrada con su marca de tiempo y el responsable de la acción.
-? Repositorio de Evidencia: El módulo debe permitir la carga segura de evidencia forense, como logs de sistemas, análisis de malware, capturas de tráfico de red, y copias de las comunicaciones enviadas. Esta documentación centralizada es fundamental para demostrar el cumplimiento y para análisis posteriores.1
-
-Tabla 4.1: Flujo de Trabajo y Responsabilidades en Respuesta a Brechas de Seguridad
-
-FaseActividad ClaveResponsable PrincipalPlazo CríticoHerramienta del Sistema1. DetecciónNotificación inicial de sospecha de incidente.Cualquier empleado.InmediatoCanal de reporte (email/ticket).Registro y triaje inicial del incidente.Analista de Seguridad TI.InmediatoMódulo de Registro de Incidentes.2. Contención y EvaluaciónAplicar medidas de contención técnica.Equipo de Seguridad TI.InmediatoPlaybooks de seguridad.Evaluar impacto en datos personales y riesgo para titulares.Equipo de Respuesta a Incidentes (ERI).< 3 horasChecklists de Evaluación de Riesgo.3. NotificaciónEnviar alerta temprana a CSIRT Nacional.DPO / Legal.Dentro de 3 horas desde detección.Plantillas de Notificación.Enviar notificación a la APDP.DPO / Legal."Sin dilaciones indebidas".Plantillas de Notificación.Enviar reporte detallado a CSIRT Nacional.DPO / Legal.24-72 horas desde detección.Plantillas de Notificación.Notificar a titulares afectados (si aplica).Comunicaciones (con DPO/Legal)."Sin dilaciones indebidas".Plantillas de Comunicación.4. Post-IncidenteRealizar análisis forense y documentar causa raíz.Equipo de Seguridad TI.1-2 semanasRepositorio de Evidencia.Realizar reunión de lecciones aprendidas y proponer mejoras.Equipo de Respuesta a Incidentes (ERI).< 1 mesMódulo de Gestión de Tareas.
-Capítulo 5: Módulo de Evaluaciones de Impacto en la Protección de Datos (DPIA)
-
-Este capítulo describe el procedimiento para realizar Evaluaciones de Impacto en la Protección de Datos (DPIA, por sus siglas en inglés), un requisito del Artículo 15 ter de la Ley N° 21.719 para tratamientos que probablemente entrañen un "alto riesgo" para los derechos y libertades de los titulares.1 La DPIA es una herramienta de gestión de riesgos preventiva, diseñada para identificar y mitigar los riesgos de privacidad antes de iniciar un nuevo proyecto o tratamiento de datos.
-
-5.1. Procedimientos para el Personal (Metodología de Evaluación)
-
-
-Cuándo Realizar una DPIA
-
-El DPO es responsable de establecer y comunicar a toda la organización los criterios que gatillan la necesidad de realizar una DPIA. La obligación surge antes de iniciar el tratamiento. El Artículo 15 ter establece casos en los que una DPIA es siempre requerida 1:
-1. Evaluación sistemática y exhaustiva basada en tratamiento automatizado, como la elaboración de perfiles, que produzca efectos jurídicos significativos en las personas.
-2. Tratamiento masivo de datos o a gran escala.
-3. Observación o monitoreo sistemático de una zona de acceso público.
-4. Tratamiento de datos sensibles cuando se basa en una excepción al consentimiento.
-Para la industria salmonera, esto se traduce en la necesidad de iniciar una DPIA en escenarios como 1:
-? La implementación de un nuevo sistema de monitoreo de biomasa que utilice Inteligencia Artificial (IA) para analizar imágenes de video de los centros de cultivo.
-? La adopción de una nueva plataforma de Recursos Humanos en la nube que procesará datos sensibles de todos los empleados.
-? Un proyecto para instalar sensores de IoT y cámaras en las pisciculturas para monitorear la producción y la seguridad.
-? El lanzamiento de una nueva aplicación móvil para clientes que recopile datos de geolocalización.
-
-Procedimiento Guiado para la Realización de la DPIA
-
-El líder del proyecto (ej. Jefe de Proyectos de TI, Gerente de RRHH) es el responsable de iniciar y completar la DPIA, con el asesoramiento y supervisión del DPO. El sistema de cumplimiento debe ofrecer un "wizard guiado" que estructure el proceso en las siguientes fases 1:
-1. Fase 1: Descripción del Tratamiento:
-? El líder del proyecto debe describir de manera sistemática y detallada la operación de tratamiento propuesta. Esto incluye:
-? Contexto y Alcance: ¿Qué se quiere lograr con este proyecto?
-? Naturaleza de los Datos: ¿Qué categorías de datos personales se van a recolectar y tratar? ¿Hay datos sensibles o de NNA?
-? Ciclo de Vida del Dato: ¿Cómo se recolectarán, almacenarán, usarán, compartirán y eliminarán los datos? Describir el flujo de datos completo.
-? Actores y Tecnologías: ¿Qué sistemas, tecnologías y terceros estarán involucrados?
-2. Fase 2: Evaluación de la Necesidad y Proporcionalidad:
-? El líder del proyecto debe justificar por qué el tratamiento es necesario para alcanzar la finalidad declarada.
-? Debe evaluar si la cantidad y tipo de datos a recolectar son proporcionales y se limitan a lo estrictamente necesario (principio de minimización). ¿Se podría lograr el mismo objetivo con menos datos o con datos anonimizados?
-3. Fase 3: Identificación y Evaluación de Riesgos:
-? Con el apoyo del DPO y Seguridad de TI, se deben identificar los riesgos potenciales para los derechos y libertades de los titulares. Los riesgos pueden incluir:
-? Acceso no autorizado a los datos.
-? Modificación o eliminación no deseada de la información.
-? Reidentificación de datos seudonimizados.
-? Toma de decisiones erróneas o discriminatorias basadas en los datos.
-? Pérdida de control del titular sobre sus datos.
-? Para cada riesgo identificado, se debe evaluar su probabilidad de ocurrencia y la gravedad del impacto en los titulares. Esto permite priorizar los riesgos más críticos.
-4. Fase 4: Medidas de Mitigación:
-? Para cada riesgo identificado, especialmente los de alta probabilidad o gravedad, el equipo del proyecto debe proponer medidas concretas para mitigarlo. Estas medidas pueden ser:
-? Técnicas: Cifrado, seudonimización, controles de acceso robustos, etc.
-? Organizativas: Políticas de acceso, capacitación del personal, cláusulas contractuales con proveedores.
-? Legales: Asegurar una base de licitud clara, proporcionar información transparente a los titulares.
-
-Flujo de Aprobación y Consulta
-
-1. Revisión del DPO: Una vez que el líder del proyecto completa el borrador de la DPIA en el sistema, este se envía automáticamente al DPO para su revisión.
-2. Dictamen del DPO: El DPO evalúa la DPIA, verifica que el análisis de riesgos sea completo y que las medidas de mitigación propuestas sean adecuadas. El DPO emite un dictamen formal, que puede ser de aprobación, aprobación con condiciones, o rechazo con recomendaciones de mejora. Este dictamen queda registrado en el sistema.
-3. Consulta a la Agencia (si aplica): Si después de implementar las medidas de mitigación, la DPIA concluye que el tratamiento todavía presenta un alto riesgo residual, el Artículo 15 ter faculta al responsable a consultar a la APDP para obtener recomendaciones.1 El DPO es el responsable de gestionar esta consulta.
-
-Seguimiento de Recomendaciones
-
-La DPIA no es un documento estático. El líder del proyecto es responsable de implementar las medidas de mitigación aprobadas. El sistema de cumplimiento debe facilitar el seguimiento, convirtiendo cada medida de mitigación en una tarea asignable con un responsable y una fecha de vencimiento. El DPO debe utilizar el sistema para monitorear el progreso de la implementación de estas tareas y verificar su efectividad.
-
-5.2. Especificaciones Técnicas del Sistema (Herramienta de DPIA)
-
-
-Asistente Guiado (Wizard)
-
-? Interfaz Basada en Formularios: El sistema debe presentar la DPIA como una serie de formularios web estructurados, cada uno correspondiendo a una fase de la metodología (Descripción, Necesidad, Riesgos, Mitigación).
-? Contenido Pre-cargado: El sistema puede pre-cargar bibliotecas de riesgos comunes y medidas de mitigación estándar, que el usuario puede seleccionar y adaptar a su proyecto específico, agilizando el proceso.
-? Matriz de Riesgo Interactiva: Para la fase de evaluación de riesgos, el sistema debe proporcionar una matriz interactiva donde el usuario pueda calificar la probabilidad y el impacto de cada riesgo, y el sistema calcule automáticamente el nivel de riesgo (Bajo, Medio, Alto, Crítico).
-
-Flujo de Aprobación (Workflow Engine)
-
-? Motor de Flujo de Trabajo: El sistema debe contar con un motor de flujo de trabajo que automatice el proceso de revisión y aprobación.
-1. Cuando el estado de la DPIA cambia a 'Listo para Revisión', el sistema notifica automáticamente al DPO.
-2. El DPO puede cambiar el estado a 'Aprobado', 'Rechazado' o 'Requiere Cambios', y sus comentarios quedan registrados.
-3. El estado 'Aprobado' desbloquea la siguiente fase del proyecto.
-
-Módulo de Seguimiento de Tareas
-
-? Integración con Gestión de Proyectos: Cada medida de mitigación identificada en la DPIA debe poder convertirse en una tarea dentro de un módulo de seguimiento.
-? Dashboard de Seguimiento: El DPO debe tener acceso a un dashboard que muestre el estado de todas las medidas de mitigación pendientes en toda la organización, permitiendo un seguimiento centralizado y proactivo del cierre de los riesgos identificados.
-
-Tabla 5.1: Metodología Sistemática para la Realización de una DPIA
-
-FaseTarea ClaveResponsableEntregable en el Sistema1. Análisis PrevioDeterminar si el tratamiento requiere una DPIA según los criterios del Art. 15 ter.Líder del Proyecto / DPOChecklist de necesidad de DPIA completado.2. Descripción SistemáticaDocumentar el contexto, alcance, naturaleza, ciclo de vida y flujo de los datos.Líder del ProyectoSección "Descripción del Tratamiento" en el formulario de DPIA.3. Evaluación de Necesidad y ProporcionalidadJustificar la necesidad del tratamiento y la minimización de los datos recolectados.Líder del ProyectoSección "Análisis de Necesidad y Proporcionalidad" completada.4. Identificación y Evaluación de RiesgosIdentificar amenazas y vulnerabilidades. Evaluar la probabilidad y gravedad del impacto en los titulares.Líder del Proyecto (con apoyo de DPO y Seguridad TI)Matriz de Riesgos completada con riesgos priorizados.5. Plan de Tratamiento de RiesgosDefinir medidas técnicas y organizativas para mitigar cada riesgo identificado.Líder del Proyecto (con apoyo de DPO y Seguridad TI)Sección "Medidas de Mitigación" con un plan de acción detallado.6. Revisión y AprobaciónRevisar la DPIA completa y emitir un dictamen sobre la aceptabilidad del riesgo residual.Delegado de Protección de Datos (DPO)Dictamen formal del DPO registrado en el sistema.7. Seguimiento y RevisiónImplementar las medidas de mitigación y revisar periódicamente la DPIA.Líder del Proyecto / DPOTareas de mitigación creadas y monitoreadas en el módulo de seguimiento.
-Capítulo 6: Módulo de Transferencias Internacionales de Datos
-
-Este capítulo detalla los procedimientos y controles necesarios para realizar transferencias de datos personales fuera del territorio chileno, en cumplimiento con los Artículos 27, 28 y 29 de la Ley N° 21.719.1 La gestión adecuada de estas transferencias es crucial para las empresas que operan en un mercado global, utilizan servicios en la nube o colaboran con socios internacionales.
-
-6.1. Procedimientos para el Personal (Gestión de Flujos Transfronterizos)
-
-
-Procedimiento de Autorización de una Transferencia Internacional
-
-Antes de transferir cualquier dato personal fuera de Chile, el dueño del proceso de negocio debe seguir un procedimiento de autorización interna liderado por el DPO.
-1. Identificación de la Transferencia: El primer paso es identificar la necesidad de transferir datos. Esto debe ser registrado en el Inventario de Datos (Módulo 3), especificando el país de destino, el receptor, las categorías de datos y la finalidad.
-2. Determinación de la Base Legal para la Transferencia (Art. 27): El DPO, en conjunto con el área legal, debe determinar el mecanismo legal que amparará la transferencia. Las opciones, en orden de preferencia, son:
-? Decisión de Adecuación: Verificar si la Agencia de Protección de Datos Personales (APDP) ha determinado que el país de destino proporciona un nivel de protección adecuado. El DPO debe mantener una lista actualizada de estos países.
-? Garantías Adecuadas: Si no hay una decisión de adecuación, se deben implementar "garantías adecuadas". La más común son las Cláusulas Contractuales Tipo (CCT). El equipo legal es responsable de negociar e incluir estas cláusulas en el contrato con el receptor de los datos (importador). Para transferencias dentro de un mismo grupo empresarial, se pueden utilizar Normas Corporativas Vinculantes (BCR), que deben ser aprobadas por la APDP.1
-? Excepciones Específicas: Solo si las opciones anteriores no son viables y la transferencia es específica y no habitual, se puede recurrir a una de las excepciones del Art. 27, como el consentimiento explícito e informado del titular para esa transferencia particular. Obtener este consentimiento es responsabilidad del dueño del proceso.
-3. Evaluación de Impacto de la Transferencia (TIA): Inspirado en la jurisprudencia europea (caso "Schrems II"), es una buena práctica y un requisito de debida diligencia realizar una Evaluación de Impacto de la Transferencia (TIA). El DPO y el equipo legal deben evaluar si la legislación y las prácticas del país de destino (especialmente en lo relativo al acceso de autoridades públicas a los datos) podrían socavar la protección ofrecida por las garantías adecuadas (ej. las CCT).4 Si se identifican riesgos, se deben implementar medidas suplementarias (técnicas, como el cifrado robusto, u organizativas).
-4. Documentación y Registro: Todo el proceso (la base legal elegida, el contrato con las CCT firmadas, la TIA realizada) debe ser documentado y registrado en el sistema de cumplimiento, vinculándolo a la actividad de tratamiento correspondiente en el inventario de datos.
-
-Gestión y Validación de Garantías
-
-? Cláusulas Contractuales Tipo (CCT): El departamento legal debe utilizar las plantillas de CCT que apruebe la APDP. Son responsables de asegurar que estas cláusulas se incorporen sin modificaciones sustanciales en los contratos con proveedores o socios internacionales y que sean debidamente firmadas por ambas partes.1
-? Normas Corporativas Vinculantes (BCR): Para grupos empresariales, el DPO y el equipo legal liderarán el proyecto de desarrollo de las BCR, que deben ser presentadas a la APDP para su aprobación. Una vez aprobadas, sirven como base legal para todas las transferencias intragrupo.
-
-6.2. Especificaciones Técnicas del Sistema (Gestión de Transferencias)
-
-
-Módulo de Registro de Transferencias
-
-? Base de Datos de Transferencias: El sistema debe tener una tabla (international_transfers) para registrar cada flujo de datos transfronterizo. Los campos deben incluir:
-? transfer_id (PK)
-? processing_activity_id (FK): Vínculo al RAT.
-? destination_country (Código ISO).
-? data_importer_name (VARCHAR).
-? legal_basis (ENUM: 'adequacy_decision', 'scc', 'bcr', 'consent', etc.).
-? safeguard_document_id (FK): Vínculo al documento de garantía (ej. el contrato con las CCT).
-? tia_id (FK): Vínculo a la Evaluación de Impacto de la Transferencia.
-? Integración con el Inventario de Datos: La interfaz para registrar una transferencia debe estar integrada con el Módulo 3. Al documentar un flujo de datos en el inventario, si el destino es un tercero fuera de Chile, el sistema debe solicitar automáticamente que se complete el registro de transferencia internacional.
-
-Biblioteca de Garantías y Plantillas
-
-? Repositorio de Documentos: El sistema debe incluir un repositorio seguro para almacenar y gestionar los documentos que constituyen las garantías adecuadas. Esto incluye:
-? Una biblioteca de plantillas de CCT aprobadas por la APDP.
-? Un espacio para cargar y versionar los contratos firmados con las CCT.
-? Un registro de las BCR aprobadas para el grupo.
-? Gestión de Versiones y Alertas: El sistema debe gestionar las versiones de estos documentos y permitir configurar alertas para notificar al DPO cuando un contrato esté próximo a expirar y necesite ser renovado.
-
-Herramienta para la Evaluación de Países Terceros (TIA)
-
-Si bien la evaluación del marco legal de un país tercero es un proceso manual que requiere análisis jurídico, el sistema puede y debe facilitar su documentación y gestión.1
-? Plantillas de TIA: El sistema debe ofrecer una plantilla estructurada para guiar al DPO y al equipo legal a través de los pasos de una TIA. La plantilla debe incluir secciones para:
-1. Descripción del flujo de datos.
-2. Identificación de la garantía adecuada utilizada (ej. CCT).
-3. Análisis de la legislación y prácticas del país de destino (con especial atención a las leyes de vigilancia y acceso gubernamental).
-4. Identificación de riesgos de que la garantía sea ineficaz en la práctica.
-5. Definición y documentación de medidas suplementarias (si son necesarias).
-6. Conclusión final sobre la licitud de la transferencia.
-? Base de Conocimiento: El sistema puede incluir una base de conocimiento donde el DPO pueda registrar información relevante sobre la legislación de diferentes países, creando un recurso interno que agilice futuras TIA.
-
-Tabla 6.1: Checklist para la Autorización de una Transferencia Internacional de Datos
-
-PasoPregunta ClaveAcción RequeridaResponsableEstado (OK / Pendiente)1. Identificación¿La actividad de tratamiento implica enviar datos personales fuera de Chile?Registrar la transferencia en el Inventario de Datos (RAT).Dueño del Proceso2. Base Legal¿Existe una decisión de adecuación de la APDP para el país de destino?Verificar la lista oficial de países adecuados mantenida por el DPO.DPOSi no, ¿se han firmado Cláusulas Contractuales Tipo (CCT) con el importador?Incorporar y firmar las CCT aprobadas en el contrato.LegalSi no, ¿aplica alguna de las excepciones del Art. 27 (ej. consentimiento explícito)?Obtener y documentar la prueba del cumplimiento de la excepción.Dueño del Proceso3. Evaluación¿Se ha realizado una Evaluación de Impacto de la Transferencia (TIA)?Completar la plantilla de TIA en el sistema de cumplimiento.DPO / Legal4. Mitigación¿La TIA identificó la necesidad de medidas suplementarias?Definir e implementar las medidas (ej. cifrado end-to-end, políticas de acceso).TI / Dueño del Proceso5. Registro¿Está toda la documentación (contrato, TIA, etc.) registrada en el sistema?Cargar todos los documentos relevantes y vincularlos al registro de la transferencia.DPO6. Aprobación Final¿El DPO ha aprobado formalmente la transferencia?Obtener el dictamen de aprobación del DPO en el sistema.DPO
-Capítulo 7: Módulo de Auditoría y Cumplimiento
-
-Este capítulo detalla las funcionalidades y procedimientos que permiten a la organización supervisar, medir y demostrar su cumplimiento con la Ley N° 21.719 de manera continua. Este módulo es la encarnación del principio de responsabilidad proactiva (accountability), proporcionando al DPO y a la alta dirección las herramientas para una gobernanza efectiva de la privacidad y la evidencia necesaria para responder ante fiscalizaciones de la APDP.
-
-7.1. Procedimientos para el Personal (Supervisión y Mejora Continua)
-
-
-Rol del DPO en la Supervisión del Cumplimiento
-
-El Delegado de Protección de Datos (DPO) es el principal usuario y custodio de las herramientas de este módulo. Sus responsabilidades de supervisión incluyen 1:
-1. Monitoreo Continuo: El DPO debe revisar periódicamente los dashboards y logs del sistema para supervisar las actividades de tratamiento de datos en toda la organización. Debe buscar activamente anomalías, patrones de acceso inusuales o desviaciones de las políticas establecidas.
-2. Auditorías Internas: El DPO debe planificar y ejecutar auditorías internas periódicas (al menos anualmente) sobre áreas o procesos de alto riesgo. Utilizará los reportes del sistema como base para estas auditorías, verificando que los procedimientos documentados se sigan en la práctica.
-3. Reporte a la Alta Dirección: El DPO es responsable de generar y presentar informes de cumplimiento a la alta dirección. Estos informes deben resumir el estado de cumplimiento, destacar las métricas y KPIs clave, identificar riesgos emergentes y proponer planes de acción para la mejora continua.
-4. Gestión de la Evidencia para Fiscalizaciones: En caso de una auditoría o requerimiento de información por parte de la APDP, el DPO es el punto de contacto principal. Utilizará el sistema para recopilar y exportar de manera rápida y eficiente toda la evidencia necesaria para demostrar el cumplimiento (ej. registros de consentimiento, logs de respuesta a solicitudes ARCOPOL, DPIAs realizadas).
-
-Procedimiento de Mejora Continua
-
-El cumplimiento no es un estado estático, sino un proceso de mejora continua.
-1. Análisis de Métricas: El DPO y los dueños de los procesos deben analizar las métricas y KPIs generados por el sistema para identificar áreas de mejora. Por ejemplo, un tiempo medio de respuesta a solicitudes ARCOPOL que se acerca al límite legal de 30 días indica un cuello de botella en el proceso que debe ser investigado y optimizado.
-2. Plan de Acción: Basado en los hallazgos de las auditorías y el análisis de métricas, el DPO debe elaborar planes de acción correctiva. Cada acción debe ser registrada en el sistema como una tarea, con un responsable y una fecha de vencimiento.
-3. Revisión y Actualización: Las políticas, procedimientos y controles deben ser revisados y actualizados regularmente para reflejar los cambios en la legislación, las operaciones de la empresa o el panorama de riesgos.
-
-7.2. Especificaciones Técnicas del Sistema (Plataforma de Auditoría)
-
-
-Logs Inmutables y Cadena de Custodia Digital
-
-? Implementación Técnica: La inmutabilidad de los logs es un requisito técnico no negociable para garantizar su valor probatorio. Esto se puede lograr utilizando tecnologías como blockchains privados o bases de datos de solo-añadir (append-only). Una técnica más común y efectiva es el encadenamiento de hashes: cada nuevo registro de log incluye el hash del registro anterior, creando una cadena criptográfica que hace imposible alterar un registro sin invalidar todos los posteriores.1
-? Integridad Verificable: Para asegurar la integridad, el sistema debe calcular y almacenar un checksum (ej. usando el algoritmo SHA-512) para cada registro de log en el momento de su creación. Cualquier intento de modificación del registro resultaría en un checksum diferente, lo que sería detectado inmediatamente por el sistema.1
-? Operaciones Registradas: El sistema debe registrar de forma granular todas las operaciones críticas para el cumplimiento, incluyendo, pero no limitándose a:
-? Cada otorgamiento y revocación de consentimiento.
-? Cada paso en la gestión de una solicitud ARCOPOL (recepción, verificación, acción, respuesta).
-? Accesos a datos personales, especialmente a datos sensibles.
-? Creación y modificación de registros en el inventario de datos.
-? Ejecución de políticas de retención (eliminación o anonimización de datos).
-? Todas las acciones relacionadas con la gestión de una brecha de seguridad.
-
-Módulo de Reportes de Cumplimiento
-
-El sistema debe ofrecer un generador de reportes flexible que permita al DPO crear informes para diferentes audiencias y propósitos:
-? Reportes para la APDP: Informes pre-configurados que documenten el cumplimiento de obligaciones específicas, como el registro de actividades de tratamiento (RAT) o el historial de notificaciones de brechas.
-? Reportes de Gestión Interna: Informes que resuman el estado de cumplimiento por departamento, proceso o sistema, ayudando a la alta dirección a entender el panorama de riesgos de privacidad.
-? Reportes de Auditoría: Informes detallados que extraigan logs específicos para un período de tiempo, un usuario o una actividad, facilitando las investigaciones de auditoría.
-
-Dashboards de Métricas y KPIs
-
-El sistema debe presentar la información de cumplimiento de manera visual e intuitiva a través de dashboards ejecutivos personalizables.
-? Métricas y KPIs Clave a Monitorear 1:
-? Gestión de Derechos: Número de solicitudes ARCOPOL recibidas vs. resueltas; tiempo medio de respuesta; porcentaje de solicitudes resueltas dentro del plazo.
-? Gestión de Consentimientos: Tasa de opt-in vs. opt-out; número de consentimientos activos por finalidad; tasa de revocación.
-? Gestión de Brechas: Número de incidentes reportados; tiempo medio de detección a notificación; número de titulares afectados.
-? Gobernanza de Datos: Porcentaje de activos de datos inventariados; número de DPIAs completadas; porcentaje de medidas de mitigación implementadas.
-? Alertas y Umbrales: El DPO debe poder configurar umbrales en estos KPIs (ej. si el tiempo medio de respuesta a solicitudes supera los 25 días) que generen alertas automáticas, permitiendo una intervención proactiva antes de que se produzca un incumplimiento.
-
-Tabla 7.1: Panel de Control (Dashboard) del DPO - KPIs de Cumplimiento
-
-MóduloMétrica / KPIUmbral de Alerta (Ejemplo)Visualización SugeridaDerechos ARCOPOLTiempo Medio de Respuesta a Solicitudes> 25 díasGráfico de barras con promedio móvil.% de Solicitudes Vencidas> 0%Indicador numérico en rojo.Gestión de ConsentimientosTasa de Revocación MensualAumento > 20% respecto al mes anteriorGráfico de líneas de tendencia.Notificación de BrechasTiempo desde Detección a Notificación a Autoridad> 3 horas (para alerta inicial)Cronómetro en tiempo real para incidentes activos.Evaluaciones de Impacto (DPIA)% de Mitigaciones Pendientes (post-aprobación)> 10% después de 3 mesesGráfico de torta por estado (Pendiente, En Progreso, Completado).Inventario de Datos% de Activos de Datos sin Política de Retención> 5%Lista de activos no conformes.
-Bibliografía
-
-A continuación, se presenta una selección de textos y documentos para profundizar en la materia de protección de datos personales y su implementación, basados en las fuentes analizadas para la elaboración de este manual.
-1. Contreras Vásquez, P., Drago Aguirre, M., & Viollier Bonvin, P. (2024). Compliance y protección de datos personales: Explicación de la nueva ley N° 21.719. Ediciones DER. 1
-2. Garrido Iglesias, R., & Saenz López, B. (2025). Ley de Protección de Datos Personales: Aspectos claves y desafíos. Ediciones DER. 1
-3. República de Chile. (2024). Ley N° 21.719: Regula la protección y el tratamiento de los datos personales y crea la Agencia de Protección de Datos Personales. Biblioteca del Congreso Nacional de Chile. 1
-4. Agencia Española de Protección de Datos (AEPD). Guía práctica para las Evaluaciones de Impacto en la Protección de los Datos sujetas al RGPD. 2
-5. Agencia Española de Protección de Datos (AEPD). Guía para una Evaluación de Impacto en la Protección de Datos Personales (EIPD). 6
-6. Comité Consultivo del Convenio para la Protección de las Personas con Respecto al Tratamiento Automatizado de Datos de Carácter Personal. (2023). Cláusulas Contractuales Modelo para la transferencia de datos personales de Responsable a Responsable. Consejo de Europa. 5
-7. National Institute of Standards and Technology (NIST). (2020). NIST Privacy Framework: A Tool for Improving Privacy through Enterprise Risk Management, Version 1.0. 7
-8. ISMS Forum Spain. (2023). II Guía [práctica] para la Gestión de Brechas de Datos Personales. 9
-Obras citadas
-1. SCN_0205-pages-2.pdf
-2. Guía práctica para LAS Evaluaciones de Impacto en la Protección ..., fecha de acceso: julio 29, 2025, https://www.lopdencastellon.com/wp-content/uploads/2018/02/Gu%C3%ADa-Evaluaci%C3%B3n-de-impacto-protecci%C3%B3n-de-datos.pdf
-3. IA y RGPD: Guía práctica para tratar datos personales - OpenWebinars, fecha de acceso: julio 29, 2025, https://openwebinars.net/blog/ia-rgpd-guia-practica-para-tratar-datos-personales/
-4. La CNIL publica la versión definitiva de su guía sobre análisis de impacto de los transferencias internacionales de datos - Miguel Ortego Ruiz, fecha de acceso: julio 29, 2025, https://miguelortego.com/la-cnil-publica-la-version-definitiva-de-su-guia-sobre-analisis-de-impacto-de-los-transferencias-internacionales-de-datos/
-5. Estrasburgo, 16 de junio de 2023 COMITÉ ... - https: //rm. coe. int, fecha de acceso: julio 29, 2025, https://rm.coe.int/clausulas-contractuales-modelo-para-la-transferencia-de-datos-personal/1680ac33e3
-6. Guía para una Evaluación de Impacto en la Protección de Datos Personales, fecha de acceso: julio 29, 2025, https://www.lopdencastellon.com/wp-content/uploads/2017/10/GUIA-EIPD.pdf
-7. NIST Privacy Framework: A Comprehensive Guide 2025 - Securiti, fecha de acceso: julio 29, 2025, https://securiti.ai/nist-privacy-framework/
-8. Privacy Framework | NIST, fecha de acceso: julio 29, 2025, https://www.nist.gov/privacy-framework
-9. II Guía [práctica] para la Gestión de Brechas de Datos Personales - ISMS Forum Spain, fecha de acceso: julio 29, 2025, https://www.ismsforum.es/ficheros/descargas/guia-gestion-brechas-datos-20231676503894.pdf

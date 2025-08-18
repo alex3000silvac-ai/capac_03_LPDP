@@ -32,7 +32,11 @@
       "WebFetch(domain:scldp-frontend.onrender.com)",
       "Bash(./fix_render_deployment.sh)",
       "Bash(cp:*)",
-      "Bash(/mnt/c/Pasc/Proyecto_Derecho_Digital/Desarrollos/Intro_LPDP/backend/verificar_despliegue.sh)"
+      "Bash(/mnt/c/Pasc/Proyecto_Derecho_Digital/Desarrollos/Intro_LPDP/backend/verificar_despliegue.sh)",
+      "WebSearch",
+      "WebFetch(domain:render.com)",
+      "Bash(.render.exe services)",
+      "Bash(echo:*)"
     ],
     "deny": []
   }

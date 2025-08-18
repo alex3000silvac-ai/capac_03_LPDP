@@ -156,6 +156,7 @@ cython_debug/
 *.bak
 *.backup
 *~
+backup_*/
 
 # Temporary files
 *.tmp
@@ -172,3 +173,20 @@ cython_debug/
 postgres-data/
 redis-data/
 .aider*
+
+# Render CLI y scripts de automatización
+render.exe
+*.ps1
+render-*.ps1
+
+# Archivos obsoletos del proyecto
+*.sql
+*.txt
+*.docx
+*.sh
+deploy*
+fix_*
+init_*
+start_*
+verificar_*
+create_*
