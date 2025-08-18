@@ -27,6 +27,22 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+@router.get("/available")
+async def get_available_tenants() -> Any:
+    """
+    Obtener tenants disponibles para login (público)
+    """
+    # Para el sistema actual con configuración por variables de entorno
+    # retornamos los tenants predefinidos
+    return [
+        {
+            "tenant_id": "demo",
+            "company_name": "Empresa Demo",
+            "description": "Empresa de demostración del sistema LPDP"
+        }
+    ]
+
+
 @router.get("/", response_model=List[TenantInfo])
 async def list_tenants(
     skip: int = 0,

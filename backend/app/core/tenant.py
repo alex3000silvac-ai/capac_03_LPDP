@@ -259,7 +259,7 @@ async def tenant_middleware(request: Request, call_next):
             return await call_next(request)
 
         # Rutas públicas que no requieren validación de tenant
-        public_paths = ["/", "/health", "/api/docs", "/api/redoc", "/api/openapi.json", "/api/v1/auth/login"]
+        public_paths = ["/", "/health", "/api/docs", "/api/redoc", "/api/openapi.json", "/api/v1/auth/login", "/api/v1/tenants/available"]
         
         if request.url.path in public_paths:
             return await call_next(request)
