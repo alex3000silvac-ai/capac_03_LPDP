@@ -17,7 +17,7 @@ export const TenantProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const { user, token, isAuthenticated } = useAuth();
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
 
   // Cargar tenants disponibles cuando el usuario se autentica
   useEffect(() => {
