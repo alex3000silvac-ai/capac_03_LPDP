@@ -45,7 +45,12 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configuración de CORS para producción
+# Middleware personalizado para multi-tenant (DEBE IR ANTES QUE CORS)
+@app.middleware("http")
+async def tenant_middleware_wrapper(request: Request, call_next):
+    return await tenant_middleware(request, call_next)
+
+# Configuración de CORS para producción  
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
@@ -59,16 +64,11 @@ app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=[
         "scldp-backend.onrender.com",
-        "scldp-frontend.onrender.com",
+        "scldp-frontend.onrender.com", 
         "localhost",
         "127.0.0.1",
     ]
 )
-
-# Middleware personalizado para multi-tenant
-@app.middleware("http")
-async def tenant_middleware_wrapper(request: Request, call_next):
-    return await tenant_middleware(request, call_next)
 
 
 @app.middleware("http")
