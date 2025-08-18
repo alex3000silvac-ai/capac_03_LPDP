@@ -1,7 +1,6 @@
-# Backend Profesional LPDP v2.0.0 - CON SUPABASE
+# LPDP Backend v3.0.0 - Dependencias Mínimas y Estables
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic[email]==2.5.0
 python-multipart==0.0.6
 PyJWT==2.8.0
-psycopg2-binary==2.9.7
