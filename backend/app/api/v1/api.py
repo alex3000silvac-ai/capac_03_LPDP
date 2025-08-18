@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     tenants,
     empresas,
     organizaciones,
+    capacitacion,
     # COMENTADO: Endpoints problemáticos que causan errores de import
     # actividades,
     # categorias,
@@ -21,7 +22,6 @@ from app.api.v1.endpoints import (
     # dpia,
     # transferencias,
     # auditoria,
-    # capacitacion,
     # admin_comercial
 )
 
@@ -33,6 +33,7 @@ api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(tenants.router, prefix="/tenants", tags=["tenants"])
 api_router.include_router(empresas.router, prefix="/empresas", tags=["empresas"])
 api_router.include_router(organizaciones.router, prefix="/organizaciones", tags=["organizaciones"])
+api_router.include_router(capacitacion.router, prefix="/capacitacion", tags=["capacitacion"])
 
 # COMENTADO: Rutas de módulos funcionales - Causan errores de import
 # api_router.include_router(consentimientos.router, prefix="/consentimientos", tags=["consentimientos"])
