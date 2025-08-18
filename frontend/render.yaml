@@ -9,9 +9,9 @@ services:
       - key: REACT_APP_API_URL
         value: https://scldp-backend.onrender.com
       - key: REACT_APP_APP_NAME
-        value: Sistema LPDP
+        value: Sistema LPDP - V1.0.1
       - key: REACT_APP_VERSION
-        value: 1.0.0
+        value: 1.0.1
       - key: REACT_APP_ENVIRONMENT
         value: production
       - key: REACT_APP_MULTI_TENANT
