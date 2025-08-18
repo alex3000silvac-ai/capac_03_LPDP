@@ -36,7 +36,18 @@
       "WebSearch",
       "WebFetch(domain:render.com)",
       "Bash(.render.exe services)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(./render.exe services list)",
+      "Bash(./render --version)",
+      "Bash(wget:*)",
+      "Bash(./render.exe whoami)",
+      "Bash(./render.exe services get srv-d2b6krjuibrs73fauhs0)",
+      "Bash(./render.exe services logs:*)",
+      "Bash(./render.exe services:*)",
+      "Bash(./render.exe --help)",
+      "Bash(./render.exe logs:*)",
+      "Bash(./render.exe deploys list:*)",
+      "Bash(./render.exe deploys create:*)"
     ],
     "deny": []
   }

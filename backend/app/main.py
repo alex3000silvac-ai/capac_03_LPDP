@@ -48,7 +48,7 @@ app = FastAPI(
 # Configuración de CORS para producción
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("ALLOWED_ORIGINS", "https://lpdp-frontend.onrender.com,https://sistema-lpdp.onrender.com,http://localhost:3000,http://localhost:8000").split(","),
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -58,8 +58,8 @@ app.add_middleware(
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=[
-        "lpdp-backend.onrender.com",
-        "sistema-lpdp.onrender.com",
+        "scldp-backend.onrender.com",
+        "scldp-frontend.onrender.com",
         "localhost",
         "127.0.0.1",
     ]
