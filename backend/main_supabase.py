@@ -1,6 +1,6 @@
 """
-LPDP Backend Profesional v3.0.0 - SIN HARDCODE, SIN SUPABASE
-Sistema completamente funcional con autenticación local
+LPDP Backend Profesional v3.0.0 - RENDER COMPATIBILITY
+Archivo solicitado por Render - Sistema completamente funcional
 """
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
