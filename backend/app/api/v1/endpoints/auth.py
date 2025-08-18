@@ -64,8 +64,14 @@ async def login(
         
         user_config = users_config[login_data.username]
         
-        # Verificar contraseña usando el hash de la configuración
-        if not verify_password(login_data.password, user_config["password_hash"]):
+        # Verificar contraseña - permitir tanto password_hash como password plano
+        if "password_hash" in user_config:
+            password_valid = verify_password(login_data.password, user_config["password_hash"])
+        else:
+            # Para desarrollo: comparación directa de contraseña plana
+            password_valid = login_data.password == user_config["password"]
+        
+        if not password_valid:
             logger.warning(f"Contraseña incorrecta para usuario: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
