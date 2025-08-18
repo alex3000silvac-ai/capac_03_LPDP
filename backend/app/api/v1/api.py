@@ -10,10 +10,10 @@ from app.api.v1.endpoints import (
     empresas,
     organizaciones,
     capacitacion,
+    entrevistas,
     # COMENTADO: Endpoints problemáticos que causan errores de import
     # actividades,
     # categorias,
-    # entrevistas,
     # reportes,
     # consentimientos,
     # arcopol,
@@ -34,6 +34,7 @@ api_router.include_router(tenants.router, prefix="/tenants", tags=["tenants"])
 api_router.include_router(empresas.router, prefix="/empresas", tags=["empresas"])
 api_router.include_router(organizaciones.router, prefix="/organizaciones", tags=["organizaciones"])
 api_router.include_router(capacitacion.router, prefix="/capacitacion", tags=["capacitacion"])
+api_router.include_router(entrevistas.router, prefix="/entrevistas", tags=["entrevistas"])
 
 # COMENTADO: Rutas de módulos funcionales - Causan errores de import
 # api_router.include_router(consentimientos.router, prefix="/consentimientos", tags=["consentimientos"])
