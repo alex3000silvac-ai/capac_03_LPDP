@@ -1,36 +1,11 @@
 from typing import List, Dict
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-
-from app.core.database import get_master_db
-from app.core.security import verify_token
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
-security = HTTPBearer()
-
-class SimpleUser:
-    def __init__(self, username: str, first_name: str = "", last_name: str = ""):
-        self.id = username
-        self.username = username
-        self.first_name = first_name
-        self.last_name = last_name
-
-def get_simple_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """
-    Obtiene el usuario actual desde el token JWT (versión simplificada)
-    """
-    payload = verify_token(credentials.credentials)
-    if not payload:
-        raise HTTPException(status_code=401, detail="Token inválido")
-    
-    return SimpleUser(
-        username=payload.get("username", "usuario"),
-        first_name=payload.get("first_name", ""),
-        last_name=payload.get("last_name", "")
-    )
+from app.core.security import verify_token
 
 router = APIRouter()
+security = HTTPBearer()
 
 # Módulos de capacitación disponibles
 MODULOS_CAPACITACION = {
@@ -66,10 +41,34 @@ MODULOS_CAPACITACION = {
     }
 }
 
+class SimpleUser:
+    def __init__(self, username: str, first_name: str = "", last_name: str = ""):
+        self.id = username
+        self.username = username
+        self.first_name = first_name
+        self.last_name = last_name
+
+def get_simple_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    Obtiene el usuario actual desde el token JWT (versión simplificada)
+    """
+    try:
+        payload = verify_token(credentials.credentials)
+        if not payload:
+            raise HTTPException(status_code=401, detail="Token inválido")
+        
+        return SimpleUser(
+            username=payload.get("username", "usuario"),
+            first_name=payload.get("first_name", ""),
+            last_name=payload.get("last_name", "")
+        )
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Error de autenticación")
+
 
 @router.get("/modulos")
 def listar_modulos_capacitacion():
-    """Obtener lista de módulos de capacitación disponibles"""
+    """Obtener lista de módulos de capacitación disponibles (público)"""
     return {
         "modulos": [
             {
