@@ -254,8 +254,12 @@ async def tenant_middleware(request: Request, call_next):
     Middleware que inyecta el tenant_id en request.state
     """
     try:
+        # Si la petición es OPTIONS, la dejamos pasar para que el middleware de CORS la gestione
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         # Rutas públicas que no requieren validación de tenant
-        public_paths = ["/", "/health", "/api/docs", "/api/redoc", "/api/openapi.json"]
+        public_paths = ["/", "/health", "/api/docs", "/api/redoc", "/api/openapi.json", "/api/v1/auth/login"]
         
         if request.url.path in public_paths:
             return await call_next(request)
