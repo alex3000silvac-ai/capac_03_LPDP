@@ -42,7 +42,7 @@ async def login(
     db: Session = Depends(get_master_db)
 ) -> Any:
     """
-    Login unificado - CORREGIDO
+    Login unificado - USANDO USUARIOS DE CONFIGURACIÓN
     """
     try:
         logger.info(f"Intento de login para usuario: {login_data.username}")
@@ -51,21 +51,21 @@ async def login(
         tenant_id = request.headers.get("X-Tenant-ID") or login_data.tenant_id or "demo"
         logger.info(f"Tenant ID: {tenant_id}")
         
-        # Buscar usuario por username (no por email para simplificar)
-        user = db.query(User).filter(
-            User.username == login_data.username,
-            User.is_active == True
-        ).first()
+        # Obtener usuarios de configuración
+        users_config = settings.get_users_config()
         
-        if not user:
-            logger.warning(f"Usuario no encontrado: {login_data.username}")
+        # Buscar usuario en la configuración
+        if login_data.username not in users_config:
+            logger.warning(f"Usuario no encontrado en configuración: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Usuario o contraseña incorrectos"
             )
         
-        # Verificar contraseña
-        if not verify_password(login_data.password, user.hashed_password):
+        user_config = users_config[login_data.username]
+        
+        # Verificar contraseña usando el hash de la configuración
+        if not verify_password(login_data.password, user_config["password_hash"]):
             logger.warning(f"Contraseña incorrecta para usuario: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,7 +73,7 @@ async def login(
             )
         
         # Verificar que el usuario esté activo
-        if not user.is_active:
+        if not user_config.get("is_active", True):
             logger.warning(f"Usuario inactivo: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -84,13 +84,13 @@ async def login(
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={
-                "sub": str(user.id),
-                "username": user.username,
-                "email": user.email,
+                "sub": login_data.username,  # Usar username como ID
+                "username": login_data.username,
+                "email": user_config.get("email", ""),
                 "tenant_id": tenant_id,
-                "is_superuser": user.is_superuser or False,
-                "first_name": user.first_name,
-                "last_name": user.last_name
+                "is_superuser": user_config.get("is_superuser", False),
+                "first_name": user_config.get("name", "").split(" ")[0] if user_config.get("name") else "",
+                "last_name": " ".join(user_config.get("name", "").split(" ")[1:]) if user_config.get("name") else ""
             },
             expires_delta=access_token_expires
         )
