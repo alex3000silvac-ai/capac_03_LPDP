@@ -254,6 +254,12 @@ async def tenant_middleware(request: Request, call_next):
     Middleware que inyecta el tenant_id en request.state
     """
     try:
+        # Rutas públicas que no requieren validación de tenant
+        public_paths = ["/", "/health", "/api/docs", "/api/redoc", "/api/openapi.json"]
+        
+        if request.url.path in public_paths:
+            return await call_next(request)
+        
         # Obtener tenant_id de la request
         tenant_id = await get_tenant_from_request(request)
         
