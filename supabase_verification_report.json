@@ -1,0 +1,10 @@
+{
+  "timestamp": "2025-08-17T20:48:43.450694",
+  "results": {
+    "variables_entorno": false,
+    "conexion_basica": false,
+    "postgresql": false,
+    "cliente_supabase": false,
+    "tablas_sistema": false
+  }
+}

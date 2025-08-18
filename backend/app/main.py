@@ -48,12 +48,7 @@ app = FastAPI(
 # Configuración de CORS para producción
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://lpdp-frontend.onrender.com",
-        "https://sistema-lpdp.onrender.com",
-        "http://localhost:3000",  # Para desarrollo local
-        "http://localhost:8000",  # Para desarrollo local
-    ],
+    allow_origins=os.getenv("ALLOWED_ORIGINS", "https://lpdp-frontend.onrender.com,https://sistema-lpdp.onrender.com,http://localhost:3000,http://localhost:8000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -129,4 +124,5 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    host = os.getenv("HOST", "0.0.0.0")
+    uvicorn.run(app, host=host, port=port)

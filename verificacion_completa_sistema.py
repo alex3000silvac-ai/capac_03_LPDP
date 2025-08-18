@@ -6,6 +6,7 @@ Diagnostica todos los problemas y proporciona soluciones
 import requests
 import json
 from datetime import datetime
+import os
 
 def print_header(title):
     """Imprime un header formateado"""
@@ -30,7 +31,8 @@ def test_backend_status():
     print_header("ESTADO DEL BACKEND")
     
     try:
-        response = requests.get("https://scldp-backend.onrender.com/", timeout=10)
+        backend_url = os.getenv("BACKEND_URL", "https://scldp-backend.onrender.com")
+        response = requests.get(f"{backend_url}/", timeout=10)
         if response.status_code == 200:
             print_success(f"Backend responde: {response.status_code}")
             data = response.json()
@@ -120,7 +122,8 @@ def test_frontend_connection():
     print_header("CONEXIÓN FRONTEND-BACKEND")
     
     try:
-        response = requests.get("https://scldp-frontend.onrender.com", timeout=10)
+        frontend_url = os.getenv("FRONTEND_URL", "https://scldp-frontend.onrender.com")
+        response = requests.get(frontend_url, timeout=10)
         if response.status_code == 200:
             print_success("Frontend responde correctamente")
             return True
@@ -165,9 +168,11 @@ def generate_emergency_solution():
     
     print("\n🔗 ENLACES CRÍTICOS:")
     print("   - Render Dashboard: https://dashboard.render.com")
-    print("   - Backend: https://scldp-backend.onrender.com")
-    print("   - Frontend: https://scldp-frontend.onrender.com")
-    print("   - API Docs: https://scldp-backend.onrender.com/api/v1/docs")
+    backend_url = os.getenv("BACKEND_URL", "https://scldp-backend.onrender.com")
+    frontend_url = os.getenv("FRONTEND_URL", "https://scldp-frontend.onrender.com")
+    print(f"   - Backend: {backend_url}")
+    print(f"   - Frontend: {frontend_url}")
+    print(f"   - API Docs: {backend_url}/api/v1/docs")
     
     print("\n⚠️  ACCIÓN INMEDIATA REQUERIDA:")
     print("   El backend NO se ha redesplegado con las correcciones.")

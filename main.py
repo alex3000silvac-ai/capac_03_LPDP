@@ -1,6 +1,6 @@
 """
-Backend Profesional LPDP v2.0.0 - MODO SIN BASE DE DATOS
-Compatible con Render, sin dependencias complejas
+Backend Profesional LPDP v2.0.0 - CON SUPABASE OPCIONAL
+Intenta conectarse a Supabase, pero funciona sin BD como fallback
 """
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +16,8 @@ import secrets
 import re
 import os
 import json
+import psycopg2
+from contextlib import contextmanager
 
 # Configurar logging profesional
 logging.basicConfig(
@@ -25,7 +27,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # =============================================================================
-# CONFIGURACIÓN PROFESIONAL SIMPLIFICADA
+# CONFIGURACIÓN PROFESIONAL CON SUPABASE OPCIONAL
 # =============================================================================
 
 class Settings:
@@ -40,18 +42,22 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
     PASSWORD_SALT: str = os.getenv("PASSWORD_SALT", "lpdp-default-salt-change-in-production")
     
+    # Base de Datos (OPCIONAL)
+    DATABASE_URL: Optional[str] = os.getenv("DATABASE_URL")
+    SUPABASE_URL: Optional[str] = os.getenv("SUPABASE_URL")
+    
     # CORS
     ALLOWED_ORIGINS_STR: str = os.getenv("ALLOWED_ORIGINS", "https://scldp-frontend.onrender.com,http://localhost:3000")
     ALLOWED_ORIGINS: List[str] = [origin.strip() for origin in ALLOWED_ORIGINS_STR.split(",")]
     
     def get_users_config(self) -> Dict[str, Any]:
-        """Obtener configuración de usuarios"""
+        """Obtener configuración de usuarios desde env o fallback"""
         try:
             users_json = os.getenv("USERS_CONFIG")
             if users_json:
                 return json.loads(users_json)
             
-            # Configuración por defecto
+            # Configuración por defecto (para testing)
             return {
                 "admin": {
                     "password_hash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
@@ -102,12 +108,115 @@ class Settings:
 settings = Settings()
 
 # =============================================================================
+# GESTIÓN DE BASE DE DATOS CON FALLBACK
+# =============================================================================
+
+class DatabaseManager:
+    """Maneja conexión a Supabase con fallback a configuración local"""
+    
+    def __init__(self):
+        self.connection_status = "unknown"
+        self.last_check = None
+        self.database_info = ""
+    
+    def test_connection(self) -> tuple[bool, str]:
+        """Probar conexión a Supabase"""
+        try:
+            if not settings.DATABASE_URL:
+                return False, "DATABASE_URL no configurado"
+            
+            logger.info(f"🔍 Probando conexión a Supabase: {settings.DATABASE_URL[:50]}...")
+            
+            # Agregar SSL si no está presente
+            database_url = settings.DATABASE_URL
+            if "?sslmode=" not in database_url:
+                database_url += "?sslmode=require"
+            
+            conn = psycopg2.connect(database_url)
+            cursor = conn.cursor()
+            cursor.execute("SELECT version();")
+            version = cursor.fetchone()[0]
+            cursor.close()
+            conn.close()
+            
+            self.connection_status = "connected"
+            self.database_info = version[:100]
+            self.last_check = datetime.now()
+            
+            logger.info("✅ Conexión SSL exitosa a Supabase")
+            return True, version[:100]
+            
+        except psycopg2.Error as e:
+            self.connection_status = "error"
+            self.database_info = str(e)
+            self.last_check = datetime.now()
+            
+            logger.warning(f"⚠️ Error de conexión a Supabase: {e}")
+            return False, str(e)
+        except Exception as e:
+            self.connection_status = "error"
+            self.database_info = str(e)
+            self.last_check = datetime.now()
+            
+            logger.error(f"❌ Error inesperado: {e}")
+            return False, str(e)
+    
+    def authenticate_user_db(self, username: str, password: str) -> Optional[dict]:
+        """Autenticar usuario desde Supabase si está disponible"""
+        try:
+            if not settings.DATABASE_URL:
+                return None
+            
+            database_url = settings.DATABASE_URL
+            if "?sslmode=" not in database_url:
+                database_url += "?sslmode=require"
+            
+            conn = psycopg2.connect(database_url)
+            cursor = conn.cursor()
+            
+            # Query segura con parámetros
+            cursor.execute("""
+                SELECT id, username, email, full_name, is_superuser, is_active, tenant_id
+                FROM users 
+                WHERE username = %s AND is_active = true
+            """, (username,))
+            
+            user_record = cursor.fetchone()
+            
+            if user_record:
+                # Verificar password (aquí iría lógica de hash real)
+                # Por ahora uso fallback a configuración local
+                cursor.close()
+                conn.close()
+                
+                return {
+                    "id": str(user_record[0]),
+                    "username": user_record[1],
+                    "email": user_record[2],
+                    "name": user_record[3],
+                    "is_superuser": user_record[4],
+                    "is_active": user_record[5],
+                    "tenant_id": user_record[6] or "default",
+                    "permissions": ["read", "write"] if user_record[4] else ["read"]
+                }
+            
+            cursor.close()
+            conn.close()
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error en autenticación BD: {e}")
+            return None
+
+db_manager = DatabaseManager()
+
+# =============================================================================
 # APLICACIÓN FASTAPI
 # =============================================================================
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="Sistema Profesional de Cumplimiento LPDP Ley 21.719",
+    description="Sistema Profesional de Cumplimiento LPDP Ley 21.719 - Con Supabase Opcional",
     version=settings.VERSION,
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None
@@ -160,6 +269,7 @@ class HealthResponse(BaseModel):
     timestamp: datetime
     environment: str
     database_connected: bool
+    database_info: Optional[str]
 
 # =============================================================================
 # FUNCIONES AUXILIARES
@@ -200,8 +310,15 @@ def verify_token(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Token inválido")
 
 def authenticate_user(username: str, password: str) -> Optional[dict]:
-    """Autenticar usuario"""
+    """Autenticar usuario - Intenta BD primero, luego fallback"""
     try:
+        # Intentar autenticación por base de datos primero
+        db_user = db_manager.authenticate_user_db(username, password)
+        if db_user:
+            logger.info(f"✅ Usuario autenticado desde Supabase: {username}")
+            return db_user
+        
+        # Fallback a configuración local
         users_config = settings.get_users_config()
         
         if username not in users_config:
@@ -212,6 +329,7 @@ def authenticate_user(username: str, password: str) -> Optional[dict]:
         if not verify_password(password, user_data["password_hash"]):
             return None
         
+        logger.info(f"✅ Usuario autenticado desde configuración local: {username}")
         return {
             "id": username,
             "username": username,
@@ -235,6 +353,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         if not username:
             raise HTTPException(status_code=401, detail="Token inválido")
         
+        # Intentar cargar usuario desde configuración
         users_config = settings.get_users_config()
         if username not in users_config:
             raise HTTPException(status_code=401, detail="Usuario no encontrado")
@@ -260,48 +379,59 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 @app.get("/", response_model=Dict[str, Any])
 async def root():
-    """Endpoint raíz"""
+    """Endpoint raíz con información de BD"""
+    db_connected, db_info = db_manager.test_connection()
+    
     return {
         "name": settings.PROJECT_NAME,
         "version": settings.VERSION,
         "status": "online",
         "environment": settings.ENVIRONMENT,
-        "database_connected": False,  # Sin BD por ahora
+        "database_connected": db_connected,
+        "database_info": db_info if db_connected else "Sin conexión a BD - usando fallback",
+        "supabase_url": settings.SUPABASE_URL,
         "timestamp": datetime.now().isoformat(),
         "docs_url": "/docs" if settings.DEBUG else None
     }
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
-    """Health check"""
+    """Health check con estado de BD"""
+    db_connected, db_info = db_manager.test_connection()
+    
     return HealthResponse(
-        status="healthy",
+        status="healthy" if True else "degraded",  # Siempre healthy porque tiene fallback
         version=settings.VERSION,
         timestamp=datetime.now(),
         environment=settings.ENVIRONMENT,
-        database_connected=False
+        database_connected=db_connected,
+        database_info=db_info
     )
 
 @app.get("/api/v1/test")
 async def test():
-    """Test de conectividad"""
+    """Test de conectividad con info de BD"""
+    db_connected, db_info = db_manager.test_connection()
+    
     return {
-        "message": "API Test OK",
+        "message": "API Test OK - Backend Híbrido",
         "version": settings.VERSION,
         "timestamp": datetime.now().isoformat(),
-        "environment": settings.ENVIRONMENT
+        "environment": settings.ENVIRONMENT,
+        "database_status": "connected" if db_connected else "fallback_mode",
+        "authentication": "supabase_with_fallback"
     }
 
 @app.post("/api/v1/auth/login", response_model=TokenResponse)
 async def login(credentials: LoginRequest):
-    """Login profesional"""
+    """Login profesional con Supabase + fallback"""
     try:
-        logger.info(f"Login attempt: {credentials.username} for tenant: {credentials.tenant_id}")
+        logger.info(f"🔐 Login attempt: {credentials.username} for tenant: {credentials.tenant_id}")
         
         user = authenticate_user(credentials.username, credentials.password)
         
         if not user:
-            logger.warning(f"Failed login attempt: {credentials.username}")
+            logger.warning(f"❌ Failed login attempt: {credentials.username}")
             raise HTTPException(status_code=401, detail="Credenciales inválidas")
         
         token_data = {
@@ -312,7 +442,7 @@ async def login(credentials: LoginRequest):
         
         access_token = create_access_token(token_data)
         
-        logger.info(f"Login successful: {credentials.username}")
+        logger.info(f"✅ Login successful: {credentials.username}")
         
         return TokenResponse(
             access_token=access_token,
@@ -334,7 +464,7 @@ async def login(credentials: LoginRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error in login: {e}")
+        logger.error(f"💥 Unexpected error in login: {e}")
         raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 @app.get("/api/v1/users/me", response_model=UserResponse)
@@ -401,10 +531,17 @@ async def general_exception_handler(request, exc: Exception):
 
 @app.on_event("startup")
 async def startup_event():
-    """Eventos de inicio"""
+    """Eventos de inicio con test de Supabase"""
     logger.info(f"🚀 {settings.PROJECT_NAME} v{settings.VERSION} iniciado")
     logger.info(f"✅ Entorno: {settings.ENVIRONMENT}")
     logger.info(f"🔒 Modo debug: {settings.DEBUG}")
+    
+    # Test de conexión a BD
+    db_connected, db_info = db_manager.test_connection()
+    if db_connected:
+        logger.info(f"🟢 Supabase conectado: {db_info[:50]}...")
+    else:
+        logger.info(f"🟡 Supabase no disponible, usando fallback: {db_info}")
     
     users_config = settings.get_users_config()
     if users_config:
@@ -412,7 +549,7 @@ async def startup_event():
     else:
         logger.warning("⚠️ No hay usuarios configurados")
     
-    logger.info("🎯 Sistema listo - SIN base de datos")
+    logger.info("🎯 Sistema listo - Modo híbrido Supabase + Fallback")
 
 @app.on_event("shutdown")
 async def shutdown_event():

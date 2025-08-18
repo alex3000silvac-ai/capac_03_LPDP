@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import logging
 import os
+from datetime import datetime, timedelta
+import jwt
 
 # Configuración básica
 app = FastAPI(
@@ -17,7 +19,7 @@ app = FastAPI(
 # Configuración CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://scldp-frontend.onrender.com", "http://localhost:3000"],
+    allow_origins=os.getenv("ALLOWED_ORIGINS", "https://scldp-frontend.onrender.com,http://localhost:3000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -78,8 +80,21 @@ async def login(request: Request):
         
         # Credenciales hardcodeadas para pruebas
         if username == "admin" and password == "Admin123!":
+            # Generar token JWT dinámico
+            secret_key = os.getenv("SECRET_KEY", "fallback-secret-key-for-demo")
+            payload = {
+                "sub": "admin",
+                "username": "admin",
+                "email": "admin@example.com",
+                "tenant_id": tenant_id,
+                "is_superuser": True,
+                "iat": datetime.utcnow(),
+                "exp": datetime.utcnow() + timedelta(minutes=30)
+            }
+            access_token = jwt.encode(payload, secret_key, algorithm="HS256")
+            
             return {
-                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwidGVuYW50X2lkIjoiZGVtbyIsImlzX3N1cGVydXNlciI6dHJ1ZSwiaWF0IjoxNzA0MTAwMDAwLCJleHAiOjE3MDQxMDM2MDB9.signature",
+                "access_token": access_token,
                 "token_type": "bearer",
                 "user": {
                     "id": "admin",
@@ -90,8 +105,21 @@ async def login(request: Request):
                 }
             }
         elif username == "demo" and password == "Demo123!":
+            # Generar token JWT dinámico
+            secret_key = os.getenv("SECRET_KEY", "fallback-secret-key-for-demo")
+            payload = {
+                "sub": "demo",
+                "username": "demo",
+                "email": "demo@example.com",
+                "tenant_id": tenant_id,
+                "is_superuser": False,
+                "iat": datetime.utcnow(),
+                "exp": datetime.utcnow() + timedelta(minutes=30)
+            }
+            access_token = jwt.encode(payload, secret_key, algorithm="HS256")
+            
             return {
-                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vIiwidXNlcm5hbWUiOiJkZW1vIiwiZW1haWwiOiJkZW1vQGV4YW1wbGUuY29tIiwidGVuYW50X2lkIjoiZGVtbyIsImlzX3N1cGVydXNlciI6ZmFsc2UsImlhdCI6MTcwNDEwMDAwMCwiZXhwIjoxNzA0MTAzNjAwfQ.signature",
+                "access_token": access_token,
                 "token_type": "bearer",
                 "user": {
                     "id": "demo",
@@ -128,4 +156,6 @@ async def docs():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host=host, port=port)

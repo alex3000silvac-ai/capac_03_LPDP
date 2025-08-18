@@ -1,59 +1,35 @@
 #!/bin/bash
-# Script de deployment para Render.com
 
-echo "🚀 Iniciando deployment del Sistema de Capacitación LPDP..."
+echo "🚀 DEPLOYMENT RENDER - BACKEND ULTRA SIMPLE"
+echo "================================================"
 
-# Colores para output
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
+# 1. Backup del main.py actual
+echo "📋 1. Backup del main.py actual..."
+cp main.py main_backup_$(date +%Y%m%d_%H%M%S).py
 
-# Verificar que estamos en el directorio correcto
-if [ ! -f "requirements.txt" ]; then
-    echo -e "${RED}❌ Error: No se encuentra requirements.txt${NC}"
-    echo "Asegúrate de ejecutar este script desde la raíz del proyecto"
-    exit 1
-fi
+# 2. Copiar la versión ultra simple
+echo "📦 2. Actualizando con versión ultra simple..."
+cp backend/main_ultra_simple.py main.py
 
-# 1. Actualizar dependencias
-echo -e "${YELLOW}📦 Actualizando requirements.txt...${NC}"
+# 3. Verificar requirements mínimos
+echo "📋 3. Creando requirements.txt mínimo..."
 cat > requirements.txt << EOF
-# Core
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-python-multipart==0.0.6
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-dotenv==1.0.0
-
-# Database
-sqlalchemy==2.0.23
-psycopg2-binary==2.9.9
-alembic==1.12.1
-
-# Validation
 pydantic==2.5.0
-pydantic-settings==2.1.0
-email-validator==2.1.0
-
-# Security
-cryptography==41.0.7
-
-# Utilities
-httpx==0.25.2
-python-dateutil==2.8.2
-
-# Development
-pytest==7.4.3
-pytest-asyncio==0.21.1
-black==23.11.0
-flake8==6.1.0
+python-multipart==0.0.6
 EOF
 
-echo -e "${GREEN}✅ requirements.txt actualizado${NC}"
-
-# 2. Crear archivo de configuración para Render
+echo "✅ Archivos actualizados para Render:"
+echo "   - main.py (versión ultra simple)"
+echo "   - requirements.txt (dependencias mínimas)"
+echo ""
+echo "🔄 Ahora debes hacer git push para que Render redeploy automáticamente"
+echo ""
+echo "📋 COMANDOS A EJECUTAR:"
+echo "git add ."
+echo "git commit -m 'fix: actualizar backend a versión ultra simple sin dependencias complejas'"
+echo "git push"
 echo -e "${YELLOW}📝 Creando render.yaml...${NC}"
 cat > render.yaml << EOF
 services:

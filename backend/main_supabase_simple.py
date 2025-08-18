@@ -13,10 +13,18 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configuración
-DATABASE_URL = "postgresql://postgres:y0ySWx0VBmlKuTkk@db.symkjkbejxexgrydmvqs.supabase.co:5432/postgres"
-SUPABASE_URL = "https://symkjkbejxexgrydmvqs.supabase.co"
-SECRET_KEY = "KL4um-775jA5N*P_EMERGENCY_2024"
+# Configuración segura
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL debe estar configurado")
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+if not SUPABASE_URL:
+    raise ValueError("SUPABASE_URL debe estar configurado")
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY debe estar configurado")
 
 # Crear aplicación
 app = FastAPI(
@@ -28,11 +36,7 @@ app = FastAPI(
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://scldp-frontend.onrender.com",
-        "http://localhost:3000",
-        "*"
-    ],
+    allow_origins=os.getenv("ALLOWED_ORIGINS", "https://scldp-frontend.onrender.com,http://localhost:3000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -135,8 +139,8 @@ async def root():
         "database": {
             "status": "connected" if db_ok else "disconnected",
             "info": db_info,
-            "url": DATABASE_URL[:50] + "...",
-            "supabase_project": "symkjkbejxexgrydmvqs"
+            "url": "configurado_via_env",
+            "supabase_project": "configurado_via_env"
         },
         "supabase_url": SUPABASE_URL,
         "environment": os.getenv("ENVIRONMENT", "production"),
@@ -163,7 +167,7 @@ async def health_check():
         "database": {
             "status": "connected" if db_ok else "error",
             "info": db_info,
-            "project_id": "symkjkbejxexgrydmvqs",
+            "project_id": "configurado_via_env",
             "region": "us-west-1"
         },
         "supabase": {
@@ -186,12 +190,12 @@ async def test_connection():
         "database": {
             "status": "connected" if db_ok else "error",
             "info": db_info,
-            "url_masked": DATABASE_URL[:50] + "...",
+            "url_masked": "configurado_via_env",
             "project": "Capac_03_LPDP"
         },
         "supabase": {
             "url": SUPABASE_URL,
-            "project_id": "symkjkbejxexgrydmvqs",
+            "project_id": "configurado_via_env",
             "accessible": db_ok
         },
         "users": {
@@ -334,10 +338,10 @@ async def supabase_status():
     
     return {
         "supabase": {
-            "project_id": "symkjkbejxexgrydmvqs",
+            "project_id": "configurado_via_env",
             "project_name": "Capac_03_LPDP",
             "url": SUPABASE_URL,
-            "database_url": DATABASE_URL[:50] + "...",
+            "database_url": "configurado_via_env",
             "region": "us-west-1",
             "connection": "connected" if db_ok else "error",
             "info": db_info
@@ -386,5 +390,6 @@ async def startup_event():
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
+    host = os.getenv("HOST", "0.0.0.0")
     logger.info(f"🚀 Iniciando servidor en puerto {port}")
-    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
+    uvicorn.run(app, host=host, port=port, log_level="info")

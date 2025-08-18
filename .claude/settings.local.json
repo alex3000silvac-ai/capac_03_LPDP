@@ -28,7 +28,11 @@
       "Bash(python:*)",
       "Bash(./scripts/deploy_render.sh:*)",
       "Bash(nslookup:*)",
-      "Bash(host:*)"
+      "Bash(host:*)",
+      "WebFetch(domain:scldp-frontend.onrender.com)",
+      "Bash(./fix_render_deployment.sh)",
+      "Bash(cp:*)",
+      "Bash(/mnt/c/Pasc/Proyecto_Derecho_Digital/Desarrollos/Intro_LPDP/backend/verificar_despliegue.sh)"
     ],
     "deny": []
   }

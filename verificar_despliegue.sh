@@ -1,36 +1,29 @@
 #!/bin/bash
 
-# Script para verificar que el despliegue fue exitoso
-
-echo "🔍 Verificando despliegue de SCLDP..."
+echo "🔍 VERIFICACIÓN DE DESPLIEGUE"
 echo "=================================="
 
-# URLs de los servicios
-BACKEND_URL="https://scldp-backend.onrender.com"
-FRONTEND_URL="https://scldp-frontend.onrender.com"
+# Función para probar endpoint
+test_endpoint() {
+    echo ""
+    echo "=== Probando $1 ==="
+    response=$(curl -L -s -w "\n---\nHTTP_CODE:%{http_code}\nCONTENT_TYPE:%{content_type}" https://scldp-backend.onrender.com$1 2>&1)
+    echo "$response"
+    echo -e "\n"
+}
 
-# Verificar Backend
-echo -n "✓ Verificando Backend API... "
-BACKEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL" 2>/dev/null)
-if [ "$BACKEND_STATUS" = "200" ]; then
-    echo "✅ Funcionando correctamente"
-else
-    echo "❌ Error (Status: $BACKEND_STATUS)"
-fi
+# Probar cada endpoint
+test_endpoint "/"
+test_endpoint "/health"
+test_endpoint "/api/v1/test"
 
-# Verificar Frontend
-echo -n "✓ Verificando Frontend... "
-FRONTEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$FRONTEND_URL" 2>/dev/null)
-if [ "$FRONTEND_STATUS" = "200" ]; then
-    echo "✅ Funcionando correctamente"
-else
-    echo "❌ Error (Status: $FRONTEND_STATUS)"
-fi
+# Probar login específicamente
+echo "=== Probando Login ==="
+curl -X POST https://scldp-backend.onrender.com/api/v1/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"username":"admin","password":"Admin123!"}' \
+     -s -w "\nHTTP_CODE:%{http_code}\n"
 
-echo "=================================="
-echo "📝 Resumen:"
-echo "- Backend: $BACKEND_URL"
-echo "- Frontend: $FRONTEND_URL"
-echo ""
-echo "Si ambos servicios muestran ✅, ¡tu aplicación está lista!"
-echo "Abre $FRONTEND_URL en tu navegador para verla en acción."
+echo -e "\n"
+echo "✅ Verificación completada"
+echo "👤 Credenciales: admin/Admin123!, demo/Demo123!, dpo/Dpo123!"

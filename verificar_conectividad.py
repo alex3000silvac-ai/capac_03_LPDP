@@ -7,10 +7,12 @@ import requests
 import time
 import sys
 from datetime import datetime
+import os
 
 def verificar_backend():
     """Verifica el estado del backend"""
-    url = "https://scldp-backend.onrender.com/"
+    backend_url = os.getenv("BACKEND_URL", "https://scldp-backend.onrender.com")
+    url = f"{backend_url}/"
     
     try:
         print(f"🔍 Verificando backend: {url}")
@@ -34,7 +36,8 @@ def verificar_backend():
 
 def verificar_frontend():
     """Verifica el estado del frontend"""
-    url = "https://scldp-frontend.onrender.com/"
+    frontend_url = os.getenv("FRONTEND_URL", "https://scldp-frontend.onrender.com")
+    url = f"{frontend_url}/"
     
     try:
         print(f"\n🔍 Verificando frontend: {url}")
@@ -55,7 +58,8 @@ def verificar_frontend():
 
 def verificar_login():
     """Verifica que el login esté accesible"""
-    url = "https://scldp-frontend.onrender.com/login"
+    frontend_url = os.getenv("FRONTEND_URL", "https://scldp-frontend.onrender.com")
+    url = f"{frontend_url}/login"
     
     try:
         print(f"\n🔍 Verificando página de login: {url}")
@@ -97,7 +101,8 @@ def main():
     
     if backend_ok and frontend_ok and login_ok:
         print("\n🎉 ¡SISTEMA COMPLETAMENTE FUNCIONAL!")
-        print("🌐 Puedes acceder a: https://scldp-frontend.onrender.com/login")
+        frontend_url = os.getenv("FRONTEND_URL", "https://scldp-frontend.onrender.com")
+        print(f"🌐 Puedes acceder a: {frontend_url}/login")
         print("👤 Usuario: admin")
         print("🔑 Contraseña: Admin123!")
     else:
