@@ -68,33 +68,52 @@ MODULO3_CONTENT = {
 @router.get("/introduccion")
 def get_introduccion_modulo3():
     """Obtener introducción del Módulo 3"""
-    return {
-        "success": True,
-        "modulo": "modulo3_inventario",
-        "seccion": "introduccion",
-        "contenido": MODULO3_CONTENT["introduccion"],
-        "navegacion": {
-            "anterior": None,
-            "siguiente": "seccion_1"
+    try:
+        return {
+            "success": True,
+            "modulo": "modulo3_inventario",
+            "seccion": "introduccion",
+            "contenido": MODULO3_CONTENT["introduccion"],
+            "navegacion": {
+                "anterior": None,
+                "siguiente": "seccion_1"
+            }
         }
-    }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Error en módulo 3: {str(e)}",
+            "modulo": "modulo3_inventario",
+            "seccion": "introduccion"
+        }
 
 @router.get("/seccion/{seccion_id}")
 def get_seccion_modulo3(seccion_id: str):
     """Obtener sección específica del Módulo 3"""
-    if seccion_id not in MODULO3_CONTENT:
-        return {"error": "Sección no encontrada"}
-    
-    return {
-        "success": True,
-        "modulo": "modulo3_inventario",
-        "seccion": seccion_id,
-        "contenido": MODULO3_CONTENT[seccion_id],
-        "navegacion": {
-            "anterior": _get_seccion_anterior(seccion_id),
-            "siguiente": _get_seccion_siguiente(seccion_id)
+    try:
+        if seccion_id not in MODULO3_CONTENT:
+            return {
+                "success": False,
+                "error": "Sección no encontrada",
+                "secciones_disponibles": list(MODULO3_CONTENT.keys())
+            }
+        
+        return {
+            "success": True,
+            "modulo": "modulo3_inventario",
+            "seccion": seccion_id,
+            "contenido": MODULO3_CONTENT[seccion_id],
+            "navegacion": {
+                "anterior": _get_seccion_anterior(seccion_id),
+                "siguiente": _get_seccion_siguiente(seccion_id)
+            }
         }
-    }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Error en sección {seccion_id}: {str(e)}",
+            "modulo": "modulo3_inventario"
+        }
 
 def _get_seccion_anterior(seccion_id: str) -> Optional[str]:
     """Obtener sección anterior en el flujo de navegación"""
