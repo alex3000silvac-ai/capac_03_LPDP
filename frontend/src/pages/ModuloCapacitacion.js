@@ -49,8 +49,8 @@ function ModuloCapacitacion() {
   const { moduloId } = useParams();
   const navigate = useNavigate();
   const [leccionActual, setLeccionActual] = useState(0);
-  const [respuestaQuiz, setRespuestaQuiz] = useState('');
-  const [mostrarResultado, setMostrarResultado] = useState(false);
+  const [respuestasQuiz, setRespuestasQuiz] = useState({});
+  const [resultadosQuiz, setResultadosQuiz] = useState({});
   const [moduloCompletado, setModuloCompletado] = useState(false);
 
   // Contenido del módulo (ejemplo para MOD-001)
@@ -103,35 +103,67 @@ function ModuloCapacitacion() {
       },
       {
         id: 3,
-        titulo: 'Quiz: Conceptos Fundamentales',
+        titulo: 'Evaluación Profesional: Análisis Jurídico LPDP',
         tipo: 'quiz',
-        duracion: '5 min',
+        duracion: '15 min',
         contenido: {
-          instrucciones: 'Responde las siguientes preguntas para evaluar tu comprensión',
+          instrucciones: 'Evaluación de nivel profesional para DPOs, abogados e ingenieros. Analiza cada caso aplicando los principios de la Ley 21.719.',
           preguntas: [
             {
               id: 'q1',
-              pregunta: '¿Qué es un dato personal según la Ley 21.719?',
+              pregunta: 'Una empresa chilena utiliza una plataforma de IA estadounidense para analizar patrones de consumo de sus clientes, incluyendo datos de geolocalización y historial de compras. ¿Cuál es la principal consideración legal bajo la Ley 21.719?',
               opciones: [
-                'Solo el RUT y el nombre de una persona',
-                'Cualquier información que identifique o haga identificable a una persona natural',
-                'Únicamente información sensible como datos de salud',
-                'Información que esté disponible públicamente en internet',
+                'Solo necesita informar en su política de privacidad que usa IA',
+                'Debe realizar una evaluación de impacto (EIPD) y establecer garantías específicas para la transferencia internacional',
+                'Es suficiente con obtener consentimiento genérico para el tratamiento de datos',
+                'No aplica la ley chilena porque el procesamiento ocurre en EE.UU.',
               ],
               respuesta_correcta: 1,
-              explicacion: 'La ley define dato personal de forma amplia: incluye cualquier información que permita identificar a una persona, directa o indirectamente.',
+              explicacion: 'Art. 5 y 25: Transferencias internacionales requieren garantías específicas. El uso de IA para perfilamiento constituye tratamiento automatizado que requiere EIPD según Art. 28.',
+              nivel: 'profesional',
+              area_derecho: 'Transferencias internacionales y decisiones automatizadas',
             },
             {
-              id: 'q2',
-              pregunta: '¿Cuál es el cambio más importante en el consentimiento?',
+              id: 'q2', 
+              pregunta: 'Un hospital implementa un sistema IoT para monitorear signos vitales de pacientes en tiempo real. Los datos se almacenan en servidores locales pero se envían alertas automáticas a médicos externos por WhatsApp Business. ¿Cuál es el marco legal aplicable?',
               opciones: [
-                'Ya no se necesita consentimiento',
-                'El consentimiento puede ser tácito',
-                'Se pasa de opt-out a opt-in (consentimiento previo y expreso)',
-                'Solo se necesita para datos sensibles',
+                'Solo se requiere consentimiento del paciente para el tratamiento médico',
+                'WhatsApp Business está fuera del alcance de la LPDP por ser una plataforma externa',
+                'Se requiere: base legal específica (Art. 8), medidas de seguridad reforzadas (Art. 26), y contrato de encargo con WhatsApp/Meta',
+                'Es suficiente con el secreto médico tradicional, la LPDP no aplica a datos de salud',
               ],
               respuesta_correcta: 2,
-              explicacion: 'Ahora debes obtener consentimiento ANTES de recopilar datos, no puedes asumir que la persona está de acuerdo.',
+              explicacion: 'Datos de salud son especialmente protegidos. Requiere base legal específica, medidas técnicas apropiadas, y formalización del encargo de tratamiento con terceros procesadores.',
+              nivel: 'profesional', 
+              area_derecho: 'Datos sensibles de salud y encargos de tratamiento',
+            },
+            {
+              id: 'q3',
+              pregunta: 'Una fintech chilena evalúa solicitudes de crédito usando algoritmos que consideran historial crediticio, datos de redes sociales, y patrones de gasto. Un cliente solicita explicación sobre el rechazo automático de su crédito. ¿Qué derechos específicos aplican según la Ley 21.719?',
+              opciones: [
+                'Solo el derecho de acceso a sus datos personales',
+                'Derecho a no ser objeto de decisiones automatizadas (Art. 13) + derecho a explicación + revisión humana del algoritmo',
+                'La fintech puede negarse porque son secretos comerciales',
+                'Solo aplica si el cliente puede demostrar discriminación',
+              ],
+              respuesta_correcta: 1,
+              explicacion: 'Art. 13: Derecho específico a no ser objeto de decisiones automatizadas que produzcan efectos jurídicos. Incluye derecho a explicación de la lógica aplicada y revisión humana.',
+              nivel: 'profesional',
+              area_derecho: 'Decisiones automatizadas y perfilamiento',
+            },
+            {
+              id: 'q4',
+              pregunta: 'Una empresa salmonera implementa sensores IoT que rastrean ubicación de trabajadores por seguridad. Los datos se procesan con IA para optimizar rutas y detectar zonas de riesgo. ¿Cuál es el análisis de proporcionalidad requerido?',
+              opciones: [
+                'Es válido automáticamente por ser tema de seguridad laboral',
+                'Debe aplicar test de proporcionalidad: finalidad legítima + necesidad + minimización + medidas menos intrusivas',
+                'Solo requiere informar a los trabajadores en el contrato laboral',
+                'La geolocalización de trabajadores está prohibida en Chile',
+              ],
+              respuesta_correcta: 1,
+              explicacion: 'Art. 4 (principio de proporcionalidad): Debe evaluarse si existen medios menos intrusivos para la seguridad laboral. Geolocalización continua requiere justificación específica y límites temporales.',
+              nivel: 'profesional',
+              area_derecho: 'Proporcionalidad en contexto laboral e IoT',
             },
           ],
         },
@@ -141,19 +173,38 @@ function ModuloCapacitacion() {
 
   const leccion = modulo.lecciones[leccionActual];
 
-  const handleQuizSubmit = () => {
-    setMostrarResultado(true);
-    // En un quiz real, aquí validarías las respuestas
+  const handleQuizSubmit = (preguntaId) => {
+    setResultadosQuiz(prev => ({
+      ...prev,
+      [preguntaId]: true
+    }));
+  };
+
+  const handleRespuestaChange = (preguntaId, respuesta) => {
+    setRespuestasQuiz(prev => ({
+      ...prev,
+      [preguntaId]: respuesta
+    }));
   };
 
   const handleSiguienteLeccion = () => {
     if (leccionActual < modulo.lecciones.length - 1) {
       setLeccionActual(leccionActual + 1);
-      setMostrarResultado(false);
-      setRespuestaQuiz('');
+      setResultadosQuiz({});
+      setRespuestasQuiz({});
     } else {
       setModuloCompletado(true);
     }
+  };
+
+  const canContinue = () => {
+    if (leccion.tipo !== 'quiz') return true;
+    
+    // Para quiz, verificar que todas las preguntas hayan sido respondidas y mostradas
+    const todasRespondidas = leccion.contenido.preguntas.every(p => 
+      respuestasQuiz[p.id] !== undefined && resultadosQuiz[p.id]
+    );
+    return todasRespondidas;
   };
 
   return (
@@ -315,15 +366,33 @@ function ModuloCapacitacion() {
                   </Alert>
 
                   {leccion.contenido.preguntas.map((pregunta, idx) => (
-                    <Paper key={pregunta.id} sx={{ p: 3, mb: 3 }}>
-                      <Typography variant="h6" gutterBottom>
-                        Pregunta {idx + 1}: {pregunta.pregunta}
-                      </Typography>
+                    <Paper key={pregunta.id} sx={{ p: 3, mb: 3, border: pregunta.nivel === 'profesional' ? '2px solid' : '1px solid', borderColor: pregunta.nivel === 'profesional' ? 'primary.main' : 'divider' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                          Caso {idx + 1}: {pregunta.pregunta}
+                        </Typography>
+                        {pregunta.nivel === 'profesional' && (
+                          <Chip 
+                            label="NIVEL PROFESIONAL" 
+                            color="primary" 
+                            size="small"
+                            sx={{ fontWeight: 'bold' }}
+                          />
+                        )}
+                      </Box>
                       
-                      <FormControl component="fieldset">
+                      {pregunta.area_derecho && (
+                        <Alert severity="info" sx={{ mb: 2 }}>
+                          <Typography variant="caption">
+                            <strong>Área de Derecho:</strong> {pregunta.area_derecho}
+                          </Typography>
+                        </Alert>
+                      )}
+                      
+                      <FormControl component="fieldset" fullWidth>
                         <RadioGroup
-                          value={respuestaQuiz}
-                          onChange={(e) => setRespuestaQuiz(e.target.value)}
+                          value={respuestasQuiz[pregunta.id] || ''}
+                          onChange={(e) => handleRespuestaChange(pregunta.id, e.target.value)}
                         >
                           {pregunta.opciones.map((opcion, opIdx) => (
                             <FormControlLabel
@@ -331,38 +400,40 @@ function ModuloCapacitacion() {
                               value={opIdx.toString()}
                               control={<Radio />}
                               label={opcion}
-                              disabled={mostrarResultado}
+                              disabled={resultadosQuiz[pregunta.id]}
+                              sx={{ mb: 1, alignItems: 'flex-start' }}
                             />
                           ))}
                         </RadioGroup>
                       </FormControl>
 
-                      {mostrarResultado && (
+                      {!resultadosQuiz[pregunta.id] && respuestasQuiz[pregunta.id] !== undefined && (
+                        <Button
+                          variant="contained"
+                          onClick={() => handleQuizSubmit(pregunta.id)}
+                          sx={{ mt: 2 }}
+                        >
+                          Verificar Respuesta {idx + 1}
+                        </Button>
+                      )}
+
+                      {resultadosQuiz[pregunta.id] && (
                         <Alert 
-                          severity={parseInt(respuestaQuiz) === pregunta.respuesta_correcta ? 'success' : 'error'}
+                          severity={parseInt(respuestasQuiz[pregunta.id]) === pregunta.respuesta_correcta ? 'success' : 'error'}
                           sx={{ mt: 2 }}
                         >
                           <Typography variant="body2">
-                            {parseInt(respuestaQuiz) === pregunta.respuesta_correcta 
-                              ? '¡Correcto! ' 
-                              : 'Incorrecto. '}
+                            <strong>
+                              {parseInt(respuestasQuiz[pregunta.id]) === pregunta.respuesta_correcta 
+                                ? '✅ ¡Correcto! ' 
+                                : '❌ Incorrecto. '}
+                            </strong>
                             {pregunta.explicacion}
                           </Typography>
                         </Alert>
                       )}
                     </Paper>
                   ))}
-
-                  {!mostrarResultado && (
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      onClick={handleQuizSubmit}
-                      disabled={!respuestaQuiz}
-                    >
-                      Verificar Respuesta
-                    </Button>
-                  )}
                 </Box>
               )}
 
@@ -379,7 +450,7 @@ function ModuloCapacitacion() {
                   variant="contained"
                   endIcon={<NavigateNext />}
                   onClick={handleSiguienteLeccion}
-                  disabled={leccion.tipo === 'quiz' && !mostrarResultado}
+                  disabled={!canContinue()}
                 >
                   {leccionActual === modulo.lecciones.length - 1 ? 'Completar Módulo' : 'Siguiente'}
                 </Button>
