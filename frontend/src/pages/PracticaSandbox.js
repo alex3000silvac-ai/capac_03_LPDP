@@ -147,6 +147,49 @@ function PracticaSandbox() {
     rat_generado: false
   });
 
+  // Estados adicionales necesarios para el componente
+  const [selectedScenario, setSelectedScenario] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [actividadForm, setActividadForm] = useState({
+    nombre_actividad: '',
+    finalidad_principal: '',
+    base_licitud: '',
+    area_negocio: '',
+    categorias_datos: [],
+  });
+  const [retroalimentacion, setRetroalimentacion] = useState(null);
+
+  // Datos de escenarios y pasos
+  const escenarios = [
+    {
+      id: 'rrhh_basico',
+      nombre: 'Gestión Básica de RRHH',
+      nivel: 'Principiante',
+      empresa: 'Empresa Salmonera Demo',
+      descripcion: 'Aprende a mapear datos en procesos básicos de recursos humanos',
+      objetivos: [
+        'Identificar datos personales en nómina',
+        'Mapear proceso de reclutamiento',
+        'Documentar transferencias a Previred'
+      ]
+    },
+    {
+      id: 'iot_avanzado',
+      nombre: 'Monitoreo IoT Avanzado',
+      nivel: 'Avanzado',
+      empresa: 'AquaTech Industries',
+      descripcion: 'Casos complejos con sensores IoT y datos de geolocalización',
+      objetivos: [
+        'Identificar datos personales en IoT',
+        'Mapear flujos de datos en tiempo real',
+        'Evaluar transferencias internacionales'
+      ]
+    }
+  ];
+
+  const steps = ['Seleccionar Escenario', 'Entrevista', 'Documentar', 'Completado'];
+
   // Funciones auxiliares
   const calcularProgreso = () => {
     const total = 5; // 5 pasos principales
