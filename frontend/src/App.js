@@ -19,23 +19,186 @@ import MiProgreso from './pages/MiProgreso';
 import AdminPanel from './components/admin/AdminPanel';
 import UserManagement from './components/admin/UserManagement';
 
-// Tema personalizado
+// Tema oscuro profesional
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#1976d2',
+      main: '#00bcd4', // Cyan para el tema LPDP
+      light: '#33d9f0',
+      dark: '#00838f',
+      contrastText: '#000000',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#ff9800', // Naranja para acentos
+      light: '#ffb74d',
+      dark: '#f57c00',
+      contrastText: '#000000',
     },
     background: {
-      default: '#f5f5f5',
+      default: '#0a0a0a', // Negro profundo
+      paper: '#1a1a1a', // Gris oscuro para componentes
+    },
+    surface: {
+      main: '#2a2a2a',
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: '#b0b0b0',
+    },
+    success: {
+      main: '#4caf50',
+      light: '#81c784',
+      dark: '#388e3c',
+    },
+    warning: {
+      main: '#ff9800',
+      light: '#ffb74d',
+      dark: '#f57c00',
+    },
+    error: {
+      main: '#f44336',
+      light: '#e57373',
+      dark: '#d32f2f',
+    },
+    info: {
+      main: '#2196f3',
+      light: '#64b5f6',
+      dark: '#1976d2',
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontWeight: 700,
+      color: '#ffffff',
+    },
+    h2: {
+      fontWeight: 600,
+      color: '#ffffff',
+    },
+    h3: {
+      fontWeight: 600,
+      color: '#ffffff',
+    },
     h4: {
       fontWeight: 600,
+      color: '#ffffff',
+    },
+    h5: {
+      fontWeight: 500,
+      color: '#ffffff',
+    },
+    h6: {
+      fontWeight: 500,
+      color: '#ffffff',
+    },
+    body1: {
+      color: '#ffffff',
+    },
+    body2: {
+      color: '#b0b0b0',
+    },
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundColor: '#0a0a0a',
+          color: '#ffffff',
+          scrollbarColor: '#666 #1a1a1a',
+          '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
+            width: '8px',
+            height: '8px',
+          },
+          '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
+            borderRadius: '4px',
+            backgroundColor: '#666',
+            '&:hover': {
+              backgroundColor: '#888',
+            },
+          },
+          '&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track': {
+            backgroundColor: '#1a1a1a',
+          },
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1a1a1a',
+          borderBottom: '1px solid #333',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1a1a1a',
+          borderRadius: '12px',
+          border: '1px solid #333',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1a1a1a',
+          borderRadius: '12px',
+          border: '1px solid #333',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '8px',
+          textTransform: 'none',
+          fontWeight: 600,
+        },
+        contained: {
+          boxShadow: '0 2px 10px rgba(0, 188, 212, 0.3)',
+          '&:hover': {
+            boxShadow: '0 4px 20px rgba(0, 188, 212, 0.4)',
+          },
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            backgroundColor: '#2a2a2a',
+            '& fieldset': {
+              borderColor: '#444',
+            },
+            '&:hover fieldset': {
+              borderColor: '#666',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#00bcd4',
+            },
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#2a2a2a',
+          color: '#ffffff',
+          border: '1px solid #444',
+        },
+      },
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#333',
+        },
+      },
     },
   },
 });
@@ -180,12 +343,27 @@ const TenantSelector = () => {
             onClick={() => handleTenantSelect(tenant)}
             style={{
               padding: '16px',
-              border: '2px solid #1976d2',
-              borderRadius: '8px',
-              background: 'white',
+              border: '2px solid #00bcd4',
+              borderRadius: '12px',
+              background: '#1a1a1a',
+              color: '#ffffff',
               cursor: 'pointer',
               fontSize: '16px',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = '#2a2a2a';
+              e.target.style.borderColor = '#33d9f0';
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 6px 25px rgba(0, 188, 212, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = '#1a1a1a';
+              e.target.style.borderColor = '#00bcd4';
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.3)';
             }}
           >
             {tenant.company_name}

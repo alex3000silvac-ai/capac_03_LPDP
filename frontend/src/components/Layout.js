@@ -166,10 +166,11 @@ function Layout({ children }) {
       <Box sx={{ p: 2 }}>
         <Box sx={{ 
           p: 2, 
-          background: 'linear-gradient(135deg, #1976d2 0%, #2196f3 100%)',
+          background: 'linear-gradient(135deg, #00bcd4 0%, #33d9f0 100%)',
           borderRadius: 2, 
-          color: 'white',
-          boxShadow: '0 4px 20px 0 rgba(0,0,0,0.4)',
+          color: '#000',
+          boxShadow: '0 4px 20px 0 rgba(0, 188, 212, 0.3)',
+          border: '1px solid rgba(0, 188, 212, 0.3)',
         }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.9 }}>
             Tu Progreso
@@ -216,11 +217,22 @@ function Layout({ children }) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Chip
               icon={<TrophyIcon />}
-              label="Nivel: Principiante"
+              label="DPO Profesional"
               color="primary"
               variant="outlined"
+              sx={{
+                backgroundColor: 'rgba(0, 188, 212, 0.1)',
+                borderColor: '#00bcd4',
+                color: '#00bcd4',
+                fontWeight: 600,
+              }}
             />
-            <Avatar sx={{ bgcolor: theme.palette.secondary.main }}>
+            <Avatar sx={{ 
+              bgcolor: theme.palette.primary.main,
+              color: '#000',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 10px rgba(0, 188, 212, 0.3)',
+            }}>
               JD
             </Avatar>
           </Box>
