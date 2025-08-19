@@ -11,6 +11,7 @@ from app.api.v1.endpoints import (
     organizaciones,
     capacitacion,
     entrevistas,
+    modulo3_inventario,
     # COMENTADO: Endpoints problemáticos que causan errores de import
     # actividades,
     # categorias,
@@ -35,6 +36,7 @@ api_router.include_router(empresas.router, prefix="/empresas", tags=["empresas"]
 api_router.include_router(organizaciones.router, prefix="/organizaciones", tags=["organizaciones"])
 api_router.include_router(capacitacion.router, prefix="/capacitacion", tags=["capacitacion"])
 api_router.include_router(entrevistas.router, prefix="/entrevistas", tags=["entrevistas"])
+api_router.include_router(modulo3_inventario.router, prefix="/modulo3", tags=["modulo3-inventario"])
 
 # COMENTADO: Rutas de módulos funcionales - Causan errores de import
 # api_router.include_router(consentimientos.router, prefix="/consentimientos", tags=["consentimientos"])
