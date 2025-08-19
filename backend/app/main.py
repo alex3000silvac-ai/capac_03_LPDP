@@ -98,8 +98,8 @@ async def catch_exceptions(request: Request, call_next):
         )
 
 
-# Incluir todas las rutas de la API
-app.include_router(api_router, prefix="/api/v1")
+# Incluir todas las rutas de la API - TEMPORALMENTE COMENTADO PARA DEBUG
+# app.include_router(api_router, prefix="/api/v1")
 
 # Rutas de compatibilidad para el frontend
 @app.get("/tenants/available")
