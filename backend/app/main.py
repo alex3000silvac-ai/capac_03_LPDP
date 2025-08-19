@@ -173,6 +173,22 @@ async def get_capacitacion_modulos():
                 "orden": 2
             },
             {
+                "id": "modulo3_inventario",
+                "nombre": "Módulo 3: Inventario y Mapeo de Datos",
+                "descripcion": "Construcción profesional del RAT según Ley 21.719 - Incluye simuladores y herramientas para DPO",
+                "duracion_estimada": 480,
+                "orden": 3,
+                "nivel": "profesional",
+                "dirigido_a": "DPOs, Abogados, Ingenieros",
+                "incluye": [
+                    "Simuladores interactivos de mapeo",
+                    "Formularios descargables",
+                    "Casos prácticos IoT",
+                    "Plantillas RAT profesionales",
+                    "Estructura programa DPO"
+                ]
+            },
+            {
                 "id": "uso_sistema",
                 "nombre": "Uso del Sistema SCLDP",
                 "descripcion": "Navegación y funcionalidades del sistema",
@@ -180,6 +196,90 @@ async def get_capacitacion_modulos():
                 "orden": 4
             }
         ]
+    }
+
+# Rutas directas para el Módulo 3 profesional
+@app.get("/api/v1/modulo3/downloadables/package/{package_type}")
+async def get_modulo3_download_package(package_type: str):
+    """Descargar paquetes del Módulo 3 para DPOs"""
+    packages = {
+        "basic": {
+            "name": "Paquete Básico DPO - Módulo 3",
+            "files": [
+                {
+                    "name": "plantilla_rat_ley21719.xlsx",
+                    "type": "excel",
+                    "description": "Plantilla RAT completa según Ley 21.719",
+                    "size": "2.5 MB"
+                },
+                {
+                    "name": "formularios_entrevista_areas.pdf",
+                    "type": "pdf", 
+                    "description": "Formularios de entrevista para RRHH, Finanzas, Ventas",
+                    "size": "1.8 MB"
+                },
+                {
+                    "name": "matriz_clasificacion_datos.xlsx",
+                    "type": "excel",
+                    "description": "Matriz para clasificar datos por sensibilidad",
+                    "size": "800 KB"
+                },
+                {
+                    "name": "checklist_cumplimiento_modulo3.pdf",
+                    "type": "pdf",
+                    "description": "Lista de verificación para cumplimiento",
+                    "size": "500 KB"
+                }
+            ],
+            "total_size": "5.6 MB",
+            "download_url": f"/downloads/modulo3/basic_package.zip"
+        },
+        "professional": {
+            "name": "Paquete Profesional DPO - Módulo 3", 
+            "files": [
+                {
+                    "name": "manual_dpo_modulo3_completo.pdf",
+                    "type": "pdf",
+                    "description": "Manual DPO de 150+ páginas con procedimientos detallados",
+                    "size": "15.2 MB"
+                },
+                {
+                    "name": "simuladores_interactivos/",
+                    "type": "web_app",
+                    "description": "Simuladores de mapeo para RRHH, IoT, Finanzas",
+                    "size": "25 MB"
+                },
+                {
+                    "name": "casos_practicos_acuicultura.pdf",
+                    "type": "pdf", 
+                    "description": "Casos reales de acuicultura e IoT",
+                    "size": "5.8 MB"
+                },
+                {
+                    "name": "videos_explicativos/",
+                    "type": "video",
+                    "description": "15 videos de conceptos clave (5-15 min c/u)",
+                    "size": "180 MB"
+                }
+            ],
+            "total_size": "226 MB",
+            "download_url": f"/downloads/modulo3/professional_package.zip"
+        }
+    }
+    
+    if package_type not in packages:
+        return {"error": "Paquete no encontrado", "available": list(packages.keys())}
+    
+    return {
+        "package": packages[package_type],
+        "instructions": {
+            "installation": "Descomprimir en directorio del programa DPO",
+            "requirements": "Office 2016+, navegador web moderno",
+            "support": "Incluye 90 días de soporte técnico",
+            "updates": "Actualizaciones automáticas por 1 año"
+        },
+        "preview_available": True,
+        "preview_url": f"/api/v1/modulo3/preview/{package_type}"
     }
 
 # Ruta de salud para Render
