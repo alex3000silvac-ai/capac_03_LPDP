@@ -703,7 +703,7 @@ PLANTILLAS_RAT = {
     }
 }
 
-@router.get("/modulo3/introduccion")
+@router.get("/introduccion")
 def get_introduccion_modulo3():
     """Obtener introducción completa del Módulo 3"""
     return {
@@ -733,7 +733,7 @@ def get_introduccion_modulo3():
         }
     }
 
-@router.get("/modulo3/seccion/{seccion_id}")
+@router.get("/seccion/{seccion_id}")
 def get_seccion_modulo3(seccion_id: str):
     """Obtener contenido de sección específica"""
     if seccion_id not in MODULO3_CONTENT:
@@ -748,7 +748,7 @@ def get_seccion_modulo3(seccion_id: str):
         }
     }
 
-@router.get("/modulo3/preguntas/{area}")
+@router.get("/preguntas/{area}")
 def get_preguntas_profesionales(area: str):
     """Obtener preguntas profesionales por área"""
     area_upper = area.upper()
@@ -766,7 +766,7 @@ def get_preguntas_profesionales(area: str):
         }
     }
 
-@router.get("/modulo3/formularios")
+@router.get("/formularios")
 def get_formularios_descargables():
     """Obtener todos los formularios descargables"""
     return {
@@ -785,7 +785,7 @@ def get_formularios_descargables():
         ]
     }
 
-@router.get("/modulo3/casos-practicos")
+@router.get("/casos-practicos")
 def get_casos_practicos():
     """Obtener casos prácticos reales"""
     return {
@@ -804,7 +804,7 @@ def get_casos_practicos():
         ]
     }
 
-@router.get("/modulo3/plantillas-rat")
+@router.get("/plantillas-rat")
 def get_plantillas_rat():
     """Obtener plantillas completas de RAT"""
     return {
@@ -821,10 +821,9 @@ def get_plantillas_rat():
         }
     }
 
-@router.post("/modulo3/generar-rat")
+@router.post("/generar-rat")
 def generar_rat_personalizado(
-    datos_organizacion: Dict[str, Any],
-    current_user: SimpleUser = Depends(get_simple_current_user)
+    datos_organizacion: Dict[str, Any]
 ):
     """Generar RAT personalizado para la organización"""
     
@@ -833,7 +832,7 @@ def generar_rat_personalizado(
         "id_rat": f"RAT_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
         "organizacion": datos_organizacion.get("nombre_organizacion", "Organización"),
         "fecha_generacion": datetime.now().isoformat(),
-        "responsable": current_user.username,
+        "responsable": "usuario_sistema",
         "actividades_identificadas": [],
         "estado": "borrador",
         "proximos_pasos": [
@@ -1145,7 +1144,7 @@ async def get_dpo_program_structure():
         }
     }
 
-@router.get("/modulo3/evaluacion")
+@router.get("/evaluacion")
 def get_evaluacion_modulo3():
     """Obtener evaluación profesional del módulo"""
     return {
