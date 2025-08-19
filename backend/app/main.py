@@ -298,10 +298,29 @@ async def health_check():
 async def root():
     return {
         "message": "Sistema LPDP - Ley 21.719",
-        "version": "1.0.0",
+        "version": "3.0.0",
         "docs": "/api/docs",
-        "health": "/health"
+        "health": "/health",
+        "modulos_nuevos": "Módulo 3, Glosario LPDP, Sandbox Inventario disponibles"
     }
+
+# Test de nuevos módulos sin middleware
+@app.get("/test-imports")
+async def test_imports():
+    try:
+        from app.api.v1.endpoints import modulo3_inventario, glosario_lpdp, sandbox_inventario_real
+        return {
+            "status": "success",
+            "modulos_importados": True,
+            "modulo3_endpoints": len(modulo3_inventario.router.routes),
+            "glosario_endpoints": len(glosario_lpdp.router.routes),
+            "sandbox_endpoints": len(sandbox_inventario_real.router.routes)
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e)
+        }
 
 if __name__ == "__main__":
     import uvicorn
