@@ -679,12 +679,13 @@ PLANTILLAS_RAT = {
 def get_introduccion_modulo3():
     """Obtener introducción completa del Módulo 3"""
     return {
-        "modulo": "Módulo 3: Inventario y Mapeo de Datos",
-        "ley_base": "Ley N° 21.719 - Protección de Datos Personales Chile",
+        "status": "success",
+        "modulo": "Modulo 3: Inventario y Mapeo de Datos",
+        "ley_base": "Ley N 21.719 - Proteccion de Datos Personales Chile",
         "vigencia": "1 de diciembre de 2026",
         "instructor": {
-            "perfil": "Abogado Especialista en Protección de Datos",
-            "experiencia": "Experto en implementación de Ley 21.719 y normativas internacionales de privacidad",
+            "perfil": "Abogado Especialista en Proteccion de Datos",
+            "experiencia": "Experto en implementacion de Ley 21.719",
             "certificaciones": [
                 "Certified Information Privacy Professional (CIPP/E)",
                 "Data Protection Officer certificado",
@@ -692,16 +693,16 @@ def get_introduccion_modulo3():
             ]
         },
         "alcance_curso": {
-            "cobertura": "Capítulo 3 únicamente - Inventario y Mapeo de Datos",
-            "aclaracion": "Este curso se enfoca exclusivamente en el Capítulo 3 del programa completo de LPDP"
+            "cobertura": "Capitulo 3 unicamente - Inventario y Mapeo de Datos",
+            "aclaracion": "Este curso se enfoca exclusivamente en el Capitulo 3 del programa completo de LPDP"
         },
         "metodologia_aprendizaje": {
-            "modalidad": "Teórico-Práctica",
+            "modalidad": "Teorico-Practica",
             "incluye": [
                 "Fundamentos legales de la Ley 21.719",
-                "Metodologías profesionales de mapeo",
+                "Metodologias profesionales de mapeo",
                 "Herramientas de trabajo descargables",
-                "Casos prácticos reales",
+                "Casos practicos reales",
                 "Plantillas RAT completas",
                 "Formularios de entrevistas"
             ]
