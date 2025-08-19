@@ -10,8 +10,8 @@ import json
 
 router = APIRouter()
 
-# MÓDULO 3 COMPLETO - BASADO EN MANUAL DE PROCEDIMIENTOS PARTE 3
-MODULO3_CONTENT = {
+# MÓDULO 3 COMPLETO - BASADO EN MANUAL DE PROCEDIMIENTOS PARTE 3 - COMENTADO TEMPORALMENTE
+MODULO3_CONTENT_TEMP = {
     "introduccion": {
         "titulo": "Capítulo 3: Módulo de Inventario y Mapeo de Datos",
         "subtitulo": "Construcción del Registro de Actividades de Tratamiento (RAT) según Ley 21.719",
