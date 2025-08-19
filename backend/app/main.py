@@ -45,10 +45,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Middleware personalizado para multi-tenant (DEBE IR ANTES QUE CORS)
-@app.middleware("http")
-async def tenant_middleware_wrapper(request: Request, call_next):
-    return await tenant_middleware(request, call_next)
+# Middleware personalizado para multi-tenant (DEBE IR ANTES QUE CORS) - COMENTADO PARA DEBUG
+# @app.middleware("http")
+# async def tenant_middleware_wrapper(request: Request, call_next):
+#     return await tenant_middleware(request, call_next)
 
 # Configuración de CORS para producción  
 app.add_middleware(
@@ -71,15 +71,15 @@ app.add_middleware(
 )
 
 
-@app.middleware("http")
-async def add_tenant_header(request: Request, call_next):
-    """Agrega información del tenant a los headers de respuesta"""
-    response = await call_next(request)
-    
-    if hasattr(request.state, "tenant_id"):
-        response.headers["X-Tenant-ID"] = request.state.tenant_id
-    
-    return response
+# @app.middleware("http")
+# async def add_tenant_header(request: Request, call_next):
+#     """Agrega información del tenant a los headers de respuesta"""
+#     response = await call_next(request)
+#     
+#     if hasattr(request.state, "tenant_id"):
+#         response.headers["X-Tenant-ID"] = request.state.tenant_id
+#     
+#     return response
 
 
 @app.middleware("http")
