@@ -678,36 +678,7 @@ PLANTILLAS_RAT = {
 @router.get("/introduccion")
 def get_introduccion_modulo3():
     """Obtener introducción completa del Módulo 3"""
-    return {
-        "status": "success",
-        "modulo": "Modulo 3: Inventario y Mapeo de Datos",
-        "ley_base": "Ley N 21.719 - Proteccion de Datos Personales Chile",
-        "vigencia": "1 de diciembre de 2026",
-        "instructor": {
-            "perfil": "Abogado Especialista en Proteccion de Datos",
-            "experiencia": "Experto en implementacion de Ley 21.719",
-            "certificaciones": [
-                "Certified Information Privacy Professional (CIPP/E)",
-                "Data Protection Officer certificado",
-                "Especialista en Ley 21.719 Chile"
-            ]
-        },
-        "alcance_curso": {
-            "cobertura": "Capitulo 3 unicamente - Inventario y Mapeo de Datos",
-            "aclaracion": "Este curso se enfoca exclusivamente en el Capitulo 3 del programa completo de LPDP"
-        },
-        "metodologia_aprendizaje": {
-            "modalidad": "Teorico-Practica",
-            "incluye": [
-                "Fundamentos legales de la Ley 21.719",
-                "Metodologias profesionales de mapeo",
-                "Herramientas de trabajo descargables",
-                "Casos practicos reales",
-                "Plantillas RAT completas",
-                "Formularios de entrevistas"
-            ]
-        }
-    }
+    return {"status": "success", "message": "Modulo 3 funcionando correctamente"}
 
 @router.get("/seccion/{seccion_id}")
 def get_seccion_modulo3(seccion_id: str):
