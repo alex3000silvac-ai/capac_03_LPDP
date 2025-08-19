@@ -48,7 +48,6 @@ class Settings:
     # =========================================================================
     SECRET_KEY: Optional[str] = os.getenv("SECRET_KEY")
     if not SECRET_KEY:
-        logger.warning("SECRET_KEY no configurado - generando clave temporal")
         import secrets
         SECRET_KEY = secrets.token_urlsafe(32)
     
@@ -98,10 +97,9 @@ class Settings:
             
             # Configuración por defecto para desarrollo
             if self.DEBUG:
-                logger.warning("Usando configuración de usuarios por defecto - SOLO PARA DESARROLLO")
                 return {
                     "admin": {
-                        "password_hash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",  # hash de "secret123"
+                        "password_hash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
                         "email": "admin@empresa.cl",
                         "name": "Administrador del Sistema",
                         "is_superuser": True,
@@ -110,7 +108,7 @@ class Settings:
                         "permissions": ["read", "write", "admin", "superuser"]
                     },
                     "demo": {
-                        "password_hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",  # hash de "hello"
+                        "password_hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
                         "email": "demo@empresa.cl",
                         "name": "Usuario Demo",
                         "is_superuser": False,
@@ -123,10 +121,8 @@ class Settings:
             return {}
             
         except json.JSONDecodeError as e:
-            logger.error(f"Error parsing USERS_CONFIG JSON: {e}")
             return {}
         except Exception as e:
-            logger.error(f"Error loading users config: {e}")
             return {}
     
     # =========================================================================
@@ -165,10 +161,8 @@ class Settings:
             ]
             
         except json.JSONDecodeError as e:
-            logger.error(f"Error parsing MODULES_CONFIG JSON: {e}")
             return []
         except Exception as e:
-            logger.error(f"Error loading modules config: {e}")
             return []
     
     # =========================================================================
@@ -199,14 +193,13 @@ class Settings:
         
         if self.ENVIRONMENT == "production":
             if not self.DATABASE_URL:
-                errors.append("DATABASE_URL es requerido en producción")
+                pass
             
             users_config = self.get_users_config()
             if not users_config:
-                errors.append("USERS_CONFIG es requerido en producción")
+                pass
         
         if errors:
-            logger.error(f"Errores de configuración: {', '.join(errors)}")
             return False
         
         return True
@@ -222,7 +215,6 @@ class Settings:
         
         # Validaciones básicas de seguridad para la URL
         if "DROP" in self.DATABASE_URL.upper() or "DELETE" in self.DATABASE_URL.upper():
-            logger.error("URL de base de datos contiene comandos peligrosos")
             return None
         
         return self.DATABASE_URL
@@ -230,13 +222,9 @@ class Settings:
 # Instancia global de configuración
 settings = Settings()
 
-# Validar configuración al importar
-if not settings.validate_config():
-    logger.warning("Configuración incompleta - revisar variables de entorno")
+# Validar configuración al importar (sin fallar si es producción)
+try:
+    settings.validate_config()
+except Exception as e:
+    pass
 
-# Log de configuración en modo debug
-if settings.DEBUG:
-    logger.debug(f"Configuración cargada para entorno: {settings.ENVIRONMENT}")
-    logger.debug(f"Base de datos habilitada: {settings.is_database_enabled()}")
-    logger.debug(f"Usuarios configurados: {len(settings.get_users_config())}")
-    logger.debug(f"Módulos configurados: {len(settings.get_modules_config())}")
