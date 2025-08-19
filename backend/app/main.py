@@ -10,8 +10,8 @@ import logging
 import os
 
 from app.core.config import settings
-from app.api.v1.api import api_router
-from app.core.tenant import cleanup_tenant_connections, get_tenant_db, tenant_middleware
+# from app.api.v1.api import api_router
+# from app.core.tenant import cleanup_tenant_connections, get_tenant_db, tenant_middleware
 
 # Configurar logging
 logging.basicConfig(
@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
     print("🛑 Cerrando Sistema LPDP...")
-    cleanup_tenant_connections()
+    # cleanup_tenant_connections()
 
 
 # Crear aplicación
