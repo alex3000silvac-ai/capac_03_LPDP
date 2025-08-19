@@ -12,6 +12,8 @@ from app.api.v1.endpoints import (
     capacitacion,
     entrevistas,
     modulo3_inventario,
+    glosario_lpdp,
+    sandbox_inventario_real,
     # COMENTADO: Endpoints problemáticos que causan errores de import
     # actividades,
     # categorias,
@@ -37,6 +39,8 @@ api_router.include_router(organizaciones.router, prefix="/organizaciones", tags=
 api_router.include_router(capacitacion.router, prefix="/capacitacion", tags=["capacitacion"])
 api_router.include_router(entrevistas.router, prefix="/entrevistas", tags=["entrevistas"])
 api_router.include_router(modulo3_inventario.router, prefix="/modulo3", tags=["modulo3-inventario"])
+api_router.include_router(glosario_lpdp.router, prefix="/glosario", tags=["glosario-lpdp"])
+api_router.include_router(sandbox_inventario_real.router, prefix="/sandbox", tags=["sandbox-inventario"])
 
 # COMENTADO: Rutas de módulos funcionales - Causan errores de import
 # api_router.include_router(consentimientos.router, prefix="/consentimientos", tags=["consentimientos"])
