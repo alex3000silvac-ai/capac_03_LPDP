@@ -34,11 +34,25 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../config';
+import { useAuth } from '../contexts/AuthContext';
 
 const MotionCard = motion(Card);
 
+// Función para obtener el icono apropiado según el módulo
+const getModuleIcon = (moduleId, index) => {
+  if (moduleId === 'modulo3_inventario') return '🗂️';
+  if (moduleId === 'introduccion_lpdp') return '📖';
+  if (moduleId === 'conceptos_basicos') return '🔍';
+  if (moduleId === 'uso_sistema') return '🛠️';
+  
+  // Iconos por defecto basados en índice
+  const defaultIcons = ['📖', '🔍', '🗂️', '🛠️', '🎯', '📊', '🔒', '⚖️'];
+  return defaultIcons[index] || '📚';
+};
+
 function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [modulos, setModulos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -57,16 +71,35 @@ function Dashboard() {
           const data = await response.json();
           
           // Transforma los datos de la API al formato esperado
-          const modulosFormateados = data.modulos.map((modulo, index) => ({
-            id: modulo.id || `MOD-00${index + 1}`,
-            titulo: modulo.nombre || modulo.titulo,
-            descripcion: modulo.descripcion,
-            duracion: `${modulo.duracion_estimada || 45} min`,
-            progreso: modulo.progreso || (index === 0 ? 100 : index === 1 ? 60 : 0),
-            estado: modulo.estado || (index === 0 ? 'completado' : index === 1 ? 'en_progreso' : 'bloqueado'),
-            icono: modulo.icono || (index === 0 ? '📖' : index === 1 ? '🔍' : '🛠️'),
-            actual: index === 1,
-          }));
+          const modulosFormateados = data.modulos.map((modulo, index) => {
+            // Si es admin/superuser, todos los módulos están desbloqueados
+            const isAdmin = user?.is_superuser || user?.username === 'admin';
+            let estado, progreso;
+            
+            if (isAdmin) {
+              // Admin tiene acceso a todo
+              estado = index === 0 ? 'completado' : 'disponible';
+              progreso = index === 0 ? 100 : 0;
+            } else {
+              // Usuario normal con progresión secuencial
+              estado = modulo.estado || (index === 0 ? 'completado' : index === 1 ? 'en_progreso' : 'bloqueado');
+              progreso = modulo.progreso || (index === 0 ? 100 : index === 1 ? 60 : 0);
+            }
+            
+            return {
+              id: modulo.id || `MOD-00${index + 1}`,
+              titulo: modulo.nombre || modulo.titulo,
+              descripcion: modulo.descripcion,
+              duracion: `${modulo.duracion_estimada || 45} min`,
+              progreso: progreso,
+              estado: estado,
+              icono: getModuleIcon(modulo.id || modulo.nombre, index),
+              actual: !isAdmin && index === 1, // Solo marca "actual" para usuarios normales
+              nivel: modulo.nivel || 'básico',
+              dirigido_a: modulo.dirigido_a,
+              incluye: modulo.incluye,
+            };
+          });
           
           setModulos(modulosFormateados);
         } else {
@@ -77,9 +110,10 @@ function Dashboard() {
         setError('No se pudieron cargar los módulos. Mostrando datos de ejemplo.');
         
         // Si falla la API, usa datos de ejemplo
+        const isAdmin = user?.is_superuser || user?.username === 'admin';
         const modulosEjemplo = [
           {
-            id: 'MOD-001',
+            id: 'introduccion_lpdp',
             titulo: 'Introducción a la Protección de Datos',
             descripcion: 'Fundamentos legales y conceptos básicos de la Ley N° 21.719',
             duracion: '45 min',
@@ -88,22 +122,33 @@ function Dashboard() {
             icono: '📖',
           },
           {
-            id: 'MOD-002',
-            titulo: 'El Arte de Descubrir Datos',
-            descripcion: 'Técnicas de levantamiento y entrevistas efectivas',
-            duracion: '90 min',
-            progreso: 60,
-            estado: 'en_progreso',
+            id: 'conceptos_basicos',
+            titulo: 'Conceptos Básicos de Protección de Datos',
+            descripcion: '¿Qué es un dato personal? ¿Qué es el tratamiento?',
+            duracion: '45 min',
+            progreso: isAdmin ? 0 : 60,
+            estado: isAdmin ? 'disponible' : 'en_progreso',
             icono: '🔍',
-            actual: true,
+            actual: !isAdmin,
           },
           {
-            id: 'MOD-003',
-            titulo: 'Taller Práctico: Tu Primer RAT',
-            descripcion: 'Aprende haciendo - Documenta una actividad real',
-            duracion: '120 min',
+            id: 'modulo3_inventario',
+            titulo: 'Módulo 3: Inventario y Mapeo de Datos',
+            descripcion: 'Construcción profesional del RAT según Ley 21.719 - Incluye simuladores y herramientas para DPO',
+            duracion: '480 min',
             progreso: 0,
-            estado: 'bloqueado',
+            estado: isAdmin ? 'disponible' : 'bloqueado',
+            icono: '🗂️',
+            nivel: 'profesional',
+            dirigido_a: 'DPOs, Abogados, Ingenieros',
+          },
+          {
+            id: 'uso_sistema',
+            titulo: 'Uso del Sistema SCLDP',
+            descripcion: 'Navegación y funcionalidades del sistema',
+            duracion: '45 min',
+            progreso: 0,
+            estado: isAdmin ? 'disponible' : 'bloqueado',
             icono: '🛠️',
           },
         ];
@@ -149,15 +194,19 @@ function Dashboard() {
     <Box>
       {/* Mensaje de Bienvenida */}
       <Alert 
-        severity="info" 
+        severity={user?.is_superuser || user?.username === 'admin' ? "success" : "info"} 
         icon={<InfoOutlined />}
         sx={{ mb: 3 }}
       >
         <Typography variant="subtitle1" fontWeight={600}>
-          ¡Bienvenido al Sistema de Capacitación!
+          {user?.is_superuser || user?.username === 'admin' 
+            ? '🔓 ¡Bienvenido, Administrador!' 
+            : '¡Bienvenido al Sistema de Capacitación!'}
         </Typography>
         <Typography variant="body2">
-          Este es un ambiente 100% educativo. Todo lo que hagas aquí es para aprender sobre la Ley de Protección de Datos Personales.
+          {user?.is_superuser || user?.username === 'admin'
+            ? 'Como administrador, tienes acceso completo a todos los módulos para revisión y demostración. Todos los módulos están desbloqueados.'
+            : 'Este es un ambiente 100% educativo. Todo lo que hagas aquí es para aprender sobre la Ley de Protección de Datos Personales.'}
         </Typography>
       </Alert>
 
@@ -301,7 +350,8 @@ function Dashboard() {
                   onClick={() => navigate(`/modulo/${modulo.id}`)}
                 >
                   {modulo.estado === 'completado' ? 'Repasar' : 
-                   modulo.estado === 'en_progreso' ? 'Continuar' : 'Bloqueado'}
+                   modulo.estado === 'en_progreso' ? 'Continuar' : 
+                   modulo.estado === 'disponible' ? 'Iniciar' : 'Bloqueado'}
                 </Button>
               </CardActions>
             </MotionCard>
