@@ -8,6 +8,11 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
+@router.get("/test")
+def test_modulo3():
+    """Endpoint de prueba básico"""
+    return {"status": "ok", "module": "modulo3_inventario", "message": "Módulo 3 funcionando"}
+
 # MÓDULO 3 COMPLETO - VERSIÓN FUNCIONAL
 MODULO3_CONTENT = {
     "introduccion": {
