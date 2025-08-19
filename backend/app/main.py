@@ -198,6 +198,31 @@ async def get_capacitacion_modulos():
         ]
     }
 
+# Ruta de prueba para verificar nuevos módulos
+@app.get("/api/v1/test-nuevos-modulos")
+async def test_nuevos_modulos():
+    """Verificar que los nuevos módulos estén funcionando"""
+    try:
+        from app.api.v1.endpoints import modulo3_inventario, glosario_lpdp, sandbox_inventario_real
+        return {
+            "status": "success",
+            "modulos_importados": {
+                "modulo3_inventario": "OK",
+                "glosario_lpdp": "OK", 
+                "sandbox_inventario_real": "OK"
+            },
+            "endpoints_modulo3": len(modulo3_inventario.router.routes),
+            "endpoints_glosario": len(glosario_lpdp.router.routes),
+            "endpoints_sandbox": len(sandbox_inventario_real.router.routes),
+            "version": "3.0.0"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "message": "Error al importar nuevos módulos"
+        }
+
 # Rutas directas para el Módulo 3 profesional
 @app.get("/api/v1/modulo3/downloadables/package/{package_type}")
 async def get_modulo3_download_package(package_type: str):
