@@ -38,47 +38,67 @@ def get_simple_current_user(credentials: HTTPAuthorizationCredentials = Depends(
     except Exception as e:
         raise HTTPException(status_code=401, detail="Error de autenticación")
 
-# CONTENIDO PROFESIONAL DEL MÓDULO 3
+# MÓDULO 3 COMPLETO - BASADO EN MANUAL DE PROCEDIMIENTOS PARTE 3
 MODULO3_CONTENT = {
     "introduccion": {
-        "titulo": "Módulo 3: Inventario y Mapeo de Datos",
+        "titulo": "Capítulo 3: Módulo de Inventario y Mapeo de Datos",
         "subtitulo": "Construcción del Registro de Actividades de Tratamiento (RAT) según Ley 21.719",
-        "descripcion": "Este módulo detalla el procedimiento para crear y mantener un inventario exhaustivo de todos los activos de datos personales que la organización trata. Este inventario, también conocido como Registro de Actividades de Tratamiento (RAT), es la piedra angular de todo el sistema de cumplimiento. Sin un conocimiento claro de qué datos se tienen, dónde están, por qué se tienen, cómo fluyen y cuándo deben ser eliminados, es imposible cumplir con los demás principios y obligaciones de la Ley N° 21.719.",
-        "objetivos": [
-            "Conformar equipos multidisciplinarios para el levantamiento de inventarios",
-            "Implementar metodologías profesionales de mapeo de datos",
-            "Crear documentación completa de actividades de tratamiento",
-            "Establecer clasificaciones de datos por sensibilidad",
-            "Diseñar flujos de datos internos y externos",
-            "Implementar políticas de retención y eliminación"
+        "descripcion": "Este capítulo detalla el procedimiento para crear y mantener un inventario exhaustivo de todos los activos de datos personales que la organización trata. Este inventario, también conocido como Registro de Actividades de Tratamiento (RAT), es la piedra angular de todo el sistema de cumplimiento. Sin un conocimiento claro de qué datos se tienen, dónde están, por qué se tienen, cómo fluyen y cuándo deben ser eliminados, es imposible cumplir con los demás principios y obligaciones de la Ley N° 21.719.",
+        "importancia_critica": "El RAT no es solo un documento de cumplimiento, sino la herramienta fundamental para la gobernanza de datos. Permite identificar riesgos, establecer controles, y demostrar accountability ante la Agencia de Protección de Datos.",
+        "objetivos_profesionales": [
+            "Liderar equipos multidisciplinarios para el levantamiento inicial del inventario",
+            "Implementar metodologías profesionales de mapeo basadas en procesos de negocio",
+            "Crear documentación técnica y legal completa de actividades de tratamiento",
+            "Establecer clasificaciones avanzadas de datos por sensibilidad y riesgo",
+            "Diseñar y documentar flujos de datos internos y externos complejos",
+            "Implementar políticas de retención automatizadas y procedimientos de eliminación segura",
+            "Desarrollar capacidades de evaluación de impacto y gestión de riesgos",
+            "Crear sistemas de monitoreo y auditoría continua del RAT"
         ],
-        "duracion_estimada": "8-12 horas académicas",
-        "dirigido_a": "DPOs, Abogados, Ingenieros, Jefes de TI, Gerentes de Cumplimiento"
+        "duracion_estimada": "12-16 horas académicas",
+        "dirigido_a": "DPOs, Abogados especializados en Privacy, Ingenieros de Datos, Arquitectos de Sistemas, Gerentes de Cumplimiento, Auditores TI",
+        "prerequisitos": [
+            "Conocimiento sólido de la Ley 21.719 y sus reglamentos",
+            "Experiencia en gestión de procesos de negocio",
+            "Comprensión de arquitecturas de sistemas y flujos de datos",
+            "Conocimientos básicos de evaluación de riesgos"
+        ]
     },
     
     "seccion_1": {
-        "titulo": "3.1 Conformación del Equipo de Trabajo",
+        "titulo": "3.1 Procedimientos para el Personal - Creación y Mantenimiento del Inventario",
         "contenido": {
-            "importancia": "El DPO debe liderar un equipo multidisciplinario para el levantamiento inicial del inventario. Este equipo debe incluir representantes de todas las áreas clave que tratan datos personales.",
-            "integrantes_requeridos": {
-                "DPO": {
-                    "rol": "Líder del proyecto",
-                    "responsabilidades": [
-                        "Coordinar el equipo multidisciplinario",
-                        "Validar la documentación técnica y legal",
-                        "Asegurar cumplimiento de la Ley 21.719",
-                        "Revisar y aprobar el RAT final"
-                    ]
-                },
-                "RRHH": {
-                    "rol": "Experto en datos de personal",
-                    "responsabilidades": [
-                        "Mapear procesos de reclutamiento y selección",
-                        "Documentar datos de empleados y candidatos",
-                        "Identificar datos sensibles (salud, situación socioeconómica)",
-                        "Definir políticas de retención de currículums"
-                    ]
-                },
+            "subseccion_1_1": {
+                "titulo": "Procedimiento de Mapeo Inicial de Datos (Data Discovery)",
+                "importancia": "El DPO debe liderar un equipo multidisciplinario para el levantamiento inicial del inventario. Este equipo debe incluir representantes de todas las áreas clave que tratan datos personales: RRHH, Finanzas, Marketing, Ventas, Operaciones, TI y Legal.",
+                "pasos_criticos": [
+                    {
+                        "paso": 1,
+                        "titulo": "Conformación del Equipo de Trabajo",
+                        "descripcion": "El DPO debe liderar un equipo multidisciplinario para el levantamiento inicial del inventario.",
+                        "integrantes_requeridos": {
+                            "DPO": {
+                                "rol": "Líder del proyecto y coordinador técnico-legal",
+                                "responsabilidades": [
+                                    "Coordinar el equipo multidisciplinario y establecer metodologías",
+                                    "Validar la documentación técnica y legal de cada actividad",
+                                    "Asegurar cumplimiento estricto de la Ley 21.719 y sus reglamentos",
+                                    "Revisar y aprobar el RAT final antes de su implementación",
+                                    "Establecer controles de calidad y procedimientos de auditoría"
+                                ],
+                                "competencias_requeridas": ["Conocimiento profundo Ley 21.719", "Gestión de proyectos", "Análisis de riesgos"]
+                            },
+                            "RRHH": {
+                                "rol": "Experto en datos de personal y procesos laborales",
+                                "responsabilidades": [
+                                    "Mapear procesos completos de reclutamiento, selección e inducción",
+                                    "Documentar datos de empleados, candidatos y ex-empleados",
+                                    "Identificar datos sensibles: salud, situación socioeconómica, afiliación sindical",
+                                    "Definir políticas de retención diferenciadas para currículums vs. empleados",
+                                    "Mapear terceros: empresas de reclutamiento, exámenes médicos, Previred"
+                                ],
+                                "areas_especializacion": ["Datos biométricos", "Evaluaciones psicológicas", "Datos sindicales"]
+                            },
                 "Finanzas": {
                     "rol": "Experto en datos financieros",
                     "responsabilidades": [
