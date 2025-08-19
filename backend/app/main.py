@@ -10,8 +10,8 @@ import logging
 import os
 
 from app.core.config import settings
-# from app.api.v1.api import api_router
-# from app.core.tenant import cleanup_tenant_connections, get_tenant_db, tenant_middleware
+from app.api.v1.api import api_router
+from app.core.tenant import cleanup_tenant_connections, get_tenant_db, tenant_middleware
 
 # Configurar logging
 logging.basicConfig(
@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
     print("🛑 Cerrando Sistema LPDP...")
-    # cleanup_tenant_connections()
+    cleanup_tenant_connections()
 
 
 # Crear aplicación
@@ -45,10 +45,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Middleware personalizado para multi-tenant (DEBE IR ANTES QUE CORS) - COMENTADO PARA DEBUG
-# @app.middleware("http")
-# async def tenant_middleware_wrapper(request: Request, call_next):
-#     return await tenant_middleware(request, call_next)
+# Middleware personalizado para multi-tenant (DEBE IR ANTES QUE CORS)
+@app.middleware("http")
+async def tenant_middleware_wrapper(request: Request, call_next):
+    return await tenant_middleware(request, call_next)
 
 # Configuración de CORS para producción  
 app.add_middleware(
@@ -71,15 +71,15 @@ app.add_middleware(
 )
 
 
-# @app.middleware("http")
-# async def add_tenant_header(request: Request, call_next):
-#     """Agrega información del tenant a los headers de respuesta"""
-#     response = await call_next(request)
-#     
-#     if hasattr(request.state, "tenant_id"):
-#         response.headers["X-Tenant-ID"] = request.state.tenant_id
-#     
-#     return response
+@app.middleware("http")
+async def add_tenant_header(request: Request, call_next):
+    """Agrega información del tenant a los headers de respuesta"""
+    response = await call_next(request)
+    
+    if hasattr(request.state, "tenant_id"):
+        response.headers["X-Tenant-ID"] = request.state.tenant_id
+    
+    return response
 
 
 @app.middleware("http")
@@ -98,8 +98,8 @@ async def catch_exceptions(request: Request, call_next):
         )
 
 
-# Incluir todas las rutas de la API - TEMPORALMENTE COMENTADO PARA DEBUG
-# app.include_router(api_router, prefix="/api/v1")
+# Incluir todas las rutas de la API
+app.include_router(api_router, prefix="/api/v1")
 
 # Rutas de compatibilidad para el frontend
 @app.get("/tenants/available")
@@ -198,52 +198,6 @@ async def get_capacitacion_modulos():
         ]
     }
 
-# ENDPOINTS DIRECTOS PARA TESTEO DE NUEVOS MÓDULOS
-
-@app.get("/test-modulo3")
-async def test_modulo3_direct():
-    """Test directo del módulo 3"""
-    return {
-        "success": True,
-        "modulo": "modulo3_inventario",
-        "titulo": "Módulo 3: Inventario y Mapeo de Datos", 
-        "descripcion": "Sistema profesional para construcción de RAT según Ley 21.719",
-        "version": "3.0.0",
-        "status": "funcionando_directamente"
-    }
-
-@app.get("/test-glosario")  
-async def test_glosario_direct():
-    """Test directo del glosario"""
-    return {
-        "success": True,
-        "titulo": "Glosario de Términos - Ley 21.719",
-        "total_terminos": 22,
-        "ejemplo_termino": {
-            "situacion_socioeconomica": {
-                "definicion": "DATO SENSIBLE que revela capacidad económica - novedad crucial de la ley chilena",
-                "ejemplos": ["Score crediticio", "Nivel de ingresos", "Evaluación socioeconómica para sueldo"]
-            }
-        },
-        "status": "funcionando_directamente"
-    }
-
-@app.get("/test-sandbox")
-async def test_sandbox_direct():
-    """Test directo del sandbox"""
-    return {
-        "success": True,
-        "titulo": "Sandbox de Inventario Real",
-        "descripcion": "Simulación real de creación de inventario de datos por área",
-        "areas_disponibles": ["RRHH", "Finanzas", "Marketing", "Operaciones", "TI", "Legal"],
-        "funcionalidades": [
-            "Wizard paso a paso",
-            "Dependencias trazables", 
-            "Plantillas Excel descargables",
-            "Validaciones automáticas"
-        ],
-        "status": "funcionando_directamente"
-    }
 
 # Rutas directas para el Módulo 3 profesional
 @app.get("/api/v1/modulo3/downloadables/package/{package_type}")
