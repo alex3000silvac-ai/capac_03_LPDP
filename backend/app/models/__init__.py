@@ -51,6 +51,23 @@ from .auditoria import (
     ReporteCumplimiento
 )
 
+# Nuevos modelos para Sandbox Profesional y Empresas Cliente
+from .sandbox import (
+    SandboxSession,
+    SandboxRATActivity,
+    SandboxDataFlow,
+    SandboxGeneratedDocument,
+    SandboxAssessment,
+    SandboxProfessionalTemplate
+)
+from .client_company import (
+    ClientCompany,
+    CompanyUser,
+    CompanyWorkspace,
+    CompanyUsageMetrics,
+    CompanyQuota
+)
+
 # Modelos básicos del sistema
 try:
     from .organizacion import Organizacion
@@ -145,5 +162,20 @@ __all__ = [
     "LogAuditoria",
     "EventoSistema",
     "MetricaCumplimiento",
-    "ReporteCumplimiento"
+    "ReporteCumplimiento",
+    
+    # Sandbox Profesional
+    "SandboxSession",
+    "SandboxRATActivity", 
+    "SandboxDataFlow",
+    "SandboxGeneratedDocument",
+    "SandboxAssessment",
+    "SandboxProfessionalTemplate",
+    
+    # Empresas Cliente
+    "ClientCompany",
+    "CompanyUser",
+    "CompanyWorkspace", 
+    "CompanyUsageMetrics",
+    "CompanyQuota"
 ] + modelos_antiguos

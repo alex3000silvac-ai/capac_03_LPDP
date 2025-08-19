@@ -237,6 +237,19 @@ function ModuloCapacitacion() {
         </Grid>
       </Paper>
 
+      {/* Información del Instructor y Alcance */}
+      <Alert severity="info" sx={{ mb: 3 }}>
+        <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+          👨‍⚖️ Instructor: Abogado Especialista en Protección de Datos
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          Experto certificado en Ley 21.719 con metodología práctica y casos reales aplicables inmediatamente en el trabajo.
+        </Typography>
+        <Typography variant="body2" fontWeight={600} color="info.dark">
+          📖 Este curso cubre únicamente el Capítulo 3: Inventario y Mapeo de Datos del programa completo de LPDP
+        </Typography>
+      </Alert>
+
       {/* Navegación de lecciones */}
       <Card sx={{ mb: 3 }}>
         <CardContent>

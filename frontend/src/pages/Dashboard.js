@@ -201,12 +201,27 @@ function Dashboard() {
         <Typography variant="subtitle1" fontWeight={600}>
           {user?.is_superuser || user?.username === 'admin' 
             ? '🔓 ¡Bienvenido, Administrador!' 
-            : '¡Bienvenido al Sistema de Capacitación!'}
+            : '📖 Curso Especializado - Capítulo 3: Inventario y Mapeo de Datos'}
         </Typography>
         <Typography variant="body2">
           {user?.is_superuser || user?.username === 'admin'
             ? 'Como administrador, tienes acceso completo a todos los módulos para revisión y demostración. Todos los módulos están desbloqueados.'
-            : 'Este es un ambiente 100% educativo. Todo lo que hagas aquí es para aprender sobre la Ley de Protección de Datos Personales.'}
+            : 'Este curso se enfoca exclusivamente en el Capítulo 3 del programa completo de LPDP. Incluye herramientas profesionales, simuladores y metodologías para construir el RAT (Registro de Actividades de Tratamiento) según Ley 21.719.'}
+        </Typography>
+      </Alert>
+
+      {/* Información del Instructor y Alcance del Curso */}
+      <Alert severity="warning" icon={<School />} sx={{ mb: 3 }}>
+        <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+          👨‍⚖️ Instructor: Abogado Especialista en Protección de Datos
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 2 }}>
+          Experto certificado en implementación de Ley 21.719 con enfoque práctico en casos reales.
+        </Typography>
+        <Typography variant="body2" fontWeight={600} color="warning.dark">
+          ⚠️ IMPORTANTE: Este curso cubre únicamente el Capítulo 3 - Inventario y Mapeo de Datos. 
+          Los demás capítulos (Fundamentos Legales, Conceptos Básicos, Derechos de Titulares, Medidas de Seguridad) 
+          se ofrecen en cursos separados del programa completo de LPDP.
         </Typography>
       </Alert>
 

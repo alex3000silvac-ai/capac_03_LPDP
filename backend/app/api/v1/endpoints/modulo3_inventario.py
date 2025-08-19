@@ -57,6 +57,34 @@ MODULO3_CONTENT = {
         ],
         "duracion_estimada": "12-16 horas académicas",
         "dirigido_a": "DPOs, Abogados especializados en Privacy, Ingenieros de Datos, Arquitectos de Sistemas, Gerentes de Cumplimiento, Auditores TI",
+        "instructor": {
+            "perfil": "Abogado Especialista en Protección de Datos",
+            "experiencia": "Experto en implementación de Ley 21.719 y normativas internacionales de privacidad",
+            "certificaciones": [
+                "Certified Information Privacy Professional (CIPP/E)",
+                "Data Protection Officer certificado",
+                "Especialista en Ley 21.719 Chile"
+            ],
+            "areas_especializacion": [
+                "Implementación práctica de RAT en organizaciones",
+                "Evaluaciones de impacto en protección de datos",
+                "Transferencias internacionales de datos", 
+                "Cumplimiento normativo sectorial",
+                "Gestión de incidentes de seguridad"
+            ],
+            "metodologia_ensenanza": "Enfoque práctico con casos reales y herramientas aplicables inmediatamente en el trabajo"
+        },
+        "alcance_curso": {
+            "cobertura": "Capítulo 3 únicamente - Inventario y Mapeo de Datos",
+            "aclaracion": "Este curso se enfoca exclusivamente en el Capítulo 3 del programa completo de LPDP",
+            "otros_capitulos": {
+                "capitulo_1": "Fundamentos Legales de la Ley 21.719 (curso separado)",
+                "capitulo_2": "Conceptos Básicos y Definiciones (curso separado)",
+                "capitulo_4": "Derechos de los Titulares (curso separado)",
+                "capitulo_5": "Medidas de Seguridad (curso separado)"
+            },
+            "duracion_total_programa": "60-80 horas académicas (5 capítulos)"
+        },
         "prerequisitos": [
             "Conocimiento sólido de la Ley 21.719 y sus reglamentos",
             "Experiencia en gestión de procesos de negocio",

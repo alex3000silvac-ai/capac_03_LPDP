@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -29,6 +29,20 @@ import {
   Divider,
   IconButton,
   Tooltip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Tabs,
+  Tab,
+  LinearProgress,
+  Breadcrumbs,
+  Link,
 } from '@mui/material';
 import {
   Science,
@@ -44,52 +58,219 @@ import {
   PlayArrow,
   Save,
   Assessment,
+  Download,
+  Upload,
+  Edit,
+  Delete,
+  Visibility,
+  DataObject,
+  AccountTree,
+  Map,
+  BusinessCenter,
+  GetApp,
+  Timeline,
+  Analytics,
+  School,
+  Engineering,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../contexts/AuthContext';
 
-const steps = ['Seleccionar Escenario', 'Entrevista', 'Documentar', 'Validar'];
-
+// Motor de Datos Profesional - Sistema RAT Real
 function PracticaSandbox() {
-  const [activeStep, setActiveStep] = useState(0);
-  const [selectedScenario, setSelectedScenario] = useState(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [retroalimentacion, setRetroalimentacion] = useState(null);
-  const [actividadForm, setActividadForm] = useState({
+  const { user } = useAuth();
+  const [currentTab, setCurrentTab] = useState(0);
+  const [empresa, setEmpresa] = useState({
+    nombre: '',
+    rut: '',
+    sector: '',
+    tamano: '',
+    dpo_designado: false,
+  });
+  
+  // Estado del RAT (Registro de Actividades de Tratamiento)
+  const [actividades, setActividades] = useState([]);
+  const [actividadActual, setActividadActual] = useState({
+    id: null,
     nombre_actividad: '',
-    finalidad_principal: '',
+    area_responsable: '',
+    responsable_proceso: '',
+    finalidades: [],
     base_licitud: '',
-    area_negocio: '',
-    categorias_datos: [],
+    justificacion_base: '',
+    categorias_titulares: [],
+    categorias_datos: {
+      identificacion: false,
+      contacto: false,
+      laboral: false,
+      financiero: false,
+      salud: false,
+      biometrico: false,
+      socioeconomico: false,
+      otros: ''
+    },
+    datos_sensibles: [],
+    menores_edad: false,
+    sistemas_almacenamiento: [],
+    destinatarios_internos: [],
+    terceros_encargados: [],
+    terceros_cesionarios: [],
+    transferencias_internacionales: {
+      existe: false,
+      paises: [],
+      garantias: '',
+      mecanismo: ''
+    },
+    plazo_conservacion: '',
+    criterio_eliminacion: '',
+    medidas_seguridad: {
+      tecnicas: [],
+      organizativas: [],
+      cifrado: false,
+      control_acceso: false,
+      logs_auditoria: false
+    },
+    riesgos_identificados: [],
+    medidas_mitigacion: [],
+    fecha_creacion: null,
+    fecha_actualizacion: null,
+    estado: 'borrador' // borrador, revision, aprobado
   });
 
-  const escenarios = [
-    {
-      id: 'ESC-001',
-      nombre: 'Tu Primera Semana como Asesor',
-      empresa: 'Salmones del Pacífico S.A.',
-      nivel: 'Principiante',
-      descripcion: 'La empresa te contrató para hacer el levantamiento inicial de datos',
-      objetivos: [
-        'Entrevistar al menos 2 áreas',
-        'Documentar 5 actividades de tratamiento',
-        'Identificar 3 riesgos de cumplimiento',
-      ],
-      areas_disponibles: ['RRHH', 'Producción', 'Finanzas'],
-    },
-    {
-      id: 'ESC-002',
-      nombre: 'Crisis: Fuga de Datos',
-      empresa: 'AquaChile Export',
-      nivel: 'Intermedio',
-      descripcion: 'Se filtró información sensible. Debes hacer el análisis de impacto',
-      objetivos: [
-        'Identificar qué datos se filtraron',
-        'Mapear quién tenía acceso',
-        'Proponer plan de acción',
-      ],
-      areas_disponibles: ['RRHH', 'TI', 'Legal'],
-    },
-  ];
+  const [dialogRat, setDialogRat] = useState(false);
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [progreso, setProgreso] = useState({
+    empresa_configurada: false,
+    actividades_creadas: 0,
+    actividades_completas: 0,
+    evaluacion_riesgos: false,
+    rat_generado: false
+  });
+
+  // Funciones auxiliares
+  const calcularProgreso = () => {
+    const total = 5; // 5 pasos principales
+    let completados = 0;
+    
+    if (empresa.nombre && empresa.rut && empresa.sector) completados++;
+    if (actividades.length > 0) completados++;
+    if (actividades.filter(a => a.estado === 'aprobado').length > 0) completados++;
+    if (progreso.evaluacion_riesgos) completados++;
+    if (progreso.rat_generado) completados++;
+    
+    return (completados / total) * 100;
+  };
+
+  const generarIdActividad = () => {
+    const prefijo = empresa.nombre ? empresa.nombre.substring(0, 3).toUpperCase() : 'ACT';
+    const numero = String(actividades.length + 1).padStart(3, '0');
+    return `${prefijo}-${numero}`;
+  };
+
+  const guardarActividad = () => {
+    const actividadCompleta = {
+      ...actividadActual,
+      id: actividadActual.id || generarIdActividad(),
+      fecha_creacion: actividadActual.fecha_creacion || new Date().toISOString(),
+      fecha_actualizacion: new Date().toISOString(),
+    };
+
+    if (modoEdicion) {
+      setActividades(prev => prev.map(a => a.id === actividadCompleta.id ? actividadCompleta : a));
+    } else {
+      setActividades(prev => [...prev, actividadCompleta]);
+    }
+
+    // Reset form
+    setActividadActual({
+      id: null,
+      nombre_actividad: '',
+      area_responsable: '',
+      responsable_proceso: '',
+      finalidades: [],
+      base_licitud: '',
+      justificacion_base: '',
+      categorias_titulares: [],
+      categorias_datos: {
+        identificacion: false,
+        contacto: false,
+        laboral: false,
+        financiero: false,
+        salud: false,
+        biometrico: false,
+        socioeconomico: false,
+        otros: ''
+      },
+      datos_sensibles: [],
+      menores_edad: false,
+      sistemas_almacenamiento: [],
+      destinatarios_internos: [],
+      terceros_encargados: [],
+      terceros_cesionarios: [],
+      transferencias_internacionales: {
+        existe: false,
+        paises: [],
+        garantias: '',
+        mecanismo: ''
+      },
+      plazo_conservacion: '',
+      criterio_eliminacion: '',
+      medidas_seguridad: {
+        tecnicas: [],
+        organizativas: [],
+        cifrado: false,
+        control_acceso: false,
+        logs_auditoria: false
+      },
+      riesgos_identificados: [],
+      medidas_mitigacion: [],
+      fecha_creacion: null,
+      fecha_actualizacion: null,
+      estado: 'borrador'
+    });
+
+    setDialogRat(false);
+    setModoEdicion(false);
+  };
+
+  const editarActividad = (actividad) => {
+    setActividadActual(actividad);
+    setModoEdicion(true);
+    setDialogRat(true);
+  };
+
+  const eliminarActividad = (id) => {
+    setActividades(prev => prev.filter(a => a.id !== id));
+  };
+
+  const generarRAT = () => {
+    const ratCompleto = {
+      empresa: empresa,
+      actividades: actividades,
+      resumen: {
+        total_actividades: actividades.length,
+        actividades_con_datos_sensibles: actividades.filter(a => a.datos_sensibles.length > 0).length,
+        transferencias_internacionales: actividades.filter(a => a.transferencias_internacionales.existe).length,
+        actividades_alto_riesgo: actividades.filter(a => a.riesgos_identificados.length > 0).length
+      },
+      fecha_generacion: new Date().toISOString(),
+      generado_por: user?.username || 'Sistema',
+      version: '1.0'
+    };
+
+    // Simular descarga del RAT
+    const blob = new Blob([JSON.stringify(ratCompleto, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `RAT_${empresa.nombre.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setProgreso(prev => ({ ...prev, rat_generado: true }));
+  };
 
   const personajesEntrevista = {
     RRHH: {

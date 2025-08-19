@@ -47,7 +47,8 @@
       "Bash(./render.exe --help)",
       "Bash(./render.exe logs:*)",
       "Bash(./render.exe deploys list:*)",
-      "Bash(./render.exe deploys create:*)"
+      "Bash(./render.exe deploys create:*)",
+      "Bash(export RENDER_API_TOKEN=\"rnd_T4pIU1EVd6GarHtQrT7gitCTVp9t\")"
     ],
     "deny": []
   }
