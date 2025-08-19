@@ -5,38 +5,10 @@ Herramienta de Trabajo para Abogados e Ingenieros
 """
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date
-from fastapi import APIRouter, Depends, HTTPException, Query
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import FileResponse
-from app.core.security import verify_token
+from fastapi import APIRouter, HTTPException
 import json
-import io
-import base64
 
 router = APIRouter()
-security = HTTPBearer()
-
-class SimpleUser:
-    def __init__(self, username: str, first_name: str = "", last_name: str = ""):
-        self.id = username
-        self.username = username
-        self.first_name = first_name
-        self.last_name = last_name
-
-def get_simple_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Obtiene el usuario actual desde el token JWT"""
-    try:
-        payload = verify_token(credentials.credentials)
-        if not payload:
-            raise HTTPException(status_code=401, detail="Token inválido")
-        
-        return SimpleUser(
-            username=payload.get("username", "usuario"),
-            first_name=payload.get("first_name", ""),
-            last_name=payload.get("last_name", "")
-        )
-    except Exception as e:
-        raise HTTPException(status_code=401, detail="Error de autenticación")
 
 # MÓDULO 3 COMPLETO - BASADO EN MANUAL DE PROCEDIMIENTOS PARTE 3
 MODULO3_CONTENT = {
@@ -710,7 +682,19 @@ def get_introduccion_modulo3():
         "modulo": "Módulo 3: Inventario y Mapeo de Datos",
         "ley_base": "Ley N° 21.719 - Protección de Datos Personales Chile",
         "vigencia": "1 de diciembre de 2026",
-        "contenido": MODULO3_CONTENT["introduccion"],
+        "instructor": {
+            "perfil": "Abogado Especialista en Protección de Datos",
+            "experiencia": "Experto en implementación de Ley 21.719 y normativas internacionales de privacidad",
+            "certificaciones": [
+                "Certified Information Privacy Professional (CIPP/E)",
+                "Data Protection Officer certificado",
+                "Especialista en Ley 21.719 Chile"
+            ]
+        },
+        "alcance_curso": {
+            "cobertura": "Capítulo 3 únicamente - Inventario y Mapeo de Datos",
+            "aclaracion": "Este curso se enfoca exclusivamente en el Capítulo 3 del programa completo de LPDP"
+        },
         "metodologia_aprendizaje": {
             "modalidad": "Teórico-Práctica",
             "incluye": [
@@ -721,15 +705,6 @@ def get_introduccion_modulo3():
                 "Plantillas RAT completas",
                 "Formularios de entrevistas"
             ]
-        },
-        "certificacion": {
-            "requisitos": [
-                "Completar todas las secciones teóricas",
-                "Realizar ejercicios prácticos",
-                "Aprobar evaluación final (80% mínimo)",
-                "Entregar RAT de ejemplo completo"
-            ],
-            "validez": "Válido como evidencia de capacitación para cumplimiento Ley 21.719"
         }
     }
 
