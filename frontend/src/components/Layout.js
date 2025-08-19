@@ -27,6 +27,9 @@ import {
   Timeline as TimelineIcon,
   EmojiEvents as TrophyIcon,
   ChevronLeft as ChevronLeftIcon,
+  Inventory,
+  Book,
+  Science,
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
@@ -45,6 +48,20 @@ const menuItems = [
     description: 'Contenido teórico y ejercicios',
   },
   {
+    text: 'Módulo 3: Inventario RAT',
+    icon: <Inventory />,
+    path: '/modulo3',
+    description: 'Registro de Actividades de Tratamiento',
+    chip: 'NUEVO',
+  },
+  {
+    text: 'Glosario LPDP',
+    icon: <Book />,
+    path: '/glosario',
+    description: 'Términos clave Ley 21.719',
+    chip: 'REF',
+  },
+  {
     text: 'Simulaciones',
     icon: <PsychologyIcon />,
     path: '/simulaciones',
@@ -56,6 +73,13 @@ const menuItems = [
     path: '/sandbox',
     description: 'Experimenta sin riesgos',
     chip: 'SANDBOX',
+  },
+  {
+    text: 'Sandbox Completo',
+    icon: <Science />,
+    path: '/sandbox-completo',
+    description: 'Sistema RAT profesional completo',
+    chip: 'PRO',
   },
   {
     text: 'Mi Progreso',

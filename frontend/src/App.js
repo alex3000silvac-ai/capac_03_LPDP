@@ -16,8 +16,11 @@ import ModuloCapacitacion from './pages/ModuloCapacitacion';
 import PracticaSandbox from './pages/PracticaSandbox';
 import SimulacionEntrevista from './pages/SimulacionEntrevista';
 import MiProgreso from './pages/MiProgreso';
-import AdminPanel from './components/admin/AdminPanel';
+import AdminPanel from './pages/AdminPanel';
 import UserManagement from './components/admin/UserManagement';
+import Modulo3Inventario from './pages/Modulo3Inventario';
+import GlosarioLPDP from './pages/GlosarioLPDP';
+import SandboxCompleto from './pages/SandboxCompleto';
 
 // Tema oscuro profesional
 const theme = createTheme({
@@ -285,8 +288,11 @@ const AppContent = () => {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/modulo/:moduloId" element={<ModuloCapacitacion />} />
+        <Route path="/modulo3" element={<Modulo3Inventario />} />
+        <Route path="/glosario" element={<GlosarioLPDP />} />
         <Route path="/simulacion/:area" element={<SimulacionEntrevista />} />
         <Route path="/sandbox" element={<PracticaSandbox />} />
+        <Route path="/sandbox-completo" element={<SandboxCompleto />} />
         <Route path="/mi-progreso" element={<MiProgreso />} />
         
         {/* Rutas de administración */}
