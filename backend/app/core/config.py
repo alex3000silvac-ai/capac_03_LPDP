@@ -95,14 +95,14 @@ class Settings:
             if users_json:
                 return json.loads(users_json)
             
-            # Configuración por defecto para desarrollo
-            if self.DEBUG:
-                # Generar hashes en tiempo real para asegurar correctitud
-                import hashlib
-                admin_hash = hashlib.sha256("Padmin123!".encode()).hexdigest()
-                demo_hash = hashlib.sha256("Demo123!".encode()).hexdigest()
-                
-                return {
+            # Configuración por defecto para desarrollo Y producción (siempre disponible)
+            # Cambiado para que funcione tanto en dev como prod
+            # Generar hashes en tiempo real para asegurar correctitud
+            import hashlib
+            admin_hash = hashlib.sha256("Padmin123!".encode()).hexdigest()
+            demo_hash = hashlib.sha256("Demo123!".encode()).hexdigest()
+            
+            return {
                     "admin": {
                         "password_hash": admin_hash,
                         "email": "admin@empresa.cl",
@@ -123,8 +123,6 @@ class Settings:
                         "restricted_to": "intro_only"
                     }
                 }
-            
-            return {}
             
         except json.JSONDecodeError as e:
             return {}
