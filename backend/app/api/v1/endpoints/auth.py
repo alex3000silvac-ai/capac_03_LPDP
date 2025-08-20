@@ -161,8 +161,77 @@ async def login(
         requested_tenant_id = request.headers.get("X-Tenant-ID") or login_data.tenant_id or "demo"
         logger.info(f"Requested Tenant ID: {requested_tenant_id}")
         
-        # Buscar usuario en la base de datos de Supabase
-        user = db.query(User).filter(User.username == login_data.username).first()
+        # Intentar conectar a base de datos, fallback a usuarios temporales si falla
+        user = None
+        try:
+            # Buscar usuario en la base de datos de Supabase
+            user = db.query(User).filter(User.username == login_data.username).first()
+        except Exception as db_error:
+            logger.warning(f"Error conectando a BD, usando usuarios temporales: {db_error}")
+            
+            # FALLBACK TEMPORAL: Usar usuarios básicos mientras se configura Supabase
+            temp_users = {
+                "admin": {
+                    "password": "Padmin123!",
+                    "email": "admin@empresa.cl",
+                    "first_name": "Administrador",
+                    "last_name": "del Sistema",
+                    "is_superuser": True,
+                    "is_active": True
+                },
+                "demo": {
+                    "password": "Demo123!",
+                    "email": "demo@empresa.cl",
+                    "first_name": "Usuario",
+                    "last_name": "Demo",
+                    "is_superuser": False,
+                    "is_active": True
+                }
+            }
+            
+            if login_data.username in temp_users:
+                temp_user = temp_users[login_data.username]
+                if login_data.password == temp_user["password"]:
+                    # Crear token directamente
+                    final_tenant_id = requested_tenant_id if temp_user["is_superuser"] else "demo"
+                    
+                    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+                    access_token = create_access_token(
+                        data={
+                            "sub": login_data.username,
+                            "username": login_data.username,
+                            "email": temp_user["email"],
+                            "tenant_id": final_tenant_id,
+                            "is_superuser": temp_user["is_superuser"],
+                            "first_name": temp_user["first_name"],
+                            "last_name": temp_user["last_name"],
+                            "permissions": ["read", "write", "admin", "superuser"] if temp_user["is_superuser"] else ["read"],
+                            "restricted_to": "intro_only" if login_data.username == "demo" else None
+                        },
+                        expires_delta=access_token_expires
+                    )
+                    
+                    return {
+                        "access_token": access_token,
+                        "token_type": "bearer",
+                        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+                        "user": {
+                            "username": login_data.username,
+                            "email": temp_user["email"],
+                            "full_name": f"{temp_user['first_name']} {temp_user['last_name']}"
+                        },
+                        "message": "Login temporal exitoso (configurar Supabase para usar BD)"
+                    }
+                else:
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Usuario o contraseña incorrectos"
+                    )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Usuario o contraseña incorrectos"
+                )
         
         if not user:
             logger.warning(f"Usuario no encontrado en base de datos: {login_data.username}")
