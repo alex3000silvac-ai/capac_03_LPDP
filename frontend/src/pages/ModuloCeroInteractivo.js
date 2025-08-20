@@ -27,6 +27,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import DiagramaMapeoVisual from '../components/DiagramaMapeoVisual';
 import { 
   Business as ProcessIcon,
   Flag as GoalIcon,
@@ -42,7 +43,9 @@ import {
   VolumeUp,
   VolumeOff,
   PlayArrow,
-  Stop
+  Stop,
+  Download,
+  Print
 } from '@mui/icons-material';
 
 const ModuloCeroInteractivo = () => {
@@ -699,10 +702,6 @@ const ModuloCeroInteractivo = () => {
         );
 
       case 5:
-        const procesoSeleccionado = procesosEjemplo.find(p => p.id === formData.proceso);
-        const datosComunes = formData.datosComunes.map(id => datosComunes.find(d => d.id === id)?.label).filter(Boolean);
-        const datosSensibles = formData.datosSensibles.map(id => datosSensibles.find(d => d.id === id)?.label).filter(Boolean);
-        
         return (
           <Box>
             {/* Header con Audio */}
@@ -730,244 +729,17 @@ const ModuloCeroInteractivo = () => {
               </Box>
             </Box>
 
-            {/* Diagrama Visual del Mapeo */}
-            <Paper sx={{ p: 3, mb: 3, bgcolor: 'grey.50', minHeight: 500 }}>
-              <Typography variant="h6" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
-                Flujo de Datos: {procesoSeleccionado?.nombre}
-              </Typography>
-              
-              {/* Diagrama de Flujo Visual */}
-              <Box sx={{ position: 'relative', height: 400, display: 'flex', alignItems: 'center' }}>
-                {/* Origen - Persona */}
-                <Paper 
-                  elevation={6}
-                  sx={{ 
-                    p: 2, 
-                    bgcolor: 'success.light',
-                    borderRadius: '20px',
-                    minWidth: 140,
-                    textAlign: 'center',
-                    position: 'relative'
-                  }}
-                >
-                  <Typography variant="h3" sx={{ fontSize: 40 }}>👤</Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    Persona Titular
-                  </Typography>
-                  <Typography variant="caption" display="block">
-                    Proporciona datos
-                  </Typography>
-                  {/* Clasificación de datos */}
-                  <Box sx={{ mt: 1 }}>
-                    {formData.datosComunes.length > 0 && (
-                      <Chip size="small" label={`${formData.datosComunes.length} Comunes`} color="success" sx={{ mr: 0.5, mb: 0.5 }} />
-                    )}
-                    {formData.datosSensibles.length > 0 && (
-                      <Chip size="small" label={`${formData.datosSensibles.length} Sensibles`} color="error" sx={{ mr: 0.5, mb: 0.5 }} />
-                    )}
-                  </Box>
-                </Paper>
-
-                {/* Flecha 1 */}
-                <Box sx={{ display: 'flex', alignItems: 'center', mx: 2, minWidth: 80 }}>
-                  <Box sx={{ flexGrow: 1, height: 2, bgcolor: 'primary.main' }} />
-                  <Typography variant="h6" sx={{ mx: 1 }}>→</Typography>
-                </Box>
-
-                {/* Proceso Central */}
-                <Paper 
-                  elevation={8}
-                  sx={{ 
-                    p: 2, 
-                    bgcolor: 'primary.main',
-                    color: 'white',
-                    borderRadius: '20px',
-                    minWidth: 160,
-                    textAlign: 'center',
-                    position: 'relative'
-                  }}
-                >
-                  <Typography variant="h3" sx={{ fontSize: 40 }}>
-                    {procesoSeleccionado?.icono}
-                  </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    {procesoSeleccionado?.area}
-                  </Typography>
-                  <Typography variant="caption" display="block">
-                    {procesoSeleccionado?.nombre}
-                  </Typography>
-                  {/* Finalidades */}
-                  <Box sx={{ mt: 1 }}>
-                    <Chip 
-                      size="small" 
-                      label={`${formData.finalidades.length} Finalidades`} 
-                      sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
-                    />
-                  </Box>
-                </Paper>
-
-                {/* Flecha 2 */}
-                <Box sx={{ display: 'flex', alignItems: 'center', mx: 2, minWidth: 80 }}>
-                  <Box sx={{ flexGrow: 1, height: 2, bgcolor: 'warning.main' }} />
-                  <Typography variant="h6" sx={{ mx: 1 }}>→</Typography>
-                </Box>
-
-                {/* Destinatarios */}
-                <Paper 
-                  elevation={6}
-                  sx={{ 
-                    p: 2, 
-                    bgcolor: 'warning.light',
-                    borderRadius: '20px',
-                    minWidth: 140,
-                    textAlign: 'center'
-                  }}
-                >
-                  <Typography variant="h3" sx={{ fontSize: 40 }}>🏢</Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    Destinatarios
-                  </Typography>
-                  <Typography variant="caption" display="block">
-                    Acceden a datos
-                  </Typography>
-                  <Box sx={{ mt: 1 }}>
-                    {formData.destinatarios.internos.length > 0 && (
-                      <Chip size="small" label={`${formData.destinatarios.internos.length} Internos`} color="info" sx={{ mr: 0.5, mb: 0.5 }} />
-                    )}
-                    {formData.destinatarios.externos.length > 0 && (
-                      <Chip size="small" label={`${formData.destinatarios.externos.length} Externos`} color="warning" sx={{ mr: 0.5, mb: 0.5 }} />
-                    )}
-                  </Box>
-                </Paper>
-
-                {/* Flecha 3 */}
-                <Box sx={{ display: 'flex', alignItems: 'center', mx: 2, minWidth: 80 }}>
-                  <Box sx={{ flexGrow: 1, height: 2, bgcolor: 'error.main' }} />
-                  <Typography variant="h6" sx={{ mx: 1 }}>→</Typography>
-                </Box>
-
-                {/* Eliminación/Retención */}
-                <Paper 
-                  elevation={6}
-                  sx={{ 
-                    p: 2, 
-                    bgcolor: 'error.light',
-                    borderRadius: '20px',
-                    minWidth: 140,
-                    textAlign: 'center'
-                  }}
-                >
-                  <Typography variant="h3" sx={{ fontSize: 40 }}>🗑️</Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    Retención
-                  </Typography>
-                  <Typography variant="caption" display="block">
-                    Eliminación segura
-                  </Typography>
-                  <Box sx={{ mt: 1 }}>
-                    <Chip 
-                      size="small" 
-                      label={formData.retencion.despues || 'Definido'} 
-                      color="error" 
-                      variant="outlined"
-                    />
-                  </Box>
-                </Paper>
-              </Box>
-
-              {/* Leyenda */}
-              <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
-                <Typography variant="subtitle2" gutterBottom>Clasificación por Sensibilidad:</Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main', mb: 1 }}>
-                        📋 Datos Comunes ({formData.datosComunes.length})
-                      </Typography>
-                      {formData.datosComunes.length > 0 ? (
-                        formData.datosComunes.map((datoId, index) => {
-                          const dato = datosComunes.find(d => d.id === datoId);
-                          return (
-                            <Chip 
-                              key={datoId}
-                              size="small" 
-                              label={dato?.label} 
-                              color="success" 
-                              variant="outlined"
-                              sx={{ mr: 0.5, mb: 0.5 }}
-                            />
-                          );
-                        })
-                      ) : (
-                        <Typography variant="caption" color="text.secondary">No se seleccionaron datos comunes</Typography>
-                      )}
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'error.main', mb: 1 }}>
-                        ⚠️ Datos Sensibles ({formData.datosSensibles.length})
-                      </Typography>
-                      {formData.datosSensibles.length > 0 ? (
-                        formData.datosSensibles.map((datoId, index) => {
-                          const dato = datosSensibles.find(d => d.id === datoId);
-                          return (
-                            <Chip 
-                              key={datoId}
-                              size="small" 
-                              label={dato?.label} 
-                              color="error" 
-                              variant="outlined"
-                              sx={{ mr: 0.5, mb: 0.5 }}
-                            />
-                          );
-                        })
-                      ) : (
-                        <Typography variant="caption" color="text.secondary">No se seleccionaron datos sensibles</Typography>
-                      )}
-                    </Box>
-                  </Grid>
-                </Grid>
-
-                {/* Interrelaciones */}
-                <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-                  <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600 }}>
-                    🔗 Interrelaciones Identificadas:
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={4}>
-                      <Typography variant="caption" display="block" sx={{ fontWeight: 600 }}>Finalidades:</Typography>
-                      {formData.finalidades.slice(0, 2).map((finalidad, idx) => (
-                        <Typography key={idx} variant="caption" display="block" color="text.secondary">
-                          • {finalidad}
-                        </Typography>
-                      ))}
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                      <Typography variant="caption" display="block" sx={{ fontWeight: 600 }}>Destinatarios Internos:</Typography>
-                      {formData.destinatarios.internos.slice(0, 3).map((interno, idx) => (
-                        <Typography key={idx} variant="caption" display="block" color="text.secondary">
-                          • {interno}
-                        </Typography>
-                      ))}
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                      <Typography variant="caption" display="block" sx={{ fontWeight: 600 }}>Retención:</Typography>
-                      <Typography variant="caption" display="block" color="text.secondary">
-                        • Durante: {formData.retencion.durante}
-                      </Typography>
-                      <Typography variant="caption" display="block" color="text.secondary">
-                        • Después: {formData.retencion.despues}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Box>
-              </Box>
-            </Paper>
+            {/* Componente de Diagrama Visual */}
+            <DiagramaMapeoVisual 
+              formData={formData}
+              procesosEjemplo={procesosEjemplo}
+              datosComunes={datosComunes}
+              datosSensibles={datosSensibles}
+            />
 
             {/* Estadísticas del Mapeo */}
             <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={3}>
                 <Card elevation={6}>
                   <CardContent>
                     <Typography variant="h4" sx={{ color: 'primary.main', fontWeight: 700 }}>
@@ -975,13 +747,13 @@ const ModuloCeroInteractivo = () => {
                     </Typography>
                     <Typography variant="h6">Proceso Mapeado</Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {procesoSeleccionado?.nombre}
+                      {procesosEjemplo.find(p => p.id === formData.proceso)?.nombre}
                     </Typography>
                   </CardContent>
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={3}>
                 <Card elevation={6}>
                   <CardContent>
                     <Typography variant="h4" sx={{ color: 'success.main', fontWeight: 700 }}>
@@ -995,7 +767,7 @@ const ModuloCeroInteractivo = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={3}>
                 <Card elevation={6}>
                   <CardContent>
                     <Typography variant="h4" sx={{ color: 'warning.main', fontWeight: 700 }}>
@@ -1004,6 +776,20 @@ const ModuloCeroInteractivo = () => {
                     <Typography variant="h6">Destinatarios</Typography>
                     <Typography variant="body2" color="text.secondary">
                       {formData.destinatarios.externos.length > 0 && `${formData.destinatarios.externos.length} externos`}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              <Grid item xs={12} md={3}>
+                <Card elevation={6}>
+                  <CardContent>
+                    <Typography variant="h4" sx={{ color: 'info.main', fontWeight: 700 }}>
+                      {formData.finalidades.length}
+                    </Typography>
+                    <Typography variant="h6">Finalidades</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Propósitos definidos
                     </Typography>
                   </CardContent>
                 </Card>
@@ -1038,6 +824,14 @@ const ModuloCeroInteractivo = () => {
                 onClick={() => navigate('/dashboard')}
               >
                 Volver al Dashboard
+              </Button>
+              <Button 
+                variant="outlined" 
+                size="large"
+                startIcon={<Download />}
+                sx={{ mr: 2 }}
+              >
+                Exportar Diagrama
               </Button>
               <Button 
                 variant="outlined" 

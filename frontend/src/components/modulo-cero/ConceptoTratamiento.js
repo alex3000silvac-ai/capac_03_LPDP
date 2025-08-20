@@ -7,27 +7,115 @@ import {
   Card, 
   CardContent,
   Fade,
-  Zoom
+  Zoom,
+  Button,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import { 
   CloudDownload as RecopilarIcon,
   Settings as ProcesarIcon,
   Share as CompartirIcon,
-  Business as EmpresaIcon
+  Business as EmpresaIcon,
+  PlayArrow,
+  Stop,
+  VolumeUp,
+  VolumeOff,
+  NavigateNext,
+  NavigateBefore
 } from '@mui/icons-material';
 
-const ConceptoTratamiento = ({ duration = 30 }) => {
+const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false }) => {
   const [activeStep, setActiveStep] = useState(0);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
+  // Solo usar timer automático si isAutoPlay está activado
   useEffect(() => {
-    const stepDuration = duration * 1000 / 4; // Dividir tiempo entre 4 animaciones
+    if (!isAutoPlay) return;
+    
+    const stepDuration = duration * 1000 / 4;
     
     const timer = setInterval(() => {
       setActiveStep(prev => (prev < 3 ? prev + 1 : prev));
     }, stepDuration);
 
     return () => clearInterval(timer);
-  }, [duration]);
+  }, [duration, isAutoPlay]);
+
+  // Función para avanzar manualmente
+  const handleNextStep = () => {
+    if (activeStep < 3) {
+      setActiveStep(prev => prev + 1);
+      if (audioEnabled) {
+        playStepAudio(activeStep + 1);
+      }
+    } else if (onNext) {
+      onNext();
+    }
+  };
+
+  // Función para retroceder
+  const handlePrevStep = () => {
+    if (activeStep > 0) {
+      setActiveStep(prev => prev - 1);
+    } else if (onPrev) {
+      onPrev();
+    }
+  };
+
+  // Función de audio
+  const playStepAudio = (stepNumber) => {
+    if (!audioEnabled) return;
+    
+    const audioTexts = {
+      0: "Bienvenida al concepto de tratamiento de datos. Un tratamiento es cualquier operación que tu empresa realiza con información personal.",
+      1: "Primer paso: Recopilar. Tu empresa obtiene datos personales a través de formularios, contratos, currículums y encuestas.",
+      2: "Segundo paso: Procesar. Una vez que tienes los datos, los analizas, almacenas, modificas y organizas según tus necesidades.",
+      3: "Tercer paso: Compartir. Enviamos estos datos a terceros como proveedores, el Estado, socios comerciales y bancos. Todo esto constituye tratamiento de datos y está regulado por la Ley veintiún mil setecientos diecinueve."
+    };
+
+    const text = audioTexts[stepNumber] || "";
+    if (text && 'speechSynthesis' in window) {
+      // Detener audio anterior
+      speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Configurar voz femenina en español
+      const voices = speechSynthesis.getVoices();
+      const femaleSpanishVoice = voices.find(voice => 
+        (voice.lang.includes('es') || voice.lang.includes('ES')) && 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('mujer') ||
+         voice.name.toLowerCase().includes('maria') ||
+         voice.name.toLowerCase().includes('carmen') ||
+         voice.name.toLowerCase().includes('lucia'))
+      ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
+      
+      if (femaleSpanishVoice) {
+        utterance.voice = femaleSpanishVoice;
+      }
+      
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.volume = 0.8;
+      
+      utterance.onstart = () => setIsPlaying(true);
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+      
+      speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Reproducir audio al cargar
+  useEffect(() => {
+    if (audioEnabled) {
+      setTimeout(() => playStepAudio(0), 1000);
+    }
+  }, []);
 
   const pasos = [
     {
@@ -54,7 +142,66 @@ const ConceptoTratamiento = ({ duration = 30 }) => {
   ];
 
   return (
-    <Box sx={{ textAlign: 'center', py: 4 }}>
+    <Box sx={{ textAlign: 'center', py: 4, position: 'relative' }}>
+      {/* Controles de Audio */}
+      <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1 }}>
+        <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>
+          <IconButton
+            size="small"
+            onClick={() => {
+              setAudioEnabled(!audioEnabled);
+              if (isPlaying) {
+                speechSynthesis.cancel();
+                setIsPlaying(false);
+              }
+            }}
+            color={audioEnabled ? 'primary' : 'default'}
+          >
+            {audioEnabled ? <VolumeUp /> : <VolumeOff />}
+          </IconButton>
+        </Tooltip>
+        
+        {audioEnabled && (
+          <Tooltip title={isPlaying ? "Detener" : "Reproducir explicación"}>
+            <IconButton
+              size="small"
+              onClick={() => {
+                if (isPlaying) {
+                  speechSynthesis.cancel();
+                  setIsPlaying(false);
+                } else {
+                  playStepAudio(activeStep);
+                }
+              }}
+              color={isPlaying ? 'secondary' : 'default'}
+            >
+              {isPlaying ? <Stop /> : <PlayArrow />}
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
+
+      {/* Controles de Navegación */}
+      <Box sx={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<NavigateBefore />}
+          onClick={handlePrevStep}
+          disabled={activeStep === 0}
+          size="small"
+        >
+          Anterior
+        </Button>
+        
+        <Button
+          variant="contained"
+          endIcon={<NavigateNext />}
+          onClick={handleNextStep}
+          size="small"
+        >
+          {activeStep < 3 ? 'Siguiente' : 'Continuar'}
+        </Button>
+      </Box>
       {/* Título principal */}
       <Fade in timeout={1000}>
         <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
@@ -98,9 +245,15 @@ const ConceptoTratamiento = ({ duration = 30 }) => {
                   elevation={activeStep >= index ? 6 : 2}
                   sx={{ 
                     height: '100%',
+                    minHeight: '320px',
                     transform: activeStep >= index ? 'scale(1.05)' : 'scale(1)',
                     transition: 'all 0.5s ease-in-out',
-                    bgcolor: activeStep >= index ? 'primary.light' : 'background.paper'
+                    bgcolor: activeStep >= index ? 'primary.light' : 'background.paper',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    setActiveStep(index);
+                    if (audioEnabled) playStepAudio(index);
                   }}
                 >
                   <CardContent sx={{ textAlign: 'center', p: 3 }}>
