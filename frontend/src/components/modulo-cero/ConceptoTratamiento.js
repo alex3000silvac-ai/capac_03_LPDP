@@ -7,438 +7,379 @@ import {
   Card, 
   CardContent,
   Fade,
-  Zoom,
-  Button,
-  IconButton,
-  Tooltip
+  Zoom
 } from '@mui/material';
 import { 
   CloudDownload as RecopilarIcon,
   Settings as ProcesarIcon,
   Share as CompartirIcon,
-  Business as EmpresaIcon,
-  PlayArrow,
-  Stop,
-  VolumeUp,
-  VolumeOff,
-  NavigateNext,
-  NavigateBefore
+  Business as EmpresaIcon
 } from '@mui/icons-material';
 
-const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false }) => {
-  const [activeStep, setActiveStep] = useState(-1); // Empezar sin mostrar nada
-  const [audioEnabled, setAudioEnabled] = useState(true);
+const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = true }) => {
+  const [visibleElements, setVisibleElements] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [visibleElements, setVisibleElements] = useState([]); // Control preciso de elementos visibles
+  const [currentUtterance, setCurrentUtterance] = useState(null);
 
-  // Solo usar timer automático si isAutoPlay está activado
-  useEffect(() => {
-    if (!isAutoPlay) return;
-    
-    const stepDuration = duration * 1000 / 4;
-    
-    const timer = setInterval(() => {
-      setActiveStep(prev => (prev < 3 ? prev + 1 : prev));
-    }, stepDuration);
-
-    return () => clearInterval(timer);
-  }, [duration, isAutoPlay]);
-
-  // Función para manejar doble click en pantalla
-  const handleDoubleClick = () => {
-    if (activeStep < 3) {
-      const nextStep = activeStep + 1;
-      setActiveStep(nextStep);
-      if (audioEnabled) {
-        playStepAudio(nextStep);
-      }
-    } else if (onNext) {
-      onNext();
-    }
-  };
-
-  // Función para avanzar manualmente
-  const handleNextStep = () => {
-    if (activeStep < 3) {
-      const nextStep = activeStep + 1;
-      setActiveStep(nextStep);
-      if (audioEnabled) {
-        playStepAudio(nextStep);
-      }
-    } else if (onNext) {
-      onNext();
-    }
-  };
-
-  // Función para retroceder
-  const handlePrevStep = () => {
-    if (activeStep > 0) {
-      setActiveStep(prev => prev - 1);
-    } else if (onPrev) {
-      onPrev();
-    }
-  };
-
-  // Función de audio
-  const playStepAudio = (stepNumber) => {
-    if (!audioEnabled) return;
-    
-    const audioTexts = {
-      0: "Bienvenido al concepto fundamental de tratamiento de datos personales. Un tratamiento es cualquier operación o conjunto de operaciones realizadas sobre datos personales, ya sea por medios automatizados o no. Esto incluye desde la recolección inicial, registro y organización, hasta la conservación, elaboración, modificación, extracción, consulta, comunicación y eliminación final de la información. Es importante comprender que todo lo que tu empresa hace con información personal constituye un tratamiento y está regulado por la Ley veintiún mil setecientos diecinueve.",
-      1: "Primer paso: Recopilar datos personales. Tu empresa obtiene información personal a través de múltiples canales: formularios web, contratos laborales y comerciales, currículums vitae, encuestas de satisfacción, formularios de contacto, y sistemas de registro. Esta recopilación es la puerta de entrada de los datos a tu organización y debe realizarse con base legal clara, informando al titular sobre la finalidad del tratamiento. Cada punto de entrada de datos debe estar documentado y controlado según los principios de transparencia y licitud establecidos en la normativa.",
-      2: "Segundo paso: Procesar la información recopilada. Una vez que tienes los datos personales en tu organización, los analizas para generar insights de negocio, los almacenas en bases de datos y sistemas informáticos, los modificas cuando es necesario mantenerlos actualizados, y los organizas en estructuras que faciliten su uso según las finalidades declaradas. Este procesamiento incluye cualquier uso interno de la información, desde generar reportes hasta tomar decisiones comerciales. Es crucial que todo procesamiento sea necesario y proporcional a la finalidad original.",
-      3: "Tercer paso: Compartir datos con terceros. Tu organización comunica y transfiere estos datos a terceros como proveedores de servicios, entidades del Estado para cumplir obligaciones legales, socios comerciales para ejecutar contratos, bancos para procesar pagos, y otras entidades según sea necesario para el giro del negocio. Cada comunicación debe estar justificada, documentada y protegida mediante contratos que garanticen el adecuado tratamiento. Todo esto constituye tratamiento de datos y está regulado por la Ley veintiún mil setecientos diecinueve, que establece multas de hasta cinco mil UTM por incumplimientos."
-    };
-
-    // Sincronización REAL con el audio
-    const syncAnimations = (stepNum) => {
-      // Limpiar todo
-      setActiveStep(-1);
-      setVisibleElements([]);
-      
-      if (stepNum === 0) {
-        // Solo mostrar definición, sin cuadros
-        setTimeout(() => setActiveStep(-1), 100);
-      } else if (stepNum === 1) {
-        // Cuando dice "Primer paso: Recopilar" - mostrar cuadro 1
-        setTimeout(() => {
-          setActiveStep(0);
-          setVisibleElements([0]);
-        }, 500); // Aparece justo cuando dice "Recopilar"
-      } else if (stepNum === 2) {
-        // Cuando dice "Segundo paso: Procesar" - mostrar cuadro 2
-        setTimeout(() => {
-          setActiveStep(1);
-          setVisibleElements([0, 1]);
-        }, 500); // Aparece justo cuando dice "Procesar"
-      } else if (stepNum === 3) {
-        // Cuando dice "Tercer paso: Compartir" - mostrar cuadro 3
-        setTimeout(() => {
-          setActiveStep(2);
-          setVisibleElements([0, 1, 2]);
-        }, 500); // Aparece justo cuando dice "Compartir"
+  // SISTEMA DE VOZ MASCULINA RADICAL
+  const configurarVozMasculina = () => {
+    return new Promise((resolve) => {
+      const intentarConfigurarVoz = () => {
+        const voices = speechSynthesis.getVoices();
         
-        // Mostrar mensaje final al terminar
-        setTimeout(() => {
-          setActiveStep(3);
-        }, 15000);
-      }
-    };
+        // Búsqueda exhaustiva de voz masculina
+        const vozMasculina = voices.find(voice => {
+          const nombre = voice.name.toLowerCase();
+          const idioma = voice.lang.toLowerCase();
+          
+          // Filtros específicos para voces masculinas
+          const esMasculino = nombre.includes('male') || 
+                             nombre.includes('man') ||
+                             nombre.includes('hombre') || 
+                             nombre.includes('masculino') ||
+                             nombre.includes('diego') ||
+                             nombre.includes('carlos') ||
+                             nombre.includes('miguel') ||
+                             nombre.includes('antonio') ||
+                             nombre.includes('juan') ||
+                             nombre.includes('pablo') ||
+                             !nombre.includes('female') && !nombre.includes('woman');
+          
+          const esEspanol = idioma.includes('es') || idioma.includes('mx') || idioma.includes('ar');
+          
+          return esEspanol && esMasculino;
+        });
 
-    const text = audioTexts[stepNumber] || "";
-    if (text && 'speechSynthesis' in window) {
-      // Detener audio anterior
-      try {
-        speechSynthesis.cancel();
-      } catch (error) {
-        console.warn('Error cancelando síntesis anterior:', error);
-      }
-      
-      // Activar sincronización
-      syncAnimations(stepNumber);
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Configurar voz masculina latina
-      const voices = speechSynthesis.getVoices();
-      const maleSpanishVoice = voices.find(voice => 
-        (voice.lang.includes('es') || voice.lang.includes('ES')) && 
-        (voice.name.toLowerCase().includes('male') && !voice.name.toLowerCase().includes('female') ||
-         voice.name.toLowerCase().includes('hombre') ||
-         voice.name.toLowerCase().includes('pedro') ||
-         voice.name.toLowerCase().includes('diego') ||
-         voice.name.toLowerCase().includes('antonio') ||
-         voice.name.toLowerCase().includes('miguel'))
-      ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
-      
-      if (maleSpanishVoice) {
-        utterance.voice = maleSpanishVoice;
-      }
-      
-      utterance.lang = 'es-MX'; // Español latino
-      utterance.rate = 0.85; // Más fluido
-      utterance.pitch = 0.9; // Voz masculina más grave
-      utterance.volume = 1.0;
-      
-      utterance.onstart = () => setIsPlaying(true);
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = (error) => {
-        console.warn('Error en síntesis de voz:', error);
-        setIsPlaying(false);
+        if (vozMasculina) {
+          resolve(vozMasculina);
+        } else {
+          // Fallback a cualquier voz en español
+          const vozEspanol = voices.find(voice => 
+            voice.lang.toLowerCase().includes('es')
+          );
+          resolve(vozEspanol || voices[0]);
+        }
       };
-      
-      try {
-        speechSynthesis.speak(utterance);
-      } catch (error) {
-        console.warn('Error iniciando síntesis de voz:', error);
-        setIsPlaying(false);
+
+      if (speechSynthesis.getVoices().length > 0) {
+        intentarConfigurarVoz();
+      } else {
+        speechSynthesis.onvoiceschanged = intentarConfigurarVoz;
       }
-    }
+    });
   };
 
-  // Reproducir audio al cargar
+  // SISTEMA DE SINCRONIZACIÓN AUTOMÁTICA REAL
+  const iniciarPresentacionAutomatica = async () => {
+    if (isPlaying) return;
+    
+    setIsPlaying(true);
+    
+    const vozMasculina = await configurarVozMasculina();
+    
+    const textoCompleto = `
+      ¿Qué es un tratamiento de datos personales? 
+      Es cualquier operación que tu empresa realiza con información personal. 
+      
+      Primero, recopilar datos. Tu empresa obtiene información a través de formularios, contratos, currículums, encuestas y aplicaciones móviles.
+      
+      Segundo, procesar datos. Analizas la información, la almacenas de forma segura, la modificas cuando es necesario y la organizas para tomar decisiones de negocio.
+      
+      Tercero, compartir datos. Comunicas información a proveedores, entidades del Estado como SII y Previred, socios comerciales, bancos y compañías de seguros.
+      
+      Todo esto es tratamiento de datos y está regulado por la Ley veintiún mil setecientos diecinueve. Las multas pueden llegar hasta cinco mil UTM.
+    `;
+
+    const utterance = new SpeechSynthesisUtterance(textoCompleto);
+    utterance.voice = vozMasculina;
+    utterance.lang = 'es-MX';
+    utterance.rate = 0.7;
+    utterance.pitch = 0.7; // Más grave para masculina
+    utterance.volume = 1.0;
+
+    setCurrentUtterance(utterance);
+
+    // SINCRONIZACIÓN EXACTA CON EL AUDIO
+    const sincronizarElementos = () => {
+      // Mostrar título y definición inmediatamente
+      setTimeout(() => {
+        setVisibleElements(['titulo', 'definicion']);
+      }, 1000);
+
+      // Mostrar empresa central
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'empresa']);
+      }, 8000);
+
+      // Mostrar "RECOPILAR" cuando dice "Primero, recopilar"
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'recopilar']);
+      }, 12000);
+
+      // Mostrar "PROCESAR" cuando dice "Segundo, procesar"
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'procesar']);
+      }, 20000);
+
+      // Mostrar "COMPARTIR" cuando dice "Tercero, compartir"
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'compartir']);
+      }, 28000);
+
+      // Mostrar mensaje final cuando dice "Todo esto es tratamiento"
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'mensaje_final']);
+      }, 36000);
+
+      // Mostrar datos adicionales al final
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'datos_adicionales']);
+      }, 40000);
+
+      // Avanzar al siguiente módulo automáticamente
+      setTimeout(() => {
+        if (onNext) onNext();
+      }, 45000);
+    };
+
+    utterance.onstart = () => {
+      sincronizarElementos();
+    };
+
+    utterance.onend = () => {
+      setIsPlaying(false);
+    };
+
+    utterance.onerror = () => {
+      setIsPlaying(false);
+    };
+
+    speechSynthesis.speak(utterance);
+  };
+
   useEffect(() => {
-    if (audioEnabled) {
-      setTimeout(() => playStepAudio(0), 1000);
+    if (isAutoPlay) {
+      // Iniciar automáticamente después de 2 segundos
+      const timer = setTimeout(() => {
+        iniciarPresentacionAutomatica();
+      }, 2000);
+
+      return () => clearTimeout(timer);
     }
   }, []);
 
+  // Limpiar al desmontar
+  useEffect(() => {
+    return () => {
+      if (currentUtterance) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, [currentUtterance]);
+
   const pasos = [
     {
-      icon: <RecopilarIcon sx={{ fontSize: 60 }} />,
+      id: 'recopilar',
       titulo: 'RECOPILAR',
       emoji: '📥',
       descripcion: 'Obtenemos datos personales',
-      ejemplos: ['Formularios web', 'Contratos', 'CVs', 'Encuestas']
+      ejemplos: ['Formularios web', 'Contratos', 'CVs', 'Encuestas', 'Apps móviles']
     },
     {
-      icon: <ProcesarIcon sx={{ fontSize: 60 }} />,
+      id: 'procesar',
       titulo: 'PROCESAR',
       emoji: '⚙️',
       descripcion: 'Los analizamos y usamos',
-      ejemplos: ['Análisis', 'Almacenamiento', 'Modificación', 'Organización']
+      ejemplos: ['Análisis', 'Almacenamiento', 'Modificación', 'Organización', 'Reportes']
     },
     {
-      icon: <CompartirIcon sx={{ fontSize: 60 }} />,
+      id: 'compartir',
       titulo: 'COMPARTIR',
       emoji: '📤',
       descripcion: 'Los enviamos a terceros',
-      ejemplos: ['Proveedores', 'Estado', 'Partners', 'Bancos']
+      ejemplos: ['Proveedores', 'Estado', 'Partners', 'Bancos', 'Seguros']
     }
   ];
 
   return (
-    <Box 
-      sx={{ textAlign: 'center', py: 4, position: 'relative' }}
-      onDoubleClick={handleDoubleClick}
-    >
-      {/* Controles de Audio */}
-      <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1 }}>
-        <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              setAudioEnabled(!audioEnabled);
-              if (isPlaying) {
-                speechSynthesis.cancel();
-                setIsPlaying(false);
-              }
-            }}
-            color={audioEnabled ? 'primary' : 'default'}
-          >
-            {audioEnabled ? <VolumeUp /> : <VolumeOff />}
-          </IconButton>
-        </Tooltip>
-        
-        {audioEnabled && (
-          <Tooltip title={isPlaying ? "Detener" : "Reproducir explicación"}>
-            <IconButton
-              size="small"
-              onClick={() => {
-                if (isPlaying) {
-                  speechSynthesis.cancel();
-                  setIsPlaying(false);
-                } else {
-                  playStepAudio(activeStep);
-                }
-              }}
-              color={isPlaying ? 'secondary' : 'default'}
-            >
-              {isPlaying ? <Stop /> : <PlayArrow />}
-            </IconButton>
-          </Tooltip>
-        )}
-      </Box>
-
-
-      {/* Área invisible para click simple - no perder foco */}
-      <Box 
-        sx={{ 
-          position: 'fixed', 
-          bottom: 0, 
-          left: 0, 
-          right: 0, 
-          height: 100, 
-          cursor: 'pointer',
-          zIndex: 1,
-          backgroundColor: 'transparent'
-        }}
-        onClick={handleNextStep}
-        title="Click para avanzar"
-      />
+    <Box sx={{ textAlign: 'center', py: 4, minHeight: '600px' }}>
       {/* Título principal */}
-      <Fade in timeout={1000}>
-        <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
-          ¿QUÉ ES UN TRATAMIENTO DE DATOS?
-        </Typography>
-      </Fade>
-
-      <Fade in timeout={1500}>
-        <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-          Todo lo que hace tu empresa con información personal
-        </Typography>
-      </Fade>
-
-      <Fade in timeout={2000}>
-        <Paper sx={{ p: 3, mb: 4, bgcolor: 'info.light' }}>
-          <Typography variant="body1" sx={{ fontWeight: 500, textAlign: 'center' }}>
-            💡 <strong>Definición:</strong> Un "tratamiento de datos" es cualquier operación o 
-            conjunto de operaciones realizadas sobre datos personales, ya sea por medios 
-            automatizados o no. Incluye la recolección, registro, organización, conservación, 
-            elaboración, modificación, extracción, consulta, comunicación y eliminación.
+      {visibleElements.includes('titulo') && (
+        <Fade in timeout={1000}>
+          <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
+            ¿QUÉ ES UN TRATAMIENTO DE DATOS?
           </Typography>
-        </Paper>
-      </Fade>
+        </Fade>
+      )}
 
-      {/* Empresa central */}
-      <Box sx={{ position: 'relative', mb: 6 }}>
-        <Zoom in timeout={2000}>
-          <Paper 
-            elevation={8}
-            sx={{ 
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 2,
-              p: 3,
-              bgcolor: 'primary.main',
-              color: 'primary.contrastText'
-            }}
-          >
-            <EmpresaIcon sx={{ fontSize: 40 }} />
-            <Typography variant="h4" sx={{ fontWeight: 600 }}>
-              TU EMPRESA
+      {visibleElements.includes('titulo') && (
+        <Fade in timeout={1500}>
+          <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+            Todo lo que hace tu empresa con información personal
+          </Typography>
+        </Fade>
+      )}
+
+      {/* Definición */}
+      {visibleElements.includes('definicion') && (
+        <Fade in timeout={2000}>
+          <Paper sx={{ p: 3, mb: 4, bgcolor: 'info.light' }}>
+            <Typography variant="body1" sx={{ fontWeight: 500, textAlign: 'center' }}>
+              💡 <strong>Definición:</strong> Un "tratamiento de datos" es cualquier operación o 
+              conjunto de operaciones realizadas sobre datos personales, ya sea por medios 
+              automatizados o no. Incluye la recolección, registro, organización, conservación, 
+              elaboración, modificación, extracción, consulta, comunicación y eliminación.
             </Typography>
           </Paper>
-        </Zoom>
+        </Fade>
+      )}
 
-        {/* Flechas y procesos */}
-        <Grid container spacing={4} sx={{ mt: 4 }}>
-          {pasos.map((paso, index) => (
-            <Grid item xs={12} md={4} key={index}>
-              <Fade in={visibleElements.includes(index)} timeout={1000}>
-                <Card 
-                  elevation={activeStep >= index ? 6 : 2}
-                  sx={{ 
-                    height: '100%',
-                    minHeight: '320px',
-                    transform: activeStep >= index ? 'scale(1.05)' : 'scale(1)',
-                    transition: 'all 0.5s ease-in-out',
-                    bgcolor: activeStep >= index ? 'primary.light' : 'background.paper',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => {
-                    // Reproducir el audio correcto para cada cuadro
-                    if (audioEnabled) {
-                      playStepAudio(index + 1); // 0->1 (Recopilar), 1->2 (Procesar), 2->3 (Compartir)
-                    }
-                  }}
-                  onDoubleClick={(e) => {
-                    e.stopPropagation();
-                    handleDoubleClick();
-                  }}
-                >
-                  <CardContent sx={{ textAlign: 'center', p: 3 }}>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="h1" sx={{ fontSize: 60 }}>
-                        {paso.emoji}
-                      </Typography>
-                    </Box>
-                    
-                    <Typography 
-                      variant="h5" 
+      {/* Empresa central */}
+      {visibleElements.includes('empresa') && (
+        <Box sx={{ position: 'relative', mb: 6 }}>
+          <Zoom in timeout={2000}>
+            <Paper 
+              elevation={8}
+              sx={{ 
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 2,
+                p: 3,
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText'
+              }}
+            >
+              <EmpresaIcon sx={{ fontSize: 40 }} />
+              <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                TU EMPRESA
+              </Typography>
+            </Paper>
+          </Zoom>
+
+          {/* Procesos alrededor */}
+          <Grid container spacing={4} sx={{ mt: 4 }}>
+            {pasos.map((paso, index) => (
+              <Grid item xs={12} md={4} key={paso.id}>
+                {visibleElements.includes(paso.id) && (
+                  <Fade in timeout={1000}>
+                    <Card 
+                      elevation={6}
                       sx={{ 
-                        mb: 2, 
-                        fontWeight: 600,
-                        color: activeStep >= index ? 'primary.contrastText' : 'inherit'
+                        height: '100%',
+                        minHeight: '320px',
+                        transform: 'scale(1.05)',
+                        transition: 'all 0.5s ease-in-out',
+                        bgcolor: 'primary.light'
                       }}
                     >
-                      {paso.titulo}
-                    </Typography>
-                    
-                    <Typography 
-                      variant="body1" 
-                      sx={{ 
-                        mb: 2,
-                        color: activeStep >= index ? 'primary.contrastText' : 'text.secondary'
-                      }}
-                    >
-                      {paso.descripcion}
-                    </Typography>
-                    
-                    <Box>
-                      {paso.ejemplos.map((ejemplo, idx) => (
+                      <CardContent sx={{ textAlign: 'center', p: 3 }}>
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="h1" sx={{ fontSize: 60 }}>
+                            {paso.emoji}
+                          </Typography>
+                        </Box>
+                        
                         <Typography 
-                          key={idx}
-                          variant="caption" 
+                          variant="h5" 
                           sx={{ 
-                            display: 'block',
-                            color: activeStep >= index ? 'primary.contrastText' : 'text.secondary',
-                            opacity: 0.8
+                            mb: 2, 
+                            fontWeight: 600,
+                            color: 'primary.contrastText'
                           }}
                         >
-                          • {ejemplo}
+                          {paso.titulo}
                         </Typography>
-                      ))}
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Fade>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-
-      {/* Mensaje clave */}
-      <Fade in={activeStep >= 3} timeout={1000}>
-        <Paper 
-          elevation={4}
-          sx={{ 
-            p: 4, 
-            mt: 4,
-            bgcolor: 'error.main',
-            color: 'error.contrastText'
-          }}
-        >
-          <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
-            🔴 TODO ESTO ES TRATAMIENTO 🔴
-          </Typography>
-          <Typography variant="h6">
-            Y ESTÁ REGULADO POR LA LEY 21.719
-          </Typography>
-        </Paper>
-      </Fade>
-
-      {/* Datos adicionales */}
-      <Fade in={activeStep >= 3} timeout={1500}>
-        <Box sx={{ mt: 4 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <Paper sx={{ p: 2, bgcolor: 'warning.light' }}>
-                <Typography variant="h4">📊</Typography>
-                <Typography variant="body2" color="warning.contrastText">
-                  <strong>Multas hasta</strong><br />5.000 UTM
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={4}>
-              <Paper sx={{ p: 2, bgcolor: 'info.light' }}>
-                <Typography variant="h4">⚖️</Typography>
-                <Typography variant="body2" color="info.contrastText">
-                  <strong>Cumplimiento</strong><br />Obligatorio
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={4}>
-              <Paper sx={{ p: 2, bgcolor: 'success.light' }}>
-                <Typography variant="h4">🏆</Typography>
-                <Typography variant="body2" color="success.contrastText">
-                  <strong>Certificación</strong><br />Posible
-                </Typography>
-              </Paper>
-            </Grid>
+                        
+                        <Typography 
+                          variant="body1" 
+                          sx={{ 
+                            mb: 2,
+                            color: 'primary.contrastText'
+                          }}
+                        >
+                          {paso.descripcion}
+                        </Typography>
+                        
+                        <Box>
+                          {paso.ejemplos.map((ejemplo, idx) => (
+                            <Typography 
+                              key={idx}
+                              variant="caption" 
+                              sx={{ 
+                                display: 'block',
+                                color: 'primary.contrastText',
+                                opacity: 0.8
+                              }}
+                            >
+                              • {ejemplo}
+                            </Typography>
+                          ))}
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Fade>
+                )}
+              </Grid>
+            ))}
           </Grid>
         </Box>
-      </Fade>
+      )}
+
+      {/* Mensaje clave */}
+      {visibleElements.includes('mensaje_final') && (
+        <Fade in timeout={1000}>
+          <Paper 
+            elevation={4}
+            sx={{ 
+              p: 4, 
+              mt: 4,
+              bgcolor: 'error.main',
+              color: 'error.contrastText'
+            }}
+          >
+            <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
+              🔴 TODO ESTO ES TRATAMIENTO 🔴
+            </Typography>
+            <Typography variant="h6">
+              Y ESTÁ REGULADO POR LA LEY 21.719
+            </Typography>
+          </Paper>
+        </Fade>
+      )}
+
+      {/* Datos adicionales */}
+      {visibleElements.includes('datos_adicionales') && (
+        <Fade in timeout={1500}>
+          <Box sx={{ mt: 4 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={4}>
+                <Paper sx={{ p: 2, bgcolor: 'warning.light' }}>
+                  <Typography variant="h4">📊</Typography>
+                  <Typography variant="body2" color="warning.contrastText">
+                    <strong>Multas hasta</strong><br />5.000 UTM
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={4}>
+                <Paper sx={{ p: 2, bgcolor: 'info.light' }}>
+                  <Typography variant="h4">⚖️</Typography>
+                  <Typography variant="body2" color="info.contrastText">
+                    <strong>Cumplimiento</strong><br />Obligatorio
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={4}>
+                <Paper sx={{ p: 2, bgcolor: 'success.light' }}>
+                  <Typography variant="h4">🏆</Typography>
+                  <Typography variant="body2" color="success.contrastText">
+                    <strong>Certificación</strong><br />Posible
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Box>
+        </Fade>
+      )}
     </Box>
   );
 };

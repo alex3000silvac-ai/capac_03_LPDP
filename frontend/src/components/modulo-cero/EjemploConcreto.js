@@ -10,10 +10,7 @@ import {
   Chip,
   LinearProgress,
   Fade,
-  Slide,
-  Button,
-  IconButton,
-  Tooltip
+  Slide
 } from '@mui/material';
 import {
   Timeline,
@@ -27,21 +24,160 @@ import {
   Cancel as CancelIcon,
   CheckCircle as CheckIcon,
   Timeline as TimelineIcon,
-  TrendingUp as TrendingIcon,
-  PlayArrow,
-  Stop,
-  VolumeUp,
-  VolumeOff,
-  NavigateNext,
-  NavigateBefore
+  TrendingUp as TrendingIcon
 } from '@mui/icons-material';
 
-const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) => {
-  const [activePhase, setActivePhase] = useState(-1); // Empezar sin mostrar nada
-  const [showRoadmap, setShowRoadmap] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(true);
+const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = true }) => {
+  const [visibleElements, setVisibleElements] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentUtterance, setCurrentUtterance] = useState(null);
+
+  // SISTEMA DE VOZ MASCULINA RADICAL
+  const configurarVozMasculina = () => {
+    return new Promise((resolve) => {
+      const intentarConfigurarVoz = () => {
+        const voices = speechSynthesis.getVoices();
+        
+        const vozMasculina = voices.find(voice => {
+          const nombre = voice.name.toLowerCase();
+          const idioma = voice.lang.toLowerCase();
+          
+          const esMasculino = nombre.includes('male') || 
+                             nombre.includes('man') ||
+                             nombre.includes('hombre') || 
+                             nombre.includes('masculino') ||
+                             nombre.includes('diego') ||
+                             nombre.includes('carlos') ||
+                             nombre.includes('miguel') ||
+                             nombre.includes('antonio') ||
+                             nombre.includes('juan') ||
+                             nombre.includes('pablo') ||
+                             !nombre.includes('female') && !nombre.includes('woman');
+          
+          const esEspanol = idioma.includes('es') || idioma.includes('mx') || idioma.includes('ar');
+          
+          return esEspanol && esMasculino;
+        });
+
+        if (vozMasculina) {
+          resolve(vozMasculina);
+        } else {
+          const vozEspanol = voices.find(voice => 
+            voice.lang.toLowerCase().includes('es')
+          );
+          resolve(vozEspanol || voices[0]);
+        }
+      };
+
+      if (speechSynthesis.getVoices().length > 0) {
+        intentarConfigurarVoz();
+      } else {
+        speechSynthesis.onvoiceschanged = intentarConfigurarVoz;
+      }
+    });
+  };
+
+  // SISTEMA DE SINCRONIZACIÓN AUTOMÁTICA REAL
+  const iniciarPresentacionAutomatica = async () => {
+    if (isPlaying) return;
+    
+    setIsPlaying(true);
+    
+    const vozMasculina = await configurarVozMasculina();
+    
+    const textoCompleto = `
+      Ejemplo real: empresa mediana de cincuenta empleados que logró cumplimiento completo LPDP en cuatro semanas.
+      
+      Antes del sistema: datos en Excel sin protección, sin control de acceso, sin respaldos, sin registro de cambios, exposición a multas de cinco mil UTM.
+      
+      Después del sistema: base de datos segura, permisos por rol, backup automático, auditoría completa, cumplimiento cien por ciento certificado.
+      
+      Hoja de ruta exitosa. Semana uno: mapeo inicial, diez procesos identificados. Semana dos: documentación completa, RAT y políticas. Semana tres: implementación técnica y capacitación. Semana cuatro: validación final y certificación.
+      
+      Resultados: noventa y cinco por ciento de reducción de riesgo, implementación en cuatro semanas, cero multas evitadas, ciento cincuenta millones de pesos ahorrados, certificación oficial obtenida.
+      
+      Tu empresa puede lograr los mismos resultados. Comienza ahora tu transformación digital con protección de datos.
+    `;
+
+    const utterance = new SpeechSynthesisUtterance(textoCompleto);
+    utterance.voice = vozMasculina;
+    utterance.lang = 'es-MX';
+    utterance.rate = 0.7;
+    utterance.pitch = 0.7;
+    utterance.volume = 1.0;
+
+    setCurrentUtterance(utterance);
+
+    // SINCRONIZACIÓN EXACTA CON EL AUDIO
+    const sincronizarElementos = () => {
+      // Mostrar título inmediatamente
+      setTimeout(() => {
+        setVisibleElements(['titulo']);
+      }, 1000);
+
+      // Mostrar "ANTES" cuando dice "Antes del sistema"
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'antes']);
+      }, 8000);
+
+      // Mostrar "DESPUÉS" cuando dice "Después del sistema"
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'despues']);
+      }, 15000);
+
+      // Mostrar roadmap cuando dice "Hoja de ruta"
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'roadmap']);
+      }, 22000);
+
+      // Mostrar resultados cuando dice "Resultados"
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'resultados']);
+      }, 35000);
+
+      // Mostrar CTA final cuando dice "Tu empresa puede"
+      setTimeout(() => {
+        setVisibleElements(prev => [...prev, 'cta_final']);
+      }, 42000);
+
+      // Avanzar al siguiente módulo
+      setTimeout(() => {
+        if (onNext) onNext();
+      }, 50000);
+    };
+
+    utterance.onstart = () => {
+      sincronizarElementos();
+    };
+
+    utterance.onend = () => {
+      setIsPlaying(false);
+    };
+
+    utterance.onerror = () => {
+      setIsPlaying(false);
+    };
+
+    speechSynthesis.speak(utterance);
+  };
+
+  useEffect(() => {
+    if (isAutoPlay) {
+      const timer = setTimeout(() => {
+        iniciarPresentacionAutomatica();
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (currentUtterance) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, [currentUtterance]);
 
   const antes = [
     { problema: 'Datos en Excel', icon: '📊', riesgo: 'alto' },
@@ -94,141 +230,6 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
     }
   ];
 
-  // Remover timer automático - solo manual con doble click
-  useEffect(() => {
-    // No más navegación automática
-    return;
-  }, [duration, isAutoPlay]);
-
-  // Función para manejar doble click en pantalla
-  const handleDoubleClick = () => {
-    if (activePhase < 1) {
-      setActivePhase(prev => prev + 1);
-      if (audioEnabled) playStepAudio(1);
-    } else if (!showRoadmap) {
-      setShowRoadmap(true);
-      if (audioEnabled) playStepAudio(2);
-    } else if (!showResults) {
-      setShowResults(true);
-      if (audioEnabled) playStepAudio(3);
-    } else if (onNext) {
-      onNext();
-    }
-  };
-
-  const handleNextStep = () => {
-    if (activePhase < 1) {
-      setActivePhase(prev => prev + 1);
-      if (audioEnabled) playStepAudio(1);
-    } else if (!showRoadmap) {
-      setShowRoadmap(true);
-      if (audioEnabled) playStepAudio(2);
-    } else if (!showResults) {
-      setShowResults(true);
-      if (audioEnabled) playStepAudio(3);
-    } else if (onNext) {
-      onNext();
-    }
-  };
-
-  const handlePrevStep = () => {
-    if (showResults) {
-      setShowResults(false);
-    } else if (showRoadmap) {
-      setShowRoadmap(false);
-    } else if (activePhase > 0) {
-      setActivePhase(prev => prev - 1);
-    } else if (onPrev) {
-      onPrev();
-    }
-  };
-
-  const playStepAudio = (stepNumber) => {
-    if (!audioEnabled) return;
-    
-    const audioTexts = {
-      0: "Ejemplo real de transformación empresarial exitosa. Esta empresa de cincuenta empleados del sector servicios logró cumplimiento completo de la Ley veintiún mil setecientos diecinueve en solo cuatro semanas, evitando multas potenciales de hasta ciento cincuenta millones de pesos chilenos. El caso demuestra que es posible implementar protección de datos personales de manera rápida, eficiente y rentable, transformando el riesgo en ventaja competitiva y certificación de cumplimiento normativo.",
-      1: "Comparación detallada del antes y después de la implementación. Sin el sistema de protección de datos, la empresa tenía información personal almacenada en archivos Excel sin control de acceso, sin respaldos de seguridad, sin registro de cambios, y sin contratos de confidencialidad, exponiendo la organización a multas millonarias y demandas de titulares. Con la implementación completa del sistema LPDP, lograron base de datos segura con encriptación, permisos por roles, respaldo automático en la nube, auditoría completa de accesos, y cumplimiento certificado al cien por ciento.",
-      2: "Hoja de ruta detallada de implementación en cuatro semanas. Primera semana: mapeo inicial identificando diez procesos principales, clasificación de todos los tipos de datos, y documentación de flujos de información. Segunda semana: creación del Registro de Actividades de Tratamiento completo, elaboración de políticas de privacidad, y actualización de contratos con terceros. Tercera semana: implementación de medidas de seguridad técnicas y organizacionales, capacitación completa del equipo, y establecimiento de procedimientos operativos. Cuarta semana: auditoría interna exhaustiva, corrección de hallazgos, y obtención de certificación de cumplimiento lista para la autoridad regulatoria.",
-      3: "Resultados cuantificados y beneficios obtenidos. Noventa y cinco por ciento de reducción del riesgo de sanciones regulatorias, implementación completada en solo cuatro semanas versus el promedio de seis a doce meses de métodos tradicionales, cero multas evitadas representando un ahorro potencial de ciento cincuenta millones de pesos, certificación oficial de cumplimiento que genera confianza en clientes y socios, y sistema automatizado que reduce en ochenta por ciento el tiempo dedicado a gestión manual de privacidad. La inversión se recuperó en menos de tres meses gracias a la eficiencia operacional y la reducción de riesgos legales."
-    };
-    
-    // Sincronización REAL con el audio
-    const syncAnimations = (stepNum) => {
-      setActivePhase(-1);
-      setShowRoadmap(false);
-      setShowResults(false);
-      
-      if (stepNum === 0) {
-        // Introducción - mostrar cuadro "ANTES"
-        setTimeout(() => setActivePhase(0), 1000);
-      } else if (stepNum === 1) {
-        // "Comparación detallada" - mostrar "DESPUÉS"
-        setActivePhase(0);
-        setTimeout(() => setActivePhase(1), 2000);
-      } else if (stepNum === 2) {
-        // "Hoja de ruta" - mostrar roadmap
-        setActivePhase(1);
-        setTimeout(() => setShowRoadmap(true), 1000);
-      } else if (stepNum === 3) {
-        // "Resultados" - mostrar métricas
-        setShowRoadmap(true);
-        setTimeout(() => setShowResults(true), 1000);
-      }
-    };
-
-    const text = audioTexts[stepNumber] || "";
-    if (text && 'speechSynthesis' in window) {
-      try {
-        speechSynthesis.cancel();
-      } catch (error) {
-        console.warn('Error cancelando síntesis anterior:', error);
-      }
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      const voices = speechSynthesis.getVoices();
-      const maleSpanishVoice = voices.find(voice => 
-        (voice.lang.includes('es') || voice.lang.includes('ES')) && 
-        (voice.name.toLowerCase().includes('male') && !voice.name.toLowerCase().includes('female') ||
-         voice.name.toLowerCase().includes('hombre') ||
-         voice.name.toLowerCase().includes('pedro') ||
-         voice.name.toLowerCase().includes('diego') ||
-         voice.name.toLowerCase().includes('antonio') ||
-         voice.name.toLowerCase().includes('miguel'))
-      ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
-      
-      if (maleSpanishVoice) utterance.voice = maleSpanishVoice;
-      
-      utterance.lang = 'es-MX'; // Español latino
-      utterance.rate = 0.85; // Más fluido
-      utterance.pitch = 0.9; // Voz masculina más grave
-      utterance.volume = 0.9;
-      
-      utterance.onstart = () => setIsPlaying(true);
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = (error) => {
-        console.warn('Error en síntesis de voz:', error);
-        setIsPlaying(false);
-      };
-      
-      // Activar sincronización
-      syncAnimations(stepNumber);
-      
-      try {
-        speechSynthesis.speak(utterance);
-      } catch (error) {
-        console.warn('Error iniciando síntesis de voz:', error);
-        setIsPlaying(false);
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (audioEnabled) {
-      setTimeout(() => playStepAudio(0), 1000);
-    }
-  }, []);
-
   const getRiskColor = (riesgo) => {
     switch(riesgo) {
       case 'critico': return 'error';
@@ -239,360 +240,317 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
   };
 
   return (
-    <Box 
-      sx={{ py: 4, position: 'relative' }}
-      onDoubleClick={handleDoubleClick}
-    >
-      {/* Controles de Audio */}
-      <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1, zIndex: 10 }}>
-        <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              setAudioEnabled(!audioEnabled);
-              if (isPlaying) {
-                speechSynthesis.cancel();
-                setIsPlaying(false);
-              }
-            }}
-            color={audioEnabled ? 'primary' : 'default'}
-          >
-            {audioEnabled ? <VolumeUp /> : <VolumeOff />}
-          </IconButton>
-        </Tooltip>
-        
-        {audioEnabled && (
-          <Tooltip title={isPlaying ? "Detener" : "Reproducir explicación"}>
-            <IconButton
-              size="small"
-              onClick={() => {
-                if (isPlaying) {
-                  speechSynthesis.cancel();
-                  setIsPlaying(false);
-                } else {
-                  let currentStep = 0;
-                  if (showResults) currentStep = 3;
-                  else if (showRoadmap) currentStep = 2;
-                  else if (activePhase >= 1) currentStep = 1;
-                  playStepAudio(currentStep);
-                }
-              }}
-              color={isPlaying ? 'secondary' : 'default'}
-            >
-              {isPlaying ? <Stop /> : <PlayArrow />}
-            </IconButton>
-          </Tooltip>
-        )}
-      </Box>
-
-
-      {/* Área invisible para click simple - no perder foco */}
-      <Box 
-        sx={{ 
-          position: 'fixed', 
-          bottom: 0, 
-          left: 0, 
-          right: 0, 
-          height: 100, 
-          cursor: 'pointer',
-          zIndex: 1,
-          backgroundColor: 'transparent'
-        }}
-        onClick={handleNextStep}
-        title="Click para avanzar"
-      />
+    <Box sx={{ py: 4, minHeight: '600px' }}>
       {/* Título */}
-      <Fade in timeout={1000}>
-        <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>
-          📊 EJEMPLO REAL: EMPRESA DE 50 EMPLEADOS
-        </Typography>
-      </Fade>
+      {visibleElements.includes('titulo') && (
+        <Fade in timeout={1000}>
+          <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>
+            📊 EJEMPLO REAL: EMPRESA DE 50 EMPLEADOS
+          </Typography>
+        </Fade>
+      )}
 
-      <Fade in timeout={1500}>
-        <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 6 }}>
-          Transformación completa en 4 semanas
-        </Typography>
-      </Fade>
+      {visibleElements.includes('titulo') && (
+        <Fade in timeout={1500}>
+          <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 6 }}>
+            Transformación completa en 4 semanas
+          </Typography>
+        </Fade>
+      )}
 
       {/* Comparación ANTES vs DESPUÉS */}
       <Grid container spacing={4} sx={{ mb: 6 }}>
         {/* ANTES */}
         <Grid item xs={12} md={6}>
-          <Slide in={activePhase >= 0} direction="right" timeout={1000}>
-            <Card 
-              elevation={6}
-              sx={{ 
-                height: '100%',
-                bgcolor: 'error.light'
-              }}
-            >
-              <CardContent sx={{ p: 4 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <CancelIcon sx={{ fontSize: 40, mr: 2, color: 'error.main' }} />
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    ANTES (Sin Sistema)
-                  </Typography>
-                </Box>
+          {visibleElements.includes('antes') && (
+            <Slide in direction="right" timeout={1000}>
+              <Card 
+                elevation={6}
+                sx={{ 
+                  height: '100%',
+                  bgcolor: 'error.light',
+                  transform: 'scale(1.02)',
+                  transition: 'all 0.5s ease-in-out'
+                }}
+              >
+                <CardContent sx={{ p: 4 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                    <CancelIcon sx={{ fontSize: 40, mr: 2, color: 'error.main' }} />
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                      ANTES (Sin Sistema)
+                    </Typography>
+                  </Box>
 
-                {antes.map((item, index) => (
-                  <Fade key={index} in={activePhase >= 0} timeout={1000 + (index * 300)}>
-                    <Box sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      mb: 2,
-                      p: 2,
-                      bgcolor: 'background.paper',
-                      borderRadius: 1,
-                      borderLeft: 4,
-                      borderColor: getRiskColor(item.riesgo) + '.main'
-                    }}>
-                      <Typography variant="h4" sx={{ mr: 2 }}>
-                        {item.icon}
-                      </Typography>
-                      <Box sx={{ flexGrow: 1 }}>
-                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                          {item.problema}
+                  {antes.map((item, index) => (
+                    <Fade key={index} in timeout={1000 + (index * 300)}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        mb: 2,
+                        p: 2,
+                        bgcolor: 'background.paper',
+                        borderRadius: 1,
+                        borderLeft: 4,
+                        borderColor: getRiskColor(item.riesgo) + '.main'
+                      }}>
+                        <Typography variant="h4" sx={{ mr: 2 }}>
+                          {item.icon}
                         </Typography>
-                        <Chip 
-                          label={item.riesgo.replace('_', ' ').toUpperCase()}
-                          size="small"
-                          color={getRiskColor(item.riesgo)}
-                        />
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {item.problema}
+                          </Typography>
+                          <Chip 
+                            label={item.riesgo.replace('_', ' ').toUpperCase()}
+                            size="small"
+                            color={getRiskColor(item.riesgo)}
+                          />
+                        </Box>
+                        <CancelIcon color="error" />
                       </Box>
-                      <CancelIcon color="error" />
-                    </Box>
-                  </Fade>
-                ))}
+                    </Fade>
+                  ))}
 
-                <Alert severity="error" sx={{ mt: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    💸 Multa potencial: $150 millones CLP
-                  </Typography>
-                </Alert>
-              </CardContent>
-            </Card>
-          </Slide>
+                  <Alert severity="error" sx={{ mt: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      💸 Multa potencial: $150 millones CLP
+                    </Typography>
+                  </Alert>
+                </CardContent>
+              </Card>
+            </Slide>
+          )}
         </Grid>
 
         {/* DESPUÉS */}
         <Grid item xs={12} md={6}>
-          <Slide in={activePhase >= 1} direction="left" timeout={1000}>
-            <Card 
-              elevation={6}
-              sx={{ 
-                height: '100%',
-                bgcolor: 'success.light'
-              }}
-            >
-              <CardContent sx={{ p: 4 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <CheckIcon sx={{ fontSize: 40, mr: 2, color: 'success.main' }} />
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    DESPUÉS (Con LPDP)
-                  </Typography>
-                </Box>
+          {visibleElements.includes('despues') && (
+            <Slide in direction="left" timeout={1000}>
+              <Card 
+                elevation={6}
+                sx={{ 
+                  height: '100%',
+                  bgcolor: 'success.light',
+                  transform: 'scale(1.02)',
+                  transition: 'all 0.5s ease-in-out'
+                }}
+              >
+                <CardContent sx={{ p: 4 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                    <CheckIcon sx={{ fontSize: 40, mr: 2, color: 'success.main' }} />
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                      DESPUÉS (Con LPDP)
+                    </Typography>
+                  </Box>
 
-                {despues.map((item, index) => (
-                  <Fade key={index} in={activePhase >= 1} timeout={1000 + (index * 300)}>
-                    <Box sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      mb: 2,
-                      p: 2,
-                      bgcolor: 'background.paper',
-                      borderRadius: 1,
-                      borderLeft: 4,
-                      borderColor: 'success.main'
-                    }}>
-                      <Typography variant="h4" sx={{ mr: 2 }}>
-                        {item.icon}
-                      </Typography>
-                      <Box sx={{ flexGrow: 1 }}>
-                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                          {item.solucion}
+                  {despues.map((item, index) => (
+                    <Fade key={index} in timeout={1000 + (index * 300)}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        mb: 2,
+                        p: 2,
+                        bgcolor: 'background.paper',
+                        borderRadius: 1,
+                        borderLeft: 4,
+                        borderColor: 'success.main'
+                      }}>
+                        <Typography variant="h4" sx={{ mr: 2 }}>
+                          {item.icon}
                         </Typography>
-                        <Chip 
-                          label={item.estado.toUpperCase()}
-                          size="small"
-                          color="success"
-                        />
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {item.solucion}
+                          </Typography>
+                          <Chip 
+                            label={item.estado.toUpperCase()}
+                            size="small"
+                            color="success"
+                          />
+                        </Box>
+                        <CheckIcon color="success" />
                       </Box>
-                      <CheckIcon color="success" />
-                    </Box>
-                  </Fade>
-                ))}
+                    </Fade>
+                  ))}
 
-                <Alert severity="success" sx={{ mt: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    🏆 Certificación de cumplimiento LPDP
-                  </Typography>
-                </Alert>
-              </CardContent>
-            </Card>
-          </Slide>
+                  <Alert severity="success" sx={{ mt: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      🏆 Certificación de cumplimiento LPDP
+                    </Typography>
+                  </Alert>
+                </CardContent>
+              </Card>
+            </Slide>
+          )}
         </Grid>
       </Grid>
 
       {/* Hoja de Ruta */}
-      <Fade in={showRoadmap} timeout={1000}>
-        <Paper elevation={8} sx={{ p: 4, mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-            <TimelineIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
-            <Typography variant="h4" sx={{ fontWeight: 700 }}>
-              HOJA DE RUTA: 4 SEMANAS PARA CUMPLIR
-            </Typography>
-          </Box>
+      {visibleElements.includes('roadmap') && (
+        <Fade in timeout={1000}>
+          <Paper elevation={8} sx={{ p: 4, mb: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+              <TimelineIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+              <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                HOJA DE RUTA: 4 SEMANAS PARA CUMPLIR
+              </Typography>
+            </Box>
 
-          <Timeline>
-            {roadmap.map((fase, index) => (
-              <TimelineItem key={index}>
-                <TimelineSeparator>
-                  <TimelineDot color={fase.color} sx={{ p: 2 }}>
-                    <Typography variant="h5">{fase.icon}</Typography>
-                  </TimelineDot>
-                  {index < roadmap.length - 1 && <TimelineConnector />}
-                </TimelineSeparator>
-                
-                <TimelineContent>
-                  <Fade in={showRoadmap} timeout={1000 + (index * 500)}>
-                    <Card elevation={3} sx={{ mb: 2 }}>
-                      <CardContent>
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                          SEMANA {fase.semana}: {fase.titulo}
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                          {fase.descripcion}
-                        </Typography>
-                        
-                        <Box>
-                          {fase.tareas.map((tarea, idx) => (
-                            <Chip 
-                              key={idx}
-                              label={tarea}
-                              size="small"
-                              sx={{ mr: 1, mb: 1 }}
-                              color={fase.color}
-                            />
-                          ))}
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Fade>
-                </TimelineContent>
-              </TimelineItem>
-            ))}
-          </Timeline>
-        </Paper>
-      </Fade>
+            <Timeline>
+              {roadmap.map((fase, index) => (
+                <TimelineItem key={index}>
+                  <TimelineSeparator>
+                    <TimelineDot color={fase.color} sx={{ p: 2 }}>
+                      <Typography variant="h5">{fase.icon}</Typography>
+                    </TimelineDot>
+                    {index < roadmap.length - 1 && <TimelineConnector />}
+                  </TimelineSeparator>
+                  
+                  <TimelineContent>
+                    <Fade in timeout={1000 + (index * 500)}>
+                      <Card elevation={3} sx={{ mb: 2 }}>
+                        <CardContent>
+                          <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                            SEMANA {fase.semana}: {fase.titulo}
+                          </Typography>
+                          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                            {fase.descripcion}
+                          </Typography>
+                          
+                          <Box>
+                            {fase.tareas.map((tarea, idx) => (
+                              <Chip 
+                                key={idx}
+                                label={tarea}
+                                size="small"
+                                sx={{ mr: 1, mb: 1 }}
+                                color={fase.color}
+                              />
+                            ))}
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Fade>
+                  </TimelineContent>
+                </TimelineItem>
+              ))}
+            </Timeline>
+          </Paper>
+        </Fade>
+      )}
 
       {/* Resultados y métricas */}
-      <Fade in={showResults} timeout={1000}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <Card elevation={4} sx={{ textAlign: 'center', p: 3 }}>
-              <Typography variant="h1" sx={{ color: 'success.main', fontWeight: 700 }}>
-                95%
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Reducción de Riesgo
-              </Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={95} 
-                color="success"
-                sx={{ mt: 2, height: 8, borderRadius: 4 }}
-              />
-            </Card>
-          </Grid>
+      {visibleElements.includes('resultados') && (
+        <Fade in timeout={1000}>
+          <Grid container spacing={3} sx={{ mb: 6 }}>
+            <Grid item xs={12} md={4}>
+              <Card elevation={4} sx={{ textAlign: 'center', p: 3 }}>
+                <Typography variant="h1" sx={{ color: 'success.main', fontWeight: 700 }}>
+                  95%
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Reducción de Riesgo
+                </Typography>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={95} 
+                  color="success"
+                  sx={{ mt: 2, height: 8, borderRadius: 4 }}
+                />
+              </Card>
+            </Grid>
 
-          <Grid item xs={12} md={4}>
-            <Card elevation={4} sx={{ textAlign: 'center', p: 3 }}>
-              <Typography variant="h1" sx={{ color: 'info.main', fontWeight: 700 }}>
-                4
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Semanas de Implementación
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                vs 6-12 meses tradicional
-              </Typography>
-            </Card>
-          </Grid>
+            <Grid item xs={12} md={4}>
+              <Card elevation={4} sx={{ textAlign: 'center', p: 3 }}>
+                <Typography variant="h1" sx={{ color: 'info.main', fontWeight: 700 }}>
+                  4
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Semanas de Implementación
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  vs 6-12 meses tradicional
+                </Typography>
+              </Card>
+            </Grid>
 
-          <Grid item xs={12} md={4}>
-            <Card elevation={4} sx={{ textAlign: 'center', p: 3 }}>
-              <Typography variant="h1" sx={{ color: 'warning.main', fontWeight: 700 }}>
-                $0
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Multas Evitadas
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Hasta $150 millones CLP
-              </Typography>
-            </Card>
+            <Grid item xs={12} md={4}>
+              <Card elevation={4} sx={{ textAlign: 'center', p: 3 }}>
+                <Typography variant="h1" sx={{ color: 'warning.main', fontWeight: 700 }}>
+                  $0
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Multas Evitadas
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Hasta $150 millones CLP
+                </Typography>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
-      </Fade>
+        </Fade>
+      )}
 
       {/* Call to Action final */}
-      <Fade in={showResults} timeout={1500}>
-        <Box sx={{ textAlign: 'center', mt: 6 }}>
-          <Paper 
-            elevation={8}
-            sx={{ 
-              p: 4,
-              bgcolor: 'primary.main',
-              color: 'primary.contrastText'
-            }}
-          >
-            <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
-              🚀 ¿LISTO PARA TRANSFORMAR TU EMPRESA?
-            </Typography>
-            <Typography variant="h6" sx={{ mb: 3, opacity: 0.9 }}>
-              Comienza ahora con tu primer mapeo de datos en solo 10 minutos
-            </Typography>
-            
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Paper 
-                  sx={{ 
-                    p: 2, 
-                    bgcolor: 'rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
-                  }}
-                >
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    📊 Comenzar Mapeo Rápido
-                  </Typography>
-                  <Typography variant="body2">
-                    10 minutos para tu primer inventario
-                  </Typography>
-                </Paper>
-              </Grid>
+      {visibleElements.includes('cta_final') && (
+        <Fade in timeout={1500}>
+          <Box sx={{ textAlign: 'center', mt: 6 }}>
+            <Paper 
+              elevation={8}
+              sx={{ 
+                p: 4,
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText'
+              }}
+            >
+              <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
+                🚀 ¿LISTO PARA TRANSFORMAR TU EMPRESA?
+              </Typography>
+              <Typography variant="h6" sx={{ mb: 3, opacity: 0.9 }}>
+                Comienza ahora con tu primer mapeo de datos en solo 10 minutos
+              </Typography>
               
-              <Grid item xs={12} sm={6}>
-                <Paper 
-                  sx={{ 
-                    p: 2, 
-                    bgcolor: 'rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
-                  }}
-                >
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    🎓 Ver Curso Completo
-                  </Typography>
-                  <Typography variant="body2">
-                    Implementación paso a paso
-                  </Typography>
-                </Paper>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Paper 
+                    sx={{ 
+                      p: 2, 
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                      cursor: 'pointer',
+                      '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      📊 Comenzar Mapeo Rápido
+                    </Typography>
+                    <Typography variant="body2">
+                      10 minutos para tu primer inventario
+                    </Typography>
+                  </Paper>
+                </Grid>
+                
+                <Grid item xs={12} sm={6}>
+                  <Paper 
+                    sx={{ 
+                      p: 2, 
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                      cursor: 'pointer',
+                      '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      🎓 Ver Curso Completo
+                    </Typography>
+                    <Typography variant="body2">
+                      Implementación paso a paso
+                    </Typography>
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-          </Paper>
-        </Box>
-      </Fade>
+            </Paper>
+          </Box>
+        </Fade>
+      )}
     </Box>
   );
 };
