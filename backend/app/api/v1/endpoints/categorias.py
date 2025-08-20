@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models import CategoriaDato, CategoriaTitular, SistemaActivo, Destinatario
+from app.models.inventario import CategoriaDatos as CategoriaDato, DestinatarioDatos as Destinatario
 from app.schemas.actividad import (
     CategoriaDatoCreate,
     CategoriaDatoResponse,

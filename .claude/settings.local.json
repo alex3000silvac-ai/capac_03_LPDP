@@ -48,7 +48,8 @@
       "Bash(./render.exe logs:*)",
       "Bash(./render.exe deploys list:*)",
       "Bash(./render.exe deploys create:*)",
-      "Bash(export RENDER_API_TOKEN=\"rnd_T4pIU1EVd6GarHtQrT7gitCTVp9t\")"
+      "Bash(export RENDER_API_TOKEN=\"rnd_T4pIU1EVd6GarHtQrT7gitCTVp9t\")",
+      "Bash(npm run build:*)"
     ],
     "deny": []
   }

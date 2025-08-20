@@ -98,26 +98,27 @@ const Modulo3Inventario = () => {
   const [expandedActividad, setExpandedActividad] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedActividad, setSelectedActividad] = useState(null);
+  const [actividadesBackend, setActividadesBackend] = useState([]);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSensible, setFilterSensible] = useState('all');
   const [progress, setProgress] = useState(0);
 
-  // Cargar datos del backend
   useEffect(() => {
+    // Cargar datos del backend al inicializar
     const cargarDatos = async () => {
       try {
         const actividades = await inventarioService.getActividades();
-        console.log('Actividades cargadas:', actividades);
-        // Aquí puedes procesar y mostrar las actividades del backend
+        setActividadesBackend(actividades);
       } catch (error) {
-        console.error('Error cargando actividades:', error);
+        setError('Error cargando actividades del servidor');
       }
     };
     
     cargarDatos();
   }, []);
 
-  // Datos de las áreas de negocio con actividades completas
+  // Datos de las áreas de negocio con actividades completas según el manual
   const areasNegocio = {
     rrhh: {
       nombre: 'Recursos Humanos',
@@ -350,7 +351,7 @@ const Modulo3Inventario = () => {
     }
   };
 
-  // Estadísticas generales
+  // Estadísticas generales del inventario de datos
   const estadisticas = {
     totalActividades: 10,
     documentadas: 6,
@@ -372,7 +373,7 @@ const Modulo3Inventario = () => {
   };
 
   const handleDescargarRAT = () => {
-    // Crear datos de ejemplo para la plantilla RAT
+    // Crear datos de ejemplo para la plantilla RAT según la Ley 21.719
     const plantillaRAT = `
 REGISTRO DE ACTIVIDADES DE TRATAMIENTO (RAT) - LEY 21.719
 ========================================================
@@ -407,7 +408,7 @@ NOTAS IMPORTANTES:
 - Documentar todos los flujos de datos
 `;
     
-    // Crear y descargar archivo
+    // Crear y descargar archivo de plantilla RAT
     const blob = new Blob([plantillaRAT], { type: 'text/plain;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -440,139 +441,35 @@ NOTAS IMPORTANTES:
   };
 
   const handleAnalisisRiesgo = (actividad) => {
-    alert(`\nANÁLISIS DE RIESGO - ${actividad.nombre}\n\nNivel de Riesgo: ${actividad.riesgo}\n\nFactores de Riesgo:\n- Volumen de datos: ${actividad.datosTratados.length} categorías\n- Datos sensibles: ${actividad.datosTratados.filter(d => d.sensible).length}\n- Terceros involucrados: ${actividad.terceros?.length || 0}\n- Transferencias internacionales: ${actividad.transferenciasInternacionales ? 'SÍ' : 'NO'}\n\nMedidas de mitigación recomendadas:\n1. Implementar cifrado en tránsito y reposo\n2. Realizar evaluación de impacto (PIA/DPIA)\n3. Revisar contratos con terceros\n4. Auditoría de seguridad trimestral`);
+    setSelectedActividad({
+      ...actividad,
+      modalType: 'analisis_riesgo'
+    });
+    setDialogOpen(true);
   };
 
   const handleVerFlujos = (actividad) => {
-    const flujos = `
-FLUJOS DE DATOS - ${actividad.nombre}
-=====================================
-
-SISTEMAS ORIGEN:
-${actividad.sistemas.map(s => `• ${s}`).join('\n')}
-
-FLUJO INTERNO:
-1. Recolección: ${actividad.sistemas[0] || 'Sistema principal'}
-2. Procesamiento: Backend / Base de datos
-3. Almacenamiento: ${actividad.sistemas.join(', ')}
-4. Consulta: Usuarios autorizados
-
-FLUJO EXTERNO (Terceros):
-${actividad.terceros ? actividad.terceros.map((t, i) => `${i+1}. ${t}`).join('\n') : 'No hay terceros involucrados'}
-
-TRANSFERENCIAS INTERNACIONALES:
-${actividad.transferenciasInternacionales ? 
-  'SÍ - Requiere cláusulas contractuales tipo o garantías apropiadas' : 
-  'NO - Todos los datos permanecen en Chile'}
-
-PLAZO DE RETENCIÓN:
-${actividad.plazoRetencion}
-`;
-    alert(flujos);
+    setSelectedActividad({
+      ...actividad,
+      modalType: 'flujos_datos'
+    });
+    setDialogOpen(true);
   };
 
   const handleVerMatrizRiesgos = () => {
-    const matrizRiesgos = `
-MATRIZ DE RIESGOS DE PROTECCIÓN DE DATOS
-=========================================
-
-NIVELES DE RIESGO POR ACTIVIDAD:
-
-CRÍTICO (4 actividades):
-• Gestión de Nómina - Datos sensibles múltiples (salud, situación económica, NNA)
-• Evaluación Crediticia - Score crediticio y patrimonio (datos sensibles en Chile)
-• Videovigilancia - Datos biométricos y comportamiento
-• Transferencias Internacionales - Datos fuera de jurisdicción chilena
-
-ALTO (3 actividades):
-• Reclutamiento - Exámenes médicos y evaluación socioeconómica
-• Marketing Digital - Perfilamiento y decisiones automatizadas
-• Gestión de Proveedores - Datos financieros y comerciales
-
-MEDIO (2 actividades):
-• Atención al Cliente - Datos de contacto y consultas
-• Gestión de Contratos - Información comercial básica
-
-BAJO (1 actividad):
-• Registro de Visitantes - Datos mínimos de identificación
-
-FACTORES DE RIESGO PRINCIPALES:
-1. Volumen de datos sensibles tratados
-2. Número de titulares afectados
-3. Transferencias a terceros países
-4. Uso de tecnologías emergentes (IA, IoT)
-5. Tiempo de retención prolongado
-
-MEDIDAS DE MITIGACIÓN RECOMENDADAS:
-✓ Evaluación de Impacto (DPIA) para riesgos altos/críticos
-✓ Cifrado de datos sensibles
-✓ Auditorías trimestrales de seguridad
-✓ Capacitación continua del personal
-✓ Revisión de contratos con encargados
-✓ Implementación de Privacy by Design
-`;
-    alert(matrizRiesgos);
+    setSelectedActividad({
+      modalType: 'matriz_riesgos',
+      nombre: 'Matriz de Riesgos Global'
+    });
+    setDialogOpen(true);
   };
 
   const handleImprimir = (actividad) => {
-    const contenido = `
-    <html>
-      <head>
-        <title>RAT - ${actividad.nombre}</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          h1 { color: #333; }
-          h2 { color: #666; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
-          .dato-sensible { color: red; font-weight: bold; }
-          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f4f4f4; }
-        </style>
-      </head>
-      <body>
-        <h1>Registro de Actividad de Tratamiento</h1>
-        <h2>${actividad.nombre}</h2>
-        <p><strong>ID:</strong> ${actividad.id}</p>
-        <p><strong>Descripción:</strong> ${actividad.descripcion}</p>
-        <p><strong>Base de Licitud:</strong> ${actividad.baseLicitud}</p>
-        <p><strong>Estado:</strong> ${actividad.estado}</p>
-        <p><strong>Nivel de Riesgo:</strong> ${actividad.riesgo}</p>
-        
-        <h3>Finalidades del Tratamiento:</h3>
-        <ul>${actividad.finalidades.map(f => `<li>${f}</li>`).join('')}</ul>
-        
-        <h3>Datos Tratados:</h3>
-        <table>
-          <tr><th>Tipo</th><th>Descripción</th><th>Sensibilidad</th></tr>
-          ${actividad.datosTratados.map(d => `
-            <tr>
-              <td>${d.tipo}</td>
-              <td>${d.descripcion}</td>
-              <td class="${d.sensible ? 'dato-sensible' : ''}">${d.sensible ? 'SENSIBLE' : 'Común'}</td>
-            </tr>
-          `).join('')}
-        </table>
-        
-        <h3>Sistemas:</h3>
-        <ul>${actividad.sistemas.map(s => `<li>${s}</li>`).join('')}</ul>
-        
-        <h3>Terceros:</h3>
-        <ul>${actividad.terceros ? actividad.terceros.map(t => `<li>${t}</li>`).join('') : '<li>No hay terceros</li>'}</ul>
-        
-        <h3>Plazo de Retención:</h3>
-        <p>${actividad.plazoRetencion}</p>
-        
-        <p style="margin-top: 40px; font-size: 12px; color: #666;">
-          Documento generado el ${new Date().toLocaleDateString('es-CL')} - Ley 21.719
-        </p>
-      </body>
-    </html>
-    `;
-    
-    const ventana = window.open('', '_blank');
-    ventana.document.write(contenido);
-    ventana.document.close();
-    ventana.print();
+    setSelectedActividad({
+      ...actividad,
+      modalType: 'imprimir'
+    });
+    setDialogOpen(true);
   };
 
   return (
@@ -1176,10 +1073,7 @@ MEDIDAS DE MITIGACIÓN RECOMENDADAS:
           <Button onClick={() => setDialogOpen(false)}>Cancelar</Button>
           <Button 
             variant="contained" 
-            onClick={() => {
-              alert('Cambios guardados exitosamente en el RAT');
-              setDialogOpen(false);
-            }}
+            onClick={() => setDialogOpen(false)}
           >
             Guardar cambios
           </Button>

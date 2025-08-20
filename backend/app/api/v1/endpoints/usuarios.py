@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 
 from app.core.database import get_db
-from app.models import Usuario
+from app.models.user import User as Usuario
 from app.schemas.usuario import (
     UsuarioCreate,
     UsuarioUpdate,

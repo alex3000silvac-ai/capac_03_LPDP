@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models import Organizacion
+from app.models.empresa import Empresa as Organizacion
 from app.schemas.organizacion import (
     OrganizacionCreate,
     OrganizacionUpdate,

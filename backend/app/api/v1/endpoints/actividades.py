@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models import ActividadTratamiento, ActividadDato, ActividadTitular, ActividadSistema, ActividadFlujo
+from app.models.inventario import ActividadTratamiento
 from app.schemas.actividad import (
     ActividadTratamientoCreate,
     ActividadTratamientoUpdate,
