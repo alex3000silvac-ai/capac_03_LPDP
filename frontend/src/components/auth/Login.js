@@ -351,58 +351,6 @@ const Login = () => {
               </Alert>
             )}
 
-            {/* Información de Credenciales */}
-            <Box 
-              mt={4} 
-              p={3} 
-              sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                borderRadius: 3,
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <Typography 
-                variant="h6" 
-                gutterBottom 
-                sx={{
-                  color: '#667eea',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1
-                }}
-              >
-                <VerifiedUser />
-                Credenciales de Acceso
-              </Typography>
-              <Grid container spacing={1}>
-                <Grid item xs={12} sm={4}>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                    <strong style={{ color: '#667eea' }}>Usuario:</strong> admin
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                    <strong>Contraseña:</strong> Admin123!
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                    <strong style={{ color: '#667eea' }}>Usuario:</strong> demo
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                    <strong>Contraseña:</strong> Demo123!
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                    <strong style={{ color: '#667eea' }}>Usuario:</strong> dpo
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                    <strong>Contraseña:</strong> Dpo123!
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Box>
 
             {/* Nota sobre Empresa */}
             <Box mt={3} textAlign="center">

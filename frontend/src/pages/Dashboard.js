@@ -215,9 +215,6 @@ function Dashboard() {
         <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
           👨‍⚖️ Instructor: Abogado Especialista en Protección de Datos
         </Typography>
-        <Typography variant="body2" sx={{ mb: 2 }}>
-          Experto certificado en implementación de Ley 21.719 con enfoque práctico en casos reales.
-        </Typography>
         <Typography variant="body2" fontWeight={600} color="warning.dark">
           ⚠️ IMPORTANTE: Este curso cubre únicamente el Capítulo 3 - Inventario y Mapeo de Datos. 
           Los demás capítulos (Fundamentos Legales, Conceptos Básicos, Derechos de Titulares, Medidas de Seguridad) 
