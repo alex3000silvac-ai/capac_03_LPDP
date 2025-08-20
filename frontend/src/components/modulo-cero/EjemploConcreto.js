@@ -6,18 +6,20 @@ import {
   Paper, 
   Card,
   CardContent,
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineConnector,
-  TimelineContent,
-  TimelineDot,
   Alert,
   Chip,
   LinearProgress,
   Fade,
   Slide
 } from '@mui/material';
+import {
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot
+} from '@mui/lab';
 import { 
   Cancel as CancelIcon,
   CheckCircle as CheckIcon,

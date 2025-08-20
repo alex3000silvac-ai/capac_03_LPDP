@@ -82,7 +82,7 @@ import {
   ExpandMore,
   AccountTree,
   Map as MapIcon,
-  Timeline,
+  Timeline as TimelineIcon,
   LocationOn,
   Public,
   Timer,
@@ -946,7 +946,7 @@ function SandboxCompleto() {
   const Trazabilidad = () => (
     <Paper sx={{ p: 3 }}>
       <Typography variant="h6" gutterBottom>
-        <Timeline sx={{ mr: 1 }} />
+        <TimelineIcon sx={{ mr: 1 }} />
         Trazabilidad de Datos
       </Typography>
       
