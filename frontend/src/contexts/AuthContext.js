@@ -17,9 +17,31 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('lpdp_token'));
   const [loading, setLoading] = useState(true);
+  const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
+    // Modo demo automático si no hay token después de 3 segundos
+    const demoTimer = setTimeout(() => {
+      if (!token && !user) {
+        console.log('🎯 Activando modo demo automático - sin autenticación requerida');
+        setDemoMode(true);
+        setUser({
+          id: 'demo_user',
+          username: 'demo',
+          email: 'demo@scldp.cl',
+          tenant_id: 'demo',
+          is_superuser: false,
+          permissions: ['modulo_cero'],
+          first_name: 'Usuario',
+          last_name: 'Demo',
+          restricted_to: 'intro_only'
+        });
+        setLoading(false);
+      }
+    }, 3000);
+
     if (token) {
+      clearTimeout(demoTimer);
       try {
         const decoded = jwtDecode(token);
         const currentTime = Date.now() / 1000;
@@ -43,6 +65,7 @@ export const AuthProvider = ({ children }) => {
             restricted_to: decoded.restricted_to || null
           };
           setUser(userData);
+          setLoading(false);
         }
       } catch (error) {
         console.error('Error decodificando token:', error);
@@ -51,7 +74,8 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     }
-    setLoading(false);
+
+    return () => clearTimeout(demoTimer);
   }, [token]);
 
   const login = async (username, password, tenantId = 'demo') => {
@@ -168,6 +192,7 @@ export const AuthProvider = ({ children }) => {
     user,
     token,
     loading,
+    demoMode,
     login,
     logout,
     refreshToken,

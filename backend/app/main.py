@@ -308,13 +308,15 @@ async def root():
 @app.get("/test-imports")
 async def test_imports():
     try:
-        from app.api.v1.endpoints import modulo3_inventario, glosario_lpdp, sandbox_inventario_real
+        # Temporalmente comentado hasta resolver dependencias
+        # from app.api.v1.endpoints import modulo3_inventario, glosario_lpdp, sandbox_inventario_real
         return {
             "status": "success",
-            "modulos_importados": True,
-            "modulo3_endpoints": len(modulo3_inventario.router.routes),
-            "glosario_endpoints": len(glosario_lpdp.router.routes),
-            "sandbox_endpoints": len(sandbox_inventario_real.router.routes)
+            "modulos_importados": False,
+            "mensaje": "Importaciones temporalmente deshabilitadas para estabilidad",
+            # "modulo3_endpoints": len(modulo3_inventario.router.routes),
+            # "glosario_endpoints": len(glosario_lpdp.router.routes),
+            # "sandbox_endpoints": len(sandbox_inventario_real.router.routes)
         }
     except Exception as e:
         return {
