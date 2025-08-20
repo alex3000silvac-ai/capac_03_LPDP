@@ -48,11 +48,28 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 @router.get("/debug-config")
 async def debug_config():
     """Debug endpoint simple"""
-    return {
-        "environment": settings.ENVIRONMENT,
-        "debug": settings.DEBUG,
-        "test": "ok"
-    }
+    try:
+        users_config = settings.get_users_config()
+        import hashlib
+        test_hash = hashlib.sha256("Padmin123!".encode()).hexdigest()
+        
+        return {
+            "environment": settings.ENVIRONMENT,
+            "debug": settings.DEBUG,
+            "users_loaded": len(users_config),
+            "users_list": list(users_config.keys()),
+            "admin_exists": "admin" in users_config,
+            "test_hash": test_hash,
+            "admin_stored_hash": users_config.get("admin", {}).get("password_hash", "NOT_FOUND")[:10] + "..." if users_config.get("admin") else "NO_ADMIN",
+            "hash_match": test_hash == users_config.get("admin", {}).get("password_hash", "") if users_config.get("admin") else False,
+            "test": "ok"
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "environment": settings.ENVIRONMENT,
+            "debug": settings.DEBUG
+        }
 
 @router.post("/login", response_model=Token)
 async def login(
