@@ -200,10 +200,10 @@ function Layout({ children }) {
             Tu Progreso
           </Typography>
           <Typography variant="h4" sx={{ mt: 1, fontWeight: 700 }}>
-            35%
+            0%
           </Typography>
           <Typography variant="caption" sx={{ opacity: 0.9 }}>
-            3 de 8 módulos completados
+            0 de 8 módulos completados
           </Typography>
         </Box>
       </Box>

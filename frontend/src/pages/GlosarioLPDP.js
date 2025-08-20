@@ -81,7 +81,7 @@ const GlosarioLPDP = () => {
     datos_personales: {
       termino: 'Datos Personales',
       definicion: 'Cualquier información relativa a una persona natural identificada o identificable.',
-      articulo: 'Art. 2, lit. f)',
+      articulo: 'Art. 2, lit. f',
       categoria: 'fundamental',
       icono: <Group />,
       ejemplos: [
@@ -98,7 +98,7 @@ const GlosarioLPDP = () => {
     datos_sensibles: {
       termino: 'Datos Sensibles',
       definicion: 'Datos personales que revelan origen étnico o racial, convicciones religiosas, filosóficas o morales, afiliación sindical, información referente a la salud o vida sexual, datos genéticos, datos biométricos, o datos relativos a la orientación sexual o identidad de género.',
-      articulo: 'Art. 2, lit. g)',
+      articulo: 'Art. 2, lit. g',
       categoria: 'fundamental',
       icono: <Lock />,
       ejemplos: [
@@ -115,7 +115,7 @@ const GlosarioLPDP = () => {
     situacion_socioeconomica: {
       termino: 'Situación Socioeconómica',
       definicion: 'DATO SENSIBLE en Chile que revela la capacidad económica, nivel de ingresos, patrimonio, historial crediticio o elegibilidad para beneficios sociales de una persona.',
-      articulo: 'Art. 2, lit. g)',
+      articulo: 'Art. 2, lit. g',
       categoria: 'fundamental',
       icono: <AttachMoney />,
       ejemplos: [
@@ -133,7 +133,7 @@ const GlosarioLPDP = () => {
     titular_datos: {
       termino: 'Titular de Datos',
       definicion: 'Persona natural a quien se refieren los datos personales.',
-      articulo: 'Art. 2, lit. o)',
+      articulo: 'Art. 2, lit. o',
       categoria: 'actores',
       icono: <Person />,
       ejemplos: [
@@ -147,7 +147,7 @@ const GlosarioLPDP = () => {
     responsable_datos: {
       termino: 'Responsable de Datos',
       definicion: 'Persona natural o jurídica, pública o privada, que decide sobre el tratamiento de datos personales.',
-      articulo: 'Art. 2, lit. n)',
+      articulo: 'Art. 2, lit. n',
       categoria: 'actores',
       icono: <Business />,
       ejemplos: [
@@ -161,7 +161,7 @@ const GlosarioLPDP = () => {
     encargado_datos: {
       termino: 'Encargado de Datos',
       definicion: 'Persona natural o jurídica que trata datos personales por cuenta del responsable del tratamiento.',
-      articulo: 'Art. 2, lit. h)',
+      articulo: 'Art. 2, lit. h',
       categoria: 'actores',
       icono: <Engineering />,
       ejemplos: [
@@ -175,7 +175,7 @@ const GlosarioLPDP = () => {
     tratamiento: {
       termino: 'Tratamiento de Datos',
       definicion: 'Cualquier operación o conjunto de operaciones realizadas sobre datos personales, sea por medios automatizados o no.',
-      articulo: 'Art. 2, lit. p)',
+      articulo: 'Art. 2, lit. p',
       categoria: 'operaciones',
       icono: <Settings />,
       ejemplos: [
@@ -1033,7 +1033,7 @@ const GlosarioLPDP = () => {
     clasificacion_sensibilidad: {
       termino: 'Clasificación de Datos por Sensibilidad',
       definicion: 'Una vez identificados los datos, es crucial clasificarlos correctamente, ya que la ley impone requisitos más estrictos para ciertas categorías.',
-      articulo: 'Art. 2, lit. g)',
+      articulo: 'Art. 2, lit. g',
       categoria: 'fundamental',
       icono: <Lock />,
       tipos_clasificacion: [
