@@ -372,7 +372,51 @@ const Modulo3Inventario = () => {
   };
 
   const handleDescargarRAT = () => {
-    alert('Descargando plantilla RAT en formato Excel...');
+    // Crear datos de ejemplo para la plantilla RAT
+    const plantillaRAT = `
+REGISTRO DE ACTIVIDADES DE TRATAMIENTO (RAT) - LEY 21.719
+========================================================
+
+Organización: [Su empresa]
+Fecha: ${new Date().toLocaleDateString('es-CL')}
+Responsable: [Nombre DPO]
+
+CAMPOS REQUERIDOS POR LEY:
+-------------------------
+1. ID Actividad: [Código único]
+2. Nombre de la Actividad: [Descripción clara]
+3. Finalidades del Tratamiento: [Por qué se tratan los datos]
+4. Base de Licitud: [Consentimiento/Contrato/Obligación legal/etc.]
+5. Categorías de Titulares: [Empleados/Clientes/Proveedores/etc.]
+6. Categorías de Datos:
+   - Datos Comunes: [Identificación, contacto, etc.]
+   - Datos Sensibles: [Salud, situación socioeconómica, biométricos, etc.]
+   - Datos NNA: [Menores de edad]
+7. Sistemas y Bases de Datos: [Dónde se almacenan]
+8. Destinatarios:
+   - Internos: [Departamentos]
+   - Externos: [Terceros, encargados]
+9. Transferencias Internacionales: [País, garantías]
+10. Plazos de Conservación: [Tiempo y justificación]
+11. Medidas de Seguridad: [Técnicas y organizativas]
+12. Evaluación de Riesgo: [Crítico/Alto/Medio/Bajo]
+
+NOTAS IMPORTANTES:
+- La situación socioeconómica es dato sensible en Chile
+- Datos de menores requieren consentimiento parental
+- Documentar todos los flujos de datos
+`;
+    
+    // Crear y descargar archivo
+    const blob = new Blob([plantillaRAT], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Plantilla_RAT_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
   const getEstadoChip = (estado) => {
@@ -393,6 +437,142 @@ const Modulo3Inventario = () => {
       'Bajo': '#689f38'
     };
     return colors[riesgo] || '#757575';
+  };
+
+  const handleAnalisisRiesgo = (actividad) => {
+    alert(`\nANÁLISIS DE RIESGO - ${actividad.nombre}\n\nNivel de Riesgo: ${actividad.riesgo}\n\nFactores de Riesgo:\n- Volumen de datos: ${actividad.datosTratados.length} categorías\n- Datos sensibles: ${actividad.datosTratados.filter(d => d.sensible).length}\n- Terceros involucrados: ${actividad.terceros?.length || 0}\n- Transferencias internacionales: ${actividad.transferenciasInternacionales ? 'SÍ' : 'NO'}\n\nMedidas de mitigación recomendadas:\n1. Implementar cifrado en tránsito y reposo\n2. Realizar evaluación de impacto (PIA/DPIA)\n3. Revisar contratos con terceros\n4. Auditoría de seguridad trimestral`);
+  };
+
+  const handleVerFlujos = (actividad) => {
+    const flujos = `
+FLUJOS DE DATOS - ${actividad.nombre}
+=====================================
+
+SISTEMAS ORIGEN:
+${actividad.sistemas.map(s => `• ${s}`).join('\n')}
+
+FLUJO INTERNO:
+1. Recolección: ${actividad.sistemas[0] || 'Sistema principal'}
+2. Procesamiento: Backend / Base de datos
+3. Almacenamiento: ${actividad.sistemas.join(', ')}
+4. Consulta: Usuarios autorizados
+
+FLUJO EXTERNO (Terceros):
+${actividad.terceros ? actividad.terceros.map((t, i) => `${i+1}. ${t}`).join('\n') : 'No hay terceros involucrados'}
+
+TRANSFERENCIAS INTERNACIONALES:
+${actividad.transferenciasInternacionales ? 
+  'SÍ - Requiere cláusulas contractuales tipo o garantías apropiadas' : 
+  'NO - Todos los datos permanecen en Chile'}
+
+PLAZO DE RETENCIÓN:
+${actividad.plazoRetencion}
+`;
+    alert(flujos);
+  };
+
+  const handleVerMatrizRiesgos = () => {
+    const matrizRiesgos = `
+MATRIZ DE RIESGOS DE PROTECCIÓN DE DATOS
+=========================================
+
+NIVELES DE RIESGO POR ACTIVIDAD:
+
+CRÍTICO (4 actividades):
+• Gestión de Nómina - Datos sensibles múltiples (salud, situación económica, NNA)
+• Evaluación Crediticia - Score crediticio y patrimonio (datos sensibles en Chile)
+• Videovigilancia - Datos biométricos y comportamiento
+• Transferencias Internacionales - Datos fuera de jurisdicción chilena
+
+ALTO (3 actividades):
+• Reclutamiento - Exámenes médicos y evaluación socioeconómica
+• Marketing Digital - Perfilamiento y decisiones automatizadas
+• Gestión de Proveedores - Datos financieros y comerciales
+
+MEDIO (2 actividades):
+• Atención al Cliente - Datos de contacto y consultas
+• Gestión de Contratos - Información comercial básica
+
+BAJO (1 actividad):
+• Registro de Visitantes - Datos mínimos de identificación
+
+FACTORES DE RIESGO PRINCIPALES:
+1. Volumen de datos sensibles tratados
+2. Número de titulares afectados
+3. Transferencias a terceros países
+4. Uso de tecnologías emergentes (IA, IoT)
+5. Tiempo de retención prolongado
+
+MEDIDAS DE MITIGACIÓN RECOMENDADAS:
+✓ Evaluación de Impacto (DPIA) para riesgos altos/críticos
+✓ Cifrado de datos sensibles
+✓ Auditorías trimestrales de seguridad
+✓ Capacitación continua del personal
+✓ Revisión de contratos con encargados
+✓ Implementación de Privacy by Design
+`;
+    alert(matrizRiesgos);
+  };
+
+  const handleImprimir = (actividad) => {
+    const contenido = `
+    <html>
+      <head>
+        <title>RAT - ${actividad.nombre}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { color: #333; }
+          h2 { color: #666; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+          .dato-sensible { color: red; font-weight: bold; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f4f4f4; }
+        </style>
+      </head>
+      <body>
+        <h1>Registro de Actividad de Tratamiento</h1>
+        <h2>${actividad.nombre}</h2>
+        <p><strong>ID:</strong> ${actividad.id}</p>
+        <p><strong>Descripción:</strong> ${actividad.descripcion}</p>
+        <p><strong>Base de Licitud:</strong> ${actividad.baseLicitud}</p>
+        <p><strong>Estado:</strong> ${actividad.estado}</p>
+        <p><strong>Nivel de Riesgo:</strong> ${actividad.riesgo}</p>
+        
+        <h3>Finalidades del Tratamiento:</h3>
+        <ul>${actividad.finalidades.map(f => `<li>${f}</li>`).join('')}</ul>
+        
+        <h3>Datos Tratados:</h3>
+        <table>
+          <tr><th>Tipo</th><th>Descripción</th><th>Sensibilidad</th></tr>
+          ${actividad.datosTratados.map(d => `
+            <tr>
+              <td>${d.tipo}</td>
+              <td>${d.descripcion}</td>
+              <td class="${d.sensible ? 'dato-sensible' : ''}">${d.sensible ? 'SENSIBLE' : 'Común'}</td>
+            </tr>
+          `).join('')}
+        </table>
+        
+        <h3>Sistemas:</h3>
+        <ul>${actividad.sistemas.map(s => `<li>${s}</li>`).join('')}</ul>
+        
+        <h3>Terceros:</h3>
+        <ul>${actividad.terceros ? actividad.terceros.map(t => `<li>${t}</li>`).join('') : '<li>No hay terceros</li>'}</ul>
+        
+        <h3>Plazo de Retención:</h3>
+        <p>${actividad.plazoRetencion}</p>
+        
+        <p style="margin-top: 40px; font-size: 12px; color: #666;">
+          Documento generado el ${new Date().toLocaleDateString('es-CL')} - Ley 21.719
+        </p>
+      </body>
+    </html>
+    `;
+    
+    const ventana = window.open('', '_blank');
+    ventana.document.write(contenido);
+    ventana.document.close();
+    ventana.print();
   };
 
   return (
@@ -426,6 +606,7 @@ const Modulo3Inventario = () => {
                 <Button
                   variant="outlined"
                   startIcon={<Assessment />}
+                  onClick={handleVerMatrizRiesgos}
                   fullWidth
                   sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white' }}
                 >
@@ -580,7 +761,16 @@ const Modulo3Inventario = () => {
       <Paper sx={{ mb: 3 }}>
         <Tabs
           value={activeTab}
-          onChange={(e, newValue) => setActiveTab(newValue)}
+          onChange={(e, newValue) => {
+            setActiveTab(newValue);
+            // Cambiar el área seleccionada según el tab
+            if (newValue === 0) {
+              setSelectedArea('all');
+            } else {
+              const areaKeys = Object.keys(areasNegocio);
+              setSelectedArea(areaKeys[newValue - 1]);
+            }
+          }}
           variant="scrollable"
           scrollButtons="auto"
           sx={{ borderBottom: 1, borderColor: 'divider' }}
@@ -775,6 +965,7 @@ const Modulo3Inventario = () => {
                             variant="outlined"
                             size="small"
                             startIcon={<Assessment />}
+                            onClick={() => handleAnalisisRiesgo(actividad)}
                           >
                             Análisis de Riesgo
                           </Button>
@@ -782,6 +973,7 @@ const Modulo3Inventario = () => {
                             variant="outlined"
                             size="small"
                             startIcon={<AccountTree />}
+                            onClick={() => handleVerFlujos(actividad)}
                           >
                             Ver Flujos de Datos
                           </Button>
@@ -789,6 +981,7 @@ const Modulo3Inventario = () => {
                             variant="outlined"
                             size="small"
                             startIcon={<Print />}
+                            onClick={() => handleImprimir(actividad)}
                           >
                             Imprimir
                           </Button>
@@ -901,21 +1094,93 @@ const Modulo3Inventario = () => {
         <DialogContent>
           {selectedActividad && (
             <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle1" gutterBottom>
-                {selectedActividad.nombre}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" paragraph>
-                {selectedActividad.descripcion}
-              </Typography>
-              <Alert severity="info">
-                Complete todos los campos requeridos según el Art. 31 de la Ley 21.719
-              </Alert>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Nombre de la Actividad"
+                    defaultValue={selectedActividad.nombre}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Descripción"
+                    defaultValue={selectedActividad.descripcion}
+                    multiline
+                    rows={2}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Base de Licitud"
+                    defaultValue={selectedActividad.baseLicitud}
+                    multiline
+                    rows={2}
+                    variant="outlined"
+                    helperText="Ej: Consentimiento, Contrato, Obligación legal, Interés legítimo"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Plazo de Retención"
+                    defaultValue={selectedActividad.plazoRetencion}
+                    multiline
+                    rows={2}
+                    variant="outlined"
+                    helperText="Especifique tiempo y justificación"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Finalidades del Tratamiento:
+                  </Typography>
+                  {selectedActividad.finalidades.map((finalidad, idx) => (
+                    <TextField
+                      key={idx}
+                      fullWidth
+                      defaultValue={finalidad}
+                      variant="outlined"
+                      size="small"
+                      sx={{ mb: 1 }}
+                    />
+                  ))}
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<Add />}
+                    sx={{ mt: 1 }}
+                  >
+                    Agregar Finalidad
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
+                  <Alert severity="warning">
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      Recordatorio Legal:
+                    </Typography>
+                    • La situación socioeconómica es dato sensible en Chile
+                    • Datos de menores requieren consentimiento parental
+                    • Transferencias internacionales requieren garantías apropiadas
+                  </Alert>
+                </Grid>
+              </Grid>
             </Box>
           )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={() => setDialogOpen(false)}>
+          <Button 
+            variant="contained" 
+            onClick={() => {
+              alert('Cambios guardados exitosamente en el RAT');
+              setDialogOpen(false);
+            }}
+          >
             Guardar cambios
           </Button>
         </DialogActions>
