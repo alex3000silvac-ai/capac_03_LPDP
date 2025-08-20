@@ -161,132 +161,62 @@ async def login(
         requested_tenant_id = request.headers.get("X-Tenant-ID") or login_data.tenant_id or "demo"
         logger.info(f"Requested Tenant ID: {requested_tenant_id}")
         
-        # Intentar conectar a base de datos, fallback a usuarios temporales si falla
-        user = None
-        try:
-            # Buscar usuario en la base de datos de Supabase
-            user = db.query(User).filter(User.username == login_data.username).first()
-        except Exception as db_error:
-            logger.warning(f"Error conectando a BD, usando usuarios temporales: {db_error}")
-            
-            # FALLBACK TEMPORAL: Usar usuarios básicos mientras se configura Supabase
-            temp_users = {
-                "admin": {
-                    "password": "Padmin123!",
-                    "email": "admin@empresa.cl",
-                    "first_name": "Administrador",
-                    "last_name": "del Sistema",
-                    "is_superuser": True,
-                    "is_active": True
-                },
-                "demo": {
-                    "password": "Demo123!",
-                    "email": "demo@empresa.cl",
-                    "first_name": "Usuario",
-                    "last_name": "Demo",
-                    "is_superuser": False,
-                    "is_active": True
-                }
+        # SOLUCIÓN TEMPORAL: Usuarios directos hasta configurar Supabase
+        temp_users = {
+            "admin": {
+                "password": "Padmin123!",
+                "email": "admin@empresa.cl",
+                "first_name": "Administrador",
+                "last_name": "del Sistema",
+                "is_superuser": True,
+                "is_active": True
+            },
+            "demo": {
+                "password": "Demo123!",
+                "email": "demo@empresa.cl",
+                "first_name": "Usuario",
+                "last_name": "Demo",
+                "is_superuser": False,
+                "is_active": True
             }
-            
-            if login_data.username in temp_users:
-                temp_user = temp_users[login_data.username]
-                if login_data.password == temp_user["password"]:
-                    # Crear token directamente
-                    final_tenant_id = requested_tenant_id if temp_user["is_superuser"] else "demo"
-                    
-                    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-                    access_token = create_access_token(
-                        data={
-                            "sub": login_data.username,
-                            "username": login_data.username,
-                            "email": temp_user["email"],
-                            "tenant_id": final_tenant_id,
-                            "is_superuser": temp_user["is_superuser"],
-                            "first_name": temp_user["first_name"],
-                            "last_name": temp_user["last_name"],
-                            "permissions": ["read", "write", "admin", "superuser"] if temp_user["is_superuser"] else ["read"],
-                            "restricted_to": "intro_only" if login_data.username == "demo" else None
-                        },
-                        expires_delta=access_token_expires
-                    )
-                    
-                    return {
-                        "access_token": access_token,
-                        "token_type": "bearer",
-                        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-                        "user": {
-                            "username": login_data.username,
-                            "email": temp_user["email"],
-                            "full_name": f"{temp_user['first_name']} {temp_user['last_name']}"
-                        },
-                        "message": "Login temporal exitoso (configurar Supabase para usar BD)"
-                    }
-                else:
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Usuario o contraseña incorrectos"
-                    )
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Usuario o contraseña incorrectos"
-                )
+        }
         
-        if not user:
-            logger.warning(f"Usuario no encontrado en base de datos: {login_data.username}")
+        if login_data.username not in temp_users:
+            logger.warning(f"Usuario no encontrado: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Usuario o contraseña incorrectos"
             )
         
-        # Verificar contraseña usando bcrypt
-        if not user.check_password(login_data.password):
+        temp_user = temp_users[login_data.username]
+        if login_data.password != temp_user["password"]:
             logger.warning(f"Contraseña incorrecta para usuario: {login_data.username}")
-            user.increment_failed_login()
-            db.commit()
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Usuario o contraseña incorrectos"
             )
-        
-        # Verificar que el usuario esté activo
-        if not user.is_active:
-            logger.warning(f"Usuario inactivo: {login_data.username}")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Usuario inactivo"
-            )
-        
-        # Reset failed login attempts on successful login
-        user.reset_failed_login()
-        db.commit()
         
         # Determinar tenant_id final
-        # Si es superuser, puede acceder a cualquier tenant
-        if user.is_superuser:
-            final_tenant_id = requested_tenant_id  # Admin puede usar cualquier tenant
-        else:
-            final_tenant_id = str(user.tenant_id) if user.tenant_id else "demo"  # Usuario normal usa su tenant
-        
-        logger.info(f"Final tenant ID for {login_data.username}: {final_tenant_id}")
+        final_tenant_id = requested_tenant_id if temp_user["is_superuser"] else "demo"
         
         # Crear token de acceso
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={
-                "sub": str(user.id),  # Usar user ID
-                "username": user.username,
-                "email": user.email,
+                "sub": login_data.username,
+                "username": login_data.username,
+                "email": temp_user["email"],
                 "tenant_id": final_tenant_id,
-                "is_superuser": user.is_superuser,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "permissions": ["read", "write", "admin", "superuser"] if user.is_superuser else ["read"],
-                "restricted_to": "intro_only" if user.username == "demo" else None
+                "is_superuser": temp_user["is_superuser"],
+                "first_name": temp_user["first_name"],
+                "last_name": temp_user["last_name"],
+                "permissions": ["read", "write", "admin", "superuser"] if temp_user["is_superuser"] else ["read"],
+                "restricted_to": "intro_only" if login_data.username == "demo" else None
             },
             expires_delta=access_token_expires
         )
+        
+        logger.info(f"Final tenant ID for {login_data.username}: {final_tenant_id}")
         
         # Crear refresh token con mayor duración
         refresh_token_expires = timedelta(days=7)  # 7 días
@@ -294,7 +224,7 @@ async def login(
             data={
                 "sub": login_data.username,
                 "type": "refresh",
-                "tenant_id": tenant_id
+                "tenant_id": final_tenant_id
             },
             expires_delta=refresh_token_expires
         )

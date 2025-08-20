@@ -21,7 +21,7 @@ services:
       - key: DEBUG
         value: false
       - key: ALLOWED_ORIGINS
-        value: https://lpdp-frontend.onrender.com
+        value: https://scldp-frontend.onrender.com
       - key: HOST
         value: 0.0.0.0
 
@@ -35,6 +35,6 @@ services:
     staticPublishPath: ./build
     envVars:
       - key: REACT_APP_API_URL
-        value: https://lpdp-backend.onrender.com
+        value: https://scldp-backend.onrender.com
       - key: REACT_APP_ENVIRONMENT
         value: production
