@@ -15,17 +15,38 @@ import {
   InputLabel,
   Chip,
   Fade,
-  Slide
+  Slide,
+  Button,
+  IconButton,
+  Tooltip,
+  Stepper,
+  Step,
+  StepLabel,
+  LinearProgress,
+  Alert,
+  Avatar
 } from '@mui/material';
 import { 
   Business as BusinessIcon,
   Schedule as ScheduleIcon,
   Security as SecurityIcon,
-  Share as ShareIcon
+  Share as ShareIcon,
+  PlayArrow,
+  Stop,
+  VolumeUp,
+  VolumeOff,
+  NavigateNext,
+  NavigateBefore,
+  Visibility,
+  AccountTree,
+  Timeline,
+  Assessment
 } from '@mui/icons-material';
 
-const InterfazTrabajo = ({ duration = 90 }) => {
+const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) => {
   const [activeSection, setActiveSection] = useState(0);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [formData, setFormData] = useState({
     actividad: 'Contratación de Personal',
     datos: ['rut', 'nombre', 'cv'],
@@ -36,6 +57,8 @@ const InterfazTrabajo = ({ duration = 90 }) => {
   });
 
   useEffect(() => {
+    if (!isAutoPlay) return;
+    
     const sectionDuration = duration * 1000 / 5;
     
     const timer = setInterval(() => {
@@ -43,7 +66,83 @@ const InterfazTrabajo = ({ duration = 90 }) => {
     }, sectionDuration);
 
     return () => clearInterval(timer);
-  }, [duration]);
+  }, [duration, isAutoPlay]);
+
+  const handleNextStep = () => {
+    if (activeSection < 4) {
+      setActiveSection(prev => prev + 1);
+      if (audioEnabled) playStepAudio(activeSection + 1);
+    } else if (onNext) {
+      onNext();
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (activeSection > 0) {
+      setActiveSection(prev => prev - 1);
+    } else if (onPrev) {
+      onPrev();
+    }
+  };
+
+  const playStepAudio = (stepNumber) => {
+    if (!audioEnabled) return;
+    
+    const audioTexts = {
+      0: "Bienvenida a tu inventario en acción. Esta es la interfaz real del sistema donde completas el mapeo de cada proceso de tu organización.",
+      1: "Sección uno: Datos que recopilas. Selecciona todos los tipos de información personal que manejas en este proceso, incluyendo datos sensibles.",
+      2: "Sección dos: Para qué usas los datos. Define las finalidades específicas y la base legal que justifica el tratamiento.",
+      3: "Sección tres: Quién accede a los datos. Identifica tanto los destinatarios internos como externos que tienen acceso a la información.",
+      4: "Sección cuatro: Cuánto tiempo guardas los datos. Define los plazos de retención y las medidas de seguridad implementadas."
+    };
+
+    const text = audioTexts[stepNumber] || "";
+    if (text && 'speechSynthesis' in window) {
+      try {
+        speechSynthesis.cancel();
+      } catch (error) {
+        console.warn('Error cancelando síntesis anterior:', error);
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voices = speechSynthesis.getVoices();
+      const femaleSpanishVoice = voices.find(voice => 
+        (voice.lang.includes('es') || voice.lang.includes('ES')) && 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('mujer') ||
+         voice.name.toLowerCase().includes('maria') ||
+         voice.name.toLowerCase().includes('carmen') ||
+         voice.name.toLowerCase().includes('lucia'))
+      ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
+      
+      if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
+      
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.volume = 0.8;
+      
+      utterance.onstart = () => setIsPlaying(true);
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = (error) => {
+        console.warn('Error en síntesis de voz:', error);
+        setIsPlaying(false);
+      };
+      
+      try {
+        speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.warn('Error iniciando síntesis de voz:', error);
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (audioEnabled) {
+      setTimeout(() => playStepAudio(0), 1000);
+    }
+  }, []);
 
   const handleCheckboxChange = (field, value) => {
     setFormData(prev => ({
@@ -54,8 +153,75 @@ const InterfazTrabajo = ({ duration = 90 }) => {
     }));
   };
 
+  const sectionTitles = [
+    'Datos que Recopilas',
+    'Finalidades de Uso',
+    'Destinatarios',
+    'Retención',
+    'Medidas de Seguridad'
+  ];
+
   return (
-    <Box sx={{ py: 4 }}>
+    <Box sx={{ py: 4, position: 'relative' }}>
+      {/* Controles de Audio */}
+      <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1, zIndex: 10 }}>
+        <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>
+          <IconButton
+            size="small"
+            onClick={() => {
+              setAudioEnabled(!audioEnabled);
+              if (isPlaying) {
+                speechSynthesis.cancel();
+                setIsPlaying(false);
+              }
+            }}
+            color={audioEnabled ? 'primary' : 'default'}
+          >
+            {audioEnabled ? <VolumeUp /> : <VolumeOff />}
+          </IconButton>
+        </Tooltip>
+        
+        {audioEnabled && (
+          <Tooltip title={isPlaying ? "Detener" : "Reproducir explicación"}>
+            <IconButton
+              size="small"
+              onClick={() => {
+                if (isPlaying) {
+                  speechSynthesis.cancel();
+                  setIsPlaying(false);
+                } else {
+                  playStepAudio(activeSection);
+                }
+              }}
+              color={isPlaying ? 'secondary' : 'default'}
+            >
+              {isPlaying ? <Stop /> : <PlayArrow />}
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
+
+      {/* Controles de Navegación */}
+      <Box sx={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, zIndex: 10 }}>
+        <Button
+          variant="outlined"
+          startIcon={<NavigateBefore />}
+          onClick={handlePrevStep}
+          disabled={activeSection === 0}
+          size="small"
+        >
+          Anterior
+        </Button>
+        
+        <Button
+          variant="contained"
+          endIcon={<NavigateNext />}
+          onClick={handleNextStep}
+          size="small"
+        >
+          {activeSection < 4 ? 'Siguiente' : 'Continuar'}
+        </Button>
+      </Box>
       {/* Título */}
       <Fade in timeout={1000}>
         <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>
@@ -64,13 +230,91 @@ const InterfazTrabajo = ({ duration = 90 }) => {
       </Fade>
 
       <Fade in timeout={1500}>
-        <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 4 }}>
+        <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 2 }}>
           Así se ve el formulario real que completas para cada proceso
         </Typography>
       </Fade>
 
+      {/* Progreso Visual */}
+      <Box sx={{ mb: 4, maxWidth: 800, mx: 'auto' }}>
+        <LinearProgress 
+          variant="determinate" 
+          value={((activeSection + 1) / 5) * 100}
+          sx={{ height: 8, borderRadius: 4, mb: 2 }}
+        />
+        <Stepper activeStep={activeSection} alternativeLabel>
+          {sectionTitles.map((title, index) => (
+            <Step key={title}>
+              <StepLabel 
+                onClick={() => {
+                  setActiveSection(index);
+                  if (audioEnabled) playStepAudio(index);
+                }}
+                sx={{ cursor: 'pointer' }}
+              >
+                <Typography variant="caption">{title}</Typography>
+              </StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      </Box>
+
+      {/* Diagrama Visual del Proceso */}
+      <Fade in timeout={2000}>
+        <Paper sx={{ p: 3, mb: 4, maxWidth: 1000, mx: 'auto', bgcolor: 'grey.50' }}>
+          <Typography variant="h6" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
+            🔄 Flujo Visual del Proceso de Mapeo
+          </Typography>
+          
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+            {[
+              { icon: '📊', label: 'Identificar\nDatos', color: 'info.light', active: activeSection >= 0 },
+              { icon: '🎯', label: 'Definir\nFinalidades', color: 'success.light', active: activeSection >= 1 },
+              { icon: '👥', label: 'Mapear\nDestinatarios', color: 'warning.light', active: activeSection >= 2 },
+              { icon: '⏱️', label: 'Configurar\nRetención', color: 'error.light', active: activeSection >= 3 },
+              { icon: '🔒', label: 'Aplicar\nSeguridad', color: 'secondary.light', active: activeSection >= 4 }
+            ].map((step, index) => (
+              <React.Fragment key={index}>
+                <Paper 
+                  elevation={step.active ? 6 : 2}
+                  sx={{
+                    p: 2,
+                    minWidth: 120,
+                    textAlign: 'center',
+                    bgcolor: step.active ? step.color : 'background.paper',
+                    transform: step.active ? 'scale(1.1)' : 'scale(1)',
+                    transition: 'all 0.3s ease-in-out',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    setActiveSection(index);
+                    if (audioEnabled) playStepAudio(index);
+                  }}
+                >
+                  <Typography variant="h3" sx={{ fontSize: 40 }}>{step.icon}</Typography>
+                  <Typography variant="caption" sx={{ fontWeight: 600, whiteSpace: 'pre-line' }}>
+                    {step.label}
+                  </Typography>
+                  {step.active && (
+                    <Box sx={{ mt: 1 }}>
+                      <Chip size="small" label="Activo" color="primary" />
+                    </Box>
+                  )}
+                </Paper>
+                {index < 4 && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 40 }}>
+                    <Box sx={{ flexGrow: 1, height: 2, bgcolor: step.active ? 'primary.main' : 'grey.300' }} />
+                    <Typography variant="h6" sx={{ mx: 1, color: step.active ? 'primary.main' : 'grey.400' }}>→</Typography>
+                  </Box>
+                )}
+              </React.Fragment>
+            ))}
+          </Box>
+        </Paper>
+      </Fade>
+
       {/* Formulario simulado */}
-      <Card elevation={8} sx={{ maxWidth: 1000, mx: 'auto' }}>
+      <Card elevation={8} sx={{ maxWidth: 1200, mx: 'auto' }}>
         <CardContent sx={{ p: 4 }}>
           {/* Header del formulario */}
           <Box sx={{ 

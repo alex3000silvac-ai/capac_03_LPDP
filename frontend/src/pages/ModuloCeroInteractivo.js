@@ -279,9 +279,18 @@ const ModuloCeroInteractivo = () => {
     if (!audioEnabled) return;
     
     // Detener audio actual si existe
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+    if (currentAudio && typeof currentAudio.pause === 'function') {
+      try {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      } catch (error) {
+        console.warn('Error pausando audio anterior:', error);
+      }
+    }
+    
+    // Cancelar cualquier síntesis en curso
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
     }
 
     const audioTexts = {
@@ -317,11 +326,19 @@ const ModuloCeroInteractivo = () => {
       utterance.pitch = 1.1;
       utterance.volume = 0.8;
       
-      utterance.onstart = () => setIsPlaying(true);
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => setIsPlaying(false);
+      utterance.onstart = () => {
+        setIsPlaying(true);
+        setCurrentAudio(utterance);
+      };
+      utterance.onend = () => {
+        setIsPlaying(false);
+        setCurrentAudio(null);
+      };
+      utterance.onerror = () => {
+        setIsPlaying(false);
+        setCurrentAudio(null);
+      };
       
-      setCurrentAudio(utterance);
       speechSynthesis.speak(utterance);
     }
   };
@@ -329,9 +346,12 @@ const ModuloCeroInteractivo = () => {
   const playExplanationAudio = () => {
     if (isPlaying) {
       // Detener audio actual
-      if (currentAudio) {
+      try {
         speechSynthesis.cancel();
         setIsPlaying(false);
+        setCurrentAudio(null);
+      } catch (error) {
+        console.warn('Error deteniendo audio:', error);
       }
     } else {
       // Reproducir explicación del paso actual

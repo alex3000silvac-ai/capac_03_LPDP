@@ -10,7 +10,10 @@ import {
   Chip,
   LinearProgress,
   Fade,
-  Slide
+  Slide,
+  Button,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import {
   Timeline,
@@ -24,13 +27,21 @@ import {
   Cancel as CancelIcon,
   CheckCircle as CheckIcon,
   Timeline as TimelineIcon,
-  TrendingUp as TrendingIcon
+  TrendingUp as TrendingIcon,
+  PlayArrow,
+  Stop,
+  VolumeUp,
+  VolumeOff,
+  NavigateNext,
+  NavigateBefore
 } from '@mui/icons-material';
 
-const EjemploConcreto = ({ duration = 75 }) => {
+const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) => {
   const [activePhase, setActivePhase] = useState(0);
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const antes = [
     { problema: 'Datos en Excel', icon: '📊', riesgo: 'alto' },
@@ -84,6 +95,8 @@ const EjemploConcreto = ({ duration = 75 }) => {
   ];
 
   useEffect(() => {
+    if (!isAutoPlay) return;
+    
     const phaseDuration = duration * 1000 / 4;
     
     const timer = setInterval(() => {
@@ -102,7 +115,92 @@ const EjemploConcreto = ({ duration = 75 }) => {
     }, phaseDuration);
 
     return () => clearInterval(timer);
-  }, [duration]);
+  }, [duration, isAutoPlay]);
+
+  const handleNextStep = () => {
+    if (activePhase < 1) {
+      setActivePhase(prev => prev + 1);
+      if (audioEnabled) playStepAudio(1);
+    } else if (!showRoadmap) {
+      setShowRoadmap(true);
+      if (audioEnabled) playStepAudio(2);
+    } else if (!showResults) {
+      setShowResults(true);
+      if (audioEnabled) playStepAudio(3);
+    } else if (onNext) {
+      onNext();
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (showResults) {
+      setShowResults(false);
+    } else if (showRoadmap) {
+      setShowRoadmap(false);
+    } else if (activePhase > 0) {
+      setActivePhase(prev => prev - 1);
+    } else if (onPrev) {
+      onPrev();
+    }
+  };
+
+  const playStepAudio = (stepNumber) => {
+    if (!audioEnabled) return;
+    
+    const audioTexts = {
+      0: "Ejemplo real de transformación. Esta empresa de cincuenta empleados logró cumplimiento completo en solo cuatro semanas, evitando multas de hasta ciento cincuenta millones de pesos.",
+      1: "Comparación antes y después. Sin el sistema, tenían datos en Excel sin control, exponiendo la empresa a multas millonarias. Con LPDP, lograron seguridad completa y certificación.",
+      2: "Hoja de ruta de implementación. El proceso se divide en cuatro semanas: mapeo inicial, documentación completa, implementación de seguridad y validación final.",
+      3: "Resultados obtenidos. Noventa y cinco por ciento de reducción de riesgo, implementación en solo cuatro semanas versus seis a doce meses tradicional, y cero multas evitadas."
+    };
+
+    const text = audioTexts[stepNumber] || "";
+    if (text && 'speechSynthesis' in window) {
+      try {
+        speechSynthesis.cancel();
+      } catch (error) {
+        console.warn('Error cancelando síntesis anterior:', error);
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voices = speechSynthesis.getVoices();
+      const femaleSpanishVoice = voices.find(voice => 
+        (voice.lang.includes('es') || voice.lang.includes('ES')) && 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('mujer') ||
+         voice.name.toLowerCase().includes('maria') ||
+         voice.name.toLowerCase().includes('carmen') ||
+         voice.name.toLowerCase().includes('lucia'))
+      ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
+      
+      if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
+      
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.volume = 0.8;
+      
+      utterance.onstart = () => setIsPlaying(true);
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = (error) => {
+        console.warn('Error en síntesis de voz:', error);
+        setIsPlaying(false);
+      };
+      
+      try {
+        speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.warn('Error iniciando síntesis de voz:', error);
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (audioEnabled) {
+      setTimeout(() => playStepAudio(0), 1000);
+    }
+  }, []);
 
   const getRiskColor = (riesgo) => {
     switch(riesgo) {
@@ -114,7 +212,70 @@ const EjemploConcreto = ({ duration = 75 }) => {
   };
 
   return (
-    <Box sx={{ py: 4 }}>
+    <Box sx={{ py: 4, position: 'relative' }}>
+      {/* Controles de Audio */}
+      <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1, zIndex: 10 }}>
+        <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>
+          <IconButton
+            size="small"
+            onClick={() => {
+              setAudioEnabled(!audioEnabled);
+              if (isPlaying) {
+                speechSynthesis.cancel();
+                setIsPlaying(false);
+              }
+            }}
+            color={audioEnabled ? 'primary' : 'default'}
+          >
+            {audioEnabled ? <VolumeUp /> : <VolumeOff />}
+          </IconButton>
+        </Tooltip>
+        
+        {audioEnabled && (
+          <Tooltip title={isPlaying ? "Detener" : "Reproducir explicación"}>
+            <IconButton
+              size="small"
+              onClick={() => {
+                if (isPlaying) {
+                  speechSynthesis.cancel();
+                  setIsPlaying(false);
+                } else {
+                  let currentStep = 0;
+                  if (showResults) currentStep = 3;
+                  else if (showRoadmap) currentStep = 2;
+                  else if (activePhase >= 1) currentStep = 1;
+                  playStepAudio(currentStep);
+                }
+              }}
+              color={isPlaying ? 'secondary' : 'default'}
+            >
+              {isPlaying ? <Stop /> : <PlayArrow />}
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
+
+      {/* Controles de Navegación */}
+      <Box sx={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, zIndex: 10 }}>
+        <Button
+          variant="outlined"
+          startIcon={<NavigateBefore />}
+          onClick={handlePrevStep}
+          disabled={activePhase === 0 && !showRoadmap && !showResults}
+          size="small"
+        >
+          Anterior
+        </Button>
+        
+        <Button
+          variant="contained"
+          endIcon={<NavigateNext />}
+          onClick={handleNextStep}
+          size="small"
+        >
+          {!showResults ? 'Siguiente' : 'Finalizar'}
+        </Button>
+      </Box>
       {/* Título */}
       <Fade in timeout={1000}>
         <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>

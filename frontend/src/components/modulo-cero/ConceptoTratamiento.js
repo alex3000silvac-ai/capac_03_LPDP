@@ -69,16 +69,20 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
     if (!audioEnabled) return;
     
     const audioTexts = {
-      0: "Bienvenida al concepto de tratamiento de datos. Un tratamiento es cualquier operación que tu empresa realiza con información personal.",
-      1: "Primer paso: Recopilar. Tu empresa obtiene datos personales a través de formularios, contratos, currículums y encuestas.",
-      2: "Segundo paso: Procesar. Una vez que tienes los datos, los analizas, almacenas, modificas y organizas según tus necesidades.",
+      0: "Bienvenida al concepto de tratamiento de datos. Un tratamiento es cualquier operación o conjunto de operaciones realizadas sobre datos personales. Incluye desde la recolección hasta la eliminación de la información.",
+      1: "Primer paso: Recopilar. Tu empresa obtiene datos personales a través de formularios web, contratos, currículums y encuestas. Esta es la puerta de entrada de los datos a tu organización.",
+      2: "Segundo paso: Procesar. Una vez que tienes los datos, los analizas, almacenas, modificas y organizas según tus necesidades. Esto incluye cualquier uso interno de la información.",
       3: "Tercer paso: Compartir. Enviamos estos datos a terceros como proveedores, el Estado, socios comerciales y bancos. Todo esto constituye tratamiento de datos y está regulado por la Ley veintiún mil setecientos diecinueve."
     };
 
     const text = audioTexts[stepNumber] || "";
     if (text && 'speechSynthesis' in window) {
       // Detener audio anterior
-      speechSynthesis.cancel();
+      try {
+        speechSynthesis.cancel();
+      } catch (error) {
+        console.warn('Error cancelando síntesis anterior:', error);
+      }
       
       const utterance = new SpeechSynthesisUtterance(text);
       
@@ -104,9 +108,17 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
       
       utterance.onstart = () => setIsPlaying(true);
       utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => setIsPlaying(false);
+      utterance.onerror = (error) => {
+        console.warn('Error en síntesis de voz:', error);
+        setIsPlaying(false);
+      };
       
-      speechSynthesis.speak(utterance);
+      try {
+        speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.warn('Error iniciando síntesis de voz:', error);
+        setIsPlaying(false);
+      }
     }
   };
 
@@ -210,9 +222,20 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
       </Fade>
 
       <Fade in timeout={1500}>
-        <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
+        <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
           Todo lo que hace tu empresa con información personal
         </Typography>
+      </Fade>
+
+      <Fade in timeout={2000}>
+        <Paper sx={{ p: 3, mb: 4, bgcolor: 'info.light' }}>
+          <Typography variant="body1" sx={{ fontWeight: 500, textAlign: 'center' }}>
+            💡 <strong>Definición:</strong> Un "tratamiento de datos" es cualquier operación o 
+            conjunto de operaciones realizadas sobre datos personales, ya sea por medios 
+            automatizados o no. Incluye la recolección, registro, organización, conservación, 
+            elaboración, modificación, extracción, consulta, comunicación y eliminación.
+          </Typography>
+        </Paper>
       </Fade>
 
       {/* Empresa central */}

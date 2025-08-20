@@ -219,7 +219,7 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
         </Typography>
       </Fade>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={4} sx={{ minHeight: '600px' }}>
         {/* DATOS COMUNES */}
         <Grid item xs={12}>
           <Slide in={activeCategory >= 0} direction="right" timeout={1000}>
