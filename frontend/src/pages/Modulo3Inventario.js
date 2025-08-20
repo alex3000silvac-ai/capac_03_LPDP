@@ -90,6 +90,17 @@ import {
   WorkspacePremium,
   TrendingUp,
   Visibility,
+  VolumeUp,
+  VolumeOff,
+  Hub,
+  Share as ShareIcon,
+  SwapHoriz,
+  TrendingUp as FlowIcon,
+  AccountBalance,
+  CloudQueue,
+  NetworkCheck,
+  Router,
+  DeviceHub,
 } from '@mui/icons-material';
 
 const Modulo3Inventario = () => {
@@ -103,6 +114,9 @@ const Modulo3Inventario = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSensible, setFilterSensible] = useState('all');
   const [progress, setProgress] = useState(0);
+  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [expandedButtons, setExpandedButtons] = useState({});
+  const [mapeoVisualDialog, setMapeoVisualDialog] = useState(false);
 
   useEffect(() => {
     // Cargar datos del backend al inicializar
@@ -472,6 +486,36 @@ NOTAS IMPORTANTES:
     setDialogOpen(true);
   };
 
+  const handleToggleButton = (buttonId) => {
+    if (audioEnabled) {
+      playClickSound();
+    }
+    setExpandedButtons(prev => ({
+      ...prev,
+      [buttonId]: !prev[buttonId]
+    }));
+  };
+
+  const playClickSound = () => {
+    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvGk6CSmHz/PQejEGIHnL8OOTRgoWZLrv7KdUEwg+nePztm0dBSV+z/LNfCkMEXS79eGaSAwRVqDnfJ1HFAlKouwn');
+    audio.volume = 0.3;
+    audio.play().catch(() => {});
+  };
+
+  const handleMapeoVisualOpen = () => {
+    setMapeoVisualDialog(true);
+    if (audioEnabled) {
+      playClickSound();
+    }
+  };
+
+  const handleToggleAudio = () => {
+    setAudioEnabled(!audioEnabled);
+    if (!audioEnabled) {
+      playClickSound();
+    }
+  };
+
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
       {/* Header con estadísticas */}
@@ -516,6 +560,24 @@ NOTAS IMPORTANTES:
                   sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white' }}
                 >
                   Ver Matriz de Riesgos
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<Hub />}
+                  onClick={handleMapeoVisualOpen}
+                  fullWidth
+                  sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white' }}
+                >
+                  Mapeo Visual de Datos
+                </Button>
+                <Button
+                  variant="text"
+                  startIcon={audioEnabled ? <VolumeUp /> : <VolumeOff />}
+                  onClick={handleToggleAudio}
+                  size="small"
+                  sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 'auto' }}
+                >
+                  {audioEnabled ? 'Audio On' : 'Audio Off'}
                 </Button>
               </Stack>
             </Grid>
@@ -857,39 +919,135 @@ NOTAS IMPORTANTES:
 
                       <Grid item xs={12}>
                         <Divider sx={{ my: 2 }} />
-                        <Stack direction="row" spacing={2}>
+                        <Stack direction="row" spacing={2} flexWrap="wrap">
                           <Button
                             variant="contained"
                             size="small"
                             startIcon={<Edit />}
-                            onClick={() => handleOpenDetalle(actividad)}
+                            onClick={() => {
+                              handleToggleButton(`edit-${actividad.id}`);
+                              handleOpenDetalle(actividad);
+                            }}
                           >
                             Editar RAT
                           </Button>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<Assessment />}
-                            onClick={() => handleAnalisisRiesgo(actividad)}
-                          >
-                            Análisis de Riesgo
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<AccountTree />}
-                            onClick={() => handleVerFlujos(actividad)}
-                          >
-                            Ver Flujos de Datos
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<Print />}
-                            onClick={() => handleImprimir(actividad)}
-                          >
-                            Imprimir
-                          </Button>
+                          <Box>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<Assessment />}
+                              onClick={() => handleToggleButton(`analysis-${actividad.id}`)}
+                              endIcon={expandedButtons[`analysis-${actividad.id}`] ? <ExpandMore sx={{ transform: 'rotate(180deg)' }} /> : <ExpandMore />}
+                            >
+                              Análisis de Riesgo
+                            </Button>
+                            <Collapse in={expandedButtons[`analysis-${actividad.id}`]}>
+                              <Paper sx={{ mt: 1, p: 2, bgcolor: 'grey.50' }}>
+                                <Stack spacing={1}>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    onClick={() => handleAnalisisRiesgo(actividad)}
+                                    startIcon={<Warning />}
+                                  >
+                                    Ver Análisis Completo
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    startIcon={<Timeline />}
+                                  >
+                                    Histórico de Riesgos
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    startIcon={<TrendingUp />}
+                                  >
+                                    Métricas de Riesgo
+                                  </Button>
+                                </Stack>
+                              </Paper>
+                            </Collapse>
+                          </Box>
+                          <Box>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<AccountTree />}
+                              onClick={() => handleToggleButton(`flows-${actividad.id}`)}
+                              endIcon={expandedButtons[`flows-${actividad.id}`] ? <ExpandMore sx={{ transform: 'rotate(180deg)' }} /> : <ExpandMore />}
+                            >
+                              Flujos de Datos
+                            </Button>
+                            <Collapse in={expandedButtons[`flows-${actividad.id}`]}>
+                              <Paper sx={{ mt: 1, p: 2, bgcolor: 'grey.50' }}>
+                                <Stack spacing={1}>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    onClick={() => handleVerFlujos(actividad)}
+                                    startIcon={<FlowIcon />}
+                                  >
+                                    Ver Diagrama de Flujos
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    startIcon={<NetworkCheck />}
+                                  >
+                                    Validar Conexiones
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    startIcon={<Router />}
+                                  >
+                                    Mapear Dependencias
+                                  </Button>
+                                </Stack>
+                              </Paper>
+                            </Collapse>
+                          </Box>
+                          <Box>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<Print />}
+                              onClick={() => handleToggleButton(`print-${actividad.id}`)}
+                              endIcon={expandedButtons[`print-${actividad.id}`] ? <ExpandMore sx={{ transform: 'rotate(180deg)' }} /> : <ExpandMore />}
+                            >
+                              Exportar
+                            </Button>
+                            <Collapse in={expandedButtons[`print-${actividad.id}`]}>
+                              <Paper sx={{ mt: 1, p: 2, bgcolor: 'grey.50' }}>
+                                <Stack spacing={1}>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    onClick={() => handleImprimir(actividad)}
+                                    startIcon={<Print />}
+                                  >
+                                    Imprimir RAT
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    startIcon={<Download />}
+                                  >
+                                    Exportar PDF
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    startIcon={<ShareIcon />}
+                                  >
+                                    Compartir
+                                  </Button>
+                                </Stack>
+                              </Paper>
+                            </Collapse>
+                          </Box>
                         </Stack>
                       </Grid>
                     </Grid>
@@ -1001,6 +1159,264 @@ NOTAS IMPORTANTES:
           </Grid>
         </CardContent>
       </Card>
+
+      {/* Dialog de Mapeo Visual de Datos */}
+      <Dialog open={mapeoVisualDialog} onClose={() => setMapeoVisualDialog(false)} maxWidth="xl" fullWidth>
+        <DialogTitle>
+          <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Hub color="primary" /> Mapeo Visual de Flujos de Datos - Diagrama Interactivo
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Alert severity="info" sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom>Diagrama de Red de Datos Empresariales</Typography>
+            <Typography variant="body2">
+              Este mapa visual muestra cómo los datos personales fluyen a través de su organización, 
+              identificando puntos críticos, riesgos potenciales y conexiones entre sistemas.
+            </Typography>
+          </Alert>
+
+          {/* Panel de Control del Diagrama */}
+          <Paper sx={{ p: 2, mb: 3 }}>
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+              <Button variant="outlined" startIcon={<Visibility />} size="small">
+                Mostrar Solo Sensibles
+              </Button>
+              <Button variant="outlined" startIcon={<Public />} size="small">
+                Transferencias Internacionales
+              </Button>
+              <Button variant="outlined" startIcon={<Warning />} size="small">
+                Riesgos Altos
+              </Button>
+              <Button variant="outlined" startIcon={<Timer />} size="small">
+                Retenciones Vencidas
+              </Button>
+            </Stack>
+          </Paper>
+
+          {/* Contenedor del Diagrama Visual */}
+          <Paper sx={{ p: 3, minHeight: 600, bgcolor: 'grey.50', position: 'relative' }}>
+            {/* Nodos Centrales - Áreas de la Empresa */}
+            <Grid container spacing={3} justifyContent="center">
+              {/* Centro - ERP/Sistema Central */}
+              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                <Paper 
+                  elevation={8}
+                  sx={{ 
+                    p: 3, 
+                    bgcolor: 'primary.main', 
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: 120,
+                    height: 120,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative'
+                  }}
+                >
+                  <DeviceHub fontSize="large" />
+                  <Typography variant="subtitle2" align="center">
+                    ERP Central
+                  </Typography>
+                </Paper>
+              </Grid>
+
+              {/* Áreas de Negocio en Círculo */}
+              <Grid item xs={12}>
+                <Box sx={{ position: 'relative', height: 400 }}>
+                  {Object.entries(areasNegocio).map(([key, area], index) => {
+                    const angle = (index * 60) * (Math.PI / 180); // 60 grados entre cada área
+                    const radius = 150;
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    
+                    return (
+                      <Paper
+                        key={key}
+                        elevation={6}
+                        sx={{
+                          position: 'absolute',
+                          left: `calc(50% + ${x}px - 60px)`,
+                          top: `calc(50% + ${y}px - 60px)`,
+                          width: 120,
+                          height: 120,
+                          p: 2,
+                          bgcolor: area.color,
+                          color: 'white',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: '50%',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            transform: 'scale(1.1)',
+                            transition: 'transform 0.2s'
+                          }
+                        }}
+                        onClick={() => {
+                          if (audioEnabled) playClickSound();
+                        }}
+                      >
+                        {area.icon}
+                        <Typography variant="caption" align="center" sx={{ fontSize: '0.7rem' }}>
+                          {area.nombre.split(' ')[0]}
+                        </Typography>
+                        <Badge 
+                          badgeContent={area.actividades.length} 
+                          color="error"
+                          sx={{ position: 'absolute', top: -5, right: -5 }}
+                        />
+                      </Paper>
+                    );
+                  })}
+
+                  {/* Líneas de Conexión */}
+                  <svg 
+                    width="100%" 
+                    height="100%" 
+                    style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
+                  >
+                    {Object.entries(areasNegocio).map(([key, area], index) => {
+                      const angle = (index * 60) * (Math.PI / 180);
+                      const radius = 150;
+                      const x1 = '50%';
+                      const y1 = '50%';
+                      const x2 = `calc(50% + ${Math.cos(angle) * radius}px)`;
+                      const y2 = `calc(50% + ${Math.sin(angle) * radius}px)`;
+                      
+                      return (
+                        <line
+                          key={`line-${key}`}
+                          x1={x1}
+                          y1={y1}
+                          x2={x2}
+                          y2={y2}
+                          stroke={area.color}
+                          strokeWidth="2"
+                          strokeDasharray="5,5"
+                          opacity="0.6"
+                        />
+                      );
+                    })}
+                  </svg>
+                </Box>
+              </Grid>
+
+              {/* Terceros y Sistemas Externos */}
+              <Grid item xs={12}>
+                <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+                  Sistemas y Terceros Externos
+                </Typography>
+                <Stack direction="row" spacing={2} flexWrap="wrap">
+                  <Chip 
+                    icon={<CloudQueue />} 
+                    label="AWS Cloud" 
+                    color="warning" 
+                    variant="outlined"
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => audioEnabled && playClickSound()}
+                  />
+                  <Chip 
+                    icon={<AccountBalance />} 
+                    label="SII" 
+                    color="error" 
+                    variant="outlined"
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => audioEnabled && playClickSound()}
+                  />
+                  <Chip 
+                    icon={<Business />} 
+                    label="DICOM" 
+                    color="error" 
+                    variant="outlined"
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => audioEnabled && playClickSound()}
+                  />
+                  <Chip 
+                    icon={<Public />} 
+                    label="Google Analytics (USA)" 
+                    color="warning" 
+                    variant="outlined"
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => audioEnabled && playClickSound()}
+                  />
+                  <Chip 
+                    icon={<Engineering />} 
+                    label="SERNAPESCA" 
+                    color="info" 
+                    variant="outlined"
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => audioEnabled && playClickSound()}
+                  />
+                </Stack>
+              </Grid>
+            </Grid>
+
+            {/* Leyenda del Diagrama */}
+            <Paper sx={{ position: 'absolute', bottom: 16, right: 16, p: 2 }}>
+              <Typography variant="subtitle2" gutterBottom>Leyenda</Typography>
+              <Stack spacing={1}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 16, height: 16, bgcolor: 'primary.main', borderRadius: '50%' }} />
+                  <Typography variant="caption">Sistema Central</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 16, height: 2, bgcolor: 'grey.500' }} />
+                  <Typography variant="caption">Flujo de Datos</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Warning fontSize="small" color="error" />
+                  <Typography variant="caption">Datos Sensibles</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Public fontSize="small" color="warning" />
+                  <Typography variant="caption">Transferencia Internacional</Typography>
+                </Box>
+              </Stack>
+            </Paper>
+          </Paper>
+
+          {/* Panel de Estadísticas */}
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <Grid item xs={3}>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="primary.main">6</Typography>
+                <Typography variant="caption">Áreas de Negocio</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={3}>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="error.main">15</Typography>
+                <Typography variant="caption">Datos Sensibles</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={3}>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="warning.main">3</Typography>
+                <Typography variant="caption">Transferencias Int'l</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={3}>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="success.main">25</Typography>
+                <Typography variant="caption">Terceros</Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMapeoVisualDialog(false)}>Cerrar</Button>
+          <Button variant="outlined" startIcon={<Download />}>
+            Exportar Diagrama
+          </Button>
+          <Button variant="contained" startIcon={<Print />}>
+            Imprimir Mapa
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Dialog de detalle/edición */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="lg" fullWidth>
