@@ -36,180 +36,15 @@ import {
   Timeline,
   Assignment,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
-
-const VideoAnimado = ({ isPlaying, onPlayPause }) => {
-  const [currentFrame, setCurrentFrame] = useState(0);
-  const [progress, setProgress] = useState(0);
-
-  // Frames del video animado sobre LPDP
-  const frames = [
-    {
-      title: "¿Qué es la Ley 21.719?",
-      content: "La Ley de Protección de Datos Personales de Chile",
-      icon: "🇨🇱",
-      description: "Una nueva ley que protege la privacidad de todas las personas en Chile"
-    },
-    {
-      title: "¿Qué son los datos personales?",
-      content: "Cualquier información que identifique a una persona",
-      icon: "👤",
-      description: "Nombre, RUT, email, teléfono, dirección, fotos, videos"
-    },
-    {
-      title: "Datos Sensibles en Chile",
-      content: "Información especialmente protegida",
-      icon: "🔐",
-      description: "Salud, situación socioeconómica, biométricos, origen étnico"
-    },
-    {
-      title: "Derechos de las Personas",
-      content: "Tus derechos sobre tus datos",
-      icon: "⚖️",
-      description: "Acceso, rectificación, cancelación, oposición, portabilidad"
-    },
-    {
-      title: "Responsabilidades de las Empresas",
-      content: "Lo que deben hacer las organizaciones",
-      icon: "🏢",
-      description: "Proteger, documentar, informar y respetar los derechos"
-    },
-    {
-      title: "¿Por qué es importante?",
-      content: "Protege tu privacidad y dignidad",
-      icon: "🛡️",
-      description: "Evita el mal uso de tu información personal"
-    }
-  ];
-
-  useEffect(() => {
-    let interval;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentFrame((prev) => {
-          const next = (prev + 1) % frames.length;
-          setProgress(((next + 1) / frames.length) * 100);
-          return next;
-        });
-      }, 3000); // Cambia frame cada 3 segundos
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, frames.length]);
-
-  const currentFrameData = frames[currentFrame];
-
-  return (
-    <Paper 
-      sx={{ 
-        p: 3, 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        position: 'relative',
-        minHeight: 400,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}
-    >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentFrame}
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -50 }}
-          transition={{ duration: 0.6 }}
-          style={{ textAlign: 'center' }}
-        >
-          <Typography variant="h1" sx={{ fontSize: '4rem', mb: 2 }}>
-            {currentFrameData.icon}
-          </Typography>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
-            {currentFrameData.title}
-          </Typography>
-          <Typography variant="h6" sx={{ mb: 2, opacity: 0.9 }}>
-            {currentFrameData.content}
-          </Typography>
-          <Typography variant="body1" sx={{ opacity: 0.8 }}>
-            {currentFrameData.description}
-          </Typography>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Controles del video */}
-      <Box 
-        sx={{ 
-          position: 'absolute', 
-          bottom: 16, 
-          left: 16, 
-          right: 16,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2
-        }}
-      >
-        <IconButton 
-          onClick={onPlayPause}
-          sx={{ color: 'white' }}
-        >
-          {isPlaying ? <Pause /> : <PlayArrow />}
-        </IconButton>
-        
-        <Box sx={{ flexGrow: 1 }}>
-          <LinearProgress 
-            variant="determinate" 
-            value={progress} 
-            sx={{ 
-              height: 6, 
-              borderRadius: 3,
-              bgcolor: 'rgba(255,255,255,0.3)',
-              '& .MuiLinearProgress-bar': {
-                bgcolor: 'white'
-              }
-            }}
-          />
-        </Box>
-
-        <Typography variant="caption" sx={{ minWidth: 60 }}>
-          {Math.round(progress)}%
-        </Typography>
-      </Box>
-
-      {/* Indicador de frame */}
-      <Box 
-        sx={{ 
-          position: 'absolute', 
-          top: 16, 
-          right: 16,
-          display: 'flex',
-          gap: 1
-        }}
-      >
-        {frames.map((_, index) => (
-          <Box
-            key={index}
-            sx={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              bgcolor: index === currentFrame ? 'white' : 'rgba(255,255,255,0.4)',
-              transition: 'all 0.3s ease'
-            }}
-          />
-        ))}
-      </Box>
-    </Paper>
-  );
-};
+import VideoAnimado from '../components/VideoAnimado';
+import { getVideoData } from '../data/videosAnimados';
 
 function IntroduccionLPDP() {
-  const [videoPlaying, setVideoPlaying] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [completed, setCompleted] = useState({});
-
-  const handleVideoPlayPause = () => {
-    setVideoPlaying(!videoPlaying);
-  };
+  
+  // Obtener datos del video para este módulo
+  const videoData = getVideoData('introduccion_lpdp');
 
   const pasos = [
     {
@@ -258,9 +93,6 @@ function IntroduccionLPDP() {
   ];
 
   const handleNext = () => {
-    if (activeStep === 0 && videoPlaying) {
-      setVideoPlaying(false);
-    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
@@ -314,13 +146,18 @@ function IntroduccionLPDP() {
               {index === 0 && (
                 <Box sx={{ mb: 3 }}>
                   <VideoAnimado 
-                    isPlaying={videoPlaying} 
-                    onPlayPause={handleVideoPlayPause}
+                    frames={videoData.frames}
+                    titulo={videoData.titulo}
+                    duracionFrame={videoData.configuracion.duracionFrame}
+                    autoPlay={videoData.configuracion.autoPlay}
+                    loop={videoData.configuracion.loop}
+                    gradiente={videoData.configuracion.gradiente}
                   />
                   <Alert severity="info" sx={{ mt: 2 }}>
                     <Typography variant="body2">
                       Este video te introduce a los conceptos fundamentales de la Ley 21.719. 
-                      Duración aproximada: 18 segundos (6 conceptos × 3 segundos cada uno).
+                      Duración aproximada: {Math.round((videoData.frames.length * videoData.configuracion.duracionFrame) / 1000)} segundos 
+                      ({videoData.frames.length} conceptos × {videoData.configuracion.duracionFrame/1000} segundos cada uno).
                     </Typography>
                   </Alert>
                 </Box>

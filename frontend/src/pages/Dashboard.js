@@ -31,6 +31,10 @@ import {
   EmojiEvents,
   ArrowForward,
   InfoOutlined,
+  CloudDownload,
+  Assignment,
+  Work,
+  Assessment,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../config';
@@ -448,6 +452,85 @@ function Dashboard() {
             <CardActions>
               <Button fullWidth onClick={() => navigate('/mi-progreso')}>
                 Ver Todos los Logros
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+
+        {/* Nueva sección: Herramientas Profesionales */}
+        <Grid item xs={12}>
+          <Card sx={{ background: 'linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)' }}>
+            <CardContent>
+              <Typography variant="h6" fontWeight={600} mb={2} sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'white' }}>
+                <CloudDownload /> Herramientas Profesionales LPDP
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', mb: 2 }}>
+                Descarga plantillas Excel personalizadas, formularios de entrevistas y herramientas completas para implementar la Ley 21.719 en tu empresa.
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={3}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(255,255,255,0.1)' }}>
+                    <Assignment fontSize="large" sx={{ color: 'white', mb: 1 }} />
+                    <Typography variant="subtitle2" sx={{ color: 'white' }}>
+                      Plantillas RAT
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                      Excel personalizado
+                    </Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(255,255,255,0.1)' }}>
+                    <Work fontSize="large" sx={{ color: 'white', mb: 1 }} />
+                    <Typography variant="subtitle2" sx={{ color: 'white' }}>
+                      Formularios
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                      Por área de negocio
+                    </Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(255,255,255,0.1)' }}>
+                    <Assessment fontSize="large" sx={{ color: 'white', mb: 1 }} />
+                    <Typography variant="subtitle2" sx={{ color: 'white' }}>
+                      Matriz Riesgos
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                      Evaluación sistemática
+                    </Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(255,255,255,0.1)' }}>
+                    <CheckCircle fontSize="large" sx={{ color: 'white', mb: 1 }} />
+                    <Typography variant="subtitle2" sx={{ color: 'white' }}>
+                      Checklist
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                      Cumplimiento LPDP
+                    </Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
+              <Alert severity="info" sx={{ mt: 2, bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }}>
+                <Typography variant="body2">
+                  💼 <strong>Resultado del Curso:</strong> Todas las herramientas se personalizan con los datos de tu empresa 
+                  y quedan guardadas en la base de datos para construir automáticamente tu mapeo de datos e inventario completo.
+                </Typography>
+              </Alert>
+            </CardContent>
+            <CardActions>
+              <Button 
+                fullWidth 
+                variant="contained" 
+                color="secondary"
+                size="large"
+                startIcon={<CloudDownload />}
+                onClick={() => navigate('/herramientas')}
+                sx={{ bgcolor: 'rgba(255,255,255,0.2)', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}
+              >
+                Acceder a Herramientas Profesionales
               </Button>
             </CardActions>
           </Card>
