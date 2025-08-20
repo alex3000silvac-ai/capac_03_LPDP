@@ -237,6 +237,22 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
           {activeSection < 4 ? 'Siguiente' : 'Continuar'}
         </Button>
       </Box>
+
+      {/* Área invisible para click simple - no perder foco */}
+      <Box 
+        sx={{ 
+          position: 'fixed', 
+          bottom: 0, 
+          left: 0, 
+          right: 0, 
+          height: 100, 
+          cursor: 'pointer',
+          zIndex: 1,
+          backgroundColor: 'transparent'
+        }}
+        onClick={handleNextStep}
+        title="Click para avanzar"
+      />
       {/* Título */}
       <Fade in timeout={1000}>
         <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>

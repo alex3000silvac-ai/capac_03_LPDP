@@ -29,6 +29,7 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
   const [activeStep, setActiveStep] = useState(0);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [animatingElements, setAnimatingElements] = useState([]);
 
   // Solo usar timer automático si isAutoPlay está activado
   useEffect(() => {
@@ -89,6 +90,22 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
       3: "Tercer paso: Compartir datos con terceros. Tu organización comunica y transfiere estos datos a terceros como proveedores de servicios, entidades del Estado para cumplir obligaciones legales, socios comerciales para ejecutar contratos, bancos para procesar pagos, y otras entidades según sea necesario para el giro del negocio. Cada comunicación debe estar justificada, documentada y protegida mediante contratos que garanticen el adecuado tratamiento. Todo esto constituye tratamiento de datos y está regulado por la Ley veintiún mil setecientos diecinueve, que establece multas de hasta cinco mil UTM por incumplimientos."
     };
 
+    // Sincronizar animaciones con audio
+    const syncAnimations = (stepNum) => {
+      setAnimatingElements([]);
+      
+      // Activar paso específico inmediatamente
+      if (stepNum > 0) {
+        setActiveStep(stepNum - 1);
+        setTimeout(() => setAnimatingElements([stepNum - 1]), 300);
+      }
+      
+      // Activar elementos finales después del audio específico
+      if (stepNum === 3) {
+        setTimeout(() => setActiveStep(3), 8000); // Mostrar mensaje final
+      }
+    };
+
     const text = audioTexts[stepNumber] || "";
     if (text && 'speechSynthesis' in window) {
       // Detener audio anterior
@@ -97,6 +114,9 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
       } catch (error) {
         console.warn('Error cancelando síntesis anterior:', error);
       }
+      
+      // Activar sincronización
+      syncAnimations(stepNumber);
       
       const utterance = new SpeechSynthesisUtterance(text);
       
@@ -231,6 +251,22 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
           {activeStep < 3 ? 'Siguiente' : 'Continuar'}
         </Button>
       </Box>
+
+      {/* Área invisible para click simple - no perder foco */}
+      <Box 
+        sx={{ 
+          position: 'fixed', 
+          bottom: 0, 
+          left: 0, 
+          right: 0, 
+          height: 100, 
+          cursor: 'pointer',
+          zIndex: 1,
+          backgroundColor: 'transparent'
+        }}
+        onClick={handleNextStep}
+        title="Click para avanzar"
+      />
       {/* Título principal */}
       <Fade in timeout={1000}>
         <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
@@ -293,7 +329,7 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
                   }}
                   onClick={() => {
                     setActiveStep(index);
-                    if (audioEnabled) playStepAudio(index);
+                    if (audioEnabled) playStepAudio(index + 1); // Corregir: index + 1 para que coincida con el contenido
                   }}
                   onDoubleClick={(e) => {
                     e.stopPropagation();

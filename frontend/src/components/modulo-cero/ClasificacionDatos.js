@@ -32,6 +32,7 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
   const [showComparison, setShowComparison] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [syncedElements, setSyncedElements] = useState([]);
 
   useEffect(() => {
     if (!isAutoPlay) return;
@@ -99,9 +100,43 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
       3: "Punto clave distintivo de la legislación chilena: la situación socioeconómica es considerada dato sensible, lo que constituye una particularidad única en el contexto latinoamericano. Esta categoría incluye información sobre nivel de ingresos, patrimonio personal, historial crediticio, deudas y obligaciones financieras, scoring crediticio, y capacidad de pago. Cualquier empresa que maneje esta información debe implementar las mismas medidas de seguridad que para datos de salud. Las multas por incumplimiento pueden llegar hasta cinco mil UTM, lo que representa un riesgo financiero significativo para las organizaciones."
     };
 
+    // Sincronización específica con timing preciso
+    const syncAnimations = (stepNum) => {
+      setSyncedElements([]);
+      
+      // Activar inmediatamente la categoría correspondiente
+      setActiveCategory(stepNum);
+      
+      // Timing específico basado en el contenido del audio
+      const timings = {
+        0: [
+          { delay: 3000, action: () => setSyncedElements([0, 1, 2, 3]) }, // Mostrar ejemplos de datos comunes
+        ],
+        1: [
+          { delay: 2000, action: () => setSyncedElements([0, 1, 2]) }, // Mostrar datos sensibles generales
+          { delay: 8000, action: () => setSyncedElements([0, 1, 2, 3, 4]) }, // Mostrar todos incluyendo situación socioeconómica
+        ],
+        2: [
+          { delay: 2000, action: () => setSyncedElements([0, 1, 2]) }, // Mostrar datos NNA
+        ],
+        3: [
+          { delay: 1000, action: () => setShowComparison(true) }, // Mostrar mensaje final
+        ]
+      };
+
+      if (timings[stepNum]) {
+        timings[stepNum].forEach(({ delay, action }) => {
+          setTimeout(action, delay);
+        });
+      }
+    };
+
     const text = audioTexts[stepNumber] || "";
     if (text && 'speechSynthesis' in window) {
       speechSynthesis.cancel();
+      
+      // Activar sincronización
+      syncAnimations(stepNumber);
       
       const utterance = new SpeechSynthesisUtterance(text);
       const voices = speechSynthesis.getVoices();
@@ -224,6 +259,22 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
           {!showComparison ? 'Siguiente' : 'Continuar'}
         </Button>
       </Box>
+
+      {/* Área invisible para click simple - no perder foco */}
+      <Box 
+        sx={{ 
+          position: 'fixed', 
+          bottom: 0, 
+          left: 0, 
+          right: 0, 
+          height: 100, 
+          cursor: 'pointer',
+          zIndex: 1,
+          backgroundColor: 'transparent'
+        }}
+        onClick={handleNextStep}
+        title="Click para avanzar"
+      />
       {/* Título */}
       <Fade in timeout={1000}>
         <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>
@@ -270,17 +321,18 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
                 <Grid container spacing={2}>
                   {datosComunes.map((dato, index) => (
                     <Grid item xs={12} sm={6} md={4} lg={2} key={index}>
-                      <Fade in={activeCategory >= 0} timeout={1000 + (index * 200)}>
+                      <Fade in={activeCategory >= 0 && syncedElements.includes(index)} timeout={1000 + (index * 200)}>
                         <Paper 
                           elevation={2}
                           sx={{ 
                             p: 2, 
                             textAlign: 'center',
-                            bgcolor: 'success.50'
+                            bgcolor: 'success.100',
+                            color: 'success.contrastText'
                           }}
                         >
                           <Typography variant="h4">{dato.icon}</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                             {dato.nombre}
                           </Typography>
                         </Paper>
@@ -329,19 +381,20 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
                 <Grid container spacing={2}>
                   {datosSensibles.map((dato, index) => (
                     <Grid item xs={12} sm={6} md={4} lg={2} key={index}>
-                      <Fade in={activeCategory >= 1} timeout={1000 + (index * 200)}>
+                      <Fade in={activeCategory >= 1 && syncedElements.includes(index)} timeout={1000 + (index * 200)}>
                         <Paper 
                           elevation={3}
                           sx={{ 
                             p: 2, 
                             textAlign: 'center',
-                            bgcolor: 'error.50',
+                            bgcolor: 'error.100',
                             border: dato.chile ? '2px solid' : 'none',
-                            borderColor: 'warning.main'
+                            borderColor: 'warning.main',
+                            color: 'error.contrastText'
                           }}
                         >
                           <Typography variant="h4">{dato.icon}</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                             {dato.nombre}
                           </Typography>
                           {dato.chile && (
@@ -389,17 +442,18 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
                 <Grid container spacing={2}>
                   {datosNNA.map((dato, index) => (
                     <Grid item xs={12} sm={6} md={4} key={index}>
-                      <Fade in={activeCategory >= 2} timeout={1000 + (index * 300)}>
+                      <Fade in={activeCategory >= 2 && syncedElements.includes(index)} timeout={1000 + (index * 300)}>
                         <Paper 
                           elevation={4}
                           sx={{ 
                             p: 3, 
                             textAlign: 'center',
-                            bgcolor: 'info.50'
+                            bgcolor: 'info.100',
+                            color: 'info.contrastText'
                           }}
                         >
                           <Typography variant="h3">{dato.icon}</Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 600, mt: 1 }}>
+                          <Typography variant="body1" sx={{ fontWeight: 600, mt: 1, color: 'text.primary' }}>
                             {dato.nombre}
                           </Typography>
                         </Paper>

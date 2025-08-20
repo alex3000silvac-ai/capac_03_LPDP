@@ -265,6 +265,22 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
         </Button>
       </Box>
 
+      {/* Área invisible para click simple - no perder foco */}
+      <Box 
+        sx={{ 
+          position: 'fixed', 
+          bottom: 0, 
+          left: 0, 
+          right: 0, 
+          height: 100, 
+          cursor: 'pointer',
+          zIndex: 1,
+          backgroundColor: 'transparent'
+        }}
+        onClick={handleNextStep}
+        title="Click para avanzar"
+      />
+
       {/* Contexto Explicativo */}
       <Fade in timeout={500}>
         <Alert severity="info" sx={{ mb: 4 }}>
