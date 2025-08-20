@@ -94,28 +94,27 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
     }
   ];
 
+  // Remover timer automático - solo manual con doble click
   useEffect(() => {
-    if (!isAutoPlay) return;
-    
-    const phaseDuration = duration * 1000 / 4;
-    
-    const timer = setInterval(() => {
-      setActivePhase(prev => {
-        if (prev < 1) return prev + 1;
-        if (prev === 1 && !showRoadmap) {
-          setShowRoadmap(true);
-          return prev;
-        }
-        if (prev === 1 && showRoadmap && !showResults) {
-          setShowResults(true);
-          return prev;
-        }
-        return prev;
-      });
-    }, phaseDuration);
-
-    return () => clearInterval(timer);
+    // No más navegación automática
+    return;
   }, [duration, isAutoPlay]);
+
+  // Función para manejar doble click en pantalla
+  const handleDoubleClick = () => {
+    if (activePhase < 1) {
+      setActivePhase(prev => prev + 1);
+      if (audioEnabled) playStepAudio(1);
+    } else if (!showRoadmap) {
+      setShowRoadmap(true);
+      if (audioEnabled) playStepAudio(2);
+    } else if (!showResults) {
+      setShowResults(true);
+      if (audioEnabled) playStepAudio(3);
+    } else if (onNext) {
+      onNext();
+    }
+  };
 
   const handleNextStep = () => {
     if (activePhase < 1) {
@@ -148,10 +147,10 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
     if (!audioEnabled) return;
     
     const audioTexts = {
-      0: "Ejemplo real de transformación. Esta empresa de cincuenta empleados logró cumplimiento completo en solo cuatro semanas, evitando multas de hasta ciento cincuenta millones de pesos.",
-      1: "Comparación antes y después. Sin el sistema, tenían datos en Excel sin control, exponiendo la empresa a multas millonarias. Con LPDP, lograron seguridad completa y certificación.",
-      2: "Hoja de ruta de implementación. El proceso se divide en cuatro semanas: mapeo inicial, documentación completa, implementación de seguridad y validación final.",
-      3: "Resultados obtenidos. Noventa y cinco por ciento de reducción de riesgo, implementación en solo cuatro semanas versus seis a doce meses tradicional, y cero multas evitadas."
+      0: "Ejemplo real de transformación empresarial exitosa. Esta empresa de cincuenta empleados del sector servicios logró cumplimiento completo de la Ley veintiún mil setecientos diecinueve en solo cuatro semanas, evitando multas potenciales de hasta ciento cincuenta millones de pesos chilenos. El caso demuestra que es posible implementar protección de datos personales de manera rápida, eficiente y rentable, transformando el riesgo en ventaja competitiva y certificación de cumplimiento normativo.",
+      1: "Comparación detallada del antes y después de la implementación. Sin el sistema de protección de datos, la empresa tenía información personal almacenada en archivos Excel sin control de acceso, sin respaldos de seguridad, sin registro de cambios, y sin contratos de confidencialidad, exponiendo la organización a multas millonarias y demandas de titulares. Con la implementación completa del sistema LPDP, lograron base de datos segura con encriptación, permisos por roles, respaldo automático en la nube, auditoría completa de accesos, y cumplimiento certificado al cien por ciento.",
+      2: "Hoja de ruta detallada de implementación en cuatro semanas. Primera semana: mapeo inicial identificando diez procesos principales, clasificación de todos los tipos de datos, y documentación de flujos de información. Segunda semana: creación del Registro de Actividades de Tratamiento completo, elaboración de políticas de privacidad, y actualización de contratos con terceros. Tercera semana: implementación de medidas de seguridad técnicas y organizacionales, capacitación completa del equipo, y establecimiento de procedimientos operativos. Cuarta semana: auditoría interna exhaustiva, corrección de hallazgos, y obtención de certificación de cumplimiento lista para la autoridad regulatoria.",
+      3: "Resultados cuantificados y beneficios obtenidos. Noventa y cinco por ciento de reducción del riesgo de sanciones regulatorias, implementación completada en solo cuatro semanas versus el promedio de seis a doce meses de métodos tradicionales, cero multas evitadas representando un ahorro potencial de ciento cincuenta millones de pesos, certificación oficial de cumplimiento que genera confianza en clientes y socios, y sistema automatizado que reduce en ochenta por ciento el tiempo dedicado a gestión manual de privacidad. La inversión se recuperó en menos de tres meses gracias a la eficiencia operacional y la reducción de riesgos legales."
     };
 
     const text = audioTexts[stepNumber] || "";
@@ -176,9 +175,9 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
       if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
       
       utterance.lang = 'es-ES';
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      utterance.volume = 0.8;
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = 0.9;
       
       utterance.onstart = () => setIsPlaying(true);
       utterance.onend = () => setIsPlaying(false);
@@ -212,7 +211,10 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
   };
 
   return (
-    <Box sx={{ py: 4, position: 'relative' }}>
+    <Box 
+      sx={{ py: 4, position: 'relative' }}
+      onDoubleClick={handleDoubleClick}
+    >
       {/* Controles de Audio */}
       <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1, zIndex: 10 }}>
         <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>

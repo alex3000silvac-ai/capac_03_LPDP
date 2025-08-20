@@ -68,10 +68,22 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
     return () => clearInterval(timer);
   }, [duration, isAutoPlay]);
 
+  // Función para manejar doble click en pantalla
+  const handleDoubleClick = () => {
+    if (activeSection < 4) {
+      const nextSection = activeSection + 1;
+      setActiveSection(nextSection);
+      if (audioEnabled) playStepAudio(nextSection);
+    } else if (onNext) {
+      onNext();
+    }
+  };
+
   const handleNextStep = () => {
     if (activeSection < 4) {
-      setActiveSection(prev => prev + 1);
-      if (audioEnabled) playStepAudio(activeSection + 1);
+      const nextSection = activeSection + 1;
+      setActiveSection(nextSection);
+      if (audioEnabled) playStepAudio(nextSection);
     } else if (onNext) {
       onNext();
     }
@@ -89,11 +101,11 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
     if (!audioEnabled) return;
     
     const audioTexts = {
-      0: "Bienvenida a tu inventario en acción. Esta es la interfaz real del sistema donde completas el mapeo de cada proceso de tu organización.",
-      1: "Sección uno: Datos que recopilas. Selecciona todos los tipos de información personal que manejas en este proceso, incluyendo datos sensibles.",
-      2: "Sección dos: Para qué usas los datos. Define las finalidades específicas y la base legal que justifica el tratamiento.",
-      3: "Sección tres: Quién accede a los datos. Identifica tanto los destinatarios internos como externos que tienen acceso a la información.",
-      4: "Sección cuatro: Cuánto tiempo guardas los datos. Define los plazos de retención y las medidas de seguridad implementadas."
+      0: "Bienvenida a tu inventario de datos en acción. Esta es la interfaz real del sistema donde completas el mapeo detallado de cada proceso de tratamiento de datos personales en tu organización. Aquí transformas la teoría en práctica, documentando de manera sistemática y exhaustiva cómo tu empresa maneja la información personal. Este formulario interactivo te guía paso a paso para crear un registro completo que cumple con todos los requisitos de la Ley veintiún mil setecientos diecinueve.",
+      1: "Sección uno: Datos que recopilas en este proceso específico. Debes seleccionar meticulosamente todos los tipos de información personal que manejas, diferenciando entre datos personales comunes como RUT, nombre, email y teléfono, y datos sensibles como información de salud, datos biométricos, situación socioeconómica o afiliación sindical. Es crucial identificar también datos de niños, niñas y adolescentes que requieren protección especial. Esta clasificación determina el nivel de protección y las medidas de seguridad que debes implementar.",
+      2: "Sección dos: Finalidades específicas y bases legales del tratamiento. Define con precisión para qué utilizas cada tipo de dato personal, estableciendo finalidades concretas como evaluación de candidatos, cumplimiento de obligaciones laborales, o gestión de contratos. Cada finalidad debe tener una base legal clara: consentimiento del titular, ejecución de contrato, cumplimiento de obligación legal, o interés legítimo. Esta documentación es fundamental para justificar el tratamiento ante la Agencia de Protección de Datos Personales.",
+      3: "Sección tres: Destinatarios y accesos a los datos personales. Identifica exhaustivamente tanto los destinatarios internos como externos que tienen acceso a la información. Los internos incluyen áreas como Recursos Humanos, Gerencia, Finanzas, Tecnología. Los externos abarcan proveedores de servicios, entidades del Estado como Previred, SII, Dirección del Trabajo, socios comerciales, bancos, compañías de seguros, y sistemas de bienestar. Cada destinatario debe estar justificado y documentado con contratos de tratamiento.",
+      4: "Sección cuatro: Plazos de retención y medidas de seguridad implementadas. Define cuánto tiempo conservas los datos durante la relación vigente y después de terminada, basándose en obligaciones legales, necesidades del negocio, y derechos del titular. Documenta las medidas de seguridad técnicas como encriptación de base de datos, control de acceso con claves, respaldos automáticos, y medidas organizacionales como contratos de confidencialidad, capacitación del personal, y políticas de privacidad. Estas medidas deben ser proporcionales al riesgo del tratamiento."
     };
 
     const text = audioTexts[stepNumber] || "";
@@ -118,9 +130,9 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
       if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
       
       utterance.lang = 'es-ES';
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      utterance.volume = 0.8;
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = 0.9;
       
       utterance.onstart = () => setIsPlaying(true);
       utterance.onend = () => setIsPlaying(false);
@@ -162,7 +174,10 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
   ];
 
   return (
-    <Box sx={{ py: 4, position: 'relative' }}>
+    <Box 
+      sx={{ py: 4, position: 'relative' }}
+      onDoubleClick={handleDoubleClick}
+    >
       {/* Controles de Audio */}
       <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1, zIndex: 10 }}>
         <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>
@@ -266,7 +281,7 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
             🔄 Flujo Visual del Proceso de Mapeo
           </Typography>
           
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: { xs: 'center', md: 'space-between' }, flexWrap: 'wrap', gap: 2 }}>
             {[
               { icon: '📊', label: 'Identificar\nDatos', color: 'info.light', active: activeSection >= 0 },
               { icon: '🎯', label: 'Definir\nFinalidades', color: 'success.light', active: activeSection >= 1 },
@@ -279,7 +294,7 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
                   elevation={step.active ? 6 : 2}
                   sx={{
                     p: 2,
-                    minWidth: 120,
+                    minWidth: { xs: 80, sm: 120 },
                     textAlign: 'center',
                     bgcolor: step.active ? step.color : 'background.paper',
                     transform: step.active ? 'scale(1.1)' : 'scale(1)',

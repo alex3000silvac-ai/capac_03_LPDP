@@ -43,12 +43,26 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
     return () => clearInterval(timer);
   }, [duration, isAutoPlay]);
 
+  // Función para manejar doble click en pantalla
+  const handleDoubleClick = () => {
+    if (activeStep < 3) {
+      const nextStep = activeStep + 1;
+      setActiveStep(nextStep);
+      if (audioEnabled) {
+        playStepAudio(nextStep);
+      }
+    } else if (onNext) {
+      onNext();
+    }
+  };
+
   // Función para avanzar manualmente
   const handleNextStep = () => {
     if (activeStep < 3) {
-      setActiveStep(prev => prev + 1);
+      const nextStep = activeStep + 1;
+      setActiveStep(nextStep);
       if (audioEnabled) {
-        playStepAudio(activeStep + 1);
+        playStepAudio(nextStep);
       }
     } else if (onNext) {
       onNext();
@@ -69,10 +83,10 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
     if (!audioEnabled) return;
     
     const audioTexts = {
-      0: "Bienvenida al concepto de tratamiento de datos. Un tratamiento es cualquier operación o conjunto de operaciones realizadas sobre datos personales. Incluye desde la recolección hasta la eliminación de la información.",
-      1: "Primer paso: Recopilar. Tu empresa obtiene datos personales a través de formularios web, contratos, currículums y encuestas. Esta es la puerta de entrada de los datos a tu organización.",
-      2: "Segundo paso: Procesar. Una vez que tienes los datos, los analizas, almacenas, modificas y organizas según tus necesidades. Esto incluye cualquier uso interno de la información.",
-      3: "Tercer paso: Compartir. Enviamos estos datos a terceros como proveedores, el Estado, socios comerciales y bancos. Todo esto constituye tratamiento de datos y está regulado por la Ley veintiún mil setecientos diecinueve."
+      0: "Bienvenida al concepto fundamental de tratamiento de datos personales. Un tratamiento es cualquier operación o conjunto de operaciones realizadas sobre datos personales, ya sea por medios automatizados o no. Esto incluye desde la recolección inicial, registro y organización, hasta la conservación, elaboración, modificación, extracción, consulta, comunicación y eliminación final de la información. Es importante comprender que todo lo que tu empresa hace con información personal constituye un tratamiento y está regulado por la Ley veintiún mil setecientos diecinueve.",
+      1: "Primer paso: Recopilar datos personales. Tu empresa obtiene información personal a través de múltiples canales: formularios web, contratos laborales y comerciales, currículums vitae, encuestas de satisfacción, formularios de contacto, y sistemas de registro. Esta recopilación es la puerta de entrada de los datos a tu organización y debe realizarse con base legal clara, informando al titular sobre la finalidad del tratamiento. Cada punto de entrada de datos debe estar documentado y controlado según los principios de transparencia y licitud establecidos en la normativa.",
+      2: "Segundo paso: Procesar la información recopilada. Una vez que tienes los datos personales en tu organización, los analizas para generar insights de negocio, los almacenas en bases de datos y sistemas informáticos, los modificas cuando es necesario mantenerlos actualizados, y los organizas en estructuras que faciliten su uso según las finalidades declaradas. Este procesamiento incluye cualquier uso interno de la información, desde generar reportes hasta tomar decisiones comerciales. Es crucial que todo procesamiento sea necesario y proporcional a la finalidad original.",
+      3: "Tercer paso: Compartir datos con terceros. Tu organización comunica y transfiere estos datos a terceros como proveedores de servicios, entidades del Estado para cumplir obligaciones legales, socios comerciales para ejecutar contratos, bancos para procesar pagos, y otras entidades según sea necesario para el giro del negocio. Cada comunicación debe estar justificada, documentada y protegida mediante contratos que garanticen el adecuado tratamiento. Todo esto constituye tratamiento de datos y está regulado por la Ley veintiún mil setecientos diecinueve, que establece multas de hasta cinco mil UTM por incumplimientos."
     };
 
     const text = audioTexts[stepNumber] || "";
@@ -102,9 +116,9 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
       }
       
       utterance.lang = 'es-ES';
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      utterance.volume = 0.8;
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = 0.9;
       
       utterance.onstart = () => setIsPlaying(true);
       utterance.onend = () => setIsPlaying(false);
@@ -154,7 +168,10 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
   ];
 
   return (
-    <Box sx={{ textAlign: 'center', py: 4, position: 'relative' }}>
+    <Box 
+      sx={{ textAlign: 'center', py: 4, position: 'relative' }}
+      onDoubleClick={handleDoubleClick}
+    >
       {/* Controles de Audio */}
       <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1 }}>
         <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>
@@ -277,6 +294,10 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
                   onClick={() => {
                     setActiveStep(index);
                     if (audioEnabled) playStepAudio(index);
+                  }}
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    handleDoubleClick();
                   }}
                 >
                   <CardContent sx={{ textAlign: 'center', p: 3 }}>

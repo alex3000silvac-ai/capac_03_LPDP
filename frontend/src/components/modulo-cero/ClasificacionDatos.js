@@ -52,10 +52,25 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
     return () => clearInterval(timer);
   }, [duration, isAutoPlay]);
 
+  // Función para manejar doble click en pantalla
+  const handleDoubleClick = () => {
+    if (activeCategory < 2) {
+      const nextCategory = activeCategory + 1;
+      setActiveCategory(nextCategory);
+      if (audioEnabled) playStepAudio(nextCategory);
+    } else if (!showComparison) {
+      setShowComparison(true);
+      if (audioEnabled) playStepAudio(3);
+    } else if (onNext) {
+      onNext();
+    }
+  };
+
   const handleNextStep = () => {
     if (activeCategory < 2) {
-      setActiveCategory(prev => prev + 1);
-      if (audioEnabled) playStepAudio(activeCategory + 1);
+      const nextCategory = activeCategory + 1;
+      setActiveCategory(nextCategory);
+      if (audioEnabled) playStepAudio(nextCategory);
     } else if (!showComparison) {
       setShowComparison(true);
       if (audioEnabled) playStepAudio(3);
@@ -78,10 +93,10 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
     if (!audioEnabled) return;
     
     const audioTexts = {
-      0: "No todos los datos personales son iguales. Los datos comunes como nombre, RUT, email y teléfono tienen un riesgo bajo y requieren protección básica.",
-      1: "Los datos sensibles requieren el máximo nivel de protección. Incluyen información de salud, biométricos, y afiliación sindical. Requieren consentimiento expreso.",
-      2: "Los datos de niños, niñas y adolescentes menores de dieciocho años tienen protección especial y requieren consentimiento de los padres o tutores.",
-      3: "Punto clave: En Chile, la situación socioeconómica es considerada dato sensible. Esto incluye nivel de ingresos, deudas, y scoring crediticio. Las multas pueden llegar hasta cinco mil UTM."
+      0: "No todos los datos personales son iguales según la Ley veintiún mil setecientos diecinueve. Los datos personales comunes como nombre completo, RUT o cédula de identidad, dirección de correo electrónico, y número de teléfono tienen un nivel de riesgo bajo y requieren protección básica estándar. Estos datos pueden tratarse con consentimiento simple del titular o con otra base legal válida como la ejecución de un contrato. Su manejo inadecuado conlleva sanciones, pero menores que los datos sensibles.",
+      1: "Los datos personales sensibles requieren el máximo nivel de protección y medidas de seguridad reforzadas. Incluyen información médica y de salud, datos biométricos como huellas dactilares o reconocimiento facial, información sobre afiliación sindical, opiniones políticas, creencias religiosas, y origen étnico. Para su tratamiento se requiere consentimiento expreso e informado del titular, no siendo suficiente el consentimiento tácito. Las multas por mal manejo pueden alcanzar hasta cinco mil UTM, equivalente a más de trescientos millones de pesos chilenos.",
+      2: "Los datos personales de niños, niñas y adolescentes menores de dieciocho años tienen un régimen de protección especial y reforzado. La ley establece que para el tratamiento de estos datos es obligatorio obtener el consentimiento previo de los padres, tutores, o representantes legales. La responsabilidad de verificar la edad recae en quien trata los datos, y deben implementarse medidas técnicas y organizacionales adicionales para garantizar su protección. El incumplimiento conlleva sanciones agravadas por tratarse de menores de edad.",
+      3: "Punto clave distintivo de la legislación chilena: la situación socioeconómica es considerada dato sensible, lo que constituye una particularidad única en el contexto latinoamericano. Esta categoría incluye información sobre nivel de ingresos, patrimonio personal, historial crediticio, deudas y obligaciones financieras, scoring crediticio, y capacidad de pago. Cualquier empresa que maneje esta información debe implementar las mismas medidas de seguridad que para datos de salud. Las multas por incumplimiento pueden llegar hasta cinco mil UTM, lo que representa un riesgo financiero significativo para las organizaciones."
     };
 
     const text = audioTexts[stepNumber] || "";
@@ -102,9 +117,9 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
       if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
       
       utterance.lang = 'es-ES';
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      utterance.volume = 0.8;
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = 0.9;
       
       utterance.onstart = () => setIsPlaying(true);
       utterance.onend = () => setIsPlaying(false);
@@ -145,7 +160,10 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
   ];
 
   return (
-    <Box sx={{ py: 4, position: 'relative' }}>
+    <Box 
+      sx={{ py: 4, position: 'relative' }}
+      onDoubleClick={handleDoubleClick}
+    >
       {/* Controles de Audio */}
       <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1, zIndex: 10 }}>
         <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>

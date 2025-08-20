@@ -21,6 +21,7 @@ import ClasificacionDatos from '../components/modulo-cero/ClasificacionDatos';
 import FlujoCumplimiento from '../components/modulo-cero/FlujoCumplimiento';
 import InterfazTrabajo from '../components/modulo-cero/InterfazTrabajo';
 import EjemploConcreto from '../components/modulo-cero/EjemploConcreto';
+import DiagramaInterrelacionDatos from '../components/modulo-cero/DiagramaInterrelacionDatos';
 
 const ModuloCero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -66,6 +67,13 @@ const ModuloCero = () => {
       duration: 75,
       component: EjemploConcreto,
       description: 'Implementación práctica'
+    },
+    {
+      id: 'interrelacion',
+      title: 'Mapa de Interrelación Completo',
+      duration: 120,
+      component: DiagramaInterrelacionDatos,
+      description: 'Interrelación de datos según Ley 21719'
     }
   ];
 

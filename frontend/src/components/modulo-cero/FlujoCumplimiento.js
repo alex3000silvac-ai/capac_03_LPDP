@@ -103,10 +103,25 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
     return () => clearInterval(timer);
   }, [duration, isAutoPlay]);
 
+  // Función para manejar doble click en pantalla
+  const handleDoubleClick = () => {
+    if (activeStep < 3) {
+      const nextStep = activeStep + 1;
+      setActiveStep(nextStep);
+      if (audioEnabled) playStepAudio(nextStep);
+    } else if (!showDetails) {
+      setShowDetails(true);
+      if (audioEnabled) playStepAudio(4);
+    } else if (onNext) {
+      onNext();
+    }
+  };
+
   const handleNextStep = () => {
     if (activeStep < 3) {
-      setActiveStep(prev => prev + 1);
-      if (audioEnabled) playStepAudio(activeStep + 1);
+      const nextStep = activeStep + 1;
+      setActiveStep(nextStep);
+      if (audioEnabled) playStepAudio(nextStep);
     } else if (!showDetails) {
       setShowDetails(true);
       if (audioEnabled) playStepAudio(4);
@@ -129,11 +144,11 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
     if (!audioEnabled) return;
     
     const audioTexts = {
-      0: "Bienvenida al mapa maestro de cumplimiento. Este es un sistema de cuatro etapas que te guiará desde la identificación hasta el cumplimiento completo de la LPDP.",
-      1: "Primera etapa: Entrada o Identificación. Aquí mapeamos todos los datos personales de tu organización por áreas, procesos y sistemas.",
-      2: "Segunda etapa: Procesamiento o Documentación. Creamos el RAT, definimos finalidades, bases legales, tiempos de retención y destinatarios.",
-      3: "Tercera etapa: Salida o Protección. Implementamos medidas de seguridad técnicas y organizacionales para proteger los datos.",
-      4: "Cuarta etapa: Control o Cumplimiento. Mantenemos auditoría continua con reportes, gestión de brechas y atención de derechos."
+      0: "Bienvenida al mapa maestro de cumplimiento de la Ley veintiún mil setecientos diecinueve. Este es un sistema integral de cuatro etapas que te guiará desde la identificación inicial de datos hasta el cumplimiento continuo y sostenible de la LPDP. Cada etapa tiene objetivos específicos y entregables concretos que aseguran el cumplimiento normativo completo de tu organización.",
+      1: "Primera etapa: Entrada o Identificación de datos personales. En esta fase mapeamos exhaustivamente todos los datos personales de tu organización clasificándolos por áreas operativas, procesos de negocio, y sistemas tecnológicos. Identificamos qué datos tienes, dónde se encuentran almacenados, quién los genera, cómo ingresan a la organización y cuál es su flujo inicial. Esta etapa es fundamental porque sin un inventario completo es imposible garantizar el cumplimiento normativo.",
+      2: "Segunda etapa: Procesamiento o Documentación formal. Creamos el Registro de Actividades de Tratamiento conocido como RAT, que es obligatorio según la ley. Definimos las finalidades específicas para cada tratamiento, identificamos las bases legales que justifican el procesamiento, establecemos los tiempos de retención para cada categoría de datos, y documentamos todos los destinatarios internos y externos. Esta documentación es clave para demostrar cumplimiento ante la Agencia de Protección de Datos Personales.",
+      3: "Tercera etapa: Salida o Implementación de Protección. Implementamos medidas de seguridad técnicas como encriptación, control de accesos, y respaldos automatizados. También establecemos medidas organizacionales como políticas de privacidad, procedimientos de manejo de datos, capacitación del personal, y contratos de tratamiento con terceros. El objetivo es proteger los datos durante todo su ciclo de vida, desde la recolección hasta la eliminación.",
+      4: "Cuarta etapa: Control o Cumplimiento continuo. Establecemos auditoría permanente con reportes automáticos de cumplimiento, gestión proactiva de brechas de seguridad, atención oportuna de derechos ARCOP de los titulares, y monitoreo continuo de nuevos tratamientos. Implementamos el rol del Delegado de Protección de Datos o DPO, quien supervisa el cumplimiento y actúa como enlace con la autoridad regulatoria. Esta etapa asegura que el cumplimiento se mantenga en el tiempo."
     };
 
     const text = audioTexts[stepNumber] || "";
@@ -158,9 +173,9 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
       if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
       
       utterance.lang = 'es-ES';
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      utterance.volume = 0.8;
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = 0.9;
       
       utterance.onstart = () => setIsPlaying(true);
       utterance.onend = () => setIsPlaying(false);
@@ -185,7 +200,10 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
   }, []);
 
   return (
-    <Box sx={{ py: 4, position: 'relative' }}>
+    <Box 
+      sx={{ py: 4, position: 'relative' }}
+      onDoubleClick={handleDoubleClick}
+    >
       {/* Controles de Audio */}
       <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1, zIndex: 10 }}>
         <Tooltip title={audioEnabled ? "Desactivar audio" : "Activar audio"}>
@@ -277,13 +295,13 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
         <Grid container spacing={3} alignItems="center">
           {pasos.map((paso, index) => (
             <React.Fragment key={paso.id}>
-              <Grid item xs={12} md={2.4}>
+              <Grid item xs={12} sm={6} md={2.4}>
                 <Zoom in={activeStep >= index} timeout={1000}>
                   <Card 
                     elevation={activeStep >= index ? 8 : 2}
                     sx={{ 
-                      height: 420,
-                      minHeight: 420,
+                      height: { xs: 350, md: 420 },
+                      minHeight: { xs: 350, md: 420 },
                       bgcolor: activeStep >= index ? `${paso.color}.light` : 'background.paper',
                       transform: activeStep >= index ? 'scale(1.05)' : 'scale(1)',
                       transition: 'all 0.8s ease-in-out',
