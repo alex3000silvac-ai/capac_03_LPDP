@@ -72,35 +72,17 @@ async def login(
         
         # Obtener usuarios de configuración
         users_config = settings.get_users_config()
+        logger.info(f"Usuarios de configuración cargados: {list(users_config.keys())}")
+        logger.info(f"DEBUG mode: {settings.DEBUG}")
+        logger.info(f"Environment: {settings.ENVIRONMENT}")
         
-        # DEBUG: Usuarios hardcodeados para pruebas de producción
-        if not users_config or len(users_config) == 0:
-            logger.warning("No se encontraron usuarios en configuración, usando hardcodeados")
-            import hashlib
-            users_config = {
-                "admin": {
-                    "password_hash": hashlib.sha256("Padmin123!".encode()).hexdigest(),
-                    "email": "admin@empresa.cl",
-                    "name": "Administrador del Sistema",
-                    "is_superuser": True,
-                    "is_active": True,
-                    "tenant_id": "demo",
-                    "permissions": ["read", "write", "admin", "superuser"]
-                },
-                "demo": {
-                    "password_hash": hashlib.sha256("Demo123!".encode()).hexdigest(),
-                    "email": "demo@empresa.cl",
-                    "name": "Usuario Demo",
-                    "is_superuser": False,
-                    "is_active": True,
-                    "tenant_id": "demo",
-                    "permissions": ["read"],
-                    "restricted_to": "intro_only"
-                }
-            }
-            logger.info(f"Usuarios hardcodeados cargados: {list(users_config.keys())}")
-        else:
-            logger.info(f"Usuarios de configuración cargados: {list(users_config.keys())}")
+        if not users_config:
+            logger.error("❌ CRÍTICO: No se pudieron cargar usuarios de configuración")
+            logger.error(f"DEBUG: {settings.DEBUG}, ENV: {settings.ENVIRONMENT}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error de configuración del servidor"
+            )
         
         # Buscar usuario en la configuración
         if login_data.username not in users_config:

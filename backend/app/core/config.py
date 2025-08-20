@@ -125,8 +125,13 @@ class Settings:
                 }
             
         except json.JSONDecodeError as e:
+            logger.error(f"Error parsing USERS_CONFIG JSON: {e}")
             return {}
         except Exception as e:
+            logger.error(f"Error generating users config: {e}")
+            logger.error(f"Exception type: {type(e)}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return {}
     
     # =========================================================================
