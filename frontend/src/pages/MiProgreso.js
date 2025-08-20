@@ -42,19 +42,19 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 function MiProgreso() {
   // Datos de ejemplo
   const estadisticasGenerales = {
-    progreso_total: 35,
-    modulos_completados: 3,
+    progreso_total: 0,
+    modulos_completados: 0,
     modulos_totales: 8,
-    tiempo_total: '4.5 horas',
-    puntos_experiencia: 450,
+    tiempo_total: '0 horas',
+    puntos_experiencia: 0,
     nivel: 'Principiante',
     siguiente_nivel: 'Intermedio',
     puntos_siguiente_nivel: 1000,
   };
 
   const modulosProgreso = [
-    { nombre: 'Introducción', progreso: 100, estado: 'completado' },
-    { nombre: 'Descubrir Datos', progreso: 60, estado: 'en_progreso' },
+    { nombre: 'Introducción', progreso: 0, estado: 'bloqueado' },
+    { nombre: 'Descubrir Datos', progreso: 0, estado: 'bloqueado' },
     { nombre: 'Taller RAT', progreso: 0, estado: 'bloqueado' },
     { nombre: 'Datos Sensibles', progreso: 0, estado: 'bloqueado' },
     { nombre: 'Flujos de Datos', progreso: 0, estado: 'bloqueado' },
@@ -68,7 +68,7 @@ function MiProgreso() {
       icono: '🎤',
       fecha: '2024-07-28',
       puntos: 50,
-      obtenido: true,
+      obtenido: false,
     },
     {
       id: 2,
@@ -77,7 +77,7 @@ function MiProgreso() {
       icono: '🔍',
       fecha: '2024-07-30',
       puntos: 100,
-      obtenido: true,
+      obtenido: false,
     },
     {
       id: 3,
@@ -99,19 +99,14 @@ function MiProgreso() {
     },
   ];
 
-  const actividadReciente = [
-    { fecha: '2024-08-02', actividad: 'Completaste Quiz de Conceptos', puntos: 25 },
-    { fecha: '2024-08-01', actividad: 'Práctica Sandbox: Entrevista RRHH', puntos: 50 },
-    { fecha: '2024-07-30', actividad: 'Módulo 1 completado', puntos: 100 },
-    { fecha: '2024-07-28', actividad: 'Primera sesión de aprendizaje', puntos: 10 },
-  ];
+  const actividadReciente = [];
 
   const competencias = [
-    { nombre: 'Identificación de Datos', valor: 80 },
-    { nombre: 'Entrevistas Efectivas', valor: 65 },
-    { nombre: 'Documentación RAT', valor: 40 },
-    { nombre: 'Análisis de Riesgos', valor: 20 },
-    { nombre: 'Bases de Licitud', valor: 70 },
+    { nombre: 'Identificación de Datos', valor: 0 },
+    { nombre: 'Entrevistas Efectivas', valor: 0 },
+    { nombre: 'Documentación RAT', valor: 0 },
+    { nombre: 'Análisis de Riesgos', valor: 0 },
+    { nombre: 'Bases de Licitud', valor: 0 },
   ];
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
@@ -364,7 +359,7 @@ function MiProgreso() {
                 </Typography>
                 <LinearProgress 
                   variant="determinate" 
-                  value={60} 
+                  value={0} 
                   sx={{ mt: 1, bgcolor: 'rgba(255,255,255,0.3)' }}
                 />
               </Grid>

@@ -65,6 +65,7 @@ import {
   ShuffleOn,
   Minimize,
   SettingsSuggest,
+  Storage,
 } from '@mui/icons-material';
 
 const GlosarioLPDP = () => {
@@ -521,6 +522,493 @@ const GlosarioLPDP = () => {
         'Demostrar cumplimiento'
       ],
       importante: true
+    },
+    licitud_tratamiento: {
+      termino: 'Licitud del Tratamiento',
+      definicion: 'Principio que exige que todo tratamiento de datos debe tener una base legal válida.',
+      articulo: 'Art. 6',
+      categoria: 'principios',
+      icono: <Gavel />,
+      requisitos: [
+        'Identificar base de licitud aplicable',
+        'Documentar justificación legal',
+        'Informar al titular sobre la base',
+        'Mantener registro de bases utilizadas'
+      ],
+      nota_chile: 'Sin base de licitud válida, el tratamiento es ilegal y sujeto a sanciones.'
+    },
+    finalidad: {
+      termino: 'Limitación de Finalidad',
+      definicion: 'Los datos solo pueden ser tratados para fines determinados, explícitos y legítimos.',
+      articulo: 'Art. 6',
+      categoria: 'principios',
+      icono: <Assignment />,
+      caracteristicas: [
+        'Fines claros desde la recolección',
+        'No usar para fines incompatibles',
+        'Informar cambios de finalidad',
+        'Obtener nuevo consentimiento si cambia'
+      ],
+      importante: true
+    },
+    exactitud: {
+      termino: 'Exactitud de los Datos',
+      definicion: 'Obligación de mantener los datos personales exactos y actualizados.',
+      articulo: 'Art. 7',
+      categoria: 'principios',
+      icono: <CheckCircle />,
+      implica: [
+        'Verificar exactitud periódicamente',
+        'Corregir datos inexactos',
+        'Eliminar datos obsoletos',
+        'Permitir actualización por titular'
+      ]
+    },
+    limitacion_almacenamiento: {
+      termino: 'Limitación del Plazo de Conservación',
+      definicion: 'Los datos deben conservarse únicamente durante el tiempo necesario para los fines del tratamiento.',
+      articulo: 'Art. 7',
+      categoria: 'principios',
+      icono: <Timer />,
+      requiere: [
+        'Definir plazos de retención',
+        'Justificar plazos establecidos',
+        'Revisar periódicamente',
+        'Eliminar cuando no sean necesarios'
+      ],
+      excepciones: [
+        'Obligaciones legales de conservación',
+        'Archivo en interés público',
+        'Fines estadísticos o científicos',
+        'Defensa de reclamaciones'
+      ]
+    },
+    seguridad_datos: {
+      termino: 'Seguridad de los Datos',
+      definicion: 'Obligación de implementar medidas técnicas y organizativas apropiadas para proteger los datos.',
+      articulo: 'Arts. 20-21',
+      categoria: 'seguridad',
+      icono: <Security />,
+      medidas: [
+        'Cifrado de datos',
+        'Control de acceso',
+        'Respaldo y recuperación',
+        'Monitoreo de actividades',
+        'Capacitación del personal',
+        'Evaluación periódica'
+      ],
+      importante: true
+    },
+    notificacion_brechas: {
+      termino: 'Notificación de Brechas',
+      definicion: 'Obligación de notificar violaciones de seguridad a la autoridad y afectados.',
+      articulo: 'Art. 19 bis',
+      categoria: 'seguridad',
+      icono: <Warning />,
+      plazos: [
+        'A la autoridad: Sin dilación indebida',
+        'A los afectados: Si hay alto riesgo',
+        'Documentar: Siempre, aunque no se notifique'
+      ],
+      debe_incluir: [
+        'Naturaleza de la brecha',
+        'Categorías de datos afectados',
+        'Número aproximado de afectados',
+        'Consecuencias probables',
+        'Medidas adoptadas'
+      ],
+      importante: true
+    },
+    codigo_conducta: {
+      termino: 'Código de Conducta',
+      definicion: 'Conjunto de normas voluntarias para demostrar cumplimiento en sectores específicos.',
+      articulo: 'Art. 25',
+      categoria: 'herramientas',
+      icono: <Policy />,
+      caracteristicas: [
+        'Específico por sector',
+        'Aprobado por autoridad',
+        'Vinculante para adherentes',
+        'Supervisado por organismo'
+      ]
+    },
+    certificacion: {
+      termino: 'Certificación',
+      definicion: 'Mecanismo voluntario para demostrar cumplimiento mediante evaluación de terceros.',
+      articulo: 'Art. 26',
+      categoria: 'herramientas',
+      icono: <WorkspacePremium />,
+      beneficios: [
+        'Demuestra cumplimiento',
+        'Genera confianza',
+        'Facilita transferencias',
+        'Diferenciación competitiva'
+      ]
+    },
+    sanciones: {
+      termino: 'Régimen Sancionatorio',
+      definicion: 'Sistema de multas y sanciones por incumplimiento de la ley.',
+      articulo: 'Arts. 39-45',
+      categoria: 'institucional',
+      icono: <Gavel />,
+      niveles: [
+        'Leves: hasta 500 UTM',
+        'Graves: 501 a 5,000 UTM',
+        'Gravísimas: 5,001 a 10,000 UTM'
+      ],
+      agravantes: [
+        'Reincidencia',
+        'Datos sensibles',
+        'Afectar menores',
+        'Beneficio económico',
+        'No cooperar con autoridad'
+      ],
+      importante: true,
+      nota_chile: 'Multas pueden llegar hasta aproximadamente $650 millones de pesos chilenos.'
+    },
+    transparencia: {
+      termino: 'Transparencia',
+      definicion: 'Obligación de informar de manera clara y accesible sobre el tratamiento de datos.',
+      articulo: 'Art. 10',
+      categoria: 'principios',
+      icono: <Visibility />,
+      debe_informar: [
+        'Identidad del responsable',
+        'Finalidades del tratamiento',
+        'Base de licitud',
+        'Destinatarios de los datos',
+        'Derechos del titular',
+        'Forma de ejercer derechos'
+      ],
+      importante: true
+    },
+    profilamiento: {
+      termino: 'Elaboración de Perfiles (Profiling)',
+      definicion: 'Tratamiento automatizado para evaluar aspectos personales y predecir comportamiento.',
+      articulo: 'Art. 16 bis',
+      categoria: 'operaciones',
+      icono: <Psychology />,
+      requiere: [
+        'Informar al titular',
+        'Explicar lógica aplicada',
+        'Permitir intervención humana',
+        'Derecho a oponerse'
+      ],
+      ejemplos: [
+        'Scoring crediticio',
+        'Evaluación laboral automatizada',
+        'Segmentación de marketing',
+        'Análisis de riesgo'
+      ]
+    },
+    decision_automatizada: {
+      termino: 'Decisiones Automatizadas',
+      definicion: 'Decisiones basadas únicamente en tratamiento automatizado con efectos jurídicos.',
+      articulo: 'Art. 16 bis',
+      categoria: 'operaciones',
+      icono: <Science />,
+      prohibida_salvo: [
+        'Necesaria para contrato',
+        'Autorizada por ley',
+        'Consentimiento explícito'
+      ],
+      derechos_titular: [
+        'Obtener intervención humana',
+        'Expresar punto de vista',
+        'Impugnar la decisión',
+        'Conocer lógica aplicada'
+      ]
+    },
+    corresponsables: {
+      termino: 'Corresponsables del Tratamiento',
+      definicion: 'Dos o más responsables que determinan conjuntamente fines y medios del tratamiento.',
+      articulo: 'Art. 2',
+      categoria: 'actores',
+      icono: <Group />,
+      requiere: [
+        'Acuerdo de corresponsabilidad',
+        'Definir responsabilidades',
+        'Punto de contacto para titulares',
+        'Transparencia sobre roles'
+      ]
+    },
+    medidas_correctivas: {
+      termino: 'Medidas Correctivas',
+      definicion: 'Acciones ordenadas por la autoridad para subsanar incumplimientos.',
+      articulo: 'Art. 38',
+      categoria: 'institucional',
+      icono: <Build />,
+      tipos: [
+        'Advertencias',
+        'Orden de cumplimiento',
+        'Limitación del tratamiento',
+        'Suspensión de flujos',
+        'Eliminación de datos'
+      ]
+    },
+    data_discovery: {
+      termino: 'Descubrimiento de Datos (Data Discovery)',
+      definicion: 'Proceso sistemático de identificación y catalogación de todos los datos personales que maneja una organización.',
+      articulo: 'Art. 31',
+      categoria: 'cumplimiento',
+      icono: <Search />,
+      metodologia: [
+        'Entrevistas estructuradas por proceso',
+        'Mapeo de sistemas y bases de datos',
+        'Identificación de flujos de datos',
+        'Documentación exhaustiva'
+      ],
+      nota_chile: 'Fundamental para crear el Registro de Actividades de Tratamiento (RAT).'
+    },
+    equipo_multidisciplinario: {
+      termino: 'Equipo Multidisciplinario de Protección de Datos',
+      definicion: 'Grupo de trabajo conformado por representantes de todas las áreas clave que tratan datos personales.',
+      articulo: 'Mejores prácticas',
+      categoria: 'gobernanza',
+      icono: <Group />,
+      debe_incluir: [
+        'DPO (líder del equipo)',
+        'Recursos Humanos',
+        'Finanzas',
+        'Marketing y Ventas',
+        'Operaciones',
+        'Tecnología de Información',
+        'Legal'
+      ]
+    },
+    mapeo_datos: {
+      termino: 'Mapeo de Datos',
+      definicion: 'Proceso de trazar y documentar cómo fluyen los datos personales dentro y fuera de la organización.',
+      articulo: 'Art. 31',
+      categoria: 'cumplimiento',
+      icono: <AccountTree />,
+      tipos_flujos: [
+        'Flujos Internos: Entre sistemas de la organización',
+        'Flujos Externos: Hacia terceros y encargados',
+        'Transferencias Internacionales: Hacia otros países'
+      ],
+      importante: true
+    },
+    flujos_internos: {
+      termino: 'Flujos Internos de Datos',
+      definicion: 'Movimiento de datos personales entre sistemas y departamentos dentro de la misma organización.',
+      articulo: 'Art. 31',
+      categoria: 'operaciones',
+      icono: <AccountTree />,
+      ejemplos: [
+        'Web → CRM → ERP',
+        'RRHH → Nómina → Contabilidad',
+        'Ventas → Facturación → Cobranza',
+        'Marketing → Analytics → BI'
+      ]
+    },
+    flujos_externos: {
+      termino: 'Flujos Externos de Datos',
+      definicion: 'Transferencia de datos personales hacia terceros fuera de la organización.',
+      articulo: 'Arts. 18-19',
+      categoria: 'operaciones',
+      icono: <Public />,
+      requiere_documentar: [
+        'Identidad del tercero receptor',
+        'Propósito de la transferencia',
+        'Base legal que la ampara',
+        'Medidas de seguridad aplicadas'
+      ]
+    },
+    plataforma_gobernanza: {
+      termino: 'Plataforma de Gobernanza de Datos',
+      definicion: 'Sistema centralizado para gestionar el cumplimiento de protección de datos.',
+      articulo: 'Herramienta técnica',
+      categoria: 'herramientas',
+      icono: <Settings />,
+      componentes: [
+        'Módulo RAT',
+        'Gestión de consentimientos',
+        'Portal de derechos ARCO+',
+        'Gestión de brechas',
+        'Motor de políticas de retención',
+        'Auditoría y reportes'
+      ]
+    },
+    politicas_retencion: {
+      termino: 'Políticas de Retención de Datos',
+      definicion: 'Reglas que establecen por cuánto tiempo se conservará cada categoría de datos y su justificación.',
+      articulo: 'Art. 7',
+      categoria: 'cumplimiento',
+      icono: <Timer />,
+      debe_especificar: [
+        'Categoría de datos',
+        'Período de retención',
+        'Justificación legal o de negocio',
+        'Acción al vencimiento (eliminar/anonimizar)'
+      ],
+      ejemplo: 'Facturas: 6 años por obligaciones tributarias'
+    },
+    eliminacion_segura: {
+      termino: 'Eliminación Segura de Datos',
+      definicion: 'Proceso de borrado definitivo e irrecuperable de datos personales cuando ya no son necesarios.',
+      articulo: 'Art. 14',
+      categoria: 'seguridad',
+      icono: <Delete />,
+      metodos: [
+        'Borrado físico en bases de datos',
+        'Sobreescritura múltiple en discos',
+        'Destrucción física de medios',
+        'Anonimización irreversible'
+      ],
+      debe_registrarse: true
+    },
+    datos_iot: {
+      termino: 'Datos de IoT (Internet de las Cosas)',
+      definicion: 'Información generada por sensores y dispositivos conectados que puede vincularse a personas.',
+      articulo: 'Aplicación sectorial',
+      categoria: 'especial',
+      icono: <Science />,
+      ejemplos_chile: [
+        'Sensores en centros de cultivo salmonero',
+        'Datos de geolocalización de personal',
+        'Temperatura y oxígeno en tiempo real',
+        'Alimentación automatizada con trazabilidad'
+      ],
+      alerta: 'Si los datos pueden vincularse a un operario específico, son datos personales'
+    },
+    cesionario: {
+      termino: 'Cesionario de Datos',
+      definicion: 'Tercero que recibe datos personales y los trata para sus propios fines.',
+      articulo: 'Art. 2',
+      categoria: 'actores',
+      icono: <Business />,
+      diferencia_encargado: [
+        'Cesionario: Define sus propios fines',
+        'Encargado: Trata por cuenta del responsable'
+      ],
+      requiere: 'Base de licitud propia para el tratamiento'
+    },
+    data_assets: {
+      termino: 'Activos de Datos (Data Assets)',
+      definicion: 'Sistemas, bases de datos y repositorios donde residen los datos personales.',
+      articulo: 'Inventario técnico',
+      categoria: 'herramientas',
+      icono: <Storage />,
+      ejemplos: [
+        'Bases de datos SQL',
+        'Sistemas CRM/ERP',
+        'Archivos en cloud',
+        'Servidores de correo',
+        'Sistemas de backup'
+      ]
+    },
+    processing_activities: {
+      termino: 'Actividades de Tratamiento',
+      definicion: 'Conjunto de operaciones realizadas sobre datos personales para un fin específico.',
+      articulo: 'Art. 31',
+      categoria: 'operaciones',
+      icono: <Assignment />,
+      ejemplos: [
+        'Proceso de reclutamiento y selección',
+        'Gestión de nómina',
+        'Marketing directo',
+        'Análisis de comportamiento de clientes',
+        'Gestión de proveedores'
+      ],
+      debe_documentarse: 'En el RAT con todos sus detalles'
+    },
+    motor_automatizacion: {
+      termino: 'Motor de Automatización',
+      definicion: 'Sistema automatizado para ejecutar políticas de retención y eliminación de datos.',
+      articulo: 'Herramienta técnica',
+      categoria: 'herramientas',
+      icono: <Build />,
+      funciones: [
+        'Identificar datos vencidos',
+        'Ejecutar eliminación programada',
+        'Aplicar anonimización automática',
+        'Generar logs de auditoría',
+        'Notificar acciones completadas'
+      ]
+    },
+    logs_inmutables: {
+      termino: 'Logs Inmutables de Auditoría',
+      definicion: 'Registros inalterables de todas las operaciones realizadas sobre datos personales.',
+      articulo: 'Art. 9',
+      categoria: 'seguridad',
+      icono: <Description />,
+      debe_registrar: [
+        'Qué dato se procesó',
+        'Quién realizó la acción',
+        'Cuándo ocurrió',
+        'Desde dónde (IP/ubicación)',
+        'Razón o justificación'
+      ],
+      caracteristica_clave: 'No pueden ser modificados después de su creación'
+    },
+    rbac: {
+      termino: 'Control de Acceso Basado en Roles (RBAC)',
+      definicion: 'Sistema de seguridad que restringe el acceso a datos según el rol del usuario.',
+      articulo: 'Art. 20',
+      categoria: 'seguridad',
+      icono: <Security />,
+      principios: [
+        'Mínimo privilegio necesario',
+        'Segregación de funciones',
+        'Revisión periódica de permisos',
+        'Auditoría de accesos'
+      ]
+    },
+    cifrado_transito_reposo: {
+      termino: 'Cifrado en Tránsito y en Reposo',
+      definicion: 'Protección criptográfica de datos durante su transmisión y almacenamiento.',
+      articulo: 'Art. 20',
+      categoria: 'seguridad',
+      icono: <Lock />,
+      tipos: [
+        'En tránsito: TLS/SSL para comunicaciones',
+        'En reposo: AES-256 para almacenamiento',
+        'Gestión segura de llaves',
+        'Cifrado de backups'
+      ],
+      importante: true
+    },
+    biomasa: {
+      termino: 'Datos de Biomasa',
+      definicion: 'Información relacionada con el cultivo y producción acuícola que puede contener datos personales.',
+      articulo: 'Aplicación sectorial',
+      categoria: 'especial',
+      icono: <Science />,
+      cuando_es_personal: [
+        'Si se vincula a un operario específico',
+        'Si contiene datos de trabajadores',
+        'Si incluye geolocalización de personal',
+        'Si registra decisiones de empleados'
+      ],
+      nota_chile: 'Relevante para industria salmonera chilena'
+    },
+    sernapesca: {
+      termino: 'Reportes a SERNAPESCA',
+      definicion: 'Obligación de reportar información al Servicio Nacional de Pesca que puede incluir datos personales.',
+      articulo: 'Obligación legal sectorial',
+      categoria: 'cumplimiento',
+      icono: <AccountBalance />,
+      consideraciones: [
+        'Base de licitud: Obligación legal',
+        'Minimización: Solo datos necesarios',
+        'Seguridad en la transmisión',
+        'Registro de envíos'
+      ]
+    },
+    medidas_precontractuales: {
+      termino: 'Medidas Precontractuales',
+      definicion: 'Base de licitud para tratar datos necesarios antes de celebrar un contrato.',
+      articulo: 'Art. 12',
+      categoria: 'bases_licitud',
+      icono: <Description />,
+      aplica_cuando: [
+        'Evaluación de candidatos a empleo',
+        'Cotizaciones a clientes potenciales',
+        'Due diligence de proveedores',
+        'Evaluación crediticia previa'
+      ],
+      requisito: 'A solicitud del interesado'
     }
   };
 
