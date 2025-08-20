@@ -45,30 +45,104 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-@router.get("/debug-config")
-async def debug_config():
-    """Debug endpoint simple"""
+@router.post("/initialize-users")
+async def initialize_users(db: Session = Depends(get_master_db)):
+    """Inicializa usuarios por defecto en la base de datos"""
     try:
-        users_config = settings.get_users_config()
-        import hashlib
-        test_hash = hashlib.sha256("Padmin123!".encode()).hexdigest()
+        # Verificar si ya existen usuarios
+        existing_users = db.query(User).count()
+        if existing_users > 0:
+            return {
+                "message": "Usuarios ya existen en la base de datos",
+                "users_count": existing_users
+            }
+        
+        # Crear usuario admin
+        admin_user = User(
+            username="admin",
+            email="admin@empresa.cl",
+            first_name="Administrador",
+            last_name="del Sistema",
+            is_superuser=True,
+            is_active=True,
+            tenant_id=None  # Admin sin tenant específico
+        )
+        admin_user.set_password("Padmin123!")
+        
+        # Crear usuario demo
+        demo_user = User(
+            username="demo",
+            email="demo@empresa.cl",
+            first_name="Usuario",
+            last_name="Demo",
+            is_superuser=False,
+            is_active=True,
+            tenant_id=None  # Demo sin tenant específico por ahora
+        )
+        demo_user.set_password("Demo123!")
+        
+        db.add(admin_user)
+        db.add(demo_user)
+        db.commit()
         
         return {
-            "environment": settings.ENVIRONMENT,
-            "debug": settings.DEBUG,
-            "users_loaded": len(users_config),
-            "users_list": list(users_config.keys()),
-            "admin_exists": "admin" in users_config,
-            "test_hash": test_hash,
-            "admin_stored_hash": users_config.get("admin", {}).get("password_hash", "NOT_FOUND")[:10] + "..." if users_config.get("admin") else "NO_ADMIN",
-            "hash_match": test_hash == users_config.get("admin", {}).get("password_hash", "") if users_config.get("admin") else False,
-            "test": "ok"
+            "message": "Usuarios inicializados correctamente",
+            "users_created": [
+                {"username": "admin", "email": "admin@empresa.cl"},
+                {"username": "demo", "email": "demo@empresa.cl"}
+            ]
+        }
+        
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error inicializando usuarios: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inicializando usuarios: {str(e)}"
+        )
+
+@router.post("/create-tables")
+async def create_tables():
+    """Crea las tablas necesarias en la base de datos"""
+    try:
+        from app.core.database import master_engine
+        from app.models.user import Base
+        
+        # Crear todas las tablas
+        Base.metadata.create_all(bind=master_engine)
+        
+        return {
+            "message": "Tablas creadas correctamente",
+            "status": "success"
         }
     except Exception as e:
+        logger.error(f"Error creando tablas: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error creando tablas: {str(e)}"
+        )
+
+@router.get("/check-users")
+async def check_users(db: Session = Depends(get_master_db)):
+    """Verifica qué usuarios existen en la base de datos"""
+    try:
+        users = db.query(User).all()
+        return {
+            "users_count": len(users),
+            "users": [
+                {
+                    "username": user.username,
+                    "email": user.email,
+                    "is_active": user.is_active,
+                    "is_superuser": user.is_superuser
+                } for user in users
+            ]
+        }
+    except Exception as e:
+        logger.error(f"Error checking users: {e}")
         return {
             "error": str(e),
-            "environment": settings.ENVIRONMENT,
-            "debug": settings.DEBUG
+            "users_count": 0
         }
 
 @router.post("/login", response_model=Token)
@@ -87,74 +161,44 @@ async def login(
         requested_tenant_id = request.headers.get("X-Tenant-ID") or login_data.tenant_id or "demo"
         logger.info(f"Requested Tenant ID: {requested_tenant_id}")
         
-        # Obtener usuarios de configuración
-        users_config = settings.get_users_config()
-        logger.info(f"Usuarios de configuración cargados: {list(users_config.keys())}")
-        logger.info(f"DEBUG mode: {settings.DEBUG}")
-        logger.info(f"Environment: {settings.ENVIRONMENT}")
+        # Buscar usuario en la base de datos de Supabase
+        user = db.query(User).filter(User.username == login_data.username).first()
         
-        if not users_config:
-            logger.error("❌ CRÍTICO: No se pudieron cargar usuarios de configuración")
-            logger.error(f"DEBUG: {settings.DEBUG}, ENV: {settings.ENVIRONMENT}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Error de configuración del servidor"
-            )
-        
-        # Buscar usuario en la configuración
-        if login_data.username not in users_config:
-            logger.warning(f"Usuario no encontrado en configuración: {login_data.username}")
+        if not user:
+            logger.warning(f"Usuario no encontrado en base de datos: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Usuario o contraseña incorrectos"
             )
         
-        user_config = users_config[login_data.username]
-        
-        # Verificar contraseña usando hash
-        if "password_hash" in user_config:
-            stored_hash = user_config["password_hash"]
-            input_password = login_data.password
-            
-            # Debug logging
-            logger.info(f"Verificando credenciales para: {login_data.username}")
-            logger.info(f"Password input: '{input_password}'")
-            logger.info(f"Stored hash: {stored_hash}")
-            
-            # Generar hash SHA256 de la contraseña ingresada
-            import hashlib
-            calculated_hash = hashlib.sha256(input_password.encode()).hexdigest()
-            logger.info(f"Calculated hash: {calculated_hash}")
-            logger.info(f"Hash match: {calculated_hash == stored_hash}")
-            
-            password_valid = verify_password(input_password, stored_hash)
-            logger.info(f"Password verification result: {password_valid}")
-        else:
-            password_valid = False
-            logger.warning(f"No password_hash found for user: {login_data.username}")
-        
-        if not password_valid:
+        # Verificar contraseña usando bcrypt
+        if not user.check_password(login_data.password):
             logger.warning(f"Contraseña incorrecta para usuario: {login_data.username}")
-            logger.warning(f"Input: '{login_data.password}' vs stored hash: {user_config.get('password_hash', 'NO_HASH')}")
+            user.increment_failed_login()
+            db.commit()
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Usuario o contraseña incorrectos"
             )
         
         # Verificar que el usuario esté activo
-        if not user_config.get("is_active", True):
+        if not user.is_active:
             logger.warning(f"Usuario inactivo: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Usuario inactivo"
             )
         
+        # Reset failed login attempts on successful login
+        user.reset_failed_login()
+        db.commit()
+        
         # Determinar tenant_id final
         # Si es superuser, puede acceder a cualquier tenant
-        if user_config.get("is_superuser", False):
+        if user.is_superuser:
             final_tenant_id = requested_tenant_id  # Admin puede usar cualquier tenant
         else:
-            final_tenant_id = user_config.get("tenant_id", "demo")  # Usuario normal usa su tenant
+            final_tenant_id = str(user.tenant_id) if user.tenant_id else "demo"  # Usuario normal usa su tenant
         
         logger.info(f"Final tenant ID for {login_data.username}: {final_tenant_id}")
         
@@ -162,15 +206,15 @@ async def login(
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={
-                "sub": login_data.username,  # Usar username como ID
-                "username": login_data.username,
-                "email": user_config.get("email", ""),
+                "sub": str(user.id),  # Usar user ID
+                "username": user.username,
+                "email": user.email,
                 "tenant_id": final_tenant_id,
-                "is_superuser": user_config.get("is_superuser", False),
-                "first_name": user_config.get("name", "").split(" ")[0] if user_config.get("name") else "",
-                "last_name": " ".join(user_config.get("name", "").split(" ")[1:]) if user_config.get("name") else "",
-                "permissions": user_config.get("permissions", ["read"]),
-                "restricted_to": user_config.get("restricted_to", None)
+                "is_superuser": user.is_superuser,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "permissions": ["read", "write", "admin", "superuser"] if user.is_superuser else ["read"],
+                "restricted_to": "intro_only" if user.username == "demo" else None
             },
             expires_delta=access_token_expires
         )
