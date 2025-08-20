@@ -1145,6 +1145,14 @@ function SandboxCompleto() {
           <Typography variant="body1" sx={{ opacity: 0.9, color: 'white' }}>
             Simulación completa del Registro de Actividades de Tratamiento según Ley 21.719
           </Typography>
+          <Alert severity="info" sx={{ mt: 2, bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }}>
+            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+              💡 <strong>Tip:</strong> Conceptos técnicos como <strong>RAT, Data Discovery, Actividad de Tratamiento, 
+              Bases de Licitud, Encargado de Tratamiento</strong> y toda la terminología especializada del sandbox 
+              están detallados en nuestro <strong>Glosario LPDP completo</strong> con definiciones profesionales 
+              y ejemplos específicos para la realidad chilena.
+            </Typography>
+          </Alert>
         </CardContent>
       </Card>
 
@@ -1291,6 +1299,12 @@ function SandboxCompleto() {
                   <Alert severity="info" sx={{ mb: 2 }}>
                     💡 Pregunta clave: "¿Qué PROCESOS realizan que involucren información de personas?"
                     NO preguntar por bases de datos.
+                    <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+                      📚 <strong>Tip:</strong> La metodología de <strong>Data Discovery, Mapeo de Procesos, 
+                      Identificación de Titulares</strong> y las técnicas específicas de entrevistas estructuradas 
+                      están explicadas paso a paso en nuestro <strong>Glosario LPDP</strong> con guías prácticas 
+                      para implementación en empresas chilenas.
+                    </Typography>
                   </Alert>
                   
                   <Grid container spacing={3}>
@@ -1355,6 +1369,12 @@ function SandboxCompleto() {
                   
                   <Alert severity="error" sx={{ mb: 2 }}>
                     ⚠️ NOVEDAD CHILENA: La "situación socioeconómica" es DATO SENSIBLE
+                    <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+                      📖 <strong>Tip:</strong> Las diferencias clave entre Chile y Europa en <strong>Datos Sensibles, 
+                      Situación Socioeconómica, Consentimiento Expreso, Datos de NNA</strong> están desarrolladas 
+                      comparativamente en nuestro <strong>Glosario LPDP</strong> con análisis jurisprudencial 
+                      y casos prácticos chilenos específicos.
+                    </Typography>
                   </Alert>
                   
                   <Grid container spacing={2}>
@@ -1474,6 +1494,12 @@ function SandboxCompleto() {
                   
                   <Alert severity="warning" sx={{ mb: 2 }}>
                     Principio de limitación del plazo: Solo conservar mientras sea necesario
+                    <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+                      ⏱️ <strong>Tip:</strong> Los conceptos de <strong>Plazo de Conservación, Supresión de Datos, 
+                      Principio de Limitación, Criterios de Eliminación</strong> y las obligaciones específicas 
+                      del Código Tributario y Código del Trabajo están explicados en detalle en nuestro 
+                      <strong>Glosario LPDP</strong> con tablas de referencia práctica.
+                    </Typography>
                   </Alert>
                   
                   <TableContainer>

@@ -245,6 +245,12 @@ function ModuloCapacitacion() {
         <Typography variant="body2" fontWeight={600} color="info.dark">
           📖 Este curso cubre únicamente el Capítulo 3: Inventario y Mapeo de Datos del programa completo de LPDP
         </Typography>
+        <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+          💡 <strong>Tip:</strong> Todos los conceptos jurídicos y técnicos utilizados en este módulo 
+          (<strong>DPO, Bases de Licitud, EIPD, Transferencia Internacional, Autodeterminación Informativa</strong>) 
+          están detallados en nuestro <strong>Glosario LPDP completo</strong> con más de 75 términos 
+          especializados y referencias normativas chilenas.
+        </Typography>
       </Alert>
 
       {/* Navegación de lecciones */}
@@ -373,6 +379,13 @@ function ModuloCapacitacion() {
                   
                   <Alert severity="info" sx={{ mb: 3 }}>
                     {leccion.contenido.instrucciones}
+                    <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+                      🎓 <strong>Tip profesional:</strong> Los términos técnicos avanzados en estos casos 
+                      (<strong>EIPD, Perfilamiento, Decisiones Automatizadas, Proporcionalidad, 
+                      Encargo de Tratamiento</strong>) están definidos con precisión jurídica en nuestro 
+                      <strong>Glosario LPDP</strong> junto con casos prácticos y análisis comparativo 
+                      con normativas internacionales.
+                    </Typography>
                   </Alert>
 
                   {leccion.contenido.preguntas.map((pregunta, idx) => (
@@ -489,6 +502,14 @@ function ModuloCapacitacion() {
                     </ListItem>
                   ))}
                 </List>
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                    📖 <strong>Tip:</strong> Estos conceptos clave como <strong>Dato Personal, 
+                    Privacidad, Autodeterminación Informativa</strong> y otros términos fundamentales 
+                    están desarrollados en profundidad en nuestro <strong>Glosario LPDP</strong> 
+                    con ejemplos prácticos y jurisprudencia chilena.
+                  </Typography>
+                </Alert>
               </CardContent>
             </Card>
           )}

@@ -488,6 +488,14 @@ NOTAS IMPORTANTES:
               <Typography variant="caption" display="block" sx={{ mt: 1, opacity: 0.8 }}>
                 La piedra angular de todo el sistema de cumplimiento
               </Typography>
+              <Alert severity="info" sx={{ mt: 2, bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }}>
+                <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                  💡 <strong>Tip:</strong> Los términos técnicos como <strong>RAT, Data Discovery, Bases de Licitud, 
+                  Datos Sensibles, Transferencias Internacionales</strong> y otros conceptos especializados están 
+                  detallados en nuestro <strong>Glosario LPDP completo</strong> con más de 75 definiciones 
+                  profesionales y ejemplos prácticos específicos de Chile.
+                </Typography>
+              </Alert>
             </Grid>
             <Grid item xs={12} md={4}>
               <Stack spacing={1}>
@@ -905,6 +913,11 @@ NOTAS IMPORTANTES:
             </Typography>
             La "situación socioeconómica" es considerada DATO SENSIBLE en Chile, a diferencia de Europa.
             Esto incluye: nivel de ingresos, historial crediticio, score crediticio, evaluaciones de capacidad de pago.
+            <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+              📚 <strong>Tip:</strong> Conceptos como <strong>Dato Sensible, Situación Socioeconómica, 
+              Consentimiento Explícito, Encargado de Tratamiento</strong> y las diferencias con la normativa 
+              europea están explicados en detalle en nuestro <strong>Glosario LPDP</strong> con casos prácticos chilenos.
+            </Typography>
           </Alert>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
@@ -975,6 +988,14 @@ NOTAS IMPORTANTES:
                     />
                   </ListItem>
                 </List>
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                    📋 <strong>Tip:</strong> Términos como <strong>Plazo de Conservación, Supresión de Datos, 
+                    Principio de Limitación</strong> y las obligaciones específicas del Código Tributario y 
+                    Código del Trabajo están desarrollados en nuestro <strong>Glosario LPDP</strong> con 
+                    ejemplos prácticos para empresas chilenas.
+                  </Typography>
+                </Alert>
               </Paper>
             </Grid>
           </Grid>
@@ -1063,6 +1084,12 @@ NOTAS IMPORTANTES:
                     • La situación socioeconómica es dato sensible en Chile
                     • Datos de menores requieren consentimiento parental
                     • Transferencias internacionales requieren garantías apropiadas
+                    <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+                      💡 <strong>Tip:</strong> Para definiciones detalladas de <strong>Consentimiento Parental, 
+                      Garantías Apropiadas, Cesionario, Responsable del Tratamiento</strong> y otros términos 
+                      legales específicos, consulta nuestro <strong>Glosario LPDP</strong> con referencias 
+                      normativas chilenas completas.
+                    </Typography>
                   </Alert>
                 </Grid>
               </Grid>

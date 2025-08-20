@@ -566,6 +566,15 @@ Firma DPO: ____________________
           <Typography variant="body1" color="text.secondary">
             Según metodología del Manual de Procedimientos - Capítulo 3
           </Typography>
+          <Alert severity="info" sx={{ mt: 2 }}>
+            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+              🎤 <strong>Tip:</strong> Los términos especializados usados en estas entrevistas como 
+              <strong>Encargo de Tratamiento, Cesionario, Transferencia Internacional, EIPD, 
+              Bases de Licitud</strong> y toda la terminología técnica están desarrollados 
+              profesionalmente en nuestro <strong>Glosario LPDP completo</strong> con más de 75 
+              definiciones específicas para Chile y ejemplos prácticos de implementación.
+            </Typography>
+          </Alert>
         </CardContent>
       </Card>
 

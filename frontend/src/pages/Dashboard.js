@@ -208,6 +208,11 @@ function Dashboard() {
             ? 'Como administrador, tienes acceso completo a todos los módulos para revisión y demostración. Todos los módulos están desbloqueados.'
             : 'Este curso se enfoca exclusivamente en el Capítulo 3 del programa completo de LPDP. Incluye herramientas profesionales, simuladores y metodologías para construir el RAT (Registro de Actividades de Tratamiento) según Ley 21.719.'}
         </Typography>
+        <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+          💡 <strong>Tip:</strong> Si encuentras términos técnicos durante el curso, consulta nuestro 
+          <strong> Glosario LPDP completo</strong> que incluye más de 75 términos especializados con 
+          definiciones detalladas, ejemplos prácticos y referencias legales específicas de Chile.
+        </Typography>
       </Alert>
 
       {/* Información del Instructor y Alcance del Curso */}
