@@ -56,7 +56,7 @@ const getModuleIcon = (moduleId, index) => {
 
 function Dashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isRestricted } = useAuth();
   const [modulos, setModulos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -78,9 +78,16 @@ function Dashboard() {
           const modulosFormateados = data.modulos.map((modulo, index) => {
             // Si es admin/superuser, todos los módulos están desbloqueados
             const isAdmin = user?.is_superuser || user?.username === 'admin';
+            // Si es usuario demo restringido, solo mostrar el primer módulo
+            const isDemoRestricted = isRestricted();
+            
             let estado, progreso;
             
-            if (isAdmin) {
+            if (isDemoRestricted) {
+              // Usuario demo: solo primer módulo disponible
+              estado = index === 0 ? 'disponible' : 'bloqueado';
+              progreso = 0;
+            } else if (isAdmin) {
               // Admin tiene acceso a todo
               estado = index === 0 ? 'completado' : 'disponible';
               progreso = index === 0 ? 100 : 0;
@@ -115,6 +122,7 @@ function Dashboard() {
         
         // Si falla la API, usa datos de ejemplo
         const isAdmin = user?.is_superuser || user?.username === 'admin';
+        const isDemoRestricted = isRestricted();
         const modulosEjemplo = [
           {
             id: 'introduccion_lpdp',
@@ -131,7 +139,7 @@ function Dashboard() {
             descripcion: '¿Qué es un dato personal? ¿Qué es el tratamiento?',
             duracion: '45 min',
             progreso: 0,
-            estado: 'bloqueado',
+            estado: isDemoRestricted ? 'bloqueado' : 'bloqueado',
             icono: '🔍',
             actual: false,
           },
@@ -141,7 +149,7 @@ function Dashboard() {
             descripcion: 'Construcción profesional del RAT según Ley 21.719 - Incluye simuladores y herramientas para DPO',
             duracion: '480 min',
             progreso: 0,
-            estado: isAdmin ? 'disponible' : 'bloqueado',
+            estado: isDemoRestricted ? 'bloqueado' : (isAdmin ? 'disponible' : 'bloqueado'),
             icono: '🗂️',
             nivel: 'profesional',
             dirigido_a: 'DPOs, Abogados, Ingenieros',
@@ -152,7 +160,7 @@ function Dashboard() {
             descripcion: 'Navegación y funcionalidades del sistema',
             duracion: '45 min',
             progreso: 0,
-            estado: isAdmin ? 'disponible' : 'bloqueado',
+            estado: isDemoRestricted ? 'bloqueado' : (isAdmin ? 'disponible' : 'bloqueado'),
             icono: '🛠️',
           },
         ];
@@ -198,19 +206,23 @@ function Dashboard() {
     <Box>
       {/* Mensaje de Bienvenida */}
       <Alert 
-        severity={user?.is_superuser || user?.username === 'admin' ? "success" : "info"} 
+        severity={isRestricted() ? "warning" : (user?.is_superuser || user?.username === 'admin' ? "success" : "info")} 
         icon={<InfoOutlined />}
         sx={{ mb: 3 }}
       >
         <Typography variant="subtitle1" fontWeight={600}>
-          {user?.is_superuser || user?.username === 'admin' 
-            ? '🔓 ¡Bienvenido, Administrador!' 
-            : '📖 Curso Especializado - Capítulo 3: Inventario y Mapeo de Datos'}
+          {isRestricted() 
+            ? '👀 Vista Demo - Solo Primera Página'
+            : (user?.is_superuser || user?.username === 'admin' 
+              ? '🔓 ¡Bienvenido, Administrador!' 
+              : '📖 Curso Especializado - Capítulo 3: Inventario y Mapeo de Datos')}
         </Typography>
         <Typography variant="body2">
-          {user?.is_superuser || user?.username === 'admin'
-            ? 'Como administrador, tienes acceso completo a todos los módulos para revisión y demostración. Todos los módulos están desbloqueados.'
-            : 'Este curso se enfoca exclusivamente en el Capítulo 3 del programa completo de LPDP. Incluye herramientas profesionales, simuladores y metodologías para construir el RAT (Registro de Actividades de Tratamiento) según Ley 21.719.'}
+          {isRestricted()
+            ? 'Estás en modo DEMO. Puedes ver únicamente la página de introducción para evaluar nuestro sistema. Para acceso completo al curso, contáctanos para obtener credenciales de acceso.'
+            : (user?.is_superuser || user?.username === 'admin'
+              ? 'Como administrador, tienes acceso completo a todos los módulos para revisión y demostración. Todos los módulos están desbloqueados.'
+              : 'Este curso se enfoca exclusivamente en el Capítulo 3 del programa completo de LPDP. Incluye herramientas profesionales, simuladores y metodologías para construir el RAT (Registro de Actividades de Tratamiento) según Ley 21.719.')}
         </Typography>
         <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
           💡 <strong>Tip:</strong> Si encuentras términos técnicos durante el curso, consulta nuestro 
@@ -368,7 +380,14 @@ function Dashboard() {
                   variant={modulo.estado === 'en_progreso' ? 'contained' : 'outlined'}
                   disabled={modulo.estado === 'bloqueado'}
                   startIcon={<PlayCircleOutline />}
-                  onClick={() => navigate(`/modulo/${modulo.id}`)}
+                  onClick={() => {
+                    // Si es usuario demo restringido, solo permitir introducción
+                    if (isRestricted() && modulo.id !== 'introduccion_lpdp') {
+                      alert('Acceso limitado en modo demo. Solo puedes ver la introducción.');
+                      return;
+                    }
+                    navigate(`/modulo/${modulo.id}`);
+                  }}
                 >
                   {modulo.estado === 'completado' ? 'Repasar' : 
                    modulo.estado === 'en_progreso' ? 'Continuar' : 
@@ -394,7 +413,17 @@ function Dashboard() {
                   <ListItem
                     key={index}
                     secondaryAction={
-                      <IconButton edge="end" onClick={() => navigate(`/modulo/${actividad.modulo}`)}>
+                      <IconButton 
+                        edge="end" 
+                        onClick={() => {
+                          if (isRestricted()) {
+                            alert('Acceso limitado en modo demo. Solo puedes ver la introducción.');
+                            return;
+                          }
+                          navigate(`/modulo/${actividad.modulo}`);
+                        }}
+                        disabled={isRestricted()}
+                      >
                         <ArrowForward />
                       </IconButton>
                     }
@@ -417,9 +446,16 @@ function Dashboard() {
                 fullWidth 
                 variant="contained" 
                 color="secondary"
-                onClick={() => navigate('/sandbox')}
+                disabled={isRestricted()}
+                onClick={() => {
+                  if (isRestricted()) {
+                    alert('Acceso limitado en modo demo. Solo puedes ver la introducción.');
+                    return;
+                  }
+                  navigate('/sandbox');
+                }}
               >
-                Ir al Modo Práctica (Sandbox)
+                {isRestricted() ? 'Sandbox (Solo Versión Completa)' : 'Ir al Modo Práctica (Sandbox)'}
               </Button>
             </CardActions>
           </Card>
@@ -527,10 +563,17 @@ function Dashboard() {
                 color="secondary"
                 size="large"
                 startIcon={<CloudDownload />}
-                onClick={() => navigate('/herramientas')}
+                disabled={isRestricted()}
+                onClick={() => {
+                  if (isRestricted()) {
+                    alert('Acceso limitado en modo demo. Solo puedes ver la introducción.');
+                    return;
+                  }
+                  navigate('/herramientas');
+                }}
                 sx={{ bgcolor: 'rgba(255,255,255,0.2)', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}
               >
-                Acceder a Herramientas Profesionales
+                {isRestricted() ? 'Herramientas (Solo Versión Completa)' : 'Acceder a Herramientas Profesionales'}
               </Button>
             </CardActions>
           </Card>

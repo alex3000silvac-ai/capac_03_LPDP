@@ -1252,11 +1252,17 @@ const GlosarioLPDP = () => {
     bases_licitud: { nombre: 'Bases Licitud', icon: <Gavel />, color: '#607d8b' },
     herramientas: { nombre: 'Herramientas', icon: <Build />, color: '#e91e63' },
     especial: { nombre: 'Protección Especial', icon: <ChildCare />, color: '#ff5722' },
-    institucional: { nombre: 'Institucional', icon: <AccountBalance />, color: '#3f51b5' }
+    institucional: { nombre: 'Institucional', icon: <AccountBalance />, color: '#3f51b5' },
+    gobernanza: { nombre: 'Gobernanza', icon: <Architecture />, color: '#8bc34a' }
   };
 
   // Filtrar términos basado en búsqueda y categoría (incluyendo nuevos campos del manual)
   const terminosFiltrados = Object.entries(terminos).filter(([key, termino]) => {
+    // Verificar que el término tenga la estructura mínima requerida
+    if (!termino || typeof termino !== 'object' || !termino.termino || !termino.definicion) {
+      console.warn('Término inválido encontrado:', key, termino);
+      return false;
+    }
     const matchSearch = termino.termino.toLowerCase().includes(searchTerm.toLowerCase()) ||
                        termino.definicion.toLowerCase().includes(searchTerm.toLowerCase()) ||
                        (termino.elementos_rat && termino.elementos_rat.some(elem => 
@@ -1274,6 +1280,12 @@ const GlosarioLPDP = () => {
                        (termino.tablas_bd_principales && termino.tablas_bd_principales.some(tabla => 
                          tabla.toLowerCase().includes(searchTerm.toLowerCase())
                        ));
+    // Verificar que la categoría exista
+    if (!termino.categoria || !categorias[termino.categoria]) {
+      console.warn('Categoría inválida o faltante para término:', key, termino.categoria);
+      return false;
+    }
+    
     const matchCategory = selectedCategory === 'all' || termino.categoria === selectedCategory;
     return matchSearch && matchCategory;
   });
@@ -1885,15 +1897,17 @@ const GlosarioLPDP = () => {
                 </Collapse>
 
                 <Box sx={{ mt: 2 }}>
-                  <Chip 
-                    label={categorias[termino.categoria].nombre}
-                    icon={categorias[termino.categoria].icon}
-                    size="small"
-                    sx={{ 
-                      bgcolor: categorias[termino.categoria].color,
-                      color: 'white'
-                    }}
-                  />
+                  {categorias[termino.categoria] && (
+                    <Chip 
+                      label={categorias[termino.categoria].nombre}
+                      icon={categorias[termino.categoria].icon}
+                      size="small"
+                      sx={{ 
+                        bgcolor: categorias[termino.categoria].color,
+                        color: 'white'
+                      }}
+                    />
+                  )}
                 </Box>
               </CardContent>
             </Card>

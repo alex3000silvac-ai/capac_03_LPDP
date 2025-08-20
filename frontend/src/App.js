@@ -24,6 +24,8 @@ import SandboxCompleto from './pages/SandboxCompleto';
 import IntroduccionLPDP from './pages/IntroduccionLPDP';
 import HerramientasLPDP from './pages/HerramientasLPDP';
 import ConceptosBasicos from './pages/ConceptosBasicos';
+import ModuloCero from './pages/ModuloCero';
+import ModuloCeroInteractivo from './pages/ModuloCeroInteractivo';
 
 // Tema oscuro profesional
 const theme = createTheme({
@@ -225,8 +227,8 @@ const LoadingScreen = () => (
 );
 
 // Componente de rutas protegidas
-const ProtectedRoute = ({ children, requiredPermissions = [] }) => {
-  const { user, loading } = useAuth();
+const ProtectedRoute = ({ children, requiredPermissions = [], allowDemo = false }) => {
+  const { user, loading, isRestricted } = useAuth();
   const { currentTenant } = useTenant();
 
   if (loading) {
@@ -239,6 +241,11 @@ const ProtectedRoute = ({ children, requiredPermissions = [] }) => {
 
   if (!currentTenant) {
     return <Navigate to="/select-tenant" replace />;
+  }
+
+  // Si es usuario demo restringido y la ruta no permite demo, bloquear
+  if (isRestricted() && !allowDemo) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Verificar permisos si se especifican
@@ -288,10 +295,19 @@ const AppContent = () => {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/modulo-cero" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/modulo-cero" element={<ModuloCero />} />
+        <Route path="/modulo-cero/interactivo" element={<ModuloCeroInteractivo />} />
         <Route path="/modulo/:moduloId" element={<ModuloCapacitacion />} />
-        <Route path="/modulo/introduccion_lpdp" element={<IntroduccionLPDP />} />
+        <Route 
+          path="/modulo/introduccion_lpdp" 
+          element={
+            <ProtectedRoute allowDemo={true}>
+              <IntroduccionLPDP />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/modulo/conceptos_basicos" element={<ConceptosBasicos />} />
         <Route path="/modulo3" element={<Modulo3Inventario />} />
         <Route path="/glosario" element={<GlosarioLPDP />} />

@@ -49,8 +49,21 @@
       "Bash(./render.exe deploys list:*)",
       "Bash(./render.exe deploys create:*)",
       "Bash(export RENDER_API_TOKEN=\"rnd_T4pIU1EVd6GarHtQrT7gitCTVp9t\")",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm start)",
+      "Bash(ss:*)",
+      "Bash(npx eslint:*)",
+      "Bash(node:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run start:*)",
+      "Bash(kill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(PORT=3001 npm run dev)",
+      "Bash(PORT=3001 npm start)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "/mnt/c/Pasc/Proyecto_Derecho_Digital/Desarrollos"
+    ]
   }
 }

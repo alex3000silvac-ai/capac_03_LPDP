@@ -23,8 +23,8 @@ class Settings:
     # =========================================================================
     # CONFIGURACIÓN DE ENTORNO
     # =========================================================================
-    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "production")
-    DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
+    DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
     
@@ -99,7 +99,7 @@ class Settings:
             if self.DEBUG:
                 return {
                     "admin": {
-                        "password_hash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+                        "password_hash": "5b38bdc5e46074db8606a8ebc2a0977ed0964f244b7f81b9fb10ebc28131dc2b",
                         "email": "admin@empresa.cl",
                         "name": "Administrador del Sistema",
                         "is_superuser": True,
@@ -108,13 +108,14 @@ class Settings:
                         "permissions": ["read", "write", "admin", "superuser"]
                     },
                     "demo": {
-                        "password_hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-                        "email": "demo@empresa.cl",
+                        "password_hash": "588c55f3ce2b8569b153c5abbf13f9f74308b88a20017cc699b835cc93195d16",
+                        "email": "demo@empresa.cl", 
                         "name": "Usuario Demo",
                         "is_superuser": False,
                         "is_active": True,
                         "tenant_id": "demo",
-                        "permissions": ["read"]
+                        "permissions": ["read"],
+                        "restricted_to": "intro_only"
                     }
                 }
             

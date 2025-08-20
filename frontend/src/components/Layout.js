@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import {
   Box,
   Drawer,
@@ -30,11 +31,19 @@ import {
   Inventory,
   Book,
   Science,
+  Logout as LogoutIcon,
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
 
 const menuItems = [
+  {
+    text: 'Módulo Cero',
+    icon: <SchoolIcon />,
+    path: '/modulo-cero',
+    description: 'LPDP en 5 minutos + Mapeo',
+    chip: '¡NUEVO!'
+  },
   {
     text: 'Panel Principal',
     icon: <DashboardIcon />,
@@ -95,6 +104,7 @@ function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -105,6 +115,11 @@ function Layout({ children }) {
     if (isMobile) {
       setMobileOpen(false);
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   const drawer = (
@@ -206,6 +221,32 @@ function Layout({ children }) {
             0 de 8 módulos completados
           </Typography>
         </Box>
+        
+        {/* Botón de Logout */}
+        <ListItem disablePadding sx={{ mt: 2 }}>
+          <ListItemButton
+            onClick={handleLogout}
+            sx={{
+              borderRadius: 2,
+              color: 'error.main',
+              '&:hover': {
+                bgcolor: 'error.main',
+                color: 'error.contrastText',
+              },
+            }}
+          >
+            <ListItemIcon sx={{ color: 'inherit' }}>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Cerrar Sesión"
+              primaryTypographyProps={{
+                fontSize: '0.95rem',
+                fontWeight: 500,
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
       </Box>
     </Box>
   );

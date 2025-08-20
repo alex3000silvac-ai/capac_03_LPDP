@@ -39,7 +39,8 @@ export const AuthProvider = ({ children }) => {
             is_superuser: decoded.is_superuser || false,
             permissions: decoded.permissions || [],
             first_name: decoded.first_name,
-            last_name: decoded.last_name
+            last_name: decoded.last_name,
+            restricted_to: decoded.restricted_to || null
           };
           setUser(userData);
         }
@@ -95,7 +96,8 @@ export const AuthProvider = ({ children }) => {
         is_superuser: decoded.is_superuser || false,
         permissions: decoded.permissions || [],
         first_name: decoded.first_name,
-        last_name: decoded.last_name
+        last_name: decoded.last_name,
+        restricted_to: decoded.restricted_to || null
       };
 
       setUser(userData);
@@ -158,6 +160,10 @@ export const AuthProvider = ({ children }) => {
     return user.permissions.includes(permission);
   };
 
+  const isRestricted = () => {
+    return user && user.restricted_to === 'intro_only';
+  };
+
   const value = {
     user,
     token,
@@ -167,7 +173,8 @@ export const AuthProvider = ({ children }) => {
     refreshToken,
     updateUser,
     isAuthenticated,
-    hasPermission
+    hasPermission,
+    isRestricted
   };
 
   return (

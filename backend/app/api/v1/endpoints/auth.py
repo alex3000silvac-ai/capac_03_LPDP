@@ -64,12 +64,11 @@ async def login(
         
         user_config = users_config[login_data.username]
         
-        # Verificar contraseña - permitir tanto password_hash como password plano
+        # Verificar contraseña usando hash
         if "password_hash" in user_config:
             password_valid = verify_password(login_data.password, user_config["password_hash"])
         else:
-            # Para desarrollo: comparación directa de contraseña plana
-            password_valid = login_data.password == user_config["password"]
+            password_valid = False
         
         if not password_valid:
             logger.warning(f"Contraseña incorrecta para usuario: {login_data.username}")
@@ -96,7 +95,9 @@ async def login(
                 "tenant_id": tenant_id,
                 "is_superuser": user_config.get("is_superuser", False),
                 "first_name": user_config.get("name", "").split(" ")[0] if user_config.get("name") else "",
-                "last_name": " ".join(user_config.get("name", "").split(" ")[1:]) if user_config.get("name") else ""
+                "last_name": " ".join(user_config.get("name", "").split(" ")[1:]) if user_config.get("name") else "",
+                "permissions": user_config.get("permissions", ["read"]),
+                "restricted_to": user_config.get("restricted_to", None)
             },
             expires_delta=access_token_expires
         )

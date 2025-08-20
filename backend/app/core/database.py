@@ -127,8 +127,8 @@ def create_tenant_schema(tenant_id: str):
         schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{validated_tenant_id}"
         
         with get_master_db_context() as db:
-            # REPARADO: Usar query parametrizada para prevenir inyección SQL
-            db.execute(text("CREATE SCHEMA IF NOT EXISTS :schema_name"), {"schema_name": schema_name})
+            # REPARADO: Usar nombre validado directamente (ya fue sanitizado)
+            db.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_name}"))
             
             # Crear todas las tablas en el esquema
             # Importar modelos de forma segura
@@ -161,8 +161,8 @@ def drop_tenant_schema(tenant_id: str):
         schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{validated_tenant_id}"
         
         with get_master_db_context() as db:
-            # REPARADO: Usar query parametrizada para prevenir inyección SQL
-            db.execute(text("DROP SCHEMA IF EXISTS :schema_name CASCADE"), {"schema_name": schema_name})
+            # REPARADO: Usar nombre validado directamente (ya fue sanitizado)
+            db.execute(text(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE"))
             db.commit()
             
             logger.info(f"Esquema {schema_name} eliminado exitosamente")

@@ -12,6 +12,7 @@ from app.api.v1.endpoints import (
     capacitacion,
     entrevistas,
     downloads,
+    modulo_cero,
 )
 
 api_router = APIRouter()
@@ -25,6 +26,7 @@ api_router.include_router(organizaciones.router, prefix="/organizaciones", tags=
 api_router.include_router(capacitacion.router, prefix="/capacitacion", tags=["capacitacion"])
 api_router.include_router(entrevistas.router, prefix="/entrevistas", tags=["entrevistas"])
 api_router.include_router(downloads.router, prefix="/downloads", tags=["downloads"])
+api_router.include_router(modulo_cero.router, prefix="/modulo-cero", tags=["modulo-cero"])
 
 # COMENTADO: Rutas de módulos funcionales - Causan errores de import
 # api_router.include_router(consentimientos.router, prefix="/consentimientos", tags=["consentimientos"])
