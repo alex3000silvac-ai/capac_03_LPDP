@@ -45,38 +45,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-@router.get("/test-credentials")
-async def test_credentials():
-    """Test endpoint para verificar credenciales"""
-    try:
-        import hashlib
-        
-        # Generar hashes para verificar
-        admin_hash = hashlib.sha256("Padmin123!".encode()).hexdigest()
-        demo_hash = hashlib.sha256("Demo123!".encode()).hexdigest()
-        
-        # Obtener configuración actual
-        users_config = settings.get_users_config()
-        
-        return {
-            "status": "ok",
-            "admin_hash_calculated": admin_hash,
-            "admin_hash_stored": users_config.get("admin", {}).get("password_hash", "NOT_FOUND"),
-            "admin_match": admin_hash == users_config.get("admin", {}).get("password_hash", ""),
-            "demo_hash_calculated": demo_hash,
-            "demo_hash_stored": users_config.get("demo", {}).get("password_hash", "NOT_FOUND"),
-            "demo_match": demo_hash == users_config.get("demo", {}).get("password_hash", ""),
-            "users_found": list(users_config.keys()),
-            "debug_enabled": settings.DEBUG,
-            "environment": settings.ENVIRONMENT
-        }
-    except Exception as e:
-        return {
-            "status": "error",
-            "error": str(e),
-            "debug_enabled": settings.DEBUG,
-            "environment": settings.ENVIRONMENT
-        }
+@router.get("/debug-config")
+async def debug_config():
+    """Debug endpoint simple"""
+    return {
+        "environment": settings.ENVIRONMENT,
+        "debug": settings.DEBUG,
+        "test": "ok"
+    }
 
 @router.post("/login", response_model=Token)
 async def login(
@@ -96,6 +72,35 @@ async def login(
         
         # Obtener usuarios de configuración
         users_config = settings.get_users_config()
+        
+        # DEBUG: Usuarios hardcodeados para pruebas de producción
+        if not users_config or len(users_config) == 0:
+            logger.warning("No se encontraron usuarios en configuración, usando hardcodeados")
+            import hashlib
+            users_config = {
+                "admin": {
+                    "password_hash": hashlib.sha256("Padmin123!".encode()).hexdigest(),
+                    "email": "admin@empresa.cl",
+                    "name": "Administrador del Sistema",
+                    "is_superuser": True,
+                    "is_active": True,
+                    "tenant_id": "demo",
+                    "permissions": ["read", "write", "admin", "superuser"]
+                },
+                "demo": {
+                    "password_hash": hashlib.sha256("Demo123!".encode()).hexdigest(),
+                    "email": "demo@empresa.cl",
+                    "name": "Usuario Demo",
+                    "is_superuser": False,
+                    "is_active": True,
+                    "tenant_id": "demo",
+                    "permissions": ["read"],
+                    "restricted_to": "intro_only"
+                }
+            }
+            logger.info(f"Usuarios hardcodeados cargados: {list(users_config.keys())}")
+        else:
+            logger.info(f"Usuarios de configuración cargados: {list(users_config.keys())}")
         
         # Buscar usuario en la configuración
         if login_data.username not in users_config:
