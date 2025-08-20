@@ -969,6 +969,230 @@ const GlosarioLPDP = () => {
       ],
       importante: true
     },
+    data_discovery_proceso: {
+      termino: 'Procedimiento de Mapeo Inicial de Datos (Data Discovery)',
+      definicion: 'Proceso sistemático para crear y mantener un inventario exhaustivo de todos los activos de datos personales que la organización trata. Es la piedra angular de todo el sistema de cumplimiento.',
+      articulo: 'Art. 31 - RAT',
+      categoria: 'cumplimiento',
+      icono: <Search />,
+      pasos_metodologia: [
+        'Conformación del Equipo de Trabajo multidisciplinario',
+        'Metodología de Levantamiento centrada en actividades',
+        'Documentación de Actividades de Tratamiento completa'
+      ],
+      equipo_debe_incluir: [
+        'DPO (líder del equipo)',
+        'Representantes de RRHH',
+        'Representantes de Finanzas',
+        'Representantes de Marketing',
+        'Representantes de Ventas',
+        'Representantes de Operaciones',
+        'Representantes de TI',
+        'Representantes del área Legal'
+      ],
+      importante: true,
+      nota_chile: 'Sin un conocimiento claro de qué datos se tienen, dónde están, por qué se tienen, cómo fluyen y cuándo deben ser eliminados, es imposible cumplir con los demás principios y obligaciones de la Ley N° 21.719.'
+    },
+    metodologia_levantamiento: {
+      termino: 'Metodología de Levantamiento de Datos',
+      definicion: 'El proceso no debe centrarse en preguntar "¿qué bases de datos tienen?", sino en "¿qué actividades o procesos realizan que involucren información de personas?". Se deben realizar entrevistas estructuradas y talleres con los dueños de los procesos.',
+      articulo: 'Art. 31',
+      categoria: 'cumplimiento',
+      icono: <Assignment />,
+      ejemplo_preguntas_rrhh: [
+        '¿Cuál es el proceso completo desde que reciben un currículum hasta que se contrata a una persona?',
+        '¿Qué información solicitan?',
+        '¿Dónde la guardan?',
+        '¿Con quién la comparten (ej. empresa de exámenes preocupacionales)?',
+        '¿Por cuánto tiempo la conservan si la persona no es contratada?'
+      ],
+      importante: true
+    },
+    documentacion_actividades_tratamiento: {
+      termino: 'Documentación de Actividades de Tratamiento',
+      definicion: 'Para cada actividad identificada, el equipo debe documentar en el sistema de cumplimiento la información completa que corresponde a los elementos de un RAT.',
+      articulo: 'Art. 31',
+      categoria: 'cumplimiento',
+      icono: <Assignment />,
+      elementos_rat: [
+        'Nombre de la actividad de tratamiento (ej. "Proceso de Reclutamiento y Selección")',
+        'Finalidad(es) del tratamiento (ej. "Evaluar la idoneidad de los candidatos para vacantes laborales")',
+        'Base de licitud (ej. "Consentimiento del candidato", "Medidas precontractuales")',
+        'Categorías de titulares de datos (ej. "Postulantes a empleos")',
+        'Categorías de datos personales tratados (ej. "Datos de identificación, historial académico, experiencia laboral, datos de contacto")',
+        'Categorías de destinatarios internos y externos (ej. "Gerentes de área, empresa externa de verificación de antecedentes")',
+        'Transferencias internacionales si aplica (País de destino y garantías)',
+        'Plazos de conservación y supresión (ej. "Currículums de candidatos no seleccionados se eliminan después de 6 meses")',
+        'Descripción de las medidas de seguridad técnicas y organizativas'
+      ],
+      importante: true
+    },
+    clasificacion_sensibilidad: {
+      termino: 'Clasificación de Datos por Sensibilidad',
+      definicion: 'Una vez identificados los datos, es crucial clasificarlos correctamente, ya que la ley impone requisitos más estrictos para ciertas categorías.',
+      articulo: 'Art. 2, lit. g)',
+      categoria: 'fundamental',
+      icono: <Lock />,
+      tipos_clasificacion: [
+        'Datos Personales Comunes: Información de identificación, contacto, datos laborales, etc.',
+        'Datos Sensibles (Art. 2, lit. g): origen étnico, afiliación sindical, convicciones religiosas o filosóficas, datos de salud, datos biométricos, vida u orientación sexual',
+        'Datos de Niños, Niñas y Adolescentes (NNA): Cualquier dato perteneciente a menores de edad'
+      ],
+      importante: true,
+      alerta: 'NOVEDAD CHILENA: La "situación socioeconómica" es considerada dato sensible',
+      nota_chile: 'Datos como el nivel de ingresos, historial crediticio o la elegibilidad para beneficios sociales, comúnmente manejados por RRHH o áreas financieras, deben ser tratados con el máximo nivel de protección.'
+    },
+    documentacion_flujos_datos: {
+      termino: 'Documentación de Flujos de Datos (Data Flows)',
+      definicion: 'El inventario no es solo una lista estática, sino un mapa dinámico. El personal debe documentar cómo se mueven los datos.',
+      articulo: 'Art. 31',
+      categoria: 'operaciones',
+      icono: <AccountTree />,
+      tipos_flujos: [
+        'Flujos Internos: Trazar el recorrido de los datos entre los sistemas internos',
+        'Flujos Externos: Documentar todas las transferencias de datos a terceros',
+        'Riesgos Específicos del Sector: Prestar especial atención a flujos de tecnologías avanzadas'
+      ],
+      ejemplo_flujo_interno: 'Cuando un nuevo cliente se registra en la web, sus datos viajan desde el servidor web al CRM, luego al ERP para la facturación, y quizás a un sistema de business intelligence para análisis.',
+      importante: true
+    },
+    riesgos_sector_salmonero: {
+      termino: 'Riesgos Específicos del Sector Salmonero',
+      definicion: 'En la industria salmonera, se debe prestar especial atención a los flujos de datos provenientes de tecnologías avanzadas que pueden contener datos personales.',
+      articulo: 'Aplicación sectorial',
+      categoria: 'especial',
+      icono: <Science />,
+      ejemplos_datos_iot: [
+        'Datos generados en tiempo real por sensores de IoT en los centros de cultivo (temperatura del agua, niveles de oxígeno, alimentación automática)',
+        'Datos de geolocalización del personal en terreno'
+      ],
+      cuando_son_personales: 'Aunque estos datos pueden no parecer personales a primera vista, si pueden vincularse a un centro de cultivo específico o a un operario, quedan bajo el ámbito de la ley y sus flujos deben ser mapeados.',
+      importante: true,
+      nota_chile: 'Relevante para industria salmonera chilena'
+    },
+    gestion_retencion_eliminacion: {
+      termino: 'Gestión de Retención y Eliminación',
+      definicion: 'Basándose en el principio de proporcionalidad (limitación del plazo de conservación), el DPO, junto con el área legal y los dueños de los procesos, debe definir políticas de retención para cada categoría de datos.',
+      articulo: 'Art. 7',
+      categoria: 'cumplimiento',
+      icono: <Timer />,
+      componentes: [
+        'Definición de Políticas: La política debe establecer por cuánto tiempo se conservará un dato y cuál es la justificación',
+        'Procedimiento de Eliminación: Se debe definir un procedimiento para la eliminación segura o la anonimización de los datos'
+      ],
+      ejemplo_politica: 'Las facturas de clientes se conservan por 6 años para cumplir con obligaciones tributarias',
+      requisitos_eliminacion: 'Este procedimiento debe ser ejecutado periódicamente por el personal de TI, y su ejecución debe ser verificada y registrada.',
+      importante: true
+    },
+    especificaciones_tecnicas_sistema: {
+      termino: 'Especificaciones Técnicas del Sistema (Plataforma de Gobernanza de Datos)',
+      definicion: 'El sistema de cumplimiento debe actuar como una plataforma centralizada de gobernanza de datos.',
+      articulo: 'Herramienta técnica',
+      categoria: 'herramientas',
+      icono: <Settings />,
+      componentes_principales: [
+        'Módulo de Registro de Actividades de Tratamiento (RAT)',
+        'Funcionalidad de Mapeo y Visualización de Flujos',
+        'Motor de Políticas de Retención'
+      ],
+      importante: true
+    },
+    modulo_rat_sistema: {
+      termino: 'Módulo de Registro de Actividades de Tratamiento (RAT) - Sistema',
+      definicion: 'Componente técnico del sistema que permite documentar y gestionar todas las actividades de tratamiento.',
+      articulo: 'Art. 31',
+      categoria: 'herramientas',
+      icono: <Storage />,
+      interfaz_usuario: 'El sistema debe ofrecer una interfaz web intuitiva que permita al personal no técnico (dueños de procesos) documentar fácilmente las actividades de tratamiento, guiándolos a través de los campos requeridos (finalidad, categorías de datos, base legal, etc.).',
+      tablas_bd_principales: [
+        'processing_activities: Almacena la descripción de cada actividad',
+        'data_assets: Cataloga los sistemas y bases de datos donde residen los datos',
+        'data_categories: Define las diferentes categorías de datos personales',
+        'data_flows: Mapea las transferencias de datos entre data_assets y con terceros'
+      ],
+      requisito_consultas: 'Estas tablas deben estar interrelacionadas para permitir consultas complejas (ej. "¿Qué actividades tratan datos de salud y en qué sistemas se almacenan?").',
+      importante: true
+    },
+    mapeo_visualizacion_flujos: {
+      termino: 'Funcionalidad de Mapeo y Visualización de Flujos',
+      definicion: 'Herramientas técnicas para generar diagramas de flujo de datos automáticamente a partir de la información registrada en el inventario.',
+      articulo: 'Herramienta técnica',
+      categoria: 'herramientas',
+      icono: <Visibility />,
+      herramientas_visualizacion: 'El sistema debería integrar herramientas de visualización que generen diagramas de flujo de datos automáticamente a partir de la información registrada en el inventario.',
+      beneficio: 'Esto permite al DPO y a los auditores comprender rápidamente cómo se mueven los datos a través de la organización y hacia el exterior, identificando posibles riesgos o cuellos de botella.',
+      integracion_automatizada: 'Para mantener el inventario actualizado, el sistema podría integrarse con herramientas de descubrimiento de datos (data discovery) que escaneen periódicamente las redes y bases de datos de la organización para identificar nuevos almacenamientos de datos personales que necesiten ser inventariados.',
+      importante: true
+    },
+    motor_politicas_retencion: {
+      termino: 'Motor de Políticas de Retención',
+      definicion: 'Sistema automatizado para definir y ejecutar políticas de conservación y eliminación de datos.',
+      articulo: 'Herramienta técnica',
+      categoria: 'herramientas',
+      icono: <Build />,
+      definicion_reglas: 'El sistema debe permitir al DPO o al administrador definir políticas de retención de forma declarativa',
+      ejemplo_regla: 'Para todos los datos en la categoría "Currículums No Seleccionados", aplicar un período de retención de 180 días desde la fecha de creación',
+      automatizacion_ejecucion: [
+        'Identificar todos los registros de datos que han excedido su período de retención definido',
+        'Ejecutar la acción definida: Eliminación Segura o Anonimización',
+        'Registro de Auditoría: Cada acción debe ser registrada detalladamente'
+      ],
+      motor_automatizacion: 'El sistema debe incluir un motor de automatización (ej. un cron job o un worker de Celery) que se ejecute periódicamente',
+      importante: true
+    },
+    eliminacion_segura_sistema: {
+      termino: 'Eliminación Segura - Sistema',
+      definicion: 'Invocar una API en el sistema de origen para realizar un borrado físico de los datos.',
+      articulo: 'Herramienta técnica',
+      categoria: 'seguridad',
+      icono: <Delete />,
+      proceso: 'Proceso automatizado que invoca APIs para eliminar físicamente los datos de los sistemas origen.'
+    },
+    anonimizacion_sistema: {
+      termino: 'Anonimización - Sistema',
+      definicion: 'Aplicar un script de anonimización que reemplace los campos de identificación personal con valores no identificables.',
+      articulo: 'Herramienta técnica',
+      categoria: 'seguridad',
+      icono: <VisibilityOff />,
+      proceso: 'Scripts automatizados que transforman datos personales en datos anónimos no reversibles.'
+    },
+    registro_auditoria_sistema: {
+      termino: 'Registro de Auditoría - Sistema',
+      definicion: 'Cada acción de eliminación o anonimización debe ser registrada de forma detallada en los logs inmutables del sistema de cumplimiento.',
+      articulo: 'Art. 9',
+      categoria: 'seguridad',
+      icono: <Description />,
+      debe_registrar: [
+        'Qué dato se eliminó',
+        'Cuándo se eliminó',
+        'En base a qué política se eliminó'
+      ],
+      caracteristica_logs: 'Los logs deben ser inmutables para garantizar la integridad de la auditoría.',
+      importante: true
+    },
+    plantilla_rat_ejemplo: {
+      termino: 'Plantilla de Registro de Actividad de Tratamiento (RAT) - Ejemplo Práctico',
+      definicion: 'Ejemplo completo de documentación de una actividad de tratamiento para la industria salmonera.',
+      articulo: 'Art. 31',
+      categoria: 'cumplimiento',
+      icono: <Assignment />,
+      ejemplo_completo: {
+        'ID de Actividad': 'PROD-001',
+        'Nombre de la Actividad': 'Monitoreo de salud y alimentación de biomasa mediante IA',
+        'Responsable del Proceso': 'Gerente de Producción',
+        'Finalidad(es)': 'Optimizar la alimentación, detectar tempranamente enfermedades, asegurar el bienestar animal, cumplir con normativas sanitarias.',
+        'Base de Licitud': 'Interés legítimo (eficiencia productiva y bienestar animal), Cumplimiento de obligación legal (normativa sanitaria).',
+        'Categorías de Titulares': 'No aplica directamente a personas naturales.',
+        'Categorías de Datos': 'Datos de sensores (O2, temp.), imágenes de video de los peces, datos de alimentación, registros de mortalidad. Nota: Si los datos pueden vincularse a un operario específico, se convierte en dato personal.',
+        'Sistemas Implicados': 'Sensores IoT, Software de Acuicultura (ej. Mercatus AS), Plataforma de IA, ERP (SAP).',
+        'Destinatarios (Internos/Externos)': 'Equipo de Producción, Veterinarios, SERNAPESCA (reportes agregados).',
+        'Transferencias Internacionales': 'Sí, a proveedor de plataforma de IA en EE.UU. (Ver Módulo 6).',
+        'Plazo de Conservación': 'Datos brutos: 2 años. Informes agregados: 10 años.',
+        'Medidas de Seguridad': 'Cifrado de datos en tránsito y en reposo, control de acceso basado en roles (RBAC) a la plataforma de IA.'
+      },
+      importante: true,
+      nota_chile: 'Ejemplo específico para la industria salmonera chilena que muestra cómo los datos aparentemente no personales pueden convertirse en datos personales si se vinculan a un operario específico.'
+    },
     biomasa: {
       termino: 'Datos de Biomasa',
       definicion: 'Información relacionada con el cultivo y producción acuícola que puede contener datos personales.',
@@ -1028,10 +1252,25 @@ const GlosarioLPDP = () => {
     institucional: { nombre: 'Institucional', icon: <AccountBalance />, color: '#3f51b5' }
   };
 
-  // Filtrar términos basado en búsqueda y categoría
+  // Filtrar términos basado en búsqueda y categoría (incluyendo nuevos campos del manual)
   const terminosFiltrados = Object.entries(terminos).filter(([key, termino]) => {
     const matchSearch = termino.termino.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                       termino.definicion.toLowerCase().includes(searchTerm.toLowerCase());
+                       termino.definicion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       (termino.elementos_rat && termino.elementos_rat.some(elem => 
+                         elem.toLowerCase().includes(searchTerm.toLowerCase())
+                       )) ||
+                       (termino.pasos_metodologia && termino.pasos_metodologia.some(paso => 
+                         paso.toLowerCase().includes(searchTerm.toLowerCase())
+                       )) ||
+                       (termino.ejemplo_preguntas_rrhh && termino.ejemplo_preguntas_rrhh.some(pregunta => 
+                         pregunta.toLowerCase().includes(searchTerm.toLowerCase())
+                       )) ||
+                       (termino.componentes && termino.componentes.some(comp => 
+                         comp.toLowerCase().includes(searchTerm.toLowerCase())
+                       )) ||
+                       (termino.tablas_bd_principales && termino.tablas_bd_principales.some(tabla => 
+                         tabla.toLowerCase().includes(searchTerm.toLowerCase())
+                       ));
     const matchCategory = selectedCategory === 'all' || termino.categoria === selectedCategory;
     return matchSearch && matchCategory;
   });
@@ -1319,6 +1558,319 @@ const GlosarioLPDP = () => {
                           </ListItem>
                         ))}
                       </List>
+                    </Box>
+                  )}
+
+                  {/* Nuevos campos del manual */}
+                  {termino.pasos_metodologia && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Pasos de la Metodología:
+                      </Typography>
+                      <List dense>
+                        {termino.pasos_metodologia.map((paso, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={paso} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.equipo_debe_incluir && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        El Equipo Debe Incluir:
+                      </Typography>
+                      <List dense>
+                        {termino.equipo_debe_incluir.map((miembro, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={miembro} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.ejemplo_preguntas_rrhh && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Ejemplo de Preguntas para RRHH:
+                      </Typography>
+                      <List dense>
+                        {termino.ejemplo_preguntas_rrhh.map((pregunta, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={pregunta} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.elementos_rat && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Elementos del RAT:
+                      </Typography>
+                      <List dense>
+                        {termino.elementos_rat.map((elemento, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={elemento} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.tipos_clasificacion && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Tipos de Clasificación:
+                      </Typography>
+                      <List dense>
+                        {termino.tipos_clasificacion.map((tipo, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={tipo} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.tipos_flujos && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Tipos de Flujos:
+                      </Typography>
+                      <List dense>
+                        {termino.tipos_flujos.map((flujo, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={flujo} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.ejemplo_flujo_interno && (
+                    <Alert severity="success" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Ejemplo de Flujo Interno:</strong> {termino.ejemplo_flujo_interno}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.ejemplos_datos_iot && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Ejemplos de Datos IoT:
+                      </Typography>
+                      <List dense>
+                        {termino.ejemplos_datos_iot.map((ejemplo, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={ejemplo} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.cuando_son_personales && (
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Cuándo son Datos Personales:</strong> {termino.cuando_son_personales}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.componentes && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Componentes:
+                      </Typography>
+                      <List dense>
+                        {termino.componentes.map((comp, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={comp} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.componentes_principales && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Componentes Principales:
+                      </Typography>
+                      <List dense>
+                        {termino.componentes_principales.map((comp, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={comp} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.interfaz_usuario && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Interfaz de Usuario:</strong> {termino.interfaz_usuario}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.tablas_bd_principales && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Tablas Principales de Base de Datos:
+                      </Typography>
+                      <List dense>
+                        {termino.tablas_bd_principales.map((tabla, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={tabla} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.requisito_consultas && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Requisito de Consultas:</strong> {termino.requisito_consultas}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.herramientas_visualizacion && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Herramientas de Visualización:</strong> {termino.herramientas_visualizacion}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.beneficio && (
+                    <Alert severity="success" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Beneficio:</strong> {termino.beneficio}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.integracion_automatizada && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Integración Automatizada:</strong> {termino.integracion_automatizada}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.ejemplo_politica && (
+                    <Alert severity="success" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Ejemplo de Política:</strong> {termino.ejemplo_politica}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.requisitos_eliminacion && (
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Requisitos de Eliminación:</strong> {termino.requisitos_eliminacion}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.definicion_reglas && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Definición de Reglas:</strong> {termino.definicion_reglas}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.ejemplo_regla && (
+                    <Alert severity="success" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Ejemplo de Regla:</strong> {termino.ejemplo_regla}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.automatizacion_ejecucion && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Automatización de la Ejecución:
+                      </Typography>
+                      <List dense>
+                        {termino.automatizacion_ejecucion.map((item, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={item} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.motor_automatizacion && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Motor de Automatización:</strong> {termino.motor_automatizacion}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.proceso && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Proceso:</strong> {termino.proceso}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.debe_registrar && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Debe Registrar:
+                      </Typography>
+                      <List dense>
+                        {termino.debe_registrar.map((item, idx) => (
+                          <ListItem key={idx}>
+                            <ListItemText primary={item} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+
+                  {termino.caracteristica_logs && (
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                      <Typography variant="body2">
+                        <strong>Característica de Logs:</strong> {termino.caracteristica_logs}
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {termino.ejemplo_completo && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Ejemplo Completo (Industria Salmonera):
+                      </Typography>
+                      <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                        {Object.entries(termino.ejemplo_completo).map(([campo, valor], idx) => (
+                          <Box key={idx} sx={{ mb: 1 }}>
+                            <Typography variant="body2" fontWeight={600}>
+                              {campo}:
+                            </Typography>
+                            <Typography variant="body2" sx={{ ml: 2, mb: 1 }}>
+                              {valor}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Paper>
                     </Box>
                   )}
 
