@@ -33,7 +33,16 @@ import {
   Storage as DataIcon,
   Schedule as TimeIcon,
   Share as ShareIcon,
-  Assessment as ResultIcon
+  Assessment as ResultIcon,
+  AccountTree,
+  Hub,
+  SwapHoriz,
+  Warning,
+  Security,
+  VolumeUp,
+  VolumeOff,
+  PlayArrow,
+  Stop
 } from '@mui/icons-material';
 
 const ModuloCeroInteractivo = () => {
@@ -56,6 +65,9 @@ const ModuloCeroInteractivo = () => {
   });
   const [errors, setErrors] = useState({});
   const [isCompleted, setIsCompleted] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState(null);
   
   const navigate = useNavigate();
   const { isRestricted, user } = useAuth();
@@ -185,6 +197,15 @@ const ModuloCeroInteractivo = () => {
     }
   };
 
+  const handleStepClick = (stepIndex) => {
+    if (stepIndex <= activeStep || !isRestricted()) {
+      setActiveStep(stepIndex);
+      if (audioEnabled) {
+        playStepAudio(stepIndex);
+      }
+    }
+  };
+
   const handleBack = () => {
     setActiveStep(prev => prev - 1);
   };
@@ -234,6 +255,11 @@ const ModuloCeroInteractivo = () => {
     setIsCompleted(true);
     setActiveStep(steps.length - 1);
     
+    // Reproducir audio de finalización si está habilitado
+    if (audioEnabled) {
+      playStepAudio(5);
+    }
+    
     // Aquí iría la llamada al backend para generar el mapeo real
     try {
       // const response = await fetch('/api/v1/modulo-cero/generar-mapeo', {
@@ -245,6 +271,91 @@ const ModuloCeroInteractivo = () => {
       console.error('Error generando resultado:', error);
     }
   };
+
+  const playStepAudio = (stepNumber) => {
+    if (!audioEnabled) return;
+    
+    // Detener audio actual si existe
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+
+    const audioTexts = {
+      0: "Bienvenida a tu primer mapeo de datos. Selecciona el proceso de tu área que quieres analizar. Esto te ayudará a entender cómo manejas la información personal en tu trabajo diario.",
+      1: "Excelente elección. Ahora define para qué usas los datos en este proceso. Las finalidades deben ser específicas y claras, ya que determinan todo el tratamiento posterior.",
+      2: "Identifica qué tipos de información recopilas. Los datos comunes requieren protección básica, mientras que los datos sensibles necesitan medidas especiales de seguridad.",
+      3: "Define cuánto tiempo conservas los datos. Esto debe estar justificado por las finalidades y las obligaciones legales. No puedes guardar información indefinidamente.",
+      4: "Especifica con quién compartes los datos. Los destinatarios internos son de tu organización, los externos requieren contratos especiales de protección.",
+      5: "¡Felicitaciones! Has creado tu primer mapeo visual de datos. Este diagrama muestra el flujo completo desde la recolección hasta la eliminación, con todas las interrelaciones y clasificación por sensibilidad identificadas."
+    };
+
+    const text = audioTexts[stepNumber] || "";
+    if (text && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Configurar voz femenina en español
+      const voices = speechSynthesis.getVoices();
+      const femaleSpanishVoice = voices.find(voice => 
+        (voice.lang.includes('es') || voice.lang.includes('ES')) && 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('mujer') ||
+         voice.name.toLowerCase().includes('maria') ||
+         voice.name.toLowerCase().includes('carmen') ||
+         voice.name.toLowerCase().includes('lucia'))
+      ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
+      
+      if (femaleSpanishVoice) {
+        utterance.voice = femaleSpanishVoice;
+      }
+      
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.volume = 0.8;
+      
+      utterance.onstart = () => setIsPlaying(true);
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+      
+      setCurrentAudio(utterance);
+      speechSynthesis.speak(utterance);
+    }
+  };
+
+  const playExplanationAudio = () => {
+    if (isPlaying) {
+      // Detener audio actual
+      if (currentAudio) {
+        speechSynthesis.cancel();
+        setIsPlaying(false);
+      }
+    } else {
+      // Reproducir explicación del paso actual
+      playStepAudio(activeStep);
+    }
+  };
+
+  // Reproducir audio automáticamente al cambiar de paso (si está habilitado)
+  useEffect(() => {
+    if (audioEnabled && activeStep < steps.length - 1) {
+      // Pequeño delay para que se renderice el contenido primero
+      setTimeout(() => {
+        playStepAudio(activeStep);
+      }, 500);
+    }
+  }, [activeStep, audioEnabled]);
+
+  // Cargar voces al inicializar
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      // Cargar voces
+      speechSynthesis.getVoices();
+      speechSynthesis.addEventListener('voiceschanged', () => {
+        speechSynthesis.getVoices();
+      });
+    }
+  }, []);
 
   const renderStepContent = () => {
     if (isRestricted() && activeStep > 0) {
@@ -588,13 +699,274 @@ const ModuloCeroInteractivo = () => {
         );
 
       case 5:
+        const procesoSeleccionado = procesosEjemplo.find(p => p.id === formData.proceso);
+        const datosComunes = formData.datosComunes.map(id => datosComunes.find(d => d.id === id)?.label).filter(Boolean);
+        const datosSensibles = formData.datosSensibles.map(id => datosSensibles.find(d => d.id === id)?.label).filter(Boolean);
+        
         return (
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h3" sx={{ mb: 4, fontWeight: 700 }}>
-              🎉 ¡Tu Primer Mapeo Está Completo!
-            </Typography>
-            
-            <Grid container spacing={3}>
+          <Box>
+            {/* Header con Audio */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h3" sx={{ fontWeight: 700 }}>
+                🗺️ Mapeo Visual Completo
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                  size="small"
+                  variant={audioEnabled ? 'contained' : 'outlined'}
+                  startIcon={audioEnabled ? <VolumeUp /> : <VolumeOff />}
+                  onClick={() => setAudioEnabled(!audioEnabled)}
+                >
+                  {audioEnabled ? 'Audio On' : 'Audio Off'}
+                </Button>
+                <Button
+                  size="small"
+                  variant={isPlaying ? 'contained' : 'outlined'}
+                  startIcon={isPlaying ? <Stop /> : <PlayArrow />}
+                  onClick={() => playExplanationAudio()}
+                >
+                  {isPlaying ? 'Detener' : 'Explicar'}
+                </Button>
+              </Box>
+            </Box>
+
+            {/* Diagrama Visual del Mapeo */}
+            <Paper sx={{ p: 3, mb: 3, bgcolor: 'grey.50', minHeight: 500 }}>
+              <Typography variant="h6" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
+                Flujo de Datos: {procesoSeleccionado?.nombre}
+              </Typography>
+              
+              {/* Diagrama de Flujo Visual */}
+              <Box sx={{ position: 'relative', height: 400, display: 'flex', alignItems: 'center' }}>
+                {/* Origen - Persona */}
+                <Paper 
+                  elevation={6}
+                  sx={{ 
+                    p: 2, 
+                    bgcolor: 'success.light',
+                    borderRadius: '20px',
+                    minWidth: 140,
+                    textAlign: 'center',
+                    position: 'relative'
+                  }}
+                >
+                  <Typography variant="h3" sx={{ fontSize: 40 }}>👤</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Persona Titular
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    Proporciona datos
+                  </Typography>
+                  {/* Clasificación de datos */}
+                  <Box sx={{ mt: 1 }}>
+                    {formData.datosComunes.length > 0 && (
+                      <Chip size="small" label={`${formData.datosComunes.length} Comunes`} color="success" sx={{ mr: 0.5, mb: 0.5 }} />
+                    )}
+                    {formData.datosSensibles.length > 0 && (
+                      <Chip size="small" label={`${formData.datosSensibles.length} Sensibles`} color="error" sx={{ mr: 0.5, mb: 0.5 }} />
+                    )}
+                  </Box>
+                </Paper>
+
+                {/* Flecha 1 */}
+                <Box sx={{ display: 'flex', alignItems: 'center', mx: 2, minWidth: 80 }}>
+                  <Box sx={{ flexGrow: 1, height: 2, bgcolor: 'primary.main' }} />
+                  <Typography variant="h6" sx={{ mx: 1 }}>→</Typography>
+                </Box>
+
+                {/* Proceso Central */}
+                <Paper 
+                  elevation={8}
+                  sx={{ 
+                    p: 2, 
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    borderRadius: '20px',
+                    minWidth: 160,
+                    textAlign: 'center',
+                    position: 'relative'
+                  }}
+                >
+                  <Typography variant="h3" sx={{ fontSize: 40 }}>
+                    {procesoSeleccionado?.icono}
+                  </Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    {procesoSeleccionado?.area}
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    {procesoSeleccionado?.nombre}
+                  </Typography>
+                  {/* Finalidades */}
+                  <Box sx={{ mt: 1 }}>
+                    <Chip 
+                      size="small" 
+                      label={`${formData.finalidades.length} Finalidades`} 
+                      sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                    />
+                  </Box>
+                </Paper>
+
+                {/* Flecha 2 */}
+                <Box sx={{ display: 'flex', alignItems: 'center', mx: 2, minWidth: 80 }}>
+                  <Box sx={{ flexGrow: 1, height: 2, bgcolor: 'warning.main' }} />
+                  <Typography variant="h6" sx={{ mx: 1 }}>→</Typography>
+                </Box>
+
+                {/* Destinatarios */}
+                <Paper 
+                  elevation={6}
+                  sx={{ 
+                    p: 2, 
+                    bgcolor: 'warning.light',
+                    borderRadius: '20px',
+                    minWidth: 140,
+                    textAlign: 'center'
+                  }}
+                >
+                  <Typography variant="h3" sx={{ fontSize: 40 }}>🏢</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Destinatarios
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    Acceden a datos
+                  </Typography>
+                  <Box sx={{ mt: 1 }}>
+                    {formData.destinatarios.internos.length > 0 && (
+                      <Chip size="small" label={`${formData.destinatarios.internos.length} Internos`} color="info" sx={{ mr: 0.5, mb: 0.5 }} />
+                    )}
+                    {formData.destinatarios.externos.length > 0 && (
+                      <Chip size="small" label={`${formData.destinatarios.externos.length} Externos`} color="warning" sx={{ mr: 0.5, mb: 0.5 }} />
+                    )}
+                  </Box>
+                </Paper>
+
+                {/* Flecha 3 */}
+                <Box sx={{ display: 'flex', alignItems: 'center', mx: 2, minWidth: 80 }}>
+                  <Box sx={{ flexGrow: 1, height: 2, bgcolor: 'error.main' }} />
+                  <Typography variant="h6" sx={{ mx: 1 }}>→</Typography>
+                </Box>
+
+                {/* Eliminación/Retención */}
+                <Paper 
+                  elevation={6}
+                  sx={{ 
+                    p: 2, 
+                    bgcolor: 'error.light',
+                    borderRadius: '20px',
+                    minWidth: 140,
+                    textAlign: 'center'
+                  }}
+                >
+                  <Typography variant="h3" sx={{ fontSize: 40 }}>🗑️</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Retención
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    Eliminación segura
+                  </Typography>
+                  <Box sx={{ mt: 1 }}>
+                    <Chip 
+                      size="small" 
+                      label={formData.retencion.despues || 'Definido'} 
+                      color="error" 
+                      variant="outlined"
+                    />
+                  </Box>
+                </Paper>
+              </Box>
+
+              {/* Leyenda */}
+              <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>Clasificación por Sensibilidad:</Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main', mb: 1 }}>
+                        📋 Datos Comunes ({formData.datosComunes.length})
+                      </Typography>
+                      {formData.datosComunes.length > 0 ? (
+                        formData.datosComunes.map((datoId, index) => {
+                          const dato = datosComunes.find(d => d.id === datoId);
+                          return (
+                            <Chip 
+                              key={datoId}
+                              size="small" 
+                              label={dato?.label} 
+                              color="success" 
+                              variant="outlined"
+                              sx={{ mr: 0.5, mb: 0.5 }}
+                            />
+                          );
+                        })
+                      ) : (
+                        <Typography variant="caption" color="text.secondary">No se seleccionaron datos comunes</Typography>
+                      )}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'error.main', mb: 1 }}>
+                        ⚠️ Datos Sensibles ({formData.datosSensibles.length})
+                      </Typography>
+                      {formData.datosSensibles.length > 0 ? (
+                        formData.datosSensibles.map((datoId, index) => {
+                          const dato = datosSensibles.find(d => d.id === datoId);
+                          return (
+                            <Chip 
+                              key={datoId}
+                              size="small" 
+                              label={dato?.label} 
+                              color="error" 
+                              variant="outlined"
+                              sx={{ mr: 0.5, mb: 0.5 }}
+                            />
+                          );
+                        })
+                      ) : (
+                        <Typography variant="caption" color="text.secondary">No se seleccionaron datos sensibles</Typography>
+                      )}
+                    </Box>
+                  </Grid>
+                </Grid>
+
+                {/* Interrelaciones */}
+                <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
+                  <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600 }}>
+                    🔗 Interrelaciones Identificadas:
+                  </Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="caption" display="block" sx={{ fontWeight: 600 }}>Finalidades:</Typography>
+                      {formData.finalidades.slice(0, 2).map((finalidad, idx) => (
+                        <Typography key={idx} variant="caption" display="block" color="text.secondary">
+                          • {finalidad}
+                        </Typography>
+                      ))}
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="caption" display="block" sx={{ fontWeight: 600 }}>Destinatarios Internos:</Typography>
+                      {formData.destinatarios.internos.slice(0, 3).map((interno, idx) => (
+                        <Typography key={idx} variant="caption" display="block" color="text.secondary">
+                          • {interno}
+                        </Typography>
+                      ))}
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="caption" display="block" sx={{ fontWeight: 600 }}>Retención:</Typography>
+                      <Typography variant="caption" display="block" color="text.secondary">
+                        • Durante: {formData.retencion.durante}
+                      </Typography>
+                      <Typography variant="caption" display="block" color="text.secondary">
+                        • Después: {formData.retencion.despues}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Box>
+            </Paper>
+
+            {/* Estadísticas del Mapeo */}
+            <Grid container spacing={3} sx={{ mb: 3 }}>
               <Grid item xs={12} md={4}>
                 <Card elevation={6}>
                   <CardContent>
@@ -603,7 +975,7 @@ const ModuloCeroInteractivo = () => {
                     </Typography>
                     <Typography variant="h6">Proceso Mapeado</Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {procesosEjemplo.find(p => p.id === formData.proceso)?.nombre}
+                      {procesoSeleccionado?.nombre}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -638,22 +1010,27 @@ const ModuloCeroInteractivo = () => {
               </Grid>
             </Grid>
 
-            <Alert severity="success" sx={{ mt: 4, p: 3 }}>
+            <Alert severity="success" sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ mb: 1 }}>
                 🏆 ¡Felicitaciones! Has completado tu primer inventario LPDP
+              </Typography>
+              <Typography sx={{ mb: 2 }}>
+                Este diagrama visual muestra cómo los datos fluyen a través de tu proceso, 
+                desde la recolección hasta la eliminación, incluyendo todas las interrelaciones 
+                y la clasificación por sensibilidad.
               </Typography>
               <Typography>
                 En la versión completa, este mapeo se convertirá automáticamente en:
               </Typography>
               <ul style={{ textAlign: 'left', marginTop: '10px' }}>
                 <li>📄 Documento RAT oficial</li>
-                <li>📊 Diagrama de flujo de datos</li>
+                <li>📊 Diagrama de flujo exportable</li>
                 <li>✅ Matriz de cumplimiento</li>
-                <li>🔍 Análisis de riesgos</li>
+                <li>🔍 Análisis de riesgos detallado</li>
               </ul>
             </Alert>
 
-            <Box sx={{ mt: 4 }}>
+            <Box sx={{ mt: 4, textAlign: 'center' }}>
               <Button 
                 variant="contained" 
                 size="large" 
@@ -717,13 +1094,42 @@ const ModuloCeroInteractivo = () => {
         {/* Stepper */}
         <Stepper activeStep={activeStep} sx={{ mb: 4 }} alternativeLabel>
           {steps.map((step, index) => (
-            <Step key={step.label}>
+            <Step key={step.label} onClick={() => handleStepClick(index)} sx={{ cursor: 'pointer' }}>
               <StepLabel icon={step.icon}>
                 <Typography variant="caption">{step.label}</Typography>
               </StepLabel>
             </Step>
           ))}
         </Stepper>
+
+        {/* Controles de Audio */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 3 }}>
+          <Button
+            size="small"
+            variant={audioEnabled ? 'contained' : 'outlined'}
+            startIcon={audioEnabled ? <VolumeUp /> : <VolumeOff />}
+            onClick={() => {
+              setAudioEnabled(!audioEnabled);
+              if (isPlaying) {
+                speechSynthesis.cancel();
+                setIsPlaying(false);
+              }
+            }}
+          >
+            Audio {audioEnabled ? 'Activado' : 'Desactivado'}
+          </Button>
+          
+          {audioEnabled && (
+            <Button
+              size="small"
+              variant={isPlaying ? 'contained' : 'outlined'}
+              startIcon={isPlaying ? <Stop /> : <PlayArrow />}
+              onClick={playExplanationAudio}
+            >
+              {isPlaying ? 'Detener' : 'Explicar Paso'}
+            </Button>
+          )}
+        </Box>
 
         {/* Content */}
         <Fade in timeout={500}>

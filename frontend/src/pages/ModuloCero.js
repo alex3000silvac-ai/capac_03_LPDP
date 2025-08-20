@@ -25,7 +25,7 @@ import EjemploConcreto from '../components/modulo-cero/EjemploConcreto';
 const ModuloCero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [timer, setTimer] = useState(300); // 5 minutos
-  const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [isAutoPlay, setIsAutoPlay] = useState(false);
   const [slideStartTime, setSlideStartTime] = useState(Date.now());
   
   const navigate = useNavigate();
@@ -77,7 +77,7 @@ const ModuloCero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-advance slides
+  // Auto-advance slides (disabled by default)
   useEffect(() => {
     if (!isAutoPlay) return;
     
