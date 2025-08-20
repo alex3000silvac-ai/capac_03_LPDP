@@ -117,8 +117,8 @@ function Dashboard() {
             titulo: 'Introducción a la Protección de Datos',
             descripcion: 'Fundamentos legales y conceptos básicos de la Ley N° 21.719',
             duracion: '45 min',
-            progreso: 100,
-            estado: 'completado',
+            progreso: 0,
+            estado: 'disponible',
             icono: '📖',
           },
           {
@@ -126,10 +126,10 @@ function Dashboard() {
             titulo: 'Conceptos Básicos de Protección de Datos',
             descripcion: '¿Qué es un dato personal? ¿Qué es el tratamiento?',
             duracion: '45 min',
-            progreso: isAdmin ? 0 : 60,
-            estado: isAdmin ? 'disponible' : 'en_progreso',
+            progreso: 0,
+            estado: 'bloqueado',
             icono: '🔍',
-            actual: !isAdmin,
+            actual: false,
           },
           {
             id: 'modulo3_inventario',
@@ -233,7 +233,7 @@ function Dashboard() {
           <Paper sx={{ p: 3, bgcolor: 'primary.light', color: 'white' }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box>
-                <Typography variant="h4" fontWeight={600}>35%</Typography>
+                <Typography variant="h4" fontWeight={600}>0%</Typography>
                 <Typography variant="body2">Progreso Total</Typography>
               </Box>
               <TrendingUp fontSize="large" />
@@ -244,7 +244,7 @@ function Dashboard() {
           <Paper sx={{ p: 3 }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box>
-                <Typography variant="h4" fontWeight={600}>3</Typography>
+                <Typography variant="h4" fontWeight={600}>0</Typography>
                 <Typography variant="body2">Módulos Completados</Typography>
               </Box>
               <CheckCircle fontSize="large" color="success" />
@@ -255,7 +255,7 @@ function Dashboard() {
           <Paper sx={{ p: 3 }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box>
-                <Typography variant="h4" fontWeight={600}>4.5h</Typography>
+                <Typography variant="h4" fontWeight={600}>0h</Typography>
                 <Typography variant="body2">Tiempo Invertido</Typography>
               </Box>
               <Timer fontSize="large" color="primary" />
@@ -266,7 +266,7 @@ function Dashboard() {
           <Paper sx={{ p: 3 }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box>
-                <Typography variant="h4" fontWeight={600}>2</Typography>
+                <Typography variant="h4" fontWeight={600}>0</Typography>
                 <Typography variant="body2">Logros Obtenidos</Typography>
               </Box>
               <EmojiEvents fontSize="large" color="warning" />

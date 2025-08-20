@@ -21,6 +21,7 @@ import UserManagement from './components/admin/UserManagement';
 import Modulo3Inventario from './pages/Modulo3Inventario';
 import GlosarioLPDP from './pages/GlosarioLPDP';
 import SandboxCompleto from './pages/SandboxCompleto';
+import IntroduccionLPDP from './pages/IntroduccionLPDP';
 
 // Tema oscuro profesional
 const theme = createTheme({
@@ -288,6 +289,7 @@ const AppContent = () => {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/modulo/:moduloId" element={<ModuloCapacitacion />} />
+        <Route path="/modulo/introduccion_lpdp" element={<IntroduccionLPDP />} />
         <Route path="/modulo3" element={<Modulo3Inventario />} />
         <Route path="/glosario" element={<GlosarioLPDP />} />
         <Route path="/simulacion/:area" element={<SimulacionEntrevista />} />

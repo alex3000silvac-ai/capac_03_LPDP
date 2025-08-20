@@ -1006,104 +1006,298 @@ NOTAS IMPORTANTES:
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="lg" fullWidth>
         <DialogTitle>
           <Typography variant="h6">
-            Editar Registro de Actividad de Tratamiento
+            {selectedActividad?.modalType === 'analisis_riesgo' ? 'Análisis de Riesgos' :
+             selectedActividad?.modalType === 'flujos_datos' ? 'Flujos de Datos' :
+             selectedActividad?.modalType === 'matriz_riesgos' ? 'Matriz de Riesgos Global' :
+             'Editar Registro de Actividad de Tratamiento'}
           </Typography>
         </DialogTitle>
         <DialogContent>
           {selectedActividad && (
             <Box sx={{ mt: 2 }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Nombre de la Actividad"
-                    defaultValue={selectedActividad.nombre}
-                    variant="outlined"
-                  />
+              {/* Contenido para Análisis de Riesgos */}
+              {selectedActividad.modalType === 'analisis_riesgo' && (
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <Alert severity="info">
+                      <Typography variant="h6" gutterBottom>
+                        Análisis de Riesgos: {selectedActividad.nombre}
+                      </Typography>
+                    </Alert>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" color="error" gutterBottom>
+                          Riesgos Identificados
+                        </Typography>
+                        <List>
+                          <ListItem>
+                            <ListItemIcon><Warning color="error" /></ListItemIcon>
+                            <ListItemText 
+                              primary="Brecha de seguridad"
+                              secondary="Acceso no autorizado a datos sensibles"
+                            />
+                          </ListItem>
+                          <ListItem>
+                            <ListItemIcon><Info color="warning" /></ListItemIcon>
+                            <ListItemText 
+                              primary="Retención excesiva"
+                              secondary="Conservación más allá del plazo necesario"
+                            />
+                          </ListItem>
+                          <ListItem>
+                            <ListItemIcon><CheckCircle color="success" /></ListItemIcon>
+                            <ListItemText 
+                              primary="Transferencia sin garantías"
+                              secondary="Envío internacional sin protecciones"
+                            />
+                          </ListItem>
+                        </List>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          Medidas de Mitigación
+                        </Typography>
+                        <List>
+                          <ListItem>
+                            <ListItemText 
+                              primary="Cifrado extremo a extremo"
+                              secondary="Para datos sensibles"
+                            />
+                          </ListItem>
+                          <ListItem>
+                            <ListItemText 
+                              primary="Políticas de retención automáticas"
+                              secondary="Eliminación programada"
+                            />
+                          </ListItem>
+                          <ListItem>
+                            <ListItemText 
+                              primary="Cláusulas contractuales tipo"
+                              secondary="Para transferencias internacionales"
+                            />
+                          </ListItem>
+                        </List>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="h6" gutterBottom>
+                      Nivel de Riesgo: <Chip label={selectedActividad.riesgo || 'Medio'} color="warning" />
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Recomendación: Implementar medidas de seguridad adicionales y realizar evaluación de impacto (EIPD).
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Descripción"
-                    defaultValue={selectedActividad.descripcion}
-                    multiline
-                    rows={2}
-                    variant="outlined"
-                  />
+              )}
+
+              {/* Contenido para Flujos de Datos */}
+              {selectedActividad.modalType === 'flujos_datos' && (
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <Alert severity="info">
+                      <Typography variant="h6" gutterBottom>
+                        Mapeo de Flujos: {selectedActividad.nombre}
+                      </Typography>
+                    </Alert>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          Flujos Internos
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <Chip label="Origen: Sistema RRHH" sx={{ mr: 1 }} />
+                          <AccountTree sx={{ mx: 1 }} />
+                          <Chip label="Destino: ERP" sx={{ ml: 1 }} />
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <Chip label="Origen: Portal Web" sx={{ mr: 1 }} />
+                          <AccountTree sx={{ mx: 1 }} />
+                          <Chip label="Destino: CRM" sx={{ ml: 1 }} />
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          Flujos Externos
+                        </Typography>
+                        {selectedActividad.terceros && selectedActividad.terceros.map((tercero, idx) => (
+                          <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                            <Chip label={`Sistema Interno`} sx={{ mr: 1 }} />
+                            <Public sx={{ mx: 1 }} />
+                            <Chip label={tercero} color="secondary" sx={{ ml: 1 }} />
+                          </Box>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      💡 Este mapeo ayuda a identificar puntos de riesgo y garantizar la trazabilidad completa de los datos.
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Base de Licitud"
-                    defaultValue={selectedActividad.baseLicitud}
-                    multiline
-                    rows={2}
-                    variant="outlined"
-                    helperText="Ej: Consentimiento, Contrato, Obligación legal, Interés legítimo"
-                  />
+              )}
+
+              {/* Contenido para Matriz de Riesgos */}
+              {selectedActividad.modalType === 'matriz_riesgos' && (
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <Typography variant="h6" gutterBottom>
+                      Matriz de Riesgos Global - Ley 21.719
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Card sx={{ borderLeft: '4px solid #d32f2f' }}>
+                      <CardContent>
+                        <Typography variant="h6" color="error">RIESGO CRÍTICO</Typography>
+                        <Typography>Brecha de datos sensibles masiva</Typography>
+                        <Chip label="Probabilidad: Media" size="small" sx={{ mr: 1, mt: 1 }} />
+                        <Chip label="Impacto: Muy Alto" size="small" />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Card sx={{ borderLeft: '4px solid #f57c00' }}>
+                      <CardContent>
+                        <Typography variant="h6" color="warning.main">RIESGO ALTO</Typography>
+                        <Typography>Acceso no autorizado recurrente</Typography>
+                        <Chip label="Probabilidad: Alta" size="small" sx={{ mr: 1, mt: 1 }} />
+                        <Chip label="Impacto: Alto" size="small" />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Card sx={{ borderLeft: '4px solid #fbc02d' }}>
+                      <CardContent>
+                        <Typography variant="h6" color="warning.main">RIESGO MEDIO</Typography>
+                        <Typography>Retención excesiva de datos</Typography>
+                        <Chip label="Probabilidad: Alta" size="small" sx={{ mr: 1, mt: 1 }} />
+                        <Chip label="Impacto: Medio" size="small" />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Card sx={{ borderLeft: '4px solid #689f38' }}>
+                      <CardContent>
+                        <Typography variant="h6" color="success.main">RIESGO BAJO</Typography>
+                        <Typography>Errores menores en datos</Typography>
+                        <Chip label="Probabilidad: Media" size="small" sx={{ mr: 1, mt: 1 }} />
+                        <Chip label="Impacto: Bajo" size="small" />
+                      </CardContent>
+                    </Card>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Plazo de Retención"
-                    defaultValue={selectedActividad.plazoRetencion}
-                    multiline
-                    rows={2}
-                    variant="outlined"
-                    helperText="Especifique tiempo y justificación"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Finalidades del Tratamiento:
-                  </Typography>
-                  {selectedActividad.finalidades.map((finalidad, idx) => (
+              )}
+
+              {/* Contenido por defecto para Edición de RAT */}
+              {!selectedActividad.modalType && (
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
                     <TextField
-                      key={idx}
                       fullWidth
-                      defaultValue={finalidad}
+                      label="Nombre de la Actividad"
+                      defaultValue={selectedActividad.nombre}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Descripción"
+                      defaultValue={selectedActividad.descripcion}
+                      multiline
+                      rows={2}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Base de Licitud"
+                      defaultValue={selectedActividad.baseLicitud}
+                      multiline
+                      rows={2}
+                      variant="outlined"
+                      helperText="Ej: Consentimiento, Contrato, Obligación legal, Interés legítimo"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Plazo de Retención"
+                      defaultValue={selectedActividad.plazoRetencion}
+                      multiline
+                      rows={2}
+                      variant="outlined"
+                      helperText="Especifique tiempo y justificación"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Finalidades del Tratamiento:
+                    </Typography>
+                    {selectedActividad.finalidades && selectedActividad.finalidades.map((finalidad, idx) => (
+                      <TextField
+                        key={idx}
+                        fullWidth
+                        defaultValue={finalidad}
+                        variant="outlined"
+                        size="small"
+                        sx={{ mb: 1 }}
+                      />
+                    ))}
+                    <Button
                       variant="outlined"
                       size="small"
-                      sx={{ mb: 1 }}
-                    />
-                  ))}
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<Add />}
-                    sx={{ mt: 1 }}
-                  >
-                    Agregar Finalidad
-                  </Button>
+                      startIcon={<Add />}
+                      sx={{ mt: 1 }}
+                    >
+                      Agregar Finalidad
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Alert severity="warning">
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        Recordatorio Legal:
+                      </Typography>
+                      • La situación socioeconómica es dato sensible en Chile
+                      • Datos de menores requieren consentimiento parental
+                      • Transferencias internacionales requieren garantías apropiadas
+                      <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+                        💡 <strong>Tip:</strong> Para definiciones detalladas de <strong>Consentimiento Parental, 
+                        Garantías Apropiadas, Cesionario, Responsable del Tratamiento</strong> y otros términos 
+                        legales específicos, consulta nuestro <strong>Glosario LPDP</strong> con referencias 
+                        normativas chilenas completas.
+                      </Typography>
+                    </Alert>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                  <Alert severity="warning">
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      Recordatorio Legal:
-                    </Typography>
-                    • La situación socioeconómica es dato sensible en Chile
-                    • Datos de menores requieren consentimiento parental
-                    • Transferencias internacionales requieren garantías apropiadas
-                    <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
-                      💡 <strong>Tip:</strong> Para definiciones detalladas de <strong>Consentimiento Parental, 
-                      Garantías Apropiadas, Cesionario, Responsable del Tratamiento</strong> y otros términos 
-                      legales específicos, consulta nuestro <strong>Glosario LPDP</strong> con referencias 
-                      normativas chilenas completas.
-                    </Typography>
-                  </Alert>
-                </Grid>
-              </Grid>
+              )}
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancelar</Button>
-          <Button 
-            variant="contained" 
-            onClick={() => setDialogOpen(false)}
-          >
-            Guardar cambios
-          </Button>
+          <Button onClick={() => setDialogOpen(false)}>Cerrar</Button>
+          {!selectedActividad?.modalType && (
+            <Button 
+              variant="contained" 
+              onClick={() => setDialogOpen(false)}
+            >
+              Guardar cambios
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </Box>
