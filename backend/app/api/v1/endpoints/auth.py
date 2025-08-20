@@ -148,11 +148,10 @@ async def check_users(db: Session = Depends(get_master_db)):
 @router.post("/login", response_model=Token)
 async def login(
     request: Request,
-    login_data: LoginRequest,
-    db: Session = Depends(get_master_db)
+    login_data: LoginRequest
 ) -> Any:
     """
-    Login unificado - USANDO USUARIOS DE CONFIGURACIÓN
+    Login simplificado - SIN DEPENDENCIAS DE BD
     """
     try:
         logger.info(f"Intento de login para usuario: {login_data.username}")
@@ -161,7 +160,7 @@ async def login(
         requested_tenant_id = request.headers.get("X-Tenant-ID") or login_data.tenant_id or "demo"
         logger.info(f"Requested Tenant ID: {requested_tenant_id}")
         
-        # SOLUCIÓN TEMPORAL: Usuarios directos hasta configurar Supabase
+        # USUARIOS DIRECTOS - SIN BD
         temp_users = {
             "admin": {
                 "password": "Padmin123!",
