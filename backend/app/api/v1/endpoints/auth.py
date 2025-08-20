@@ -82,8 +82,8 @@ async def login(
         logger.info(f"Intento de login para usuario: {login_data.username}")
         
         # Obtener tenant_id del header o del body
-        tenant_id = request.headers.get("X-Tenant-ID") or login_data.tenant_id or "demo"
-        logger.info(f"Tenant ID: {tenant_id}")
+        requested_tenant_id = request.headers.get("X-Tenant-ID") or login_data.tenant_id or "demo"
+        logger.info(f"Requested Tenant ID: {requested_tenant_id}")
         
         # Obtener usuarios de configuración
         users_config = settings.get_users_config()
@@ -136,6 +136,15 @@ async def login(
                 detail="Usuario inactivo"
             )
         
+        # Determinar tenant_id final
+        # Si es superuser, puede acceder a cualquier tenant
+        if user_config.get("is_superuser", False):
+            final_tenant_id = requested_tenant_id  # Admin puede usar cualquier tenant
+        else:
+            final_tenant_id = user_config.get("tenant_id", "demo")  # Usuario normal usa su tenant
+        
+        logger.info(f"Final tenant ID for {login_data.username}: {final_tenant_id}")
+        
         # Crear token de acceso
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
@@ -143,7 +152,7 @@ async def login(
                 "sub": login_data.username,  # Usar username como ID
                 "username": login_data.username,
                 "email": user_config.get("email", ""),
-                "tenant_id": tenant_id,
+                "tenant_id": final_tenant_id,
                 "is_superuser": user_config.get("is_superuser", False),
                 "first_name": user_config.get("name", "").split(" ")[0] if user_config.get("name") else "",
                 "last_name": " ".join(user_config.get("name", "").split(" ")[1:]) if user_config.get("name") else "",

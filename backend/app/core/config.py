@@ -109,7 +109,7 @@ class Settings:
                         "name": "Administrador del Sistema",
                         "is_superuser": True,
                         "is_active": True,
-                        "tenant_id": "default",
+                        "tenant_id": "demo",  # Cambiar a demo para simplificar
                         "permissions": ["read", "write", "admin", "superuser"]
                     },
                     "demo": {
