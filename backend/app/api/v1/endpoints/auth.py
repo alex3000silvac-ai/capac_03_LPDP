@@ -12,6 +12,7 @@ from app.models.user import User
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 import logging
+import hashlib
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -20,8 +21,17 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verifica una contraseña contra su hash"""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verifica una contraseña contra su hash - Compatible con SHA256"""
+    # Intentar primero con SHA256 (para usuarios de configuración)
+    sha256_hash = hashlib.sha256(plain_password.encode()).hexdigest()
+    if sha256_hash == hashed_password:
+        return True
+    
+    # Fallback a bcrypt para usuarios de base de datos
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except:
+        return False
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Crea un token JWT de acceso"""
