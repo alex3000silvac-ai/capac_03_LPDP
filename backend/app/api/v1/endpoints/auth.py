@@ -45,6 +45,30 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
+@router.get("/test-credentials")
+async def test_credentials():
+    """Test endpoint para verificar credenciales"""
+    import hashlib
+    
+    # Generar hashes para verificar
+    admin_hash = hashlib.sha256("Padmin123!".encode()).hexdigest()
+    demo_hash = hashlib.sha256("Demo123!".encode()).hexdigest()
+    
+    # Obtener configuración actual
+    users_config = settings.get_users_config()
+    
+    return {
+        "admin_password_input": "Padmin123!",
+        "admin_hash_calculated": admin_hash,
+        "admin_hash_stored": users_config.get("admin", {}).get("password_hash", "NOT_FOUND"),
+        "admin_match": admin_hash == users_config.get("admin", {}).get("password_hash", ""),
+        "demo_password_input": "Demo123!",
+        "demo_hash_calculated": demo_hash,
+        "demo_hash_stored": users_config.get("demo", {}).get("password_hash", "NOT_FOUND"),
+        "demo_match": demo_hash == users_config.get("demo", {}).get("password_hash", ""),
+        "users_found": list(users_config.keys())
+    }
+
 @router.post("/login", response_model=Token)
 async def login(
     request: Request,
@@ -76,12 +100,29 @@ async def login(
         
         # Verificar contraseña usando hash
         if "password_hash" in user_config:
-            password_valid = verify_password(login_data.password, user_config["password_hash"])
+            stored_hash = user_config["password_hash"]
+            input_password = login_data.password
+            
+            # Debug logging
+            logger.info(f"Verificando credenciales para: {login_data.username}")
+            logger.info(f"Password input: '{input_password}'")
+            logger.info(f"Stored hash: {stored_hash}")
+            
+            # Generar hash SHA256 de la contraseña ingresada
+            import hashlib
+            calculated_hash = hashlib.sha256(input_password.encode()).hexdigest()
+            logger.info(f"Calculated hash: {calculated_hash}")
+            logger.info(f"Hash match: {calculated_hash == stored_hash}")
+            
+            password_valid = verify_password(input_password, stored_hash)
+            logger.info(f"Password verification result: {password_valid}")
         else:
             password_valid = False
+            logger.warning(f"No password_hash found for user: {login_data.username}")
         
         if not password_valid:
             logger.warning(f"Contraseña incorrecta para usuario: {login_data.username}")
+            logger.warning(f"Input: '{login_data.password}' vs stored hash: {user_config.get('password_hash', 'NO_HASH')}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Usuario o contraseña incorrectos"

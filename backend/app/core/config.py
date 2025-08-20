@@ -97,9 +97,14 @@ class Settings:
             
             # Configuración por defecto para desarrollo
             if self.DEBUG:
+                # Generar hashes en tiempo real para asegurar correctitud
+                import hashlib
+                admin_hash = hashlib.sha256("Padmin123!".encode()).hexdigest()
+                demo_hash = hashlib.sha256("Demo123!".encode()).hexdigest()
+                
                 return {
                     "admin": {
-                        "password_hash": "5b38bdc5e46074db8606a8ebc2a0977ed0964f244b7f81b9fb10ebc28131dc2b",
+                        "password_hash": admin_hash,
                         "email": "admin@empresa.cl",
                         "name": "Administrador del Sistema",
                         "is_superuser": True,
@@ -108,7 +113,7 @@ class Settings:
                         "permissions": ["read", "write", "admin", "superuser"]
                     },
                     "demo": {
-                        "password_hash": "588c55f3ce2b8569b153c5abbf13f9f74308b88a20017cc699b835cc93195d16",
+                        "password_hash": demo_hash,
                         "email": "demo@empresa.cl", 
                         "name": "Usuario Demo",
                         "is_superuser": False,
