@@ -32,7 +32,7 @@ import {
 } from '@mui/icons-material';
 
 const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }) => {
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(-1); // Empezar sin mostrar nada
   const [showDetails, setShowDetails] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -144,11 +144,39 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
     if (!audioEnabled) return;
     
     const audioTexts = {
-      0: "Bienvenida al mapa maestro de cumplimiento de la Ley veintiún mil setecientos diecinueve. Este es un sistema integral de cuatro etapas que te guiará desde la identificación inicial de datos hasta el cumplimiento continuo y sostenible de la LPDP. Cada etapa tiene objetivos específicos y entregables concretos que aseguran el cumplimiento normativo completo de tu organización.",
-      1: "Primera etapa: Entrada o Identificación de datos personales. En esta fase mapeamos exhaustivamente todos los datos personales de tu organización clasificándolos por áreas operativas, procesos de negocio, y sistemas tecnológicos. Identificamos qué datos tienes, dónde se encuentran almacenados, quién los genera, cómo ingresan a la organización y cuál es su flujo inicial. Esta etapa es fundamental porque sin un inventario completo es imposible garantizar el cumplimiento normativo.",
-      2: "Segunda etapa: Procesamiento o Documentación formal. Creamos el Registro de Actividades de Tratamiento conocido como RAT, que es obligatorio según la ley. Definimos las finalidades específicas para cada tratamiento, identificamos las bases legales que justifican el procesamiento, establecemos los tiempos de retención para cada categoría de datos, y documentamos todos los destinatarios internos y externos. Esta documentación es clave para demostrar cumplimiento ante la Agencia de Protección de Datos Personales.",
-      3: "Tercera etapa: Salida o Implementación de Protección. Implementamos medidas de seguridad técnicas como encriptación, control de accesos, y respaldos automatizados. También establecemos medidas organizacionales como políticas de privacidad, procedimientos de manejo de datos, capacitación del personal, y contratos de tratamiento con terceros. El objetivo es proteger los datos durante todo su ciclo de vida, desde la recolección hasta la eliminación.",
-      4: "Cuarta etapa: Control o Cumplimiento continuo. Establecemos auditoría permanente con reportes automáticos de cumplimiento, gestión proactiva de brechas de seguridad, atención oportuna de derechos ARCOP de los titulares, y monitoreo continuo de nuevos tratamientos. Implementamos el rol del Delegado de Protección de Datos o DPO, quien supervisa el cumplimiento y actúa como enlace con la autoridad regulatoria. Esta etapa asegura que el cumplimiento se mantenga en el tiempo."
+      0: "Bienvenido al mapa maestro de cumplimiento de la Ley veintiún mil setecientos diecinueve. Este es un sistema integral de cuatro etapas que te guiará desde la identificación inicial de datos hasta el cumplimiento continuo y sostenible de la LPDP. Cada etapa tiene objetivos específicos y entregables concretos que aseguran el cumplimiento normativo completo de tu organización.",
+      1: "Primera etapa: Identificar. En esta fase mapeamos exhaustivamente todos los datos personales de tu organización clasificándolos por áreas operativas, procesos de negocio, y sistemas tecnológicos. Identificamos qué datos tienes, dónde se encuentran almacenados, quién los genera, cómo ingresan a la organización y cuál es su flujo inicial. Esta etapa es fundamental porque sin un inventario completo es imposible garantizar el cumplimiento normativo.",
+      2: "Segunda etapa: Documentar. Creamos el Registro de Actividades de Tratamiento conocido como RAT, que es obligatorio según la ley. Definimos las finalidades específicas para cada tratamiento, identificamos las bases legales que justifican el procesamiento, establecemos los tiempos de retención para cada categoría de datos, y documentamos todos los destinatarios internos y externos. Esta documentación es clave para demostrar cumplimiento ante la Agencia de Protección de Datos Personales.",
+      3: "Tercera etapa: Proteger. Implementamos medidas de seguridad técnicas como encriptación, control de accesos, y respaldos automatizados. También establecemos medidas organizacionales como políticas de privacidad, procedimientos de manejo de datos, capacitación del personal, y contratos de tratamiento con terceros. El objetivo es proteger los datos durante todo su ciclo de vida, desde la recolección hasta la eliminación.",
+      4: "Cuarta etapa: Cumplir. Establecemos auditoría permanente con reportes automáticos de cumplimiento, gestión proactiva de brechas de seguridad, atención oportuna de derechos ARCOP de los titulares, y monitoreo continuo de nuevos tratamientos. Implementamos el rol del Delegado de Protección de Datos o DPO, quien supervisa el cumplimiento y actúa como enlace con la autoridad regulatoria. Esta etapa asegura que el cumplimiento se mantenga en el tiempo."
+    };
+    
+    // Sincronización PRECISA con el audio
+    const syncAnimations = (stepNum) => {
+      setActiveStep(-1);
+      setShowDetails(false);
+      
+      if (stepNum === 0) {
+        // Introducción - no mostrar pasos aún
+        setTimeout(() => setActiveStep(-1), 100);
+      } else if (stepNum === 1) {
+        // "Primera etapa: Identificar" - mostrar paso 1
+        setTimeout(() => setActiveStep(0), 1000);
+      } else if (stepNum === 2) {
+        // "Segunda etapa: Documentar" - mostrar paso 2
+        setActiveStep(0); // Mantener el anterior
+        setTimeout(() => setActiveStep(1), 1000);
+      } else if (stepNum === 3) {
+        // "Tercera etapa: Proteger" - mostrar paso 3
+        setActiveStep(1); // Mantener anteriores
+        setTimeout(() => setActiveStep(2), 1000);
+      } else if (stepNum === 4) {
+        // "Cuarta etapa: Cumplir" - mostrar paso 4
+        setActiveStep(2); // Mantener anteriores
+        setTimeout(() => setActiveStep(3), 1000);
+        // Mostrar detalles al final
+        setTimeout(() => setShowDetails(true), 12000);
+      }
     };
 
     const text = audioTexts[stepNumber] || "";
@@ -161,21 +189,22 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
       
       const utterance = new SpeechSynthesisUtterance(text);
       const voices = speechSynthesis.getVoices();
-      const femaleSpanishVoice = voices.find(voice => 
+      const maleSpanishVoice = voices.find(voice => 
         (voice.lang.includes('es') || voice.lang.includes('ES')) && 
-        (voice.name.toLowerCase().includes('female') || 
-         voice.name.toLowerCase().includes('mujer') ||
-         voice.name.toLowerCase().includes('maria') ||
-         voice.name.toLowerCase().includes('carmen') ||
-         voice.name.toLowerCase().includes('lucia'))
+        (voice.name.toLowerCase().includes('male') && !voice.name.toLowerCase().includes('female') ||
+         voice.name.toLowerCase().includes('hombre') ||
+         voice.name.toLowerCase().includes('pedro') ||
+         voice.name.toLowerCase().includes('diego') ||
+         voice.name.toLowerCase().includes('antonio') ||
+         voice.name.toLowerCase().includes('miguel'))
       ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
       
-      if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
+      if (maleSpanishVoice) utterance.voice = maleSpanishVoice;
       
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.8;
-      utterance.pitch = 1.0;
-      utterance.volume = 0.9;
+      utterance.lang = 'es-MX'; // Español latino
+      utterance.rate = 0.85; // Más fluido
+      utterance.pitch = 0.9; // Voz masculina más grave
+      utterance.volume = 1.0;
       
       utterance.onstart = () => setIsPlaying(true);
       utterance.onend = () => setIsPlaying(false);
@@ -243,27 +272,6 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
         )}
       </Box>
 
-      {/* Controles de Navegación */}
-      <Box sx={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, zIndex: 10 }}>
-        <Button
-          variant="outlined"
-          startIcon={<NavigateBefore />}
-          onClick={handlePrevStep}
-          disabled={activeStep === 0 && !showDetails}
-          size="small"
-        >
-          Anterior
-        </Button>
-        
-        <Button
-          variant="contained"
-          endIcon={<NavigateNext />}
-          onClick={handleNextStep}
-          size="small"
-        >
-          {!showDetails ? 'Siguiente' : 'Continuar'}
-        </Button>
-      </Box>
 
       {/* Área invisible para click simple - no perder foco */}
       <Box 
@@ -316,11 +324,12 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
                   <Card 
                     elevation={activeStep >= index ? 8 : 2}
                     sx={{ 
-                      height: { xs: 350, md: 420 },
-                      minHeight: { xs: 350, md: 420 },
+                      minHeight: { xs: 200, md: 250 },
+                      maxHeight: activeStep >= index ? { xs: 600, md: 800 } : { xs: 250, md: 300 },
                       bgcolor: activeStep >= index ? `${paso.color}.light` : 'background.paper',
                       transform: activeStep >= index ? 'scale(1.05)' : 'scale(1)',
                       transition: 'all 0.8s ease-in-out',
+                      overflow: 'hidden',
                       cursor: 'pointer',
                       '&:hover': {
                         transform: 'scale(1.08)',
@@ -335,10 +344,10 @@ const FlujoCumplimiento = ({ duration = 60, onNext, onPrev, isAutoPlay = false }
                     <CardContent sx={{ 
                       textAlign: 'center', 
                       p: 3,
-                      height: '100%',
+                      height: activeStep >= index ? 'auto' : '250px',
                       display: 'flex',
                       flexDirection: 'column',
-                      justifyContent: 'space-between'
+                      justifyContent: activeStep >= index ? 'flex-start' : 'space-between'
                     }}>
                       {/* Número y subtítulo */}
                       <Box>

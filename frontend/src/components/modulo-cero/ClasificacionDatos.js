@@ -100,27 +100,44 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
       3: "Punto clave distintivo de la legislación chilena: la situación socioeconómica es considerada dato sensible, lo que constituye una particularidad única en el contexto latinoamericano. Esta categoría incluye información sobre nivel de ingresos, patrimonio personal, historial crediticio, deudas y obligaciones financieras, scoring crediticio, y capacidad de pago. Cualquier empresa que maneje esta información debe implementar las mismas medidas de seguridad que para datos de salud. Las multas por incumplimiento pueden llegar hasta cinco mil UTM, lo que representa un riesgo financiero significativo para las organizaciones."
     };
 
-    // Sincronización específica con timing preciso
+    // Sincronización REAL y PRECISA con timing mejorado
     const syncAnimations = (stepNum) => {
       setSyncedElements([]);
-      
-      // Activar inmediatamente la categoría correspondiente
       setActiveCategory(stepNum);
       
-      // Timing específico basado en el contenido del audio
+      // Timing específico basado en el contenido REAL del audio
       const timings = {
         0: [
-          { delay: 3000, action: () => setSyncedElements([0, 1, 2, 3]) }, // Mostrar ejemplos de datos comunes
+          // "nombre completo" - 4 segundos
+          { delay: 4000, action: () => setSyncedElements([1]) },
+          // "RUT" - 5 segundos
+          { delay: 5000, action: () => setSyncedElements([0, 1]) },
+          // "email" - 6 segundos
+          { delay: 6000, action: () => setSyncedElements([0, 1, 2]) },
+          // "teléfono" - 7 segundos
+          { delay: 7000, action: () => setSyncedElements([0, 1, 2, 3]) },
+          // "dirección" y "cargo" - 8 segundos
+          { delay: 8000, action: () => setSyncedElements([0, 1, 2, 3, 4, 5]) }
         ],
         1: [
-          { delay: 2000, action: () => setSyncedElements([0, 1, 2]) }, // Mostrar datos sensibles generales
-          { delay: 8000, action: () => setSyncedElements([0, 1, 2, 3, 4]) }, // Mostrar todos incluyendo situación socioeconómica
+          // "salud" - 3 segundos
+          { delay: 3000, action: () => setSyncedElements([0]) },
+          // "biométricos" - 5 segundos
+          { delay: 5000, action: () => setSyncedElements([0, 3]) },
+          // "afiliación sindical" - 7 segundos
+          { delay: 7000, action: () => setSyncedElements([0, 3, 4]) },
+          // "situación socioeconómica" - 10 segundos
+          { delay: 10000, action: () => setSyncedElements([0, 1, 2, 3, 4, 5]) }
         ],
         2: [
-          { delay: 2000, action: () => setSyncedElements([0, 1, 2]) }, // Mostrar datos NNA
+          // Mostrar todos los elementos de NNA progresivamente
+          { delay: 2000, action: () => setSyncedElements([0]) },
+          { delay: 4000, action: () => setSyncedElements([0, 1]) },
+          { delay: 6000, action: () => setSyncedElements([0, 1, 2]) }
         ],
         3: [
-          { delay: 1000, action: () => setShowComparison(true) }, // Mostrar mensaje final
+          // Mostrar comparación final
+          { delay: 1000, action: () => setShowComparison(true) }
         ]
       };
 
@@ -140,21 +157,22 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
       
       const utterance = new SpeechSynthesisUtterance(text);
       const voices = speechSynthesis.getVoices();
-      const femaleSpanishVoice = voices.find(voice => 
+      const maleSpanishVoice = voices.find(voice => 
         (voice.lang.includes('es') || voice.lang.includes('ES')) && 
-        (voice.name.toLowerCase().includes('female') || 
-         voice.name.toLowerCase().includes('mujer') ||
-         voice.name.toLowerCase().includes('maria') ||
-         voice.name.toLowerCase().includes('carmen') ||
-         voice.name.toLowerCase().includes('lucia'))
+        (voice.name.toLowerCase().includes('male') && !voice.name.toLowerCase().includes('female') ||
+         voice.name.toLowerCase().includes('hombre') ||
+         voice.name.toLowerCase().includes('pedro') ||
+         voice.name.toLowerCase().includes('diego') ||
+         voice.name.toLowerCase().includes('antonio') ||
+         voice.name.toLowerCase().includes('miguel'))
       ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
       
-      if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
+      if (maleSpanishVoice) utterance.voice = maleSpanishVoice;
       
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.8;
-      utterance.pitch = 1.0;
-      utterance.volume = 0.9;
+      utterance.lang = 'es-MX'; // Español latino
+      utterance.rate = 0.85; // Más fluido
+      utterance.pitch = 0.9; // Voz masculina más grave
+      utterance.volume = 1.0;
       
       utterance.onstart = () => setIsPlaying(true);
       utterance.onend = () => setIsPlaying(false);
@@ -238,27 +256,6 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
         )}
       </Box>
 
-      {/* Controles de Navegación */}
-      <Box sx={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, zIndex: 10 }}>
-        <Button
-          variant="outlined"
-          startIcon={<NavigateBefore />}
-          onClick={handlePrevStep}
-          disabled={activeCategory === 0 && !showComparison}
-          size="small"
-        >
-          Anterior
-        </Button>
-        
-        <Button
-          variant="contained"
-          endIcon={<NavigateNext />}
-          onClick={handleNextStep}
-          size="small"
-        >
-          {!showComparison ? 'Siguiente' : 'Continuar'}
-        </Button>
-      </Box>
 
       {/* Área invisible para click simple - no perder foco */}
       <Box 
@@ -327,8 +324,8 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = false 
                           sx={{ 
                             p: 2, 
                             textAlign: 'center',
-                            bgcolor: 'success.100',
-                            color: 'success.contrastText'
+                            bgcolor: 'success.200',
+                            color: 'text.primary'
                           }}
                         >
                           <Typography variant="h4">{dato.icon}</Typography>

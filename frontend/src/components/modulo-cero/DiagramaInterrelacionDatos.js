@@ -39,7 +39,7 @@ import {
 } from '@mui/icons-material';
 
 const DiagramaInterrelacionDatos = ({ duration = 120, onNext, onPrev, isAutoPlay = false }) => {
-  const [activeArea, setActiveArea] = useState(0);
+  const [activeArea, setActiveArea] = useState(-1); // Empezar sin mostrar nada
   const [showDetails, setShowDetails] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
@@ -94,6 +94,36 @@ const DiagramaInterrelacionDatos = ({ duration = 120, onNext, onPrev, isAutoPlay
       4: "Rol del Delegado de Protección de Datos como supervisor central. El DPO tiene visibilidad completa del ecosistema de datos, supervisa todos los tratamientos, actúa como enlace con la Agencia de Protección de Datos Personales, gestiona las solicitudes de derechos ARCOP, coordina respuestas ante brechas de seguridad, y asegura que todas las áreas cumplan con las políticas de privacidad. Debe tener autonomía operativa y reportar directamente a la alta dirección de la empresa.",
       5: "Cuadro completo de interdependencias y tiempos de retención. Cada dato personal tiene múltiples puntos de contacto en la organización y con terceros. Los tiempos de retención varían según la naturaleza del dato y las obligaciones legales: datos laborales se conservan cinco años después del término del contrato, datos tributarios siete años, datos de salud según normativa específica. Al eliminar un dato, se debe coordinar la eliminación en promedio en ocho a doce sistemas diferentes y notificar a cinco a diez terceros destinatarios, lo que requiere un sistema robusto de gestión y trazabilidad."
     };
+    
+    // Sincronización REAL con el audio
+    const syncAnimations = (stepNum) => {
+      setActiveArea(-1);
+      setShowDetails(false);
+      
+      if (stepNum === 0) {
+        // Introducción general - no mostrar áreas aún
+        setTimeout(() => setActiveArea(-1), 100);
+      } else if (stepNum === 1) {
+        // "Área de Recursos Humanos" - mostrar área RRHH
+        setTimeout(() => setActiveArea(0), 500);
+      } else if (stepNum === 2) {
+        // "Interrelaciones con entidades financieras" - mostrar área Finanzas
+        setActiveArea(0);
+        setTimeout(() => setActiveArea(1), 500);
+      } else if (stepNum === 3) {
+        // "Gestión de derechos ARCOP" - mostrar área Comercial
+        setActiveArea(1);
+        setTimeout(() => setActiveArea(2), 500);
+      } else if (stepNum === 4) {
+        // "Rol del DPO" - mostrar área Tecnología
+        setActiveArea(2);
+        setTimeout(() => setActiveArea(3), 500);
+      } else if (stepNum === 5) {
+        // "Cuadro completo" - mostrar detalles
+        setActiveArea(3);
+        setTimeout(() => setShowDetails(true), 2000);
+      }
+    };
 
     const text = audioTexts[stepNumber] || "";
     if (text && 'speechSynthesis' in window) {
@@ -105,20 +135,21 @@ const DiagramaInterrelacionDatos = ({ duration = 120, onNext, onPrev, isAutoPlay
       
       const utterance = new SpeechSynthesisUtterance(text);
       const voices = speechSynthesis.getVoices();
-      const femaleSpanishVoice = voices.find(voice => 
+      const maleSpanishVoice = voices.find(voice => 
         (voice.lang.includes('es') || voice.lang.includes('ES')) && 
-        (voice.name.toLowerCase().includes('female') || 
-         voice.name.toLowerCase().includes('mujer') ||
-         voice.name.toLowerCase().includes('maria') ||
-         voice.name.toLowerCase().includes('carmen') ||
-         voice.name.toLowerCase().includes('lucia'))
+        (voice.name.toLowerCase().includes('male') && !voice.name.toLowerCase().includes('female') ||
+         voice.name.toLowerCase().includes('hombre') ||
+         voice.name.toLowerCase().includes('pedro') ||
+         voice.name.toLowerCase().includes('diego') ||
+         voice.name.toLowerCase().includes('antonio') ||
+         voice.name.toLowerCase().includes('miguel'))
       ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
       
-      if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
+      if (maleSpanishVoice) utterance.voice = maleSpanishVoice;
       
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.8;
-      utterance.pitch = 1.0;
+      utterance.lang = 'es-MX'; // Español latino
+      utterance.rate = 0.85; // Más fluido
+      utterance.pitch = 0.9; // Voz masculina más grave
       utterance.volume = 0.9;
       
       utterance.onstart = () => setIsPlaying(true);
@@ -127,6 +158,9 @@ const DiagramaInterrelacionDatos = ({ duration = 120, onNext, onPrev, isAutoPlay
         console.warn('Error en síntesis de voz:', error);
         setIsPlaying(false);
       };
+      
+      // Activar sincronización
+      syncAnimations(stepNumber);
       
       try {
         speechSynthesis.speak(utterance);
@@ -341,27 +375,6 @@ const DiagramaInterrelacionDatos = ({ duration = 120, onNext, onPrev, isAutoPlay
         </Box>
       )}
 
-      {/* Controles de Navegación */}
-      <Box sx={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, zIndex: 10 }}>
-        <Button
-          variant="outlined"
-          startIcon={<NavigateBefore />}
-          onClick={handlePrevStep}
-          disabled={activeArea === 0 && !showDetails}
-          size="small"
-        >
-          Anterior
-        </Button>
-        
-        <Button
-          variant="contained"
-          endIcon={<NavigateNext />}
-          onClick={handleNextStep}
-          size="small"
-        >
-          {!showDetails ? 'Siguiente' : 'Finalizar'}
-        </Button>
-      </Box>
 
       {/* Área invisible para click simple - no perder foco */}
       <Box 

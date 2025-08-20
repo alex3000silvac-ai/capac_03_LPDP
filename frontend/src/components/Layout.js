@@ -18,6 +18,12 @@ import {
   Chip,
   useTheme,
   useMediaQuery,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -102,6 +108,7 @@ function Layout({ children }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
@@ -117,9 +124,18 @@ function Layout({ children }) {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setLogoutDialogOpen(true);
+  };
+
+  const handleLogoutConfirm = () => {
     logout();
     navigate('/login');
+    setLogoutDialogOpen(false);
+  };
+
+  const handleLogoutCancel = () => {
+    setLogoutDialogOpen(false);
   };
 
   const drawer = (
@@ -225,24 +241,31 @@ function Layout({ children }) {
         {/* Botón de Logout */}
         <ListItem disablePadding sx={{ mt: 2 }}>
           <ListItemButton
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             sx={{
               borderRadius: 2,
-              color: 'error.main',
+              bgcolor: 'error.main',
+              color: 'error.contrastText',
+              border: '2px solid',
+              borderColor: 'error.main',
               '&:hover': {
-                bgcolor: 'error.main',
-                color: 'error.contrastText',
+                bgcolor: 'error.dark',
+                borderColor: 'error.dark',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(244, 67, 54, 0.4)',
               },
+              transition: 'all 0.2s ease-in-out',
+              boxShadow: '0 2px 8px rgba(244, 67, 54, 0.3)',
             }}
           >
             <ListItemIcon sx={{ color: 'inherit' }}>
               <LogoutIcon />
             </ListItemIcon>
             <ListItemText
-              primary="Cerrar Sesión"
+              primary="🚪 SALIR DEL SISTEMA"
               primaryTypographyProps={{
                 fontSize: '0.95rem',
-                fontWeight: 500,
+                fontWeight: 700,
               }}
             />
           </ListItemButton>
@@ -292,6 +315,26 @@ function Layout({ children }) {
                 fontWeight: 600,
               }}
             />
+            
+            {/* Botón de Salir del Sistema */}
+            <IconButton
+              onClick={handleLogoutClick}
+              color="error"
+              sx={{
+                bgcolor: 'error.main',
+                color: 'error.contrastText',
+                '&:hover': {
+                  bgcolor: 'error.dark',
+                  transform: 'scale(1.05)',
+                },
+                transition: 'all 0.2s ease-in-out',
+                boxShadow: '0 2px 8px rgba(244, 67, 54, 0.3)',
+              }}
+              title="Salir del Sistema"
+            >
+              <LogoutIcon />
+            </IconButton>
+            
             <Avatar sx={{ 
               bgcolor: theme.palette.primary.main,
               color: '#000',
@@ -344,6 +387,74 @@ function Layout({ children }) {
           {children}
         </Box>
       </Box>
+
+      {/* Diálogo de confirmación de logout */}
+      <Dialog
+        open={logoutDialogOpen}
+        onClose={handleLogoutCancel}
+        aria-labelledby="logout-dialog-title"
+        aria-describedby="logout-dialog-description"
+        PaperProps={{
+          sx: {
+            bgcolor: 'background.paper',
+            border: '2px solid',
+            borderColor: 'error.main',
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(244, 67, 54, 0.3)',
+          }
+        }}
+      >
+        <DialogTitle id="logout-dialog-title" sx={{ 
+          color: 'error.main', 
+          fontWeight: 700,
+          textAlign: 'center',
+          fontSize: '1.25rem'
+        }}>
+          🚪 ¿Salir del Sistema?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="logout-dialog-description" sx={{ 
+            color: 'text.primary',
+            textAlign: 'center',
+            fontSize: '1rem',
+            py: 2
+          }}>
+            Se cerrará tu sesión y tendrás que iniciar sesión nuevamente para acceder al sistema.
+            <br />
+            <strong>¿Estás seguro que deseas continuar?</strong>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', gap: 2, pb: 3 }}>
+          <Button 
+            onClick={handleLogoutCancel} 
+            variant="outlined"
+            color="primary"
+            sx={{ 
+              minWidth: 120,
+              fontWeight: 600,
+              borderRadius: 2
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleLogoutConfirm} 
+            variant="contained"
+            color="error"
+            sx={{ 
+              minWidth: 120,
+              fontWeight: 700,
+              borderRadius: 2,
+              boxShadow: '0 4px 12px rgba(244, 67, 54, 0.4)',
+              '&:hover': {
+                boxShadow: '0 6px 20px rgba(244, 67, 54, 0.6)',
+              }
+            }}
+          >
+            Sí, Salir
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

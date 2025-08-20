@@ -26,10 +26,10 @@ import {
 } from '@mui/icons-material';
 
 const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false }) => {
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(-1); // Empezar sin mostrar nada
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [animatingElements, setAnimatingElements] = useState([]);
+  const [visibleElements, setVisibleElements] = useState([]); // Control preciso de elementos visibles
 
   // Solo usar timer automático si isAutoPlay está activado
   useEffect(() => {
@@ -84,25 +84,44 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
     if (!audioEnabled) return;
     
     const audioTexts = {
-      0: "Bienvenida al concepto fundamental de tratamiento de datos personales. Un tratamiento es cualquier operación o conjunto de operaciones realizadas sobre datos personales, ya sea por medios automatizados o no. Esto incluye desde la recolección inicial, registro y organización, hasta la conservación, elaboración, modificación, extracción, consulta, comunicación y eliminación final de la información. Es importante comprender que todo lo que tu empresa hace con información personal constituye un tratamiento y está regulado por la Ley veintiún mil setecientos diecinueve.",
+      0: "Bienvenido al concepto fundamental de tratamiento de datos personales. Un tratamiento es cualquier operación o conjunto de operaciones realizadas sobre datos personales, ya sea por medios automatizados o no. Esto incluye desde la recolección inicial, registro y organización, hasta la conservación, elaboración, modificación, extracción, consulta, comunicación y eliminación final de la información. Es importante comprender que todo lo que tu empresa hace con información personal constituye un tratamiento y está regulado por la Ley veintiún mil setecientos diecinueve.",
       1: "Primer paso: Recopilar datos personales. Tu empresa obtiene información personal a través de múltiples canales: formularios web, contratos laborales y comerciales, currículums vitae, encuestas de satisfacción, formularios de contacto, y sistemas de registro. Esta recopilación es la puerta de entrada de los datos a tu organización y debe realizarse con base legal clara, informando al titular sobre la finalidad del tratamiento. Cada punto de entrada de datos debe estar documentado y controlado según los principios de transparencia y licitud establecidos en la normativa.",
       2: "Segundo paso: Procesar la información recopilada. Una vez que tienes los datos personales en tu organización, los analizas para generar insights de negocio, los almacenas en bases de datos y sistemas informáticos, los modificas cuando es necesario mantenerlos actualizados, y los organizas en estructuras que faciliten su uso según las finalidades declaradas. Este procesamiento incluye cualquier uso interno de la información, desde generar reportes hasta tomar decisiones comerciales. Es crucial que todo procesamiento sea necesario y proporcional a la finalidad original.",
       3: "Tercer paso: Compartir datos con terceros. Tu organización comunica y transfiere estos datos a terceros como proveedores de servicios, entidades del Estado para cumplir obligaciones legales, socios comerciales para ejecutar contratos, bancos para procesar pagos, y otras entidades según sea necesario para el giro del negocio. Cada comunicación debe estar justificada, documentada y protegida mediante contratos que garanticen el adecuado tratamiento. Todo esto constituye tratamiento de datos y está regulado por la Ley veintiún mil setecientos diecinueve, que establece multas de hasta cinco mil UTM por incumplimientos."
     };
 
-    // Sincronizar animaciones con audio
+    // Sincronización REAL con el audio
     const syncAnimations = (stepNum) => {
-      setAnimatingElements([]);
+      // Limpiar todo
+      setActiveStep(-1);
+      setVisibleElements([]);
       
-      // Activar paso específico inmediatamente
-      if (stepNum > 0) {
-        setActiveStep(stepNum - 1);
-        setTimeout(() => setAnimatingElements([stepNum - 1]), 300);
-      }
-      
-      // Activar elementos finales después del audio específico
-      if (stepNum === 3) {
-        setTimeout(() => setActiveStep(3), 8000); // Mostrar mensaje final
+      if (stepNum === 0) {
+        // Solo mostrar definición, sin cuadros
+        setTimeout(() => setActiveStep(-1), 100);
+      } else if (stepNum === 1) {
+        // Cuando dice "Primer paso: Recopilar" - mostrar cuadro 1
+        setTimeout(() => {
+          setActiveStep(0);
+          setVisibleElements([0]);
+        }, 500); // Aparece justo cuando dice "Recopilar"
+      } else if (stepNum === 2) {
+        // Cuando dice "Segundo paso: Procesar" - mostrar cuadro 2
+        setTimeout(() => {
+          setActiveStep(1);
+          setVisibleElements([0, 1]);
+        }, 500); // Aparece justo cuando dice "Procesar"
+      } else if (stepNum === 3) {
+        // Cuando dice "Tercer paso: Compartir" - mostrar cuadro 3
+        setTimeout(() => {
+          setActiveStep(2);
+          setVisibleElements([0, 1, 2]);
+        }, 500); // Aparece justo cuando dice "Compartir"
+        
+        // Mostrar mensaje final al terminar
+        setTimeout(() => {
+          setActiveStep(3);
+        }, 15000);
       }
     };
 
@@ -120,25 +139,26 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
       
       const utterance = new SpeechSynthesisUtterance(text);
       
-      // Configurar voz femenina en español
+      // Configurar voz masculina latina
       const voices = speechSynthesis.getVoices();
-      const femaleSpanishVoice = voices.find(voice => 
+      const maleSpanishVoice = voices.find(voice => 
         (voice.lang.includes('es') || voice.lang.includes('ES')) && 
-        (voice.name.toLowerCase().includes('female') || 
-         voice.name.toLowerCase().includes('mujer') ||
-         voice.name.toLowerCase().includes('maria') ||
-         voice.name.toLowerCase().includes('carmen') ||
-         voice.name.toLowerCase().includes('lucia'))
+        (voice.name.toLowerCase().includes('male') && !voice.name.toLowerCase().includes('female') ||
+         voice.name.toLowerCase().includes('hombre') ||
+         voice.name.toLowerCase().includes('pedro') ||
+         voice.name.toLowerCase().includes('diego') ||
+         voice.name.toLowerCase().includes('antonio') ||
+         voice.name.toLowerCase().includes('miguel'))
       ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
       
-      if (femaleSpanishVoice) {
-        utterance.voice = femaleSpanishVoice;
+      if (maleSpanishVoice) {
+        utterance.voice = maleSpanishVoice;
       }
       
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.8;
-      utterance.pitch = 1.0;
-      utterance.volume = 0.9;
+      utterance.lang = 'es-MX'; // Español latino
+      utterance.rate = 0.85; // Más fluido
+      utterance.pitch = 0.9; // Voz masculina más grave
+      utterance.volume = 1.0;
       
       utterance.onstart = () => setIsPlaying(true);
       utterance.onend = () => setIsPlaying(false);
@@ -230,27 +250,6 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
         )}
       </Box>
 
-      {/* Controles de Navegación */}
-      <Box sx={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2 }}>
-        <Button
-          variant="outlined"
-          startIcon={<NavigateBefore />}
-          onClick={handlePrevStep}
-          disabled={activeStep === 0}
-          size="small"
-        >
-          Anterior
-        </Button>
-        
-        <Button
-          variant="contained"
-          endIcon={<NavigateNext />}
-          onClick={handleNextStep}
-          size="small"
-        >
-          {activeStep < 3 ? 'Siguiente' : 'Continuar'}
-        </Button>
-      </Box>
 
       {/* Área invisible para click simple - no perder foco */}
       <Box 
@@ -316,7 +315,7 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
         <Grid container spacing={4} sx={{ mt: 4 }}>
           {pasos.map((paso, index) => (
             <Grid item xs={12} md={4} key={index}>
-              <Fade in={activeStep >= index} timeout={1000}>
+              <Fade in={visibleElements.includes(index)} timeout={1000}>
                 <Card 
                   elevation={activeStep >= index ? 6 : 2}
                   sx={{ 
@@ -328,8 +327,10 @@ const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = false
                     cursor: 'pointer'
                   }}
                   onClick={() => {
-                    setActiveStep(index);
-                    if (audioEnabled) playStepAudio(index + 1); // Corregir: index + 1 para que coincida con el contenido
+                    // Reproducir el audio correcto para cada cuadro
+                    if (audioEnabled) {
+                      playStepAudio(index + 1); // 0->1 (Recopilar), 1->2 (Procesar), 2->3 (Compartir)
+                    }
                   }}
                   onDoubleClick={(e) => {
                     e.stopPropagation();

@@ -37,7 +37,7 @@ import {
 } from '@mui/icons-material';
 
 const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) => {
-  const [activePhase, setActivePhase] = useState(0);
+  const [activePhase, setActivePhase] = useState(-1); // Empezar sin mostrar nada
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
@@ -152,6 +152,30 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
       2: "Hoja de ruta detallada de implementación en cuatro semanas. Primera semana: mapeo inicial identificando diez procesos principales, clasificación de todos los tipos de datos, y documentación de flujos de información. Segunda semana: creación del Registro de Actividades de Tratamiento completo, elaboración de políticas de privacidad, y actualización de contratos con terceros. Tercera semana: implementación de medidas de seguridad técnicas y organizacionales, capacitación completa del equipo, y establecimiento de procedimientos operativos. Cuarta semana: auditoría interna exhaustiva, corrección de hallazgos, y obtención de certificación de cumplimiento lista para la autoridad regulatoria.",
       3: "Resultados cuantificados y beneficios obtenidos. Noventa y cinco por ciento de reducción del riesgo de sanciones regulatorias, implementación completada en solo cuatro semanas versus el promedio de seis a doce meses de métodos tradicionales, cero multas evitadas representando un ahorro potencial de ciento cincuenta millones de pesos, certificación oficial de cumplimiento que genera confianza en clientes y socios, y sistema automatizado que reduce en ochenta por ciento el tiempo dedicado a gestión manual de privacidad. La inversión se recuperó en menos de tres meses gracias a la eficiencia operacional y la reducción de riesgos legales."
     };
+    
+    // Sincronización REAL con el audio
+    const syncAnimations = (stepNum) => {
+      setActivePhase(-1);
+      setShowRoadmap(false);
+      setShowResults(false);
+      
+      if (stepNum === 0) {
+        // Introducción - mostrar cuadro "ANTES"
+        setTimeout(() => setActivePhase(0), 1000);
+      } else if (stepNum === 1) {
+        // "Comparación detallada" - mostrar "DESPUÉS"
+        setActivePhase(0);
+        setTimeout(() => setActivePhase(1), 2000);
+      } else if (stepNum === 2) {
+        // "Hoja de ruta" - mostrar roadmap
+        setActivePhase(1);
+        setTimeout(() => setShowRoadmap(true), 1000);
+      } else if (stepNum === 3) {
+        // "Resultados" - mostrar métricas
+        setShowRoadmap(true);
+        setTimeout(() => setShowResults(true), 1000);
+      }
+    };
 
     const text = audioTexts[stepNumber] || "";
     if (text && 'speechSynthesis' in window) {
@@ -163,20 +187,21 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
       
       const utterance = new SpeechSynthesisUtterance(text);
       const voices = speechSynthesis.getVoices();
-      const femaleSpanishVoice = voices.find(voice => 
+      const maleSpanishVoice = voices.find(voice => 
         (voice.lang.includes('es') || voice.lang.includes('ES')) && 
-        (voice.name.toLowerCase().includes('female') || 
-         voice.name.toLowerCase().includes('mujer') ||
-         voice.name.toLowerCase().includes('maria') ||
-         voice.name.toLowerCase().includes('carmen') ||
-         voice.name.toLowerCase().includes('lucia'))
+        (voice.name.toLowerCase().includes('male') && !voice.name.toLowerCase().includes('female') ||
+         voice.name.toLowerCase().includes('hombre') ||
+         voice.name.toLowerCase().includes('pedro') ||
+         voice.name.toLowerCase().includes('diego') ||
+         voice.name.toLowerCase().includes('antonio') ||
+         voice.name.toLowerCase().includes('miguel'))
       ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
       
-      if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
+      if (maleSpanishVoice) utterance.voice = maleSpanishVoice;
       
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.8;
-      utterance.pitch = 1.0;
+      utterance.lang = 'es-MX'; // Español latino
+      utterance.rate = 0.85; // Más fluido
+      utterance.pitch = 0.9; // Voz masculina más grave
       utterance.volume = 0.9;
       
       utterance.onstart = () => setIsPlaying(true);
@@ -185,6 +210,9 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
         console.warn('Error en síntesis de voz:', error);
         setIsPlaying(false);
       };
+      
+      // Activar sincronización
+      syncAnimations(stepNumber);
       
       try {
         speechSynthesis.speak(utterance);
@@ -257,27 +285,6 @@ const EjemploConcreto = ({ duration = 75, onNext, onPrev, isAutoPlay = false }) 
         )}
       </Box>
 
-      {/* Controles de Navegación */}
-      <Box sx={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, zIndex: 10 }}>
-        <Button
-          variant="outlined"
-          startIcon={<NavigateBefore />}
-          onClick={handlePrevStep}
-          disabled={activePhase === 0 && !showRoadmap && !showResults}
-          size="small"
-        >
-          Anterior
-        </Button>
-        
-        <Button
-          variant="contained"
-          endIcon={<NavigateNext />}
-          onClick={handleNextStep}
-          size="small"
-        >
-          {!showResults ? 'Siguiente' : 'Finalizar'}
-        </Button>
-      </Box>
 
       {/* Área invisible para click simple - no perder foco */}
       <Box 

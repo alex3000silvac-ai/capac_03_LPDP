@@ -44,7 +44,7 @@ import {
 } from '@mui/icons-material';
 
 const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) => {
-  const [activeSection, setActiveSection] = useState(0);
+  const [activeSection, setActiveSection] = useState(-1); // Empezar sin mostrar nada
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [formData, setFormData] = useState({
@@ -107,6 +107,33 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
       3: "Sección tres: Destinatarios y accesos a los datos personales. Identifica exhaustivamente tanto los destinatarios internos como externos que tienen acceso a la información. Los internos incluyen áreas como Recursos Humanos, Gerencia, Finanzas, Tecnología. Los externos abarcan proveedores de servicios, entidades del Estado como Previred, SII, Dirección del Trabajo, socios comerciales, bancos, compañías de seguros, y sistemas de bienestar. Cada destinatario debe estar justificado y documentado con contratos de tratamiento.",
       4: "Sección cuatro: Plazos de retención y medidas de seguridad implementadas. Define cuánto tiempo conservas los datos durante la relación vigente y después de terminada, basándose en obligaciones legales, necesidades del negocio, y derechos del titular. Documenta las medidas de seguridad técnicas como encriptación de base de datos, control de acceso con claves, respaldos automáticos, y medidas organizacionales como contratos de confidencialidad, capacitación del personal, y políticas de privacidad. Estas medidas deben ser proporcionales al riesgo del tratamiento."
     };
+    
+    // Sincronización REAL con el audio
+    const syncAnimations = (stepNum) => {
+      setActiveSection(-1);
+      
+      if (stepNum === 0) {
+        // Introducción general
+        setTimeout(() => setActiveSection(-1), 100);
+      } else if (stepNum === 1) {
+        // "Sección uno: Datos que recopilas" - mostrar sección 1
+        setTimeout(() => setActiveSection(0), 500);
+      } else if (stepNum === 2) {
+        // "Sección dos: Finalidades" - mostrar sección 2
+        setActiveSection(0);
+        setTimeout(() => setActiveSection(1), 500);
+      } else if (stepNum === 3) {
+        // "Sección tres: Destinatarios" - mostrar sección 3
+        setActiveSection(1);
+        setTimeout(() => setActiveSection(2), 500);
+      } else if (stepNum === 4) {
+        // "Sección cuatro: Plazos" - mostrar sección 4
+        setActiveSection(2);
+        setTimeout(() => setActiveSection(3), 500);
+        // Mostrar medidas de seguridad al final
+        setTimeout(() => setActiveSection(4), 10000);
+      }
+    };
 
     const text = audioTexts[stepNumber] || "";
     if (text && 'speechSynthesis' in window) {
@@ -118,20 +145,21 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
       
       const utterance = new SpeechSynthesisUtterance(text);
       const voices = speechSynthesis.getVoices();
-      const femaleSpanishVoice = voices.find(voice => 
+      const maleSpanishVoice = voices.find(voice => 
         (voice.lang.includes('es') || voice.lang.includes('ES')) && 
-        (voice.name.toLowerCase().includes('female') || 
-         voice.name.toLowerCase().includes('mujer') ||
-         voice.name.toLowerCase().includes('maria') ||
-         voice.name.toLowerCase().includes('carmen') ||
-         voice.name.toLowerCase().includes('lucia'))
+        (voice.name.toLowerCase().includes('male') && !voice.name.toLowerCase().includes('female') ||
+         voice.name.toLowerCase().includes('hombre') ||
+         voice.name.toLowerCase().includes('pedro') ||
+         voice.name.toLowerCase().includes('diego') ||
+         voice.name.toLowerCase().includes('antonio') ||
+         voice.name.toLowerCase().includes('miguel'))
       ) || voices.find(voice => voice.lang.includes('es') || voice.lang.includes('ES'));
       
-      if (femaleSpanishVoice) utterance.voice = femaleSpanishVoice;
+      if (maleSpanishVoice) utterance.voice = maleSpanishVoice;
       
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.8;
-      utterance.pitch = 1.0;
+      utterance.lang = 'es-MX'; // Español latino
+      utterance.rate = 0.85; // Más fluido
+      utterance.pitch = 0.9; // Voz masculina más grave
       utterance.volume = 0.9;
       
       utterance.onstart = () => setIsPlaying(true);
@@ -140,6 +168,9 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
         console.warn('Error en síntesis de voz:', error);
         setIsPlaying(false);
       };
+      
+      // Activar sincronización
+      syncAnimations(stepNumber);
       
       try {
         speechSynthesis.speak(utterance);
@@ -216,27 +247,6 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
         )}
       </Box>
 
-      {/* Controles de Navegación */}
-      <Box sx={{ position: 'absolute', bottom: -60, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, zIndex: 10 }}>
-        <Button
-          variant="outlined"
-          startIcon={<NavigateBefore />}
-          onClick={handlePrevStep}
-          disabled={activeSection === 0}
-          size="small"
-        >
-          Anterior
-        </Button>
-        
-        <Button
-          variant="contained"
-          endIcon={<NavigateNext />}
-          onClick={handleNextStep}
-          size="small"
-        >
-          {activeSection < 4 ? 'Siguiente' : 'Continuar'}
-        </Button>
-      </Box>
 
       {/* Área invisible para click simple - no perder foco */}
       <Box 
@@ -270,7 +280,7 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = false }) 
       <Box sx={{ mb: 4, maxWidth: 800, mx: 'auto' }}>
         <LinearProgress 
           variant="determinate" 
-          value={((activeSection + 1) / 5) * 100}
+          value={activeSection === -1 ? 0 : ((activeSection + 1) / 5) * 100}
           sx={{ height: 8, borderRadius: 4, mb: 2 }}
         />
         <Stepper activeStep={activeSection} alternativeLabel>
