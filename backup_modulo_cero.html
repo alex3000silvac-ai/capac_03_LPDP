@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup Módulo Cero - LPDP Training System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .module-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .module-title {
+            color: #1976d2;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #1976d2;
+            padding-bottom: 10px;
+        }
+        .code-block {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .file-header {
+            background: #2196f3;
+            color: white;
+            padding: 8px 15px;
+            margin: 0 0 15px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .summary {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 BACKUP MÓDULO CERO - SISTEMA LPDP</h1>
+    <p><strong>Fecha de backup:</strong> 2025-08-21</p>
+    <p><strong>Razón:</strong> Eliminación completa y reescritura del módulo por problemas de sincronización</p>
+
+    <div class="summary">
+        <h2>📋 RESUMEN DE PROBLEMAS IDENTIFICADOS</h2>
+        <ul>
+            <li><strong>Sincronización:</strong> Voz se corta cuando aparecen elementos (múltiples speechSynthesis.speak())</li>
+            <li><strong>Voz:</strong> Continúa siendo femenina/robótica a pesar de filtros masculinos</li>
+            <li><strong>Scroll:</strong> No automático, se pierden textos</li>
+            <li><strong>Elementos desincronizados:</strong> Textos aparecen en lugares incorrectos</li>
+            <li><strong>Arquitectura compleja:</strong> Múltiples sistemas compitiendo entre sí</li>
+        </ul>
+    </div>
+
+    <div class="module-section">
+        <div class="file-header">1. ConceptoTratamiento.js - COMPONENTE PRINCIPAL</div>
+        <div class="module-title">¿Qué es un tratamiento de datos personales?</div>
+        <div class="code-block">import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Box, 
+  Typography, 
+  Grid, 
+  Paper, 
+  Card, 
+  CardContent,
+  Fade,
+  Zoom,
+  LinearProgress
+} from '@mui/material';
+import { 
+  Business as EmpresaIcon
+} from '@mui/icons-material';
+
+const ConceptoTratamiento = ({ duration = 30, onNext, onPrev, isAutoPlay = true }) => {
+  // NUEVO SISTEMA DE ESTADO ROBUSTO
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentPhrase, setCurrentPhrase] = useState('');
+  const [progress, setProgress] = useState(0);
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  
+  // Referencias para auto-scroll GARANTIZADO
+  const containerRef = useRef(null);
+  const tituloRef = useRef(null);
+  const definicionRef = useRef(null);
+  const empresaRef = useRef(null);
+  const recopilarRef = useRef(null);
+  const procesarRef = useRef(null);
+  const compartirRef = useRef(null);
+  const mensajeFinalRef = useRef(null);
+  const datosAdicionalesRef = useRef(null);
+  
+  // Control de timing global
+  const timerRef = useRef(null);
+  const audioRef = useRef(null);
+
+  // SISTEMA DE SCROLL PERFECCIONADO
+  const scrollToElement = (elementRef) => {
+    if (!elementRef?.current) return;
+    
+    console.log('🎯 Scroll a:', elementRef.current.id || 'elemento');
+    
+    // Scroll con múltiples intentos garantizados
+    const doScroll = () => {
+      elementRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start',
+        inline: 'nearest' 
+      });
+    };
+    
+    doScroll();
+    setTimeout(doScroll, 200);
+    setTimeout(doScroll, 500);
+  };
+
+  // CONFIGURACIÓN DE VOZ OPTIMIZADA
+  const setupVoice = async () => {
+    return new Promise((resolve) => {
+      const getVoice = () => {
+        const voices = speechSynthesis.getVoices();
+        console.log('🎤 Configurando voz masculina...');
+        
+        // Priorizar voces masculinas en español
+        const maleVoice = voices.find(voice => {
+          const name = voice.name.toLowerCase();
+          const lang = voice.lang.toLowerCase();
+          return (lang.includes('es') || lang.includes('mx')) && 
+                 (name.includes('diego') || name.includes('carlos') || 
+                  name.includes('male') || !name.includes('female'));
+        });
+        
+        const selectedVoice = maleVoice || voices.find(v => v.lang.includes('es')) || voices[0];
+        console.log('✅ Voz:', selectedVoice?.name);
+        resolve(selectedVoice);
+      };
+      
+      if (speechSynthesis.getVoices().length > 0) {
+        getVoice();
+      } else {
+        speechSynthesis.onvoiceschanged = getVoice;
+      }
+    });
+  };
+
+  // NUEVO SISTEMA DE PRESENTACIÓN COMPLETAMENTE REESCRITO
+  const startPresentation = async () => {
+    if (isPlaying) return;
+    
+    console.log('🎯 INICIANDO NUEVO SISTEMA DE PRESENTACIÓN');
+    setIsPlaying(true);
+    setCurrentStep(0);
+    setProgress(0);
+    setTimeElapsed(0);
+    
+    // PASOS DEFINIDOS CON TIMING EXACTO
+    const steps = [
+      { 
+        time: 0, 
+        step: 1, 
+        phrase: '¿Qué es un tratamiento de datos personales?',
+        ref: tituloRef,
+        text: '¿Qué es un tratamiento de datos personales? Es cualquier operación que tu empresa realiza con información personal.'
+      },
+      { 
+        time: 6000, 
+        step: 2, 
+        phrase: 'Definición completa del tratamiento',
+        ref: definicionRef,
+        text: 'Tu empresa está en el centro de todo.'
+      },
+      { 
+        time: 10000, 
+        step: 3, 
+        phrase: 'Tu empresa está en el centro',
+        ref: empresaRef,
+        text: 'Primero, recopilar datos.'
+      },
+      { 
+        time: 14000, 
+        step: 4, 
+        phrase: 'Recopilar datos personales',
+        ref: recopilarRef,
+        text: 'Tu empresa obtiene información a través de formularios, contratos, currículums.'
+      },
+      { 
+        time: 22000, 
+        step: 5, 
+        phrase: 'Procesar la información',
+        ref: procesarRef,
+        text: 'Segundo, procesar datos. Analizas, almacenas y organizas la información.'
+      },
+      { 
+        time: 32000, 
+        step: 6, 
+        phrase: 'Compartir con terceros',
+        ref: compartirRef,
+        text: 'Tercero, compartir datos con proveedores, Estado, socios comerciales.'
+      },
+      { 
+        time: 42000, 
+        step: 7, 
+        phrase: 'Regulación legal',
+        ref: mensajeFinalRef,
+        text: 'Todo esto es tratamiento de datos y está regulado por la Ley 21.719.'
+      },
+      { 
+        time: 48000, 
+        step: 8, 
+        phrase: 'Multas y sanciones',
+        ref: datosAdicionalesRef,
+        text: 'Las multas pueden llegar hasta cinco mil UTM.'
+      }
+    ];
+    
+    // CONFIGURAR VOZ
+    const voice = await setupVoice();
+    
+    // CREAR AUDIO ÚNICO
+    const fullText = steps.map(s => s.text).join(' ');
+    const utterance = new SpeechSynthesisUtterance(fullText);
+    utterance.voice = voice;
+    utterance.lang = 'es-MX';
+    utterance.rate = 0.9;
+    utterance.pitch = 0.7;
+    utterance.volume = 1.0;
+    
+    audioRef.current = utterance;
+    
+    // INICIAR CRONÓMETRO SINCRONIZADO
+    const startTime = Date.now();
+    let currentStepIndex = 0;
+    
+    const syncTimer = () => {
+      if (!isPlaying) return;
+      
+      const elapsed = Date.now() - startTime;
+      setTimeElapsed(elapsed);
+      setProgress((elapsed / 55000) * 100);
+      
+      // Verificar si debe avanzar al siguiente paso
+      if (currentStepIndex < steps.length && elapsed >= steps[currentStepIndex].time) {
+        const step = steps[currentStepIndex];
+        console.log(`🎯 Paso ${step.step}: ${step.phrase}`);
+        
+        setCurrentStep(step.step);
+        setCurrentPhrase(step.phrase);
+        scrollToElement(step.ref);
+        
+        currentStepIndex++;
+      }
+      
+      // Programar siguiente verificación
+      if (elapsed < 55000) {
+        timerRef.current = setTimeout(syncTimer, 100);
+      } else {
+        // Finalizar
+        setIsPlaying(false);
+        setTimeout(() => {
+          if (onNext) onNext();
+        }, 2000);
+      }
+    };
+    
+    // EVENTOS DE AUDIO
+    utterance.onstart = () => {
+      console.log('🎤 Audio iniciado - comenzando sincronización');
+      syncTimer();
+    };
+    
+    utterance.onend = () => {
+      console.log('🎤 Audio terminado');
+      setIsPlaying(false);
+    };
+    
+    utterance.onerror = (error) => {
+      console.error('🎤 Error:', error);
+      setIsPlaying(false);
+    };
+    
+    // REPRODUCIR AUDIO
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
+  };
+
+  // CLEANUP Y INICIALIZACIÓN
+  useEffect(() => {
+    if (isAutoPlay) {
+      const timer = setTimeout(() => {
+        startPresentation();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isAutoPlay]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      speechSynthesis.cancel();
+    };
+  }, []);
+
+  const pasos = [
+    {
+      id: 'recopilar',
+      titulo: 'RECOPILAR',
+      emoji: '📥',
+      descripcion: 'Obtenemos datos personales',
+      ejemplos: ['Formularios web', 'Contratos', 'CVs', 'Encuestas', 'Apps móviles']
+    },
+    {
+      id: 'procesar',
+      titulo: 'PROCESAR',
+      emoji: '⚙️',
+      descripcion: 'Los analizamos y usamos',
+      ejemplos: ['Análisis', 'Almacenamiento', 'Modificación', 'Organización', 'Reportes']
+    },
+    {
+      id: 'compartir',
+      titulo: 'COMPARTIR',
+      emoji: '📤',
+      descripcion: 'Los enviamos a terceros',
+      ejemplos: ['Proveedores', 'Estado', 'Partners', 'Bancos', 'Seguros']
+    }
+  ];
+
+  return (
+    <Box ref={containerRef} sx={{ py: 4, minHeight: '600px', position: 'relative' }}>
+      {/* BARRA DE PROGRESO VISIBLE */}
+      <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, bgcolor: 'white' }}>
+        <LinearProgress 
+          variant="determinate" 
+          value={progress} 
+          sx={{ height: 8 }}
+        />
+        <Box sx={{ p: 1, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
+          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+            PASO {currentStep}/8 - {Math.round(timeElapsed/1000)}s
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* INDICADOR DE FRASE ACTUAL SINCRONIZADO */}
+      {currentPhrase && (
+        <Box sx={{ 
+          position: 'fixed', 
+          bottom: 20, 
+          left: '50%', 
+          transform: 'translateX(-50%)',
+          bgcolor: 'rgba(0,0,0,0.95)', 
+          color: 'white', 
+          p: 3, 
+          borderRadius: 2,
+          maxWidth: '90%',
+          zIndex: 10000,
+          border: '2px solid #00ff00'
+        }}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+            🎯 {currentPhrase}
+          </Typography>
+        </Box>
+      )}
+
+      {/* CONTENIDO CON ESPACIADO PARA HEADER */}
+      <Box sx={{ mt: 10 }}>
+        {/* Título principal */}
+        <Box ref={tituloRef} id="titulo" sx={{ mb: 6, minHeight: '200px', textAlign: 'center' }}>
+          {currentStep >= 1 && (
+            <Fade in timeout={800}>
+              <div>
+                <Typography variant="h2" sx={{ mb: 3, fontWeight: 800, color: 'primary.main' }}>
+                  ¿QUÉ ES UN TRATAMIENTO DE DATOS?
+                </Typography>
+                <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
+                  Todo lo que hace tu empresa con información personal
+                </Typography>
+              </div>
+            </Fade>
+          )}
+        </Box>
+
+        {/* Definición */}
+        <Box ref={definicionRef} id="definicion" sx={{ mb: 6, minHeight: '200px' }}>
+          {currentStep >= 2 && (
+            <Fade in timeout={800}>
+              <Paper sx={{ p: 4, bgcolor: 'info.light', mx: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, textAlign: 'center' }}>
+                  💡 <strong>Definición Legal:</strong> Un "tratamiento de datos" es cualquier operación 
+                  realizada sobre datos personales: recolección, registro, organización, conservación, 
+                  modificación, consulta, comunicación y eliminación.
+                </Typography>
+              </Paper>
+            </Fade>
+          )}
+        </Box>
+
+        {/* Empresa central */}
+        <Box ref={empresaRef} id="empresa" sx={{ mb: 6, minHeight: '300px', textAlign: 'center' }}>
+          {currentStep >= 3 && (
+            <Zoom in timeout={1000}>
+              <Paper 
+                elevation={8}
+                sx={{ 
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 3,
+                  p: 4,
+                  bgcolor: 'primary.main',
+                  color: 'primary.contrastText'
+                }}
+              >
+                <EmpresaIcon sx={{ fontSize: 60 }} />
+                <Typography variant="h3" sx={{ fontWeight: 700 }}>
+                  TU EMPRESA EN EL CENTRO
+                </Typography>
+              </Paper>
+            </Zoom>
+          )}
+        </Box>
+
+        {/* RECOPILAR */}
+        <Box ref={recopilarRef} id="recopilar" sx={{ mb: 6, minHeight: '400px' }}>
+          {currentStep >= 4 && (
+            <Fade in timeout={800}>
+              <Card elevation={6} sx={{ bgcolor: 'success.light', mx: 2 }}>
+                <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                  <Typography variant="h1" sx={{ fontSize: 80, mb: 2 }}>📥</Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, color: 'success.contrastText' }}>
+                    1. RECOPILAR DATOS
+                  </Typography>
+                  <Typography variant="h6" sx={{ mb: 3, color: 'success.contrastText' }}>
+                    Obtenemos información personal a través de:
+                  </Typography>
+                  <Grid container spacing={2}>
+                    {['Formularios web', 'Contratos', 'CVs', 'Encuestas', 'Apps móviles'].map((item, idx) => (
+                      <Grid item xs={12} sm={6} md={4} key={idx}>
+                        <Paper sx={{ p: 2, bgcolor: 'white' }}>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            • {item}
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Fade>
+          )}
+        </Box>
+
+        {/* PROCESAR */}
+        <Box ref={procesarRef} id="procesar" sx={{ mb: 6, minHeight: '400px' }}>
+          {currentStep >= 5 && (
+            <Fade in timeout={800}>
+              <Card elevation={6} sx={{ bgcolor: 'warning.light', mx: 2 }}>
+                <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                  <Typography variant="h1" sx={{ fontSize: 80, mb: 2 }}>⚙️</Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, color: 'warning.contrastText' }}>
+                    2. PROCESAR DATOS
+                  </Typography>
+                  <Typography variant="h6" sx={{ mb: 3, color: 'warning.contrastText' }}>
+                    Analizamos y usamos la información:
+                  </Typography>
+                  <Grid container spacing={2}>
+                    {['Análisis', 'Almacenamiento', 'Modificación', 'Organización', 'Reportes'].map((item, idx) => (
+                      <Grid item xs={12} sm={6} md={4} key={idx}>
+                        <Paper sx={{ p: 2, bgcolor: 'white' }}>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            • {item}
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Fade>
+          )}
+        </Box>
+
+        {/* COMPARTIR */}
+        <Box ref={compartirRef} id="compartir" sx={{ mb: 6, minHeight: '400px' }}>
+          {currentStep >= 6 && (
+            <Fade in timeout={800}>
+              <Card elevation={6} sx={{ bgcolor: 'error.light', mx: 2 }}>
+                <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                  <Typography variant="h1" sx={{ fontSize: 80, mb: 2 }}>📤</Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, color: 'error.contrastText' }}>
+                    3. COMPARTIR DATOS
+                  </Typography>
+                  <Typography variant="h6" sx={{ mb: 3, color: 'error.contrastText' }}>
+                    Enviamos información a terceros:
+                  </Typography>
+                  <Grid container spacing={2}>
+                    {['Proveedores', 'Estado (SII/Previred)', 'Socios', 'Bancos', 'Seguros'].map((item, idx) => (
+                      <Grid item xs={12} sm={6} md={4} key={idx}>
+                        <Paper sx={{ p: 2, bgcolor: 'white' }}>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            • {item}
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Fade>
+          )}
+        </Box>
+
+        {/* Mensaje final */}
+        <Box ref={mensajeFinalRef} id="mensaje-final" sx={{ mb: 6, minHeight: '200px' }}>
+          {currentStep >= 7 && (
+            <Fade in timeout={800}>
+              <Paper elevation={8} sx={{ p: 4, bgcolor: 'error.main', color: 'error.contrastText', mx: 2 }}>
+                <Typography variant="h3" sx={{ fontWeight: 800, textAlign: 'center', mb: 2 }}>
+                  🔴 TODO ESTO ES TRATAMIENTO 🔴
+                </Typography>
+                <Typography variant="h5" sx={{ textAlign: 'center' }}>
+                  Y ESTÁ REGULADO POR LA LEY 21.719
+                </Typography>
+              </Paper>
+            </Fade>
+          )}
+        </Box>
+
+        {/* Datos adicionales */}
+        <Box ref={datosAdicionalesRef} id="datos-adicionales" sx={{ mb: 6, minHeight: '200px' }}>
+          {currentStep >= 8 && (
+            <Fade in timeout={800}>
+              <Grid container spacing={3} sx={{ mx: 2 }}>
+                <Grid item xs={12} md={4}>
+                  <Paper sx={{ p: 3, bgcolor: 'warning.main', color: 'white', textAlign: 'center' }}>
+                    <Typography variant="h2" sx={{ fontSize: 60 }}>📊</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                      MULTAS HASTA
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 800 }}>
+                      5.000 UTM
+                    </Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Paper sx={{ p: 3, bgcolor: 'info.main', color: 'white', textAlign: 'center' }}>
+                    <Typography variant="h2" sx={{ fontSize: 60 }}>⚖️</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                      CUMPLIMIENTO
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 800 }}>
+                      OBLIGATORIO
+                    </Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Paper sx={{ p: 3, bgcolor: 'success.main', color: 'white', textAlign: 'center' }}>
+                    <Typography variant="h2" sx={{ fontSize: 60 }}>🏆</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                      CERTIFICACIÓN
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 800 }}>
+                      POSIBLE
+                    </Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
+            </Fade>
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default ConceptoTratamiento;</div>
+    </div>
+
+    <div class="module-section">
+        <div class="file-header">2. InterfazTrabajo.js - INTERFAZ DE TRABAJO</div>
+        <div class="module-title">Tu inventario de datos en acción</div>
+        <p><strong>Descripción:</strong> Simula la interfaz real donde se completa el mapeo de procesos</p>
+        <p><strong>Duración:</strong> 90 segundos</p>
+        <p><strong>Problemas:</strong> Sincronización compleja, múltiples elementos apareciendo</p>
+    </div>
+
+    <div class="module-section">
+        <div class="file-header">3. ClasificacionDatos.js - CLASIFICACIÓN DE DATOS</div>
+        <div class="module-title">Clasificación de datos según riesgo</div>
+        <p><strong>Descripción:</strong> Enseña tres categorías de datos (comunes, sensibles, menores)</p>
+        <p><strong>Duración:</strong> 45 segundos</p>
+        <p><strong>Problemas:</strong> Sistema de voz masculina no efectivo</p>
+    </div>
+
+    <div class="module-section">
+        <div class="file-header">4. AuthContext.js - CONTEXTO DE AUTENTICACIÓN</div>
+        <div class="module-title">Sistema de autenticación con modo demo</div>
+        <p><strong>Función:</strong> Permite funcionamiento independiente del backend</p>
+        <p><strong>Característica:</strong> Modo demo automático después de 3 segundos</p>
+    </div>
+
+    <div class="module-section">
+        <div class="module-title">🔧 ARQUITECTURA ACTUAL</div>
+        <ul>
+            <li><strong>Estado:</strong> currentStep, isPlaying, currentPhrase, progress, timeElapsed</li>
+            <li><strong>Referencias:</strong> múltiples useRef para cada sección</li>
+            <li><strong>Sincronización:</strong> setInterval con verificación cada 100ms</li>
+            <li><strong>Audio:</strong> Un texto continuo con speechSynthesis.speak()</li>
+            <li><strong>Scroll:</strong> múltiples intentos con scrollIntoView y setTimeout</li>
+            <li><strong>Voz:</strong> filtrado agresivo de voces masculinas</li>
+        </ul>
+    </div>
+
+    <div class="module-section">
+        <div class="module-title">❌ PROBLEMAS PERSISTENTES</div>
+        <ul>
+            <li><strong>Cortes de voz:</strong> speechSynthesis se interrumpe con elementos DOM</li>
+            <li><strong>Voz femenina:</strong> filtros no funcionan en todos los navegadores</li>
+            <li><strong>Scroll fallido:</strong> elementos fuera de vista, textos perdidos</li>
+            <li><strong>Desincronización:</strong> elementos aparecen en momentos incorrectos</li>
+            <li><strong>Complejidad:</strong> múltiples sistemas compitiendo entre sí</li>
+        </ul>
+    </div>
+
+    <div class="module-section">
+        <div class="module-title">🎯 PRÓXIMOS PASOS PLANIFICADOS</div>
+        <ol>
+            <li><strong>Eliminación completa</strong> del módulo actual</li>
+            <li><strong>Arquitectura simplificada</strong> con un solo estado</li>
+            <li><strong>Sincronización palabra por palabra</strong> (500ms por palabra)</li>
+            <li><strong>Sistema de voz robusto</strong> con detección mejorada</li>
+            <li><strong>Scroll garantizado</strong> con observer API</li>
+            <li><strong>Contenido educativo mantenido</strong> pero funcional</li>
+        </ol>
+    </div>
+
+    <div class="summary">
+        <h2>💾 BACKUP COMPLETADO</h2>
+        <p>Este archivo contiene el estado completo del módulo cero antes de su eliminación y reescritura.</p>
+        <p><strong>Usuario solicita:</strong> "a medida que la voz hable, se desplieguen las palabras en pantalla"</p>
+        <p><strong>Fecha:</strong> 2025-08-21</p>
+        <p><strong>Siguiente paso:</strong> Eliminación completa y reescritura desde cero</p>
+    </div>
+</body>
+</html>

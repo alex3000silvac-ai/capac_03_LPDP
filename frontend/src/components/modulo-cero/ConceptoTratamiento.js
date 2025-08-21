@@ -377,6 +377,15 @@ const ConceptoTratamiento = ({ duration = 60, onNext, onPrev, isAutoPlay = true 
       clearInterval(intervalRef.current);
     };
     
+    utterance.onerror = (error) => {
+      console.error('🎤 ERROR DE AUDIO:', error);
+      setIsPlaying(false);
+    };
+    
+    // INICIAR SINCRONIZACIÓN INMEDIATAMENTE (BACKUP)
+    console.log('🎯 INICIANDO SINCRONIZACIÓN MANUAL');
+    intervalRef.current = setInterval(syncWords, 500);
+    
     // Reproducir audio
     speechSynthesis.cancel();
     speechSynthesis.speak(utterance);
@@ -389,6 +398,18 @@ const ConceptoTratamiento = ({ duration = 60, onNext, onPrev, isAutoPlay = true 
       return () => clearTimeout(timer);
     }
   }, [isAutoPlay]);
+
+  // 🔧 DEBUG: Mostrar estado actual
+  useEffect(() => {
+    console.log('🔧 DEBUG Estado:', {
+      currentWordIndex,
+      isPlaying,
+      isPaused,
+      showTitle: shouldShow('show_title'),
+      showRecopilar: shouldShow('show_recopilar'),
+      wordsLength: words.length
+    });
+  }, [currentWordIndex, isPlaying]);
 
   // 🧹 CLEANUP
   useEffect(() => {

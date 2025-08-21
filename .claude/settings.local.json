@@ -65,7 +65,9 @@
       "Bash(PORT=3002 npm start)",
       "Bash(true)",
       "Bash(NODE_OPTIONS=\"--max-old-space-size=2048\" npm run build)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(render services list)",
+      "Bash(npm run deploy:frontend:*)"
     ],
     "deny": [],
     "additionalDirectories": [
