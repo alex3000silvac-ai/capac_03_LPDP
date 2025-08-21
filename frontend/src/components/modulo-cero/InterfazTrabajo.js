@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Typography, 
@@ -28,6 +28,41 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
   const [visibleElements, setVisibleElements] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentUtterance, setCurrentUtterance] = useState(null);
+  const [currentPhrase, setCurrentPhrase] = useState('');
+  
+  // Referencias para auto-scroll GARANTIZADO
+  const tituloRef = useRef(null);
+  const progresoRef = useRef(null);
+  const diagramaRef = useRef(null);
+  const seccion1Ref = useRef(null);
+  const seccion2Ref = useRef(null);
+  const seccion3Ref = useRef(null);
+  const seccion4Ref = useRef(null);
+  const seccion5Ref = useRef(null);
+  const botonFinalRef = useRef(null);
+  
+  // Función de auto-scroll suave GARANTIZADA
+  const scrollToElement = (elementRef) => {
+    if (elementRef?.current) {
+      // Primero hacer scroll suave
+      elementRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'nearest' 
+      });
+      
+      // Backup: forzar scroll después de 500ms si es necesario
+      setTimeout(() => {
+        const rect = elementRef.current?.getBoundingClientRect();
+        if (rect && (rect.top < 100 || rect.bottom > window.innerHeight - 100)) {
+          window.scrollTo({
+            top: window.pageYOffset + rect.top - (window.innerHeight / 2) + (rect.height / 2),
+            behavior: 'smooth'
+          });
+        }
+      }, 500);
+    }
+  };
 
   // SISTEMA DE VOZ MASCULINA RADICAL
   const configurarVozMasculina = () => {
@@ -111,42 +146,58 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
     const sincronizarElementos = () => {
       // Mostrar título y progreso inmediatamente
       setTimeout(() => {
+        setCurrentPhrase('Tu inventario de datos en acción.');
         setVisibleElements(['titulo', 'progreso', 'diagrama']);
+        scrollToElement(tituloRef);
       }, 1000);
 
       // Mostrar header del formulario
       setTimeout(() => {
+        setCurrentPhrase('Esta es la interfaz real donde completas el mapeo.');
         setVisibleElements(prev => [...prev, 'header']);
+        scrollToElement(diagramaRef);
       }, 5000);
 
       // Mostrar sección 1 cuando dice "Primera sección"
       setTimeout(() => {
+        setCurrentPhrase('Primera sección: Datos que recopilas.');
         setVisibleElements(prev => [...prev, 'seccion1']);
+        scrollToElement(seccion1Ref);
       }, 10000);
 
       // Mostrar sección 2 cuando dice "Segunda sección"
       setTimeout(() => {
+        setCurrentPhrase('Segunda sección: Finalidades de uso.');
         setVisibleElements(prev => [...prev, 'seccion2']);
+        scrollToElement(seccion2Ref);
       }, 18000);
 
       // Mostrar sección 3 cuando dice "Tercera sección"
       setTimeout(() => {
+        setCurrentPhrase('Tercera sección: Destinatarios.');
         setVisibleElements(prev => [...prev, 'seccion3']);
+        scrollToElement(seccion3Ref);
       }, 26000);
 
       // Mostrar sección 4 cuando dice "Cuarta sección"
       setTimeout(() => {
+        setCurrentPhrase('Cuarta sección: Plazos de retención.');
         setVisibleElements(prev => [...prev, 'seccion4']);
+        scrollToElement(seccion4Ref);
       }, 34000);
 
       // Mostrar sección 5 cuando dice "Quinta sección"
       setTimeout(() => {
+        setCurrentPhrase('Quinta sección: Medidas de seguridad.');
         setVisibleElements(prev => [...prev, 'seccion5']);
+        scrollToElement(seccion5Ref);
       }, 42000);
 
       // Mostrar botón final cuando dice "Tu primer mapeo"
       setTimeout(() => {
+        setCurrentPhrase('Tu primer mapeo estará listo en diez minutos.');
         setVisibleElements(prev => [...prev, 'boton_final']);
+        scrollToElement(botonFinalRef);
       }, 50000);
 
       // Avanzar al siguiente módulo
@@ -203,9 +254,28 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
                         visibleElements.includes('seccion1') ? 0 : -1;
 
   return (
-    <Box sx={{ py: 4, minHeight: '600px' }}>
+    <Box sx={{ py: 4, minHeight: '600px', position: 'relative' }}>
+      {/* Indicador de frase actual */}
+      {currentPhrase && (
+        <Box sx={{ 
+          position: 'fixed', 
+          bottom: 20, 
+          left: '50%', 
+          transform: 'translateX(-50%)',
+          bgcolor: 'rgba(0,0,0,0.8)', 
+          color: 'white', 
+          p: 2, 
+          borderRadius: 2,
+          maxWidth: '80%',
+          zIndex: 9999
+        }}>
+          <Typography variant="body1">{currentPhrase}</Typography>
+        </Box>
+      )}
+
       {/* Título */}
-      {visibleElements.includes('titulo') && (
+      <Box ref={tituloRef}>
+        {visibleElements.includes('titulo') && (
         <Fade in timeout={1000}>
           <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>
             💼 TU INVENTARIO EN ACCIÓN
@@ -222,8 +292,9 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
       )}
 
       {/* Progreso Visual */}
-      {visibleElements.includes('progreso') && (
-        <Box sx={{ mb: 4, maxWidth: 800, mx: 'auto' }}>
+      <Box ref={progresoRef}>
+        {visibleElements.includes('progreso') && (
+          <Box sx={{ mb: 4, maxWidth: 800, mx: 'auto' }}>
           <LinearProgress 
             variant="determinate" 
             value={currentSection === -1 ? 0 : ((currentSection + 1) / 5) * 100}
@@ -239,12 +310,14 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
             ))}
           </Stepper>
         </Box>
-      )}
+        )}
+      </Box>
 
       {/* Diagrama Visual del Proceso */}
-      {visibleElements.includes('diagrama') && (
-        <Fade in timeout={2000}>
-          <Paper sx={{ p: 3, mb: 4, maxWidth: 1000, mx: 'auto', bgcolor: 'grey.50' }}>
+      <Box ref={diagramaRef}>
+        {visibleElements.includes('diagrama') && (
+          <Fade in timeout={2000}>
+            <Paper sx={{ p: 3, mb: 4, maxWidth: 1000, mx: 'auto', bgcolor: 'grey.50' }}>
             <Typography variant="h6" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
               🔄 Flujo Visual del Proceso de Mapeo
             </Typography>
@@ -320,7 +393,7 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
           <Grid container spacing={4}>
             {/* Sección 1: Datos que recopilas */}
             {visibleElements.includes('seccion1') && (
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={6} ref={seccion1Ref}>
                 <Slide in direction="right" timeout={1000}>
                   <Paper 
                     elevation={4}
@@ -372,7 +445,7 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
 
             {/* Sección 2: Para qué */}
             {visibleElements.includes('seccion2') && (
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={6} ref={seccion2Ref}>
                 <Slide in direction="left" timeout={1000}>
                   <Paper 
                     elevation={4}
@@ -417,7 +490,7 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
 
             {/* Sección 3: Quién accede */}
             {visibleElements.includes('seccion3') && (
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={6} ref={seccion3Ref}>
                 <Slide in direction="right" timeout={1000}>
                   <Paper 
                     elevation={4}
@@ -464,7 +537,7 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
 
             {/* Sección 4: Cuánto guardas */}
             {visibleElements.includes('seccion4') && (
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={6} ref={seccion4Ref}>
                 <Slide in direction="left" timeout={1000}>
                   <Paper 
                     elevation={4}
@@ -504,7 +577,7 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
 
             {/* Sección 5: Medidas de seguridad */}
             {visibleElements.includes('seccion5') && (
-              <Grid item xs={12}>
+              <Grid item xs={12} ref={seccion5Ref}>
                 <Slide in direction="up" timeout={1000}>
                   <Paper 
                     elevation={6}
@@ -569,9 +642,10 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
           </Grid>
 
           {/* Botón de acción */}
-          {visibleElements.includes('boton_final') && (
-            <Fade in timeout={1500}>
-              <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Box ref={botonFinalRef}>
+            {visibleElements.includes('boton_final') && (
+              <Fade in timeout={1500}>
+                <Box sx={{ textAlign: 'center', mt: 4 }}>
                 <Paper 
                   elevation={4}
                   sx={{ 
@@ -593,9 +667,10 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
                     Tu primer mapeo estará listo en menos de 10 minutos
                   </Typography>
                 </Paper>
-              </Box>
-            </Fade>
-          )}
+                </Box>
+              </Fade>
+            )}
+          </Box>
         </CardContent>
       </Card>
     </Box>

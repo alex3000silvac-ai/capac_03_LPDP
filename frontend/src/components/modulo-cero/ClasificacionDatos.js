@@ -30,14 +30,26 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = true }
   const menoresRef = useRef(null);
   const resumenRef = useRef(null);
 
-  // Función de auto-scroll suave
+  // Función de auto-scroll suave GARANTIZADA
   const scrollToElement = (elementRef) => {
     if (elementRef?.current) {
+      // Primero hacer scroll suave
       elementRef.current.scrollIntoView({ 
         behavior: 'smooth', 
         block: 'center',
         inline: 'nearest' 
       });
+      
+      // Backup: forzar scroll después de 500ms si es necesario
+      setTimeout(() => {
+        const rect = elementRef.current?.getBoundingClientRect();
+        if (rect && (rect.top < 100 || rect.bottom > window.innerHeight - 100)) {
+          window.scrollTo({
+            top: window.pageYOffset + rect.top - (window.innerHeight / 2) + (rect.height / 2),
+            behavior: 'smooth'
+          });
+        }
+      }, 500);
     }
   };
 
