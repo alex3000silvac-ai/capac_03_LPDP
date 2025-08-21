@@ -62,7 +62,9 @@
       "Bash(PORT=3001 npm start)",
       "WebFetch(domain:termly.io)",
       "Bash(PORT=3000 npm start)",
-      "Bash(PORT=3002 npm start)"
+      "Bash(PORT=3002 npm start)",
+      "Bash(true)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=2048\" npm run build)"
     ],
     "deny": [],
     "additionalDirectories": [

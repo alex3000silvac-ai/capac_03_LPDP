@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Typography, 
@@ -7,8 +7,7 @@ import {
   Card,
   CardContent,
   Fade,
-  Slide,
-  Chip,
+  Zoom,
   Alert
 } from '@mui/material';
 import { 
@@ -21,9 +20,28 @@ import {
 const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = true }) => {
   const [visibleElements, setVisibleElements] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentUtterance, setCurrentUtterance] = useState(null);
+  const [currentPhrase, setCurrentPhrase] = useState('');
+  
+  // Referencias para auto-scroll
+  const tituloRef = useRef(null);
+  const introRef = useRef(null);
+  const comunesRef = useRef(null);
+  const sensiblesRef = useRef(null);
+  const menoresRef = useRef(null);
+  const resumenRef = useRef(null);
 
-  // SISTEMA DE VOZ MASCULINA RADICAL
+  // Función de auto-scroll suave
+  const scrollToElement = (elementRef) => {
+    if (elementRef?.current) {
+      elementRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'nearest' 
+      });
+    }
+  };
+
+  // SISTEMA DE VOZ MASCULINA
   const configurarVozMasculina = () => {
     return new Promise((resolve) => {
       const intentarConfigurarVoz = () => {
@@ -43,7 +61,7 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = true }
                              nombre.includes('antonio') ||
                              nombre.includes('juan') ||
                              nombre.includes('pablo') ||
-                             !nombre.includes('female') && !nombre.includes('woman');
+                             (!nombre.includes('female') && !nombre.includes('woman') && !nombre.includes('mujer'));
           
           const esEspanol = idioma.includes('es') || idioma.includes('mx') || idioma.includes('ar');
           
@@ -68,98 +86,118 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = true }
     });
   };
 
-  // SISTEMA DE SINCRONIZACIÓN AUTOMÁTICA REAL
+  // SISTEMA DE SINCRONIZACIÓN PERFECTA CON AUTO-SCROLL
   const iniciarPresentacionAutomatica = async () => {
     if (isPlaying) return;
     
+    console.log('🎯 INICIANDO PRESENTACIÓN CON SINCRONIZACIÓN PERFECTA - ClasificacionDatos');
     setIsPlaying(true);
     
     const vozMasculina = await configurarVozMasculina();
+    console.log('🎤 Voz configurada:', vozMasculina?.name || 'default');
     
-    const textoCompleto = `
-      No todos los datos personales son iguales según la Ley veintiún mil setecientos diecinueve de Chile.
-      
-      Los datos comunes como RUT, nombre, email y teléfono tienen riesgo bajo y requieren protección básica.
-      
-      Los datos sensibles como información médica, datos biométricos y situación socioeconómica requieren máxima protección. En Chile, la situación socioeconómica es considerada dato sensible, incluyendo ingresos, deudas y scoring crediticio.
-      
-      Los datos de menores de edad requieren protección especial y consentimiento de los padres.
-      
-      Recuerda: datos sensibles igual máxima protección más multas altas. Las multas pueden llegar hasta cinco mil UTM.
-    `;
+    // Dividir el texto en frases para sincronización exacta
+    const frases = [
+      { texto: "Clasificación de datos según riesgo.", duracion: 3000, elemento: 'titulo' },
+      { texto: "La ley chilena establece tres categorías principales de datos según su nivel de sensibilidad.", duracion: 5000, elemento: 'intro' },
+      { texto: "Primero, los datos comunes.", duracion: 2000, elemento: 'comunes_titulo' },
+      { texto: "Estos son los de menor riesgo. Incluyen nombre, RUT, dirección, teléfono, email, fecha de nacimiento. Son públicos o fácilmente obtenibles. Su tratamiento requiere consentimiento básico o base legal.", duracion: 10000, elemento: 'comunes_completo' },
+      { texto: "Segundo, los datos sensibles.", duracion: 2000, elemento: 'sensibles_titulo' },
+      { texto: "Estos tienen el máximo riesgo. Incluyen origen racial o étnico, opiniones políticas, convicciones religiosas o filosóficas, afiliación sindical, vida sexual, datos biométricos y de salud. Requieren consentimiento expreso y por escrito. Medidas de seguridad reforzadas obligatorias.", duracion: 12000, elemento: 'sensibles_completo' },
+      { texto: "Tercero, los datos de menores.", duracion: 2000, elemento: 'menores_titulo' },
+      { texto: "Protección especial para menores de 14 años. Requieren autorización de padres o tutores. Solo se pueden tratar si es en su interés superior. Prohibido el perfilamiento y publicidad dirigida.", duracion: 10000, elemento: 'menores_completo' },
+      { texto: "Recuerda: A mayor sensibilidad, mayores obligaciones y mayores multas por incumplimiento.", duracion: 5000, elemento: 'resumen' }
+    ];
 
-    const utterance = new SpeechSynthesisUtterance(textoCompleto);
-    utterance.voice = vozMasculina;
-    utterance.lang = 'es-MX';
-    utterance.rate = 0.7;
-    utterance.pitch = 0.7;
-    utterance.volume = 1.0;
+    let tiempoAcumulado = 500;
 
-    setCurrentUtterance(utterance);
-
-    // SINCRONIZACIÓN EXACTA CON EL AUDIO
-    const sincronizarElementos = () => {
-      // Mostrar título inmediatamente
+    // Programar cada frase con su sincronización y scroll
+    frases.forEach((frase, index) => {
       setTimeout(() => {
-        setVisibleElements(['titulo']);
-      }, 1000);
+        setCurrentPhrase(frase.texto);
+        
+        switch(frase.elemento) {
+          case 'titulo':
+            setVisibleElements(['titulo']);
+            scrollToElement(tituloRef);
+            break;
+          case 'intro':
+            setVisibleElements(prev => [...prev, 'intro']);
+            scrollToElement(introRef);
+            break;
+          case 'comunes_titulo':
+            setVisibleElements(prev => [...prev, 'comunes_titulo']);
+            scrollToElement(comunesRef);
+            break;
+          case 'comunes_completo':
+            setVisibleElements(prev => {
+              const newElements = [...prev];
+              const index = newElements.indexOf('comunes_titulo');
+              if (index > -1) {
+                newElements[index] = 'comunes';
+              }
+              return newElements;
+            });
+            break;
+          case 'sensibles_titulo':
+            setVisibleElements(prev => [...prev, 'sensibles_titulo']);
+            scrollToElement(sensiblesRef);
+            break;
+          case 'sensibles_completo':
+            setVisibleElements(prev => {
+              const newElements = [...prev];
+              const index = newElements.indexOf('sensibles_titulo');
+              if (index > -1) {
+                newElements[index] = 'sensibles';
+              }
+              return newElements;
+            });
+            break;
+          case 'menores_titulo':
+            setVisibleElements(prev => [...prev, 'menores_titulo']);
+            scrollToElement(menoresRef);
+            break;
+          case 'menores_completo':
+            setVisibleElements(prev => {
+              const newElements = [...prev];
+              const index = newElements.indexOf('menores_titulo');
+              if (index > -1) {
+                newElements[index] = 'menores';
+              }
+              return newElements;
+            });
+            break;
+          case 'resumen':
+            setVisibleElements(prev => [...prev, 'resumen']);
+            scrollToElement(resumenRef);
+            break;
+        }
 
-      // Mostrar datos comunes cuando dice "Los datos comunes"
-      setTimeout(() => {
-        setVisibleElements(prev => [...prev, 'comunes']);
-      }, 10000);
+        // Hablar la frase
+        const utterance = new SpeechSynthesisUtterance(frase.texto);
+        utterance.voice = vozMasculina;
+        utterance.lang = 'es-MX';
+        utterance.rate = 0.85;
+        utterance.pitch = 0.7;
+        utterance.volume = 1.0;
+        
+        speechSynthesis.speak(utterance);
+      }, tiempoAcumulado);
 
-      // Mostrar flecha de transición
-      setTimeout(() => {
-        setVisibleElements(prev => [...prev, 'flecha']);
-      }, 15000);
+      tiempoAcumulado += frase.duracion;
+    });
 
-      // Mostrar datos sensibles cuando dice "Los datos sensibles"
-      setTimeout(() => {
-        setVisibleElements(prev => [...prev, 'sensibles']);
-      }, 18000);
-
-      // Mostrar datos de menores cuando dice "Los datos de menores"
-      setTimeout(() => {
-        setVisibleElements(prev => [...prev, 'menores']);
-      }, 28000);
-
-      // Mostrar mensaje clave cuando dice "Recuerda"
-      setTimeout(() => {
-        setVisibleElements(prev => [...prev, 'mensaje_clave']);
-      }, 35000);
-
-      // Mostrar comparación final
-      setTimeout(() => {
-        setVisibleElements(prev => [...prev, 'comparacion']);
-      }, 42000);
-
-      // Avanzar al siguiente módulo
-      setTimeout(() => {
-        if (onNext) onNext();
-      }, 50000);
-    };
-
-    utterance.onstart = () => {
-      sincronizarElementos();
-    };
-
-    utterance.onend = () => {
-      setIsPlaying(false);
-    };
-
-    utterance.onerror = () => {
-      setIsPlaying(false);
-    };
-
-    speechSynthesis.speak(utterance);
+    // Avanzar al siguiente módulo al final
+    setTimeout(() => {
+      if (onNext) onNext();
+    }, tiempoAcumulado + 2000);
   };
 
   useEffect(() => {
     if (isAutoPlay) {
       const timer = setTimeout(() => {
         iniciarPresentacionAutomatica();
-      }, 2000);
+      }, 1500);
 
       return () => clearTimeout(timer);
     }
@@ -167,296 +205,272 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = true }
 
   useEffect(() => {
     return () => {
-      if (currentUtterance) {
-        speechSynthesis.cancel();
-      }
+      speechSynthesis.cancel();
     };
-  }, [currentUtterance]);
+  }, []);
 
-  const datosComunes = [
-    { nombre: 'RUT', icon: '🆔' },
-    { nombre: 'Nombre', icon: '👤' },
-    { nombre: 'Email', icon: '📧' },
-    { nombre: 'Teléfono', icon: '📱' },
-    { nombre: 'Dirección', icon: '🏠' },
-    { nombre: 'Cargo', icon: '💼' }
-  ];
-
-  const datosSensibles = [
-    { nombre: 'Salud', icon: '🏥', especial: true },
-    { nombre: 'Sueldo', icon: '💰', especial: true },
-    { nombre: 'Deudas', icon: '💳', chile: true },
-    { nombre: 'Biométricos', icon: '👆', especial: true },
-    { nombre: 'Afiliación Sindical', icon: '🤝', especial: true },
-    { nombre: 'Situación Socioeconómica', icon: '📈', chile: true }
-  ];
-
-  const datosNNA = [
-    { nombre: 'Menores 18 años', icon: '👶' },
-    { nombre: 'Consentimiento padres', icon: '👨‍👩‍👧‍👦' },
-    { nombre: 'Protección especial', icon: '🛡️' }
+  const categorias = [
+    {
+      id: 'comunes',
+      titulo: 'DATOS COMUNES',
+      icon: PersonIcon,
+      riesgo: 'BAJO',
+      color: 'success',
+      descripcion: 'Información básica de identificación',
+      ejemplos: [
+        { tipo: 'Identificación', datos: ['Nombre', 'RUT', 'Estado civil'] },
+        { tipo: 'Contacto', datos: ['Dirección', 'Teléfono', 'Email'] },
+        { tipo: 'Laborales', datos: ['Cargo', 'Empresa', 'Experiencia'] },
+        { tipo: 'Educación', datos: ['Títulos', 'Certificaciones'] }
+      ],
+      requisitos: [
+        'Consentimiento simple o base legal',
+        'Medidas de seguridad básicas',
+        'Notificación de uso'
+      ]
+    },
+    {
+      id: 'sensibles',
+      titulo: 'DATOS SENSIBLES',
+      icon: WarningIcon,
+      riesgo: 'ALTO',
+      color: 'error',
+      descripcion: 'Información que puede causar discriminación',
+      ejemplos: [
+        { tipo: 'Salud', datos: ['Historial médico', 'Enfermedades', 'Tratamientos'] },
+        { tipo: 'Biométricos', datos: ['Huella dactilar', 'Reconocimiento facial', 'Iris'] },
+        { tipo: 'Ideológicos', datos: ['Opinión política', 'Religión', 'Afiliación sindical'] },
+        { tipo: 'Íntimos', datos: ['Orientación sexual', 'Vida sexual'] }
+      ],
+      requisitos: [
+        'Consentimiento expreso y por escrito',
+        'Medidas de seguridad reforzadas',
+        'Evaluación de impacto obligatoria',
+        'Registro detallado de tratamiento'
+      ]
+    },
+    {
+      id: 'menores',
+      titulo: 'DATOS DE MENORES',
+      icon: ChildIcon,
+      riesgo: 'ESPECIAL',
+      color: 'warning',
+      descripcion: 'Protección reforzada para menores de 14 años',
+      ejemplos: [
+        { tipo: 'Educativos', datos: ['Notas', 'Asistencia', 'Comportamiento'] },
+        { tipo: 'Salud', datos: ['Vacunas', 'Alergias', 'Necesidades especiales'] },
+        { tipo: 'Familiares', datos: ['Datos de padres', 'Tutores legales'] },
+        { tipo: 'Actividades', datos: ['Deportes', 'Talleres', 'Eventos'] }
+      ],
+      requisitos: [
+        'Autorización de padres o tutores',
+        'Solo si es en interés del menor',
+        'Prohibido perfilamiento',
+        'Prohibida publicidad dirigida',
+        'Derecho al olvido reforzado'
+      ]
+    }
   ];
 
   return (
-    <Box sx={{ py: 4, minHeight: '600px' }}>
+    <Box sx={{ textAlign: 'center', py: 4, minHeight: '600px', position: 'relative' }}>
+      {/* Indicador de frase actual */}
+      {currentPhrase && (
+        <Box sx={{ 
+          position: 'fixed', 
+          bottom: 20, 
+          left: '50%', 
+          transform: 'translateX(-50%)',
+          bgcolor: 'rgba(0,0,0,0.8)', 
+          color: 'white', 
+          p: 2, 
+          borderRadius: 2,
+          maxWidth: '80%',
+          zIndex: 9999
+        }}>
+          <Typography variant="body1">{currentPhrase}</Typography>
+        </Box>
+      )}
+
       {/* Título */}
-      {visibleElements.includes('titulo') && (
-        <Fade in timeout={1000}>
-          <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>
-            🔍 NO TODOS LOS DATOS SON IGUALES
-          </Typography>
-        </Fade>
-      )}
-
-      {visibleElements.includes('titulo') && (
-        <Fade in timeout={1500}>
-          <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 6 }}>
-            Clasificación por nivel de riesgo y protección requerida
-          </Typography>
-        </Fade>
-      )}
-
-      <Grid container spacing={4} sx={{ minHeight: '600px' }}>
-        {/* DATOS COMUNES */}
-        {visibleElements.includes('comunes') && (
-          <Grid item xs={12}>
-            <Slide in direction="right" timeout={1000}>
-              <Card 
-                elevation={8}
-                sx={{ 
-                  bgcolor: 'success.light',
-                  transform: 'scale(1.02)',
-                  transition: 'all 0.5s ease-in-out'
-                }}
-              >
-                <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <PersonIcon sx={{ fontSize: 40, mr: 2 }} />
-                    <Box>
-                      <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                        DATOS PERSONALES COMUNES
-                      </Typography>
-                      <Typography variant="h6" color="success.main" sx={{ fontWeight: 600 }}>
-                        Riesgo: BAJO
-                      </Typography>
-                    </Box>
-                  </Box>
-                  
-                  <Grid container spacing={2}>
-                    {datosComunes.map((dato, index) => (
-                      <Grid item xs={12} sm={6} md={4} lg={2} key={index}>
-                        <Fade in timeout={1000 + (index * 200)}>
-                          <Paper 
-                            elevation={2}
-                            sx={{ 
-                              p: 2, 
-                              textAlign: 'center',
-                              bgcolor: 'success.200',
-                              color: 'text.primary'
-                            }}
-                          >
-                            <Typography variant="h4">{dato.icon}</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {dato.nombre}
-                            </Typography>
-                          </Paper>
-                        </Fade>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Slide>
-          </Grid>
+      <Box ref={tituloRef}>
+        {visibleElements.includes('titulo') && (
+          <Fade in timeout={1000}>
+            <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
+              📊 CLASIFICACIÓN DE DATOS
+            </Typography>
+          </Fade>
         )}
 
-        {/* FLECHA */}
-        {visibleElements.includes('flecha') && (
-          <Grid item xs={12} sx={{ textAlign: 'center', py: 2 }}>
-            <Fade in timeout={500}>
-              <Typography variant="h2" color="warning.main">
-                ⬇️
-              </Typography>
-            </Fade>
-          </Grid>
+        {visibleElements.includes('titulo') && (
+          <Fade in timeout={1500}>
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
+              Tres niveles de riesgo según la Ley 21.719
+            </Typography>
+          </Fade>
         )}
+      </Box>
 
-        {/* DATOS SENSIBLES */}
-        {visibleElements.includes('sensibles') && (
-          <Grid item xs={12}>
-            <Slide in direction="left" timeout={1000}>
-              <Card 
-                elevation={8}
-                sx={{ 
-                  bgcolor: 'error.light',
-                  transform: 'scale(1.02)',
-                  transition: 'all 0.5s ease-in-out'
-                }}
-              >
-                <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <WarningIcon sx={{ fontSize: 40, mr: 2, color: 'error.main' }} />
-                    <Box>
-                      <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                        ⚠️ DATOS SENSIBLES ⚠️
-                      </Typography>
-                      <Typography variant="h6" color="error.main" sx={{ fontWeight: 600 }}>
-                        Riesgo: ALTO - REQUIERE CONSENTIMIENTO
-                      </Typography>
-                    </Box>
-                  </Box>
-                  
-                  <Grid container spacing={2}>
-                    {datosSensibles.map((dato, index) => (
-                      <Grid item xs={12} sm={6} md={4} lg={2} key={index}>
-                        <Fade in timeout={1000 + (index * 200)}>
-                          <Paper 
-                            elevation={3}
-                            sx={{ 
-                              p: 2, 
-                              textAlign: 'center',
-                              bgcolor: 'error.100',
-                              border: dato.chile ? '2px solid' : 'none',
-                              borderColor: 'warning.main',
-                              color: 'error.contrastText'
-                            }}
-                          >
-                            <Typography variant="h4">{dato.icon}</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                              {dato.nombre}
-                            </Typography>
-                            {dato.chile && (
-                              <Chip 
-                                label="LEY CHILE" 
-                                size="small" 
-                                color="warning"
-                                sx={{ mt: 1, fontSize: '0.7rem' }}
-                              />
-                            )}
-                          </Paper>
-                        </Fade>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Slide>
-          </Grid>
-        )}
-
-        {/* DATOS NNA */}
-        {visibleElements.includes('menores') && (
-          <Grid item xs={12}>
-            <Slide in direction="up" timeout={1000}>
-              <Card 
-                elevation={8}
-                sx={{ 
-                  bgcolor: 'info.light',
-                  transform: 'scale(1.02)',
-                  transition: 'all 0.5s ease-in-out'
-                }}
-              >
-                <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <ChildIcon sx={{ fontSize: 40, mr: 2, color: 'info.main' }} />
-                    <Box>
-                      <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                        👶 DATOS DE NIÑOS, NIÑAS Y ADOLESCENTES
-                      </Typography>
-                      <Typography variant="h6" color="info.main" sx={{ fontWeight: 600 }}>
-                        Riesgo: MUY ALTO - PROTECCIÓN ESPECIAL
-                      </Typography>
-                    </Box>
-                  </Box>
-                  
-                  <Grid container spacing={2}>
-                    {datosNNA.map((dato, index) => (
-                      <Grid item xs={12} sm={6} md={4} key={index}>
-                        <Fade in timeout={1000 + (index * 300)}>
-                          <Paper 
-                            elevation={4}
-                            sx={{ 
-                              p: 3, 
-                              textAlign: 'center',
-                              bgcolor: 'info.100',
-                              color: 'info.contrastText'
-                            }}
-                          >
-                            <Typography variant="h3">{dato.icon}</Typography>
-                            <Typography variant="body1" sx={{ fontWeight: 600, mt: 1, color: 'text.primary' }}>
-                              {dato.nombre}
-                            </Typography>
-                          </Paper>
-                        </Fade>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Slide>
-          </Grid>
-        )}
-      </Grid>
-
-      {/* Mensaje clave */}
-      {visibleElements.includes('mensaje_clave') && (
-        <Fade in timeout={1000}>
-          <Box sx={{ mt: 6 }}>
-            <Alert 
-              severity="warning" 
-              icon={<SecurityIcon fontSize="large" />}
-              sx={{ p: 3 }}
-            >
-              <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-                💡 Clave para tu empresa:
-              </Typography>
-              <Typography variant="h6">
-                <strong>DATOS SENSIBLES = MÁXIMA PROTECCIÓN + MULTAS ALTAS</strong>
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 1 }}>
-                La "situación socioeconómica" es particularidad de la ley chilena. 
-                Incluye: nivel de ingresos, deudas, scoring crediticio, patrimonio.
+      {/* Introducción */}
+      <Box ref={introRef}>
+        {visibleElements.includes('intro') && (
+          <Fade in timeout={1000}>
+            <Alert severity="info" sx={{ mb: 4, maxWidth: 800, mx: 'auto' }}>
+              <Typography variant="body1">
+                <strong>Principio fundamental:</strong> A mayor sensibilidad del dato, 
+                mayores son las obligaciones legales y las sanciones por incumplimiento.
               </Typography>
             </Alert>
-          </Box>
-        </Fade>
-      )}
+          </Fade>
+        )}
+      </Box>
 
-      {/* Comparación visual */}
-      {visibleElements.includes('comparacion') && (
-        <Fade in timeout={1500}>
-          <Box sx={{ mt: 4 }}>
-            <Grid container spacing={3}>
-              <Grid item xs={6}>
-                <Paper sx={{ p: 3, bgcolor: 'success.light', textAlign: 'center' }}>
-                  <Typography variant="h4" sx={{ mb: 2 }}>✅</Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    DATOS COMUNES
-                  </Typography>
-                  <Typography variant="body2">
-                    • Consentimiento simple<br />
-                    • Medidas básicas<br />
-                    • Multa base
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={6}>
-                <Paper sx={{ p: 3, bgcolor: 'error.light', textAlign: 'center' }}>
-                  <Typography variant="h4" sx={{ mb: 2 }}>⚠️</Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    DATOS SENSIBLES
-                  </Typography>
-                  <Typography variant="body2">
-                    • Consentimiento expreso<br />
-                    • Máxima protección<br />
-                    • Multa hasta 5.000 UTM
-                  </Typography>
-                </Paper>
-              </Grid>
-            </Grid>
-          </Box>
-        </Fade>
-      )}
+      {/* Categorías de datos */}
+      <Grid container spacing={4}>
+        {categorias.map((categoria) => (
+          <Grid 
+            item 
+            xs={12} 
+            md={4} 
+            key={categoria.id}
+            ref={
+              categoria.id === 'comunes' ? comunesRef :
+              categoria.id === 'sensibles' ? sensiblesRef :
+              categoria.id === 'menores' ? menoresRef : null
+            }
+          >
+            {(visibleElements.includes(categoria.id) || visibleElements.includes(`${categoria.id}_titulo`)) && (
+              <Zoom in timeout={1000}>
+                <Card 
+                  elevation={8}
+                  sx={{ 
+                    height: '100%',
+                    minHeight: '500px',
+                    position: 'relative',
+                    overflow: 'visible',
+                    opacity: visibleElements.includes(`${categoria.id}_titulo`) ? 0.7 : 1,
+                    transform: visibleElements.includes(categoria.id) ? 'scale(1.02)' : 'scale(1)',
+                    transition: 'all 0.5s ease-in-out'
+                  }}
+                >
+                  {/* Badge de riesgo */}
+                  <Paper
+                    elevation={4}
+                    sx={{
+                      position: 'absolute',
+                      top: -20,
+                      right: 20,
+                      px: 2,
+                      py: 1,
+                      bgcolor: `${categoria.color}.main`,
+                      color: `${categoria.color}.contrastText`,
+                      borderRadius: 20,
+                      fontWeight: 700
+                    }}
+                  >
+                    RIESGO {categoria.riesgo}
+                  </Paper>
+
+                  <CardContent sx={{ p: 3 }}>
+                    {/* Header */}
+                    <Box sx={{ mb: 3 }}>
+                      <categoria.icon 
+                        sx={{ 
+                          fontSize: 60, 
+                          color: `${categoria.color}.main`,
+                          mb: 2
+                        }} 
+                      />
+                      <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+                        {categoria.titulo}
+                      </Typography>
+                      {visibleElements.includes(categoria.id) && (
+                        <Fade in timeout={500}>
+                          <Typography variant="body2" color="text.secondary">
+                            {categoria.descripcion}
+                          </Typography>
+                        </Fade>
+                      )}
+                    </Box>
+
+                    {visibleElements.includes(categoria.id) && (
+                      <>
+                        {/* Ejemplos */}
+                        <Box sx={{ mb: 3, textAlign: 'left' }}>
+                          <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+                            EJEMPLOS:
+                          </Typography>
+                          {categoria.ejemplos.map((ejemplo, idx) => (
+                            <Fade in timeout={500 * (idx + 1)} key={idx}>
+                              <Box sx={{ mb: 1.5 }}>
+                                <Typography variant="caption" sx={{ fontWeight: 600, color: `${categoria.color}.main` }}>
+                                  {ejemplo.tipo}:
+                                </Typography>
+                                <Typography variant="caption" sx={{ display: 'block', pl: 2 }}>
+                                  {ejemplo.datos.join(' • ')}
+                                </Typography>
+                              </Box>
+                            </Fade>
+                          ))}
+                        </Box>
+
+                        {/* Requisitos */}
+                        <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                            REQUISITOS LEGALES:
+                          </Typography>
+                          {categoria.requisitos.map((req, idx) => (
+                            <Fade in timeout={600 * (idx + 1)} key={idx}>
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  display: 'block',
+                                  textAlign: 'left',
+                                  mb: 0.5
+                                }}
+                              >
+                                ✓ {req}
+                              </Typography>
+                            </Fade>
+                          ))}
+                        </Paper>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </Zoom>
+            )}
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Resumen final */}
+      <Box ref={resumenRef}>
+        {visibleElements.includes('resumen') && (
+          <Fade in timeout={1000}>
+            <Paper 
+              elevation={6}
+              sx={{ 
+                mt: 4, 
+                p: 4,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white'
+              }}
+            >
+              <SecurityIcon sx={{ fontSize: 50, mb: 2 }} />
+              <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
+                RECUERDA LA REGLA DE ORO
+              </Typography>
+              <Typography variant="h6">
+                A mayor sensibilidad → Mayor protección → Mayores sanciones
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 2 }}>
+                Las multas pueden llegar hasta 10.000 UTM para datos sensibles mal tratados
+              </Typography>
+            </Paper>
+          </Fade>
+        )}
+      </Box>
     </Box>
   );
 };
