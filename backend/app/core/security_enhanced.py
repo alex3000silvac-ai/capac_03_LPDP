@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any, Tuple
 from datetime import datetime, timedelta
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 import base64
 import bcrypt
@@ -69,9 +69,9 @@ class AESCipher:
         if key is None:
             key = SecurityConfig.AES_KEY
             
-        # Derivar clave usando PBKDF2
+        # Derivar clave usando PBKDF2HMAC
         salt = b'stable_salt_for_key_derivation'  # En producción, usar salt único por dato
-        kdf = PBKDF2(
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,
