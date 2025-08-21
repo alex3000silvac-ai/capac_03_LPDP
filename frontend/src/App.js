@@ -23,6 +23,7 @@ import SandboxCompleto from './pages/SandboxCompleto';
 import IntroduccionLPDP from './pages/IntroduccionLPDP';
 import HerramientasLPDP from './pages/HerramientasLPDP';
 import ConceptosBasicos from './pages/ConceptosBasicos';
+import ModuloCero from './pages/ModuloCero';
 
 // Tema oscuro profesional
 const theme = createTheme({
@@ -294,6 +295,14 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route 
+          path="/modulo-cero" 
+          element={
+            <ProtectedRoute allowDemo={true}>
+              <ModuloCero />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/modulo/:moduloId" element={<ModuloCapacitacion />} />
         <Route 
           path="/modulo/introduccion_lpdp" 

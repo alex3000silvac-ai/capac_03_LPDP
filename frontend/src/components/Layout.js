@@ -50,6 +50,13 @@ const menuItems = [
     description: 'Vista general de tu aprendizaje',
   },
   {
+    text: 'Módulo Cero',
+    icon: <SchoolIcon />,
+    path: '/modulo-cero',
+    description: 'LPDP en 7 minutos - Presentación interactiva',
+    chip: '¡NUEVO!',
+  },
+  {
     text: 'Módulos de Capacitación',
     icon: <SchoolIcon />,
     path: '/modulos',
