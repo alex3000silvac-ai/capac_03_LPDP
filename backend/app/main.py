@@ -113,45 +113,6 @@ async def get_available_tenants_compat():
         }
     ]
 
-@app.get("/api/v1/entrevistas/guias")
-async def get_entrevistas_guias():
-    """Obtener guías de entrevista (directo)"""
-    return {
-        "areas": ["RRHH", "FINANZAS", "VENTAS"],
-        "guias": {
-            "RRHH": [
-                {
-                    "clave": "identificar_actividad",
-                    "fase": "1",
-                    "pregunta": "Describe una de las principales funciones de tu área. Por ejemplo, ¿cómo se gestiona una postulación a un trabajo?",
-                    "objetivo": "Nombre de la Actividad",
-                    "ejemplos": ["Reclutamiento y Selección", "Gestión de Nómina", "Evaluación de Desempeño"]
-                }
-            ]
-        }
-    }
-
-@app.get("/api/v1/entrevistas/formatos")
-async def get_entrevistas_formatos():
-    """Obtener formatos y ejemplos prácticos (directo)"""
-    return {
-        "formatos": [
-            {
-                "tipo": "actividad_tratamiento",
-                "nombre": "Formato Actividad de Tratamiento",
-                "descripcion": "Plantilla para documentar actividades según LPDP",
-                "campos": ["nombre_actividad", "finalidad", "base_licitud", "categorias_datos"]
-            }
-        ],
-        "ejemplos": [
-            {
-                "actividad": "Gestión de Nómina",
-                "area": "RRHH",
-                "datos_ejemplo": ["Nombre", "RUT", "Datos bancarios", "Sueldo"],
-                "finalidad": "Calcular y pagar remuneraciones"
-            }
-        ]
-    }
 
 @app.get("/api/v1/capacitacion/modulos")
 async def get_capacitacion_modulos():
