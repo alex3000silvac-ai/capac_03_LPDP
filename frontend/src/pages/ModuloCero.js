@@ -13,7 +13,12 @@ import {
   Step,
   StepLabel,
   Chip,
-  Divider
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Alert,
+  Avatar
 } from '@mui/material';
 import {
   PlayArrow,
@@ -31,9 +36,14 @@ import {
   Engineering,
   LocalShipping,
   Gavel,
-  Computer
+  Computer,
+  Construction,
+  Lightbulb,
+  RocketLaunch,
+  DataObject
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import MapeoInteractivo from '../components/MapeoInteractivo';
 
 const ModuloCero = () => {
   const { user } = useAuth();
@@ -43,6 +53,11 @@ const ModuloCero = () => {
   const utteranceRef = useRef(null);
   const slideRefs = useRef([]);
   const [activeSection, setActiveSection] = useState(1);
+  const [showMapeoDialog, setShowMapeoDialog] = useState(false);
+  const [empresaInfo, setEmpresaInfo] = useState({
+    nombre: user?.organizacion_nombre || 'Mi Empresa',
+    sector: 'General'
+  });
 
   const totalSlides = 12;
   const maxDuration = 7 * 60; // 7 minutos en segundos
@@ -734,54 +749,172 @@ const ModuloCero = () => {
       case 12:
         return (
           <Box>
-            <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
-              {slide.content.description}
-            </Typography>
-            <Grid container spacing={4}>
-              <Grid item xs={12} md={4}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" sx={{ mb: 2 }}>Secciones del RAT</Typography>
-                  {slide.content.sections.map((section) => (
-                    <Button
-                      key={section.id}
-                      fullWidth
-                      variant={activeSection === section.id ? 'contained' : 'outlined'}
-                      sx={{ mb: 1, justifyContent: 'flex-start' }}
-                      onClick={() => setActiveSection(section.id)}
-                    >
-                      {section.title}
-                    </Button>
-                  ))}
-                </Paper>
+            {/* Mensaje de culminación */}
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Typography variant="h2" sx={{ mb: 2 }}>🎉</Typography>
+              <Typography variant="h4" sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+                ¡Felicitaciones!
+              </Typography>
+              <Typography variant="h6" sx={{ mb: 3, color: 'text.secondary' }}>
+                Has completado los fundamentos de la LPDP en solo 7 minutos
+              </Typography>
+              
+              <Alert severity="success" sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}>
+                <Typography variant="body1" fontWeight={600}>
+                  ✅ Ahora conoces los conceptos clave de la Ley 21.719
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  Es momento de aplicar este conocimiento en la construcción de tu propio mapeo de datos
+                </Typography>
+              </Alert>
+            </Box>
+
+            {/* Transición al sistema RAT */}
+            <Paper sx={{ 
+              p: 4, 
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              mb: 4
+            }}>
+              <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
+                🚀 ¡Es hora de pasar de la teoría a la práctica!
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
+                Utiliza nuestro <strong>Constructor RAT Profesional</strong> para crear tu Registro de Actividades de Tratamiento en tiempo real
+              </Typography>
+              
+              <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid item xs={12} md={3}>
+                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56, mx: 'auto', mb: 1 }}>
+                    <Construction />
+                  </Avatar>
+                  <Typography variant="body2" fontWeight={600}>
+                    Wizard Guiado
+                  </Typography>
+                  <Typography variant="caption">
+                    5 fases estructuradas
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56, mx: 'auto', mb: 1 }}>
+                    <DataObject />
+                  </Avatar>
+                  <Typography variant="body2" fontWeight={600}>
+                    Templates
+                  </Typography>
+                  <Typography variant="caption">
+                    Por industria
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56, mx: 'auto', mb: 1 }}>
+                    <Assessment />
+                  </Avatar>
+                  <Typography variant="body2" fontWeight={600}>
+                    Validación Legal
+                  </Typography>
+                  <Typography variant="caption">
+                    Cumple Ley 21.719
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56, mx: 'auto', mb: 1 }}>
+                    <RocketLaunch />
+                  </Avatar>
+                  <Typography variant="body2" fontWeight={600}>
+                    Exportación
+                  </Typography>
+                  <Typography variant="caption">
+                    PDF y Excel
+                  </Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={12} md={8}>
-                <Paper sx={{ p: 3 }}>
-                  {slide.content.sections
-                    .filter(section => section.id === activeSection)
-                    .map((section) => (
-                      <Box key={section.id}>
-                        <Typography variant="h6" sx={{ mb: 3, color: 'primary.main' }}>
-                          {section.title}
-                        </Typography>
-                        <Grid container spacing={2}>
-                          {section.fields.map((field, index) => (
-                            <Grid item xs={12} md={6} key={index}>
-                              <Box sx={{ mb: 2 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                                  {field.label}:
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                  {field.value}
-                                </Typography>
-                              </Box>
-                            </Grid>
-                          ))}
-                        </Grid>
-                      </Box>
-                    ))}
-                </Paper>
+
+              <Button
+                variant="contained"
+                color="secondary"
+                size="large"
+                onClick={() => setShowMapeoDialog(true)}
+                sx={{ 
+                  px: 4, 
+                  py: 2, 
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 16px rgba(0,0,0,0.4)'
+                  }
+                }}
+                startIcon={<Construction />}
+              >
+                🏗️ CONSTRUIR MI MAPEO DE DATOS
+              </Button>
+            </Paper>
+
+            {/* Resumen de lo aprendido */}
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h6" sx={{ mb: 3, color: 'primary.main' }}>
+                📚 Lo que has aprendido:
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Box sx={{ textAlign: 'center', p: 2 }}>
+                    <Lightbulb sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+                    <Typography variant="body2" fontWeight={600}>
+                      Conceptos Fundamentales
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Datos personales, LPDP, derechos
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Box sx={{ textAlign: 'center', p: 2 }}>
+                    <Security sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
+                    <Typography variant="body2" fontWeight={600}>
+                      Principios de Protección
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Licitud, finalidad, minimización
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Box sx={{ textAlign: 'center', p: 2 }}>
+                    <People sx={{ fontSize: 40, color: 'info.main', mb: 1 }} />
+                    <Typography variant="body2" fontWeight={600}>
+                      Derechos ARCOPOL
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Acceso, rectificación, portabilidad
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Box sx={{ textAlign: 'center', p: 2 }}>
+                    <BusinessCenter sx={{ fontSize: 40, color: 'warning.main', mb: 1 }} />
+                    <Typography variant="body2" fontWeight={600}>
+                      Obligaciones Empresariales
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      RAT, DPO, medidas de seguridad
+                    </Typography>
+                  </Box>
+                </Grid>
               </Grid>
-            </Grid>
+            </Paper>
+
+            {/* Call to action final */}
+            <Box sx={{ textAlign: 'center', mt: 4 }}>
+              <Typography variant="body1" sx={{ mb: 2, color: 'text.secondary' }}>
+                El conocimiento sin acción es solo potencial.
+              </Typography>
+              <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 600 }}>
+                ¡Convierte tu empresa en experta en protección de datos!
+              </Typography>
+            </Box>
           </Box>
         );
 
@@ -905,6 +1038,47 @@ const ModuloCero = () => {
           Estado de narración: {narrationState === 'playing' ? '🔊 Reproduciendo' : narrationState === 'paused' ? '⏸️ Pausado' : '⏹️ Detenido'}
         </Typography>
       </Box>
+
+      {/* Diálogo del Constructor RAT */}
+      <Dialog 
+        open={showMapeoDialog} 
+        onClose={() => setShowMapeoDialog(false)}
+        maxWidth="xl"
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            height: '90vh',
+            maxHeight: '90vh'
+          }
+        }}
+      >
+        <DialogTitle>
+          <Box display="flex" alignItems="center" justifyContent="space-between">
+            <Box display="flex" alignItems="center">
+              <Construction sx={{ mr: 2, color: 'primary.main' }} />
+              <Box>
+                <Typography variant="h5" fontWeight={600}>
+                  Constructor RAT Profesional
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Sistema de Mapeo de Datos - Ley 21.719 Chile
+                </Typography>
+              </Box>
+            </Box>
+            <Alert severity="info" sx={{ maxWidth: 400 }}>
+              <Typography variant="caption">
+                📄 Basado en el Manual de Procedimientos LPDP - Cumple con todos los requisitos legales
+              </Typography>
+            </Alert>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          <MapeoInteractivo 
+            onClose={() => setShowMapeoDialog(false)}
+            empresaInfo={empresaInfo}
+          />
+        </DialogContent>
+      </Dialog>
     </Container>
   );
 };
