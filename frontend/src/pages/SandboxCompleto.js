@@ -249,7 +249,6 @@ import {
   Mood,
   Book,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
 
 
 function SandboxCompleto() {

@@ -13,7 +13,6 @@ import {
   VolumeMute,
   Fullscreen,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const VideoAnimado = ({ 
   frames, 
@@ -109,21 +108,9 @@ const VideoAnimado = ({
       )}
 
       {/* Contenido animado */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentFrame}
-          initial={{ opacity: 0, scale: 0.8, y: 50 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: -50 }}
-          transition={{ 
-            duration: 0.8,
-            type: "spring",
-            stiffness: 100
-          }}
-          style={{ textAlign: 'center', maxWidth: '90%' }}
-        >
+      <Box sx={{ textAlign: 'center', maxWidth: '90%' }}>
           {/* Icono principal */}
-          <motion.div
+          <Box
             animate={{ 
               rotate: [0, 5, -5, 0],
               scale: [1, 1.1, 1]
@@ -137,10 +124,10 @@ const VideoAnimado = ({
             <Typography variant="h1" sx={{ fontSize: '5rem', mb: 2, textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
               {currentFrameData.icon}
             </Typography>
-          </motion.div>
+          </Box>
           
           {/* Título del frame */}
-          <motion.div
+          <Box
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -152,10 +139,10 @@ const VideoAnimado = ({
             }}>
               {currentFrameData.title}
             </Typography>
-          </motion.div>
+          </Box>
 
           {/* Contenido principal */}
-          <motion.div
+          <Box
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.5 }}
@@ -168,10 +155,10 @@ const VideoAnimado = ({
             }}>
               {currentFrameData.content}
             </Typography>
-          </motion.div>
+          </Box>
 
           {/* Descripción */}
-          <motion.div
+          <Box
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.7 }}
@@ -184,11 +171,11 @@ const VideoAnimado = ({
             }}>
               {currentFrameData.description}
             </Typography>
-          </motion.div>
+          </Box>
 
           {/* Datos adicionales si existen */}
           {currentFrameData.data && (
-            <motion.div
+            <Box
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 1 }}
@@ -204,10 +191,9 @@ const VideoAnimado = ({
                   {currentFrameData.data}
                 </Typography>
               </Box>
-            </motion.div>
+            </Box>
           )}
-        </motion.div>
-      </AnimatePresence>
+      </Box>
 
       {/* Controles del video */}
       <Box 

@@ -73,7 +73,6 @@ import {
   School,
   Engineering,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 
 // Motor de Datos Profesional - Sistema RAT Real
@@ -455,9 +454,9 @@ function PracticaSandbox() {
       </Stepper>
 
       {/* Contenido según paso */}
-      <AnimatePresence mode="wait">
+      <Box>
         {activeStep === 0 && (
-          <motion.div
+          <Box
             key="step0"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -522,11 +521,11 @@ function PracticaSandbox() {
                 </Grid>
               ))}
             </Grid>
-          </motion.div>
+          </Box>
         )}
 
         {activeStep === 1 && selectedScenario && (
-          <motion.div
+          <Box
             key="step1"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -618,11 +617,11 @@ function PracticaSandbox() {
                 </Card>
               </Grid>
             </Grid>
-          </motion.div>
+          </Box>
         )}
 
         {activeStep === 2 && (
-          <motion.div
+          <Box
             key="step2"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -781,11 +780,11 @@ function PracticaSandbox() {
                 </Card>
               </Grid>
             </Grid>
-          </motion.div>
+          </Box>
         )}
 
         {activeStep === 3 && (
-          <motion.div
+          <Box
             key="step3"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -849,9 +848,9 @@ function PracticaSandbox() {
                 </Box>
               </CardContent>
             </Card>
-          </motion.div>
+          </Box>
         )}
-      </AnimatePresence>
+      </Box>
 
       {/* Dialog de bienvenida al escenario */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>

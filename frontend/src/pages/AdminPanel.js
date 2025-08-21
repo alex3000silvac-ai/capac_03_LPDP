@@ -94,7 +94,6 @@ import {
   History,
   PolicyIcon,
 } from '@mui/icons-material';
-import { motion } from 'framer-motion';
 import { 
   adminService, 
   organizacionService, 

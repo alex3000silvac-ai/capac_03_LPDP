@@ -36,11 +36,9 @@ import {
   Work,
   Assessment,
 } from '@mui/icons-material';
-import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../config';
 import { useAuth } from '../contexts/AuthContext';
 
-const MotionCard = motion(Card);
 
 // Función para obtener el icono apropiado según el módulo
 const getModuleIcon = (moduleId, index) => {
@@ -316,7 +314,7 @@ function Dashboard() {
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {modulos.map((modulo, index) => (
           <Grid item xs={12} md={4} key={modulo.id}>
-            <MotionCard
+            <Card
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -394,7 +392,7 @@ function Dashboard() {
                    modulo.estado === 'disponible' ? 'Iniciar' : 'Bloqueado'}
                 </Button>
               </CardActions>
-            </MotionCard>
+            </Card>
           </Grid>
           ))}
         </Grid>
