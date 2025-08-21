@@ -53,41 +53,60 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = true }
     }
   };
 
-  // SISTEMA DE VOZ MASCULINA
+  // SISTEMA DE VOZ MASCULINA ULTRA FORZADO
   const configurarVozMasculina = () => {
     return new Promise((resolve) => {
       const intentarConfigurarVoz = () => {
         const voices = speechSynthesis.getVoices();
+        console.log('🎤 Voces disponibles:', voices.map(v => ({ name: v.name, lang: v.lang })));
         
-        const vozMasculina = voices.find(voice => {
-          const nombre = voice.name.toLowerCase();
-          const idioma = voice.lang.toLowerCase();
-          
-          const esMasculino = nombre.includes('male') || 
-                             nombre.includes('man') ||
-                             nombre.includes('hombre') || 
-                             nombre.includes('masculino') ||
-                             nombre.includes('diego') ||
-                             nombre.includes('carlos') ||
-                             nombre.includes('miguel') ||
-                             nombre.includes('antonio') ||
-                             nombre.includes('juan') ||
-                             nombre.includes('pablo') ||
-                             (!nombre.includes('female') && !nombre.includes('woman') && !nombre.includes('mujer'));
-          
-          const esEspanol = idioma.includes('es') || idioma.includes('mx') || idioma.includes('ar');
-          
-          return esEspanol && esMasculino;
-        });
-
-        if (vozMasculina) {
-          resolve(vozMasculina);
-        } else {
-          const vozEspanol = voices.find(voice => 
-            voice.lang.toLowerCase().includes('es')
+        // Búsqueda ULTRA específica de voz masculina
+        let vozSeleccionada = null;
+        
+        // 1. Buscar nombres específicamente masculinos
+        const nombresEspecificos = ['Diego', 'Carlos', 'Miguel', 'Antonio', 'Juan', 'Pablo', 'Jorge', 'Andrés', 'male', 'man', 'masculino', 'hombre'];
+        for (const nombreMasc of nombresEspecificos) {
+          vozSeleccionada = voices.find(voice => 
+            voice.name.toLowerCase().includes(nombreMasc.toLowerCase()) && 
+            (voice.lang.includes('es') || voice.lang.includes('mx') || voice.lang.includes('ar'))
           );
-          resolve(vozEspanol || voices[0]);
+          if (vozSeleccionada) break;
         }
+        
+        // 2. Si no encuentra, buscar cualquier voz que NO sea femenina
+        if (!vozSeleccionada) {
+          const vozesEspanol = voices.filter(voice => 
+            (voice.lang.includes('es') || voice.lang.includes('mx') || voice.lang.includes('ar'))
+          );
+          
+          // Excluir explícitamente voces femeninas
+          vozSeleccionada = vozesEspanol.find(voice => {
+            const nombre = voice.name.toLowerCase();
+            return !nombre.includes('female') && 
+                   !nombre.includes('woman') && 
+                   !nombre.includes('mujer') && 
+                   !nombre.includes('maria') && 
+                   !nombre.includes('ana') && 
+                   !nombre.includes('carmen') && 
+                   !nombre.includes('lucia') && 
+                   !nombre.includes('sofia');
+          });
+        }
+        
+        // 3. Si aún no encuentra, tomar la primera voz de español
+        if (!vozSeleccionada) {
+          vozSeleccionada = voices.find(voice => 
+            voice.lang.includes('es') || voice.lang.includes('mx')
+          );
+        }
+        
+        // 4. Último recurso: cualquier voz
+        if (!vozSeleccionada && voices.length > 0) {
+          vozSeleccionada = voices[0];
+        }
+        
+        console.log('🎤 Voz seleccionada:', vozSeleccionada?.name, vozSeleccionada?.lang);
+        resolve(vozSeleccionada);
       };
 
       if (speechSynthesis.getVoices().length > 0) {
@@ -98,111 +117,99 @@ const ClasificacionDatos = ({ duration = 45, onNext, onPrev, isAutoPlay = true }
     });
   };
 
-  // SISTEMA DE SINCRONIZACIÓN PERFECTA CON AUTO-SCROLL
+  // SISTEMA DE SINCRONIZACIÓN SIN CORTES - VERSIÓN CORREGIDA
   const iniciarPresentacionAutomatica = async () => {
     if (isPlaying) return;
     
-    console.log('🎯 INICIANDO PRESENTACIÓN CON SINCRONIZACIÓN PERFECTA - ClasificacionDatos');
+    console.log('🎯 INICIANDO PRESENTACIÓN SIN CORTES - ClasificacionDatos');
     setIsPlaying(true);
     
     const vozMasculina = await configurarVozMasculina();
     console.log('🎤 Voz configurada:', vozMasculina?.name || 'default');
     
-    // Dividir el texto en frases para sincronización exacta
-    const frases = [
-      { texto: "Clasificación de datos según riesgo.", duracion: 3000, elemento: 'titulo' },
-      { texto: "La ley chilena establece tres categorías principales de datos según su nivel de sensibilidad.", duracion: 5000, elemento: 'intro' },
-      { texto: "Primero, los datos comunes.", duracion: 2000, elemento: 'comunes_titulo' },
-      { texto: "Estos son los de menor riesgo. Incluyen nombre, RUT, dirección, teléfono, email, fecha de nacimiento. Son públicos o fácilmente obtenibles. Su tratamiento requiere consentimiento básico o base legal.", duracion: 10000, elemento: 'comunes_completo' },
-      { texto: "Segundo, los datos sensibles.", duracion: 2000, elemento: 'sensibles_titulo' },
-      { texto: "Estos tienen el máximo riesgo. Incluyen origen racial o étnico, opiniones políticas, convicciones religiosas o filosóficas, afiliación sindical, vida sexual, datos biométricos y de salud. Requieren consentimiento expreso y por escrito. Medidas de seguridad reforzadas obligatorias.", duracion: 12000, elemento: 'sensibles_completo' },
-      { texto: "Tercero, los datos de menores.", duracion: 2000, elemento: 'menores_titulo' },
-      { texto: "Protección especial para menores de 14 años. Requieren autorización de padres o tutores. Solo se pueden tratar si es en su interés superior. Prohibido el perfilamiento y publicidad dirigida.", duracion: 10000, elemento: 'menores_completo' },
-      { texto: "Recuerda: A mayor sensibilidad, mayores obligaciones y mayores multas por incumplimiento.", duracion: 5000, elemento: 'resumen' }
-    ];
+    // UN SOLO TEXTO CONTINUO SIN CORTES
+    const textoCompleto = `Clasificación de datos según riesgo. La ley chilena establece tres categorías principales de datos según su nivel de sensibilidad. Primero, los datos comunes. Estos son los de menor riesgo. Incluyen nombre, RUT, dirección, teléfono, email, fecha de nacimiento. Son públicos o fácilmente obtenibles. Su tratamiento requiere consentimiento básico o base legal. Segundo, los datos sensibles. Estos tienen el máximo riesgo. Incluyen origen racial o étnico, opiniones políticas, convicciones religiosas o filosóficas, afiliación sindical, vida sexual, datos biométricos y de salud. Requieren consentimiento expreso y por escrito. Medidas de seguridad reforzadas obligatorias. Tercero, los datos de menores. Protección especial para menores de catorce años. Requieren autorización de padres o tutores. Solo se pueden tratar si es en su interés superior. Prohibido el perfilamiento y publicidad dirigida. Recuerda: A mayor sensibilidad, mayores obligaciones y mayores multas por incumplimiento.`;
 
-    let tiempoAcumulado = 500;
+    const utterance = new SpeechSynthesisUtterance(textoCompleto);
+    utterance.voice = vozMasculina;
+    utterance.lang = 'es-MX';
+    utterance.rate = 0.8; // Más natural
+    utterance.pitch = 0.6; // Más grave para masculina
+    utterance.volume = 1.0;
 
-    // Programar cada frase con su sincronización y scroll
-    frases.forEach((frase, index) => {
-      setTimeout(() => {
-        setCurrentPhrase(frase.texto);
+    // SINCRONIZACIÓN BASADA EN TIEMPO REAL
+    const iniciarSincronizacion = () => {
+      const startTime = Date.now();
+      
+      // Cronómetro que verifica cada 100ms
+      const intervalo = setInterval(() => {
+        const tiempoTranscurrido = Date.now() - startTime;
         
-        switch(frase.elemento) {
-          case 'titulo':
-            setVisibleElements(['titulo']);
-            scrollToElement(tituloRef);
-            break;
-          case 'intro':
-            setVisibleElements(prev => [...prev, 'intro']);
-            scrollToElement(introRef);
-            break;
-          case 'comunes_titulo':
-            setVisibleElements(prev => [...prev, 'comunes_titulo']);
-            scrollToElement(comunesRef);
-            break;
-          case 'comunes_completo':
-            setVisibleElements(prev => {
-              const newElements = [...prev];
-              const index = newElements.indexOf('comunes_titulo');
-              if (index > -1) {
-                newElements[index] = 'comunes';
-              }
-              return newElements;
-            });
-            break;
-          case 'sensibles_titulo':
-            setVisibleElements(prev => [...prev, 'sensibles_titulo']);
-            scrollToElement(sensiblesRef);
-            break;
-          case 'sensibles_completo':
-            setVisibleElements(prev => {
-              const newElements = [...prev];
-              const index = newElements.indexOf('sensibles_titulo');
-              if (index > -1) {
-                newElements[index] = 'sensibles';
-              }
-              return newElements;
-            });
-            break;
-          case 'menores_titulo':
-            setVisibleElements(prev => [...prev, 'menores_titulo']);
-            scrollToElement(menoresRef);
-            break;
-          case 'menores_completo':
-            setVisibleElements(prev => {
-              const newElements = [...prev];
-              const index = newElements.indexOf('menores_titulo');
-              if (index > -1) {
-                newElements[index] = 'menores';
-              }
-              return newElements;
-            });
-            break;
-          case 'resumen':
-            setVisibleElements(prev => [...prev, 'resumen']);
-            scrollToElement(resumenRef);
-            break;
+        // Mostrar elementos según tiempo transcurrido
+        if (tiempoTranscurrido >= 0 && !visibleElements.includes('titulo')) {
+          setCurrentPhrase('Clasificación de datos según riesgo.');
+          setVisibleElements(['titulo']);
+          scrollToElement(tituloRef);
         }
-
-        // Hablar la frase
-        const utterance = new SpeechSynthesisUtterance(frase.texto);
-        utterance.voice = vozMasculina;
-        utterance.lang = 'es-MX';
-        utterance.rate = 0.85;
-        utterance.pitch = 0.7;
-        utterance.volume = 1.0;
         
-        speechSynthesis.speak(utterance);
-      }, tiempoAcumulado);
+        if (tiempoTranscurrido >= 4000 && !visibleElements.includes('intro')) {
+          setCurrentPhrase('La ley chilena establece tres categorías principales...');
+          setVisibleElements(prev => [...prev, 'intro']);
+          scrollToElement(introRef);
+        }
+        
+        if (tiempoTranscurrido >= 12000 && !visibleElements.includes('comunes')) {
+          setCurrentPhrase('Primero, los datos comunes');
+          setVisibleElements(prev => [...prev, 'comunes']);
+          scrollToElement(comunesRef);
+        }
+        
+        if (tiempoTranscurrido >= 30000 && !visibleElements.includes('sensibles')) {
+          setCurrentPhrase('Segundo, los datos sensibles');
+          setVisibleElements(prev => [...prev, 'sensibles']);
+          scrollToElement(sensiblesRef);
+        }
+        
+        if (tiempoTranscurrido >= 55000 && !visibleElements.includes('menores')) {
+          setCurrentPhrase('Tercero, los datos de menores');
+          setVisibleElements(prev => [...prev, 'menores']);
+          scrollToElement(menoresRef);
+        }
+        
+        if (tiempoTranscurrido >= 75000 && !visibleElements.includes('resumen')) {
+          setCurrentPhrase('A mayor sensibilidad, mayores obligaciones...');
+          setVisibleElements(prev => [...prev, 'resumen']);
+          scrollToElement(resumenRef);
+        }
+        
+        // Limpiar intervalo al final
+        if (tiempoTranscurrido >= 85000) {
+          clearInterval(intervalo);
+          setTimeout(() => {
+            if (onNext) onNext();
+          }, 2000);
+        }
+      }, 100);
+    };
 
-      tiempoAcumulado += frase.duracion;
-    });
+    utterance.onstart = () => {
+      console.log('🎤 Audio iniciado');
+      iniciarSincronizacion();
+    };
 
-    // Avanzar al siguiente módulo al final
-    setTimeout(() => {
-      if (onNext) onNext();
-    }, tiempoAcumulado + 2000);
+    utterance.onend = () => {
+      console.log('🎤 Audio terminado');
+      setIsPlaying(false);
+    };
+
+    utterance.onerror = (error) => {
+      console.error('🎤 Error de audio:', error);
+      setIsPlaying(false);
+    };
+
+    // HABLAR UNA SOLA VEZ SIN INTERRUPCIONES
+    speechSynthesis.cancel(); // Limpiar cualquier audio anterior
+    speechSynthesis.speak(utterance);
   };
 
   useEffect(() => {

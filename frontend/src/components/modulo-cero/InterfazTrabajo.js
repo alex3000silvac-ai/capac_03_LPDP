@@ -41,64 +41,97 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
   const seccion5Ref = useRef(null);
   const botonFinalRef = useRef(null);
   
-  // Función de auto-scroll suave GARANTIZADA
-  const scrollToElement = (elementRef) => {
+  // SCROLL AUTOMÁTICO REAL QUE SÍ FUNCIONA
+  const scrollToElement = (elementRef, force = true) => {
     if (elementRef?.current) {
-      // Primero hacer scroll suave
+      console.log('🔄 Haciendo scroll a elemento:', elementRef.current);
+      
+      // Scroll inmediato y forzado
       elementRef.current.scrollIntoView({ 
         behavior: 'smooth', 
         block: 'center',
         inline: 'nearest' 
       });
       
-      // Backup: forzar scroll después de 500ms si es necesario
+      // Triple backup para asegurar el scroll
       setTimeout(() => {
-        const rect = elementRef.current?.getBoundingClientRect();
-        if (rect && (rect.top < 100 || rect.bottom > window.innerHeight - 100)) {
+        if (elementRef.current) {
+          const rect = elementRef.current.getBoundingClientRect();
+          const elementTop = rect.top + window.pageYOffset;
+          const offset = window.innerHeight / 2 - rect.height / 2;
+          
           window.scrollTo({
-            top: window.pageYOffset + rect.top - (window.innerHeight / 2) + (rect.height / 2),
+            top: elementTop - offset,
             behavior: 'smooth'
+          });
+        }
+      }, 100);
+      
+      setTimeout(() => {
+        if (elementRef.current && force) {
+          elementRef.current.scrollIntoView({ 
+            behavior: 'auto', 
+            block: 'center' 
           });
         }
       }, 500);
     }
   };
 
-  // SISTEMA DE VOZ MASCULINA RADICAL
+  // SISTEMA DE VOZ MASCULINA ULTRA FORZADO
   const configurarVozMasculina = () => {
     return new Promise((resolve) => {
       const intentarConfigurarVoz = () => {
         const voices = speechSynthesis.getVoices();
+        console.log('🎤 Voces disponibles:', voices.map(v => ({ name: v.name, lang: v.lang })));
         
-        const vozMasculina = voices.find(voice => {
-          const nombre = voice.name.toLowerCase();
-          const idioma = voice.lang.toLowerCase();
-          
-          const esMasculino = nombre.includes('male') || 
-                             nombre.includes('man') ||
-                             nombre.includes('hombre') || 
-                             nombre.includes('masculino') ||
-                             nombre.includes('diego') ||
-                             nombre.includes('carlos') ||
-                             nombre.includes('miguel') ||
-                             nombre.includes('antonio') ||
-                             nombre.includes('juan') ||
-                             nombre.includes('pablo') ||
-                             !nombre.includes('female') && !nombre.includes('woman');
-          
-          const esEspanol = idioma.includes('es') || idioma.includes('mx') || idioma.includes('ar');
-          
-          return esEspanol && esMasculino;
-        });
-
-        if (vozMasculina) {
-          resolve(vozMasculina);
-        } else {
-          const vozEspanol = voices.find(voice => 
-            voice.lang.toLowerCase().includes('es')
+        // Búsqueda ULTRA específica de voz masculina
+        let vozSeleccionada = null;
+        
+        // 1. Buscar nombres específicamente masculinos
+        const nombresEspecificos = ['Diego', 'Carlos', 'Miguel', 'Antonio', 'Juan', 'Pablo', 'Jorge', 'Andrés', 'male', 'man', 'masculino', 'hombre'];
+        for (const nombreMasc of nombresEspecificos) {
+          vozSeleccionada = voices.find(voice => 
+            voice.name.toLowerCase().includes(nombreMasc.toLowerCase()) && 
+            (voice.lang.includes('es') || voice.lang.includes('mx') || voice.lang.includes('ar'))
           );
-          resolve(vozEspanol || voices[0]);
+          if (vozSeleccionada) break;
         }
+        
+        // 2. Si no encuentra, buscar cualquier voz que NO sea femenina
+        if (!vozSeleccionada) {
+          const vozesEspanol = voices.filter(voice => 
+            (voice.lang.includes('es') || voice.lang.includes('mx') || voice.lang.includes('ar'))
+          );
+          
+          // Excluir explícitamente voces femeninas
+          vozSeleccionada = vozesEspanol.find(voice => {
+            const nombre = voice.name.toLowerCase();
+            return !nombre.includes('female') && 
+                   !nombre.includes('woman') && 
+                   !nombre.includes('mujer') && 
+                   !nombre.includes('maria') && 
+                   !nombre.includes('ana') && 
+                   !nombre.includes('carmen') && 
+                   !nombre.includes('lucia') && 
+                   !nombre.includes('sofia');
+          });
+        }
+        
+        // 3. Si aún no encuentra, tomar la primera voz de español
+        if (!vozSeleccionada) {
+          vozSeleccionada = voices.find(voice => 
+            voice.lang.includes('es') || voice.lang.includes('mx')
+          );
+        }
+        
+        // 4. Último recurso: cualquier voz
+        if (!vozSeleccionada && voices.length > 0) {
+          vozSeleccionada = voices[0];
+        }
+        
+        console.log('🎤 Voz seleccionada:', vozSeleccionada?.name, vozSeleccionada?.lang);
+        resolve(vozSeleccionada);
       };
 
       if (speechSynthesis.getVoices().length > 0) {
@@ -109,115 +142,111 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
     });
   };
 
-  // SISTEMA DE SINCRONIZACIÓN AUTOMÁTICA REAL
+  // SISTEMA DE SINCRONIZACIÓN SIN CORTES - VERSIÓN CORREGIDA
   const iniciarPresentacionAutomatica = async () => {
     if (isPlaying) return;
     
+    console.log('🎯 INICIANDO PRESENTACIÓN SIN CORTES - InterfazTrabajo');
     setIsPlaying(true);
     
     const vozMasculina = await configurarVozMasculina();
     
-    const textoCompleto = `
-      Tu inventario de datos en acción. Esta es la interfaz real donde completas el mapeo de cada proceso.
-      
-      Primera sección: Datos que recopilas. Seleccionas todos los tipos de información personal: RUT, nombre, email, teléfono, y datos sensibles como antecedentes penales y exámenes médicos.
-      
-      Segunda sección: Finalidades de uso. Defines para qué utilizas cada dato: evaluar candidato, cumplir ley laboral, gestionar contrato.
-      
-      Tercera sección: Destinatarios. Identificas quién accede a los datos: internos como RRHH y Gerencia, externos como Previred y bancos.
-      
-      Cuarta sección: Plazos de retención. Defines cuánto tiempo conservas los datos: durante la relación laboral y cinco años después.
-      
-      Quinta sección: Medidas de seguridad. Documentas base de datos encriptada, acceso con clave, respaldo diario y contratos de confidencialidad.
-      
-      Tu primer mapeo estará listo en diez minutos. Nivel de riesgo controlado.
-    `;
+    // UN SOLO TEXTO CONTINUO SIN CORTES
+    const textoCompleto = `Tu inventario de datos en acción. Esta es la interfaz real donde completas el mapeo de cada proceso. Primera sección: Datos que recopilas. Seleccionas todos los tipos de información personal: RUT, nombre, email, teléfono, y datos sensibles como antecedentes penales y exámenes médicos. Segunda sección: Finalidades de uso. Defines para qué utilizas cada dato: evaluar candidato, cumplir ley laboral, gestionar contrato. Tercera sección: Destinatarios. Identificas quién accede a los datos: internos como RRHH y Gerencia, externos como Previred y bancos. Cuarta sección: Plazos de retención. Defines cuánto tiempo conservas los datos: durante la relación laboral y cinco años después. Quinta sección: Medidas de seguridad. Documentas base de datos encriptada, acceso con clave, respaldo diario y contratos de confidencialidad. Tu primer mapeo estará listo en diez minutos. Nivel de riesgo controlado.`;
 
     const utterance = new SpeechSynthesisUtterance(textoCompleto);
     utterance.voice = vozMasculina;
     utterance.lang = 'es-MX';
-    utterance.rate = 0.7;
-    utterance.pitch = 0.7;
+    utterance.rate = 0.8; // Más natural
+    utterance.pitch = 0.6; // Más grave para masculina
     utterance.volume = 1.0;
 
     setCurrentUtterance(utterance);
 
-    // SINCRONIZACIÓN EXACTA CON EL AUDIO
-    const sincronizarElementos = () => {
-      // Mostrar título y progreso inmediatamente
-      setTimeout(() => {
-        setCurrentPhrase('Tu inventario de datos en acción.');
-        setVisibleElements(['titulo', 'progreso', 'diagrama']);
-        scrollToElement(tituloRef);
-      }, 1000);
-
-      // Mostrar header del formulario
-      setTimeout(() => {
-        setCurrentPhrase('Esta es la interfaz real donde completas el mapeo.');
-        setVisibleElements(prev => [...prev, 'header']);
-        scrollToElement(diagramaRef);
-      }, 5000);
-
-      // Mostrar sección 1 cuando dice "Primera sección"
-      setTimeout(() => {
-        setCurrentPhrase('Primera sección: Datos que recopilas.');
-        setVisibleElements(prev => [...prev, 'seccion1']);
-        scrollToElement(seccion1Ref);
-      }, 10000);
-
-      // Mostrar sección 2 cuando dice "Segunda sección"
-      setTimeout(() => {
-        setCurrentPhrase('Segunda sección: Finalidades de uso.');
-        setVisibleElements(prev => [...prev, 'seccion2']);
-        scrollToElement(seccion2Ref);
-      }, 18000);
-
-      // Mostrar sección 3 cuando dice "Tercera sección"
-      setTimeout(() => {
-        setCurrentPhrase('Tercera sección: Destinatarios.');
-        setVisibleElements(prev => [...prev, 'seccion3']);
-        scrollToElement(seccion3Ref);
-      }, 26000);
-
-      // Mostrar sección 4 cuando dice "Cuarta sección"
-      setTimeout(() => {
-        setCurrentPhrase('Cuarta sección: Plazos de retención.');
-        setVisibleElements(prev => [...prev, 'seccion4']);
-        scrollToElement(seccion4Ref);
-      }, 34000);
-
-      // Mostrar sección 5 cuando dice "Quinta sección"
-      setTimeout(() => {
-        setCurrentPhrase('Quinta sección: Medidas de seguridad.');
-        setVisibleElements(prev => [...prev, 'seccion5']);
-        scrollToElement(seccion5Ref);
-      }, 42000);
-
-      // Mostrar botón final cuando dice "Tu primer mapeo"
-      setTimeout(() => {
-        setCurrentPhrase('Tu primer mapeo estará listo en diez minutos.');
-        setVisibleElements(prev => [...prev, 'boton_final']);
-        scrollToElement(botonFinalRef);
-      }, 50000);
-
-      // Avanzar al siguiente módulo
-      setTimeout(() => {
-        if (onNext) onNext();
-      }, 60000);
+    // SINCRONIZACIÓN BASADA EN TIEMPO REAL
+    const iniciarSincronizacion = () => {
+      const startTime = Date.now();
+      
+      // Cronómetro que verifica cada 100ms
+      const intervalo = setInterval(() => {
+        const tiempoTranscurrido = Date.now() - startTime;
+        
+        // Mostrar elementos según tiempo transcurrido
+        if (tiempoTranscurrido >= 0 && !visibleElements.includes('titulo')) {
+          setCurrentPhrase('Tu inventario de datos en acción.');
+          setVisibleElements(['titulo', 'progreso', 'diagrama']);
+          scrollToElement(tituloRef);
+        }
+        
+        if (tiempoTranscurrido >= 4000 && !visibleElements.includes('header')) {
+          setCurrentPhrase('Esta es la interfaz real donde completas el mapeo.');
+          setVisibleElements(prev => [...prev, 'header']);
+          scrollToElement(diagramaRef);
+        }
+        
+        if (tiempoTranscurrido >= 12000 && !visibleElements.includes('seccion1')) {
+          setCurrentPhrase('Primera sección: Datos que recopilas.');
+          setVisibleElements(prev => [...prev, 'seccion1']);
+          scrollToElement(seccion1Ref);
+        }
+        
+        if (tiempoTranscurrido >= 25000 && !visibleElements.includes('seccion2')) {
+          setCurrentPhrase('Segunda sección: Finalidades de uso.');
+          setVisibleElements(prev => [...prev, 'seccion2']);
+          scrollToElement(seccion2Ref);
+        }
+        
+        if (tiempoTranscurrido >= 35000 && !visibleElements.includes('seccion3')) {
+          setCurrentPhrase('Tercera sección: Destinatarios.');
+          setVisibleElements(prev => [...prev, 'seccion3']);
+          scrollToElement(seccion3Ref);
+        }
+        
+        if (tiempoTranscurrido >= 48000 && !visibleElements.includes('seccion4')) {
+          setCurrentPhrase('Cuarta sección: Plazos de retención.');
+          setVisibleElements(prev => [...prev, 'seccion4']);
+          scrollToElement(seccion4Ref);
+        }
+        
+        if (tiempoTranscurrido >= 58000 && !visibleElements.includes('seccion5')) {
+          setCurrentPhrase('Quinta sección: Medidas de seguridad.');
+          setVisibleElements(prev => [...prev, 'seccion5']);
+          scrollToElement(seccion5Ref);
+        }
+        
+        if (tiempoTranscurrido >= 75000 && !visibleElements.includes('boton_final')) {
+          setCurrentPhrase('Tu primer mapeo estará listo en diez minutos.');
+          setVisibleElements(prev => [...prev, 'boton_final']);
+          scrollToElement(botonFinalRef);
+        }
+        
+        // Limpiar intervalo al final
+        if (tiempoTranscurrido >= 85000) {
+          clearInterval(intervalo);
+          setTimeout(() => {
+            if (onNext) onNext();
+          }, 2000);
+        }
+      }, 100);
     };
 
     utterance.onstart = () => {
-      sincronizarElementos();
+      console.log('🎤 Audio iniciado');
+      iniciarSincronizacion();
     };
 
     utterance.onend = () => {
+      console.log('🎤 Audio terminado');
       setIsPlaying(false);
     };
 
-    utterance.onerror = () => {
+    utterance.onerror = (error) => {
+      console.error('🎤 Error de audio:', error);
       setIsPlaying(false);
     };
 
+    // HABLAR UNA SOLA VEZ SIN INTERRUPCIONES
+    speechSynthesis.cancel(); // Limpiar cualquier audio anterior
     speechSynthesis.speak(utterance);
   };
 
