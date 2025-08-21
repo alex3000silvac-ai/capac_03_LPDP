@@ -10,6 +10,7 @@ import uuid
 import json
 
 from app.core.config import settings
+from app.core.security_enhanced import input_validator, audit_logger
 from app.models import Tenant, TenantConfig, User, Role
 from app.services.auth_service import AuthService
 from app.core.database import engine
@@ -82,20 +83,53 @@ class TenantService:
             raise e
     
     def _create_tenant_schema(self, schema_name: str):
-        """Crea el esquema de base de datos para un tenant"""
+        """Crea el esquema de base de datos para un tenant (SEGURO)"""
+        # VALIDAR Y SANITIZAR NOMBRE DE ESQUEMA PARA PREVENIR SQL INJECTION
+        if not input_validator.validate_tenant_id(schema_name):
+            raise ValueError(f"Nombre de esquema inválido: {schema_name}")
+        
+        # Sanitizar para uso en SQL
+        safe_schema_name = input_validator.sanitize_sql_identifier(schema_name)
+        
+        # Log de auditoría
+        audit_logger.log_security_event(
+            "tenant_schema_creation", safe_schema_name, "system",
+            {"requested_name": schema_name, "sanitized_name": safe_schema_name},
+            "INFO"
+        )
+        
         with self.engine.connect() as conn:
-            # Crear esquema
-            conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_name}"))
+            # CREAR ESQUEMA USANDO IDENTIFICADOR SANITIZADO (NO PARAMETRIZABLE EN POSTGRES)
+            # PostgreSQL no permite parámetros para nombres de esquemas, pero el input está sanitizado
+            conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {safe_schema_name}"))
             conn.commit()
             
-            # Ejecutar función de creación de tablas del tenant
-            conn.execute(text(f"SELECT create_tenant_schema('{schema_name}')"))
+            # EJECUTAR FUNCIÓN CON PARÁMETRO SEGURO
+            conn.execute(
+                text("SELECT create_tenant_schema(:schema_name)"),
+                {"schema_name": safe_schema_name}
+            )
             conn.commit()
     
     def _drop_tenant_schema(self, schema_name: str):
-        """Elimina el esquema de un tenant"""
+        """Elimina el esquema de un tenant (SEGURO)"""
+        # VALIDAR Y SANITIZAR NOMBRE DE ESQUEMA PARA PREVENIR SQL INJECTION
+        if not input_validator.validate_tenant_id(schema_name):
+            raise ValueError(f"Nombre de esquema inválido: {schema_name}")
+        
+        # Sanitizar para uso en SQL
+        safe_schema_name = input_validator.sanitize_sql_identifier(schema_name)
+        
+        # Log de auditoría CRÍTICO
+        audit_logger.log_security_event(
+            "tenant_schema_deletion", safe_schema_name, "system",
+            {"requested_name": schema_name, "sanitized_name": safe_schema_name},
+            "CRITICAL"
+        )
+        
         with self.engine.connect() as conn:
-            conn.execute(text(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE"))
+            # ELIMINAR ESQUEMA CON IDENTIFICADOR SANITIZADO
+            conn.execute(text(f"DROP SCHEMA IF EXISTS {safe_schema_name} CASCADE"))
             conn.commit()
     
     def _create_admin_user(

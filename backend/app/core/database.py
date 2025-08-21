@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 from fastapi import HTTPException
+from app.core.security_enhanced import input_validator, audit_logger
 import logging
 import re
 
@@ -122,12 +123,23 @@ def create_tenant_schema(tenant_id: str):
     Crea el esquema de base de datos para un nuevo tenant - SEGURO
     """
     try:
-        # Validar tenant_id para prevenir inyección SQL
-        validated_tenant_id = validate_tenant_id(tenant_id)
-        schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{validated_tenant_id}"
+        # VALIDAR Y SANITIZAR TENANT_ID PARA PREVENIR SQL INJECTION
+        if not input_validator.validate_tenant_id(tenant_id):
+            raise ValueError(f"Tenant ID inválido: {tenant_id}")
+        
+        # Sanitizar para uso seguro en SQL
+        safe_tenant_id = input_validator.sanitize_sql_identifier(tenant_id)
+        schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{safe_tenant_id}"
+        
+        # Log de auditoría
+        audit_logger.log_security_event(
+            "database_schema_creation", safe_tenant_id, "system",
+            {"original_tenant_id": tenant_id, "schema_name": schema_name},
+            "INFO"
+        )
         
         with get_master_db_context() as db:
-            # REPARADO: Usar nombre validado directamente (ya fue sanitizado)
+            # CREAR ESQUEMA CON NOMBRE SANITIZADO
             db.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_name}"))
             
             # Crear todas las tablas en el esquema
@@ -156,12 +168,23 @@ def drop_tenant_schema(tenant_id: str):
     Elimina el esquema de base de datos de un tenant - SEGURO
     """
     try:
-        # Validar tenant_id para prevenir inyección SQL
-        validated_tenant_id = validate_tenant_id(tenant_id)
-        schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{validated_tenant_id}"
+        # VALIDAR Y SANITIZAR TENANT_ID PARA PREVENIR SQL INJECTION
+        if not input_validator.validate_tenant_id(tenant_id):
+            raise ValueError(f"Tenant ID inválido: {tenant_id}")
+        
+        # Sanitizar para uso seguro en SQL
+        safe_tenant_id = input_validator.sanitize_sql_identifier(tenant_id)
+        schema_name = f"{settings.TENANT_SCHEMA_PREFIX}{safe_tenant_id}"
+        
+        # Log de auditoría CRÍTICO (eliminación)
+        audit_logger.log_security_event(
+            "database_schema_deletion", safe_tenant_id, "system",
+            {"original_tenant_id": tenant_id, "schema_name": schema_name},
+            "CRITICAL"
+        )
         
         with get_master_db_context() as db:
-            # REPARADO: Usar nombre validado directamente (ya fue sanitizado)
+            # ELIMINAR ESQUEMA CON NOMBRE SANITIZADO
             db.execute(text(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE"))
             db.commit()
             

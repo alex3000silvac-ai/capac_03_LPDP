@@ -13,6 +13,14 @@ import logging
 
 from app.core.config import settings
 
+# IMPORTAR SISTEMA DE SEGURIDAD MEJORADO
+try:
+    from app.core.security_enhanced import aes_cipher
+    ENHANCED_SECURITY_AVAILABLE = True
+except ImportError:
+    ENHANCED_SECURITY_AVAILABLE = False
+    logger.warning("Sistema de seguridad mejorado no disponible")
+
 logger = logging.getLogger(__name__)
 
 # Configuración de encriptación de contraseñas
@@ -81,38 +89,71 @@ def verify_token(token: str) -> Optional[dict]:
 
 def encrypt_field(value: str) -> str:
     """
-    Encripta un campo sensible (SIMPLIFICADO)
+    Encripta un campo sensible usando AES-256 REAL o fallback Base64
     """
     if not value:
         return value
     
-    # Encriptación simplificada para evitar dependencias
+    # Usar encriptación AES-256 real si está disponible
+    if ENHANCED_SECURITY_AVAILABLE:
+        try:
+            encrypted = aes_cipher.encrypt(value)
+            return f"AES_{encrypted}"
+        except Exception as e:
+            logger.error(f"Error encriptando campo con AES: {e}")
+    
+    # Fallback a Base64 (INSEGURO - solo para compatibilidad)
     try:
         import base64
         encoded = base64.b64encode(value.encode()).decode()
-        return f"ENCRYPTED_{encoded}"
+        logger.warning("Usando encriptación Base64 insegura como fallback")
+        return f"B64_{encoded}"
     except Exception as e:
         logger.error(f"Error encriptando campo: {e}")
         return value
 
 def decrypt_field(encrypted_value: str) -> str:
     """
-    Desencripta un campo sensible (SIMPLIFICADO)
+    Desencripta un campo sensible usando AES-256 REAL o fallback Base64
     """
     if not encrypted_value:
         return encrypted_value
     
-    # Desencriptación simplificada
-    try:
-        if encrypted_value.startswith("ENCRYPTED_"):
+    # Desencriptación AES-256 (SEGURA)
+    if encrypted_value.startswith("AES_") and ENHANCED_SECURITY_AVAILABLE:
+        try:
+            encrypted_data = encrypted_value[4:]  # Remover "AES_"
+            decrypted = aes_cipher.decrypt(encrypted_data)
+            return decrypted
+        except Exception as e:
+            logger.error(f"Error desencriptando campo con AES: {e}")
+            return encrypted_value
+    
+    # Desencriptación Base64 (INSEGURA - solo compatibilidad)
+    elif encrypted_value.startswith("B64_"):
+        try:
+            import base64
+            encoded = encrypted_value[4:]  # Remover "B64_"
+            decoded = base64.b64decode(encoded).decode()
+            logger.warning("Desencriptando con Base64 inseguro")
+            return decoded
+        except Exception as e:
+            logger.error(f"Error desencriptando campo Base64: {e}")
+            return encrypted_value
+    
+    # Compatibilidad con formato legacy "ENCRYPTED_"
+    elif encrypted_value.startswith("ENCRYPTED_"):
+        try:
             import base64
             encoded = encrypted_value[10:]  # Remover "ENCRYPTED_"
             decoded = base64.b64decode(encoded).decode()
+            logger.warning("Desencriptando formato legacy Base64")
             return decoded
-        return encrypted_value
-    except Exception as e:
-        logger.error(f"Error desencriptando campo: {e}")
-        return encrypted_value
+        except Exception as e:
+            logger.error(f"Error desencriptando formato legacy: {e}")
+            return encrypted_value
+    
+    return encrypted_value
 
 def generate_secure_password(length: int = 12) -> str:
     """
@@ -218,7 +259,8 @@ def validate_api_key(api_key: str) -> Optional[dict]:
         # Aquí podrías agregar validación adicional
         # Por ejemplo, verificar en base de datos si la key está activa
         
-        return eval(decrypted_data)  # En producción, usar json.loads
+        import json
+        return json.loads(decrypted_data)  # SEGURO: Reemplazado eval() por json.loads
     except Exception as e:
         logger.error(f"Error validando API key: {e}")
         return None

@@ -69,7 +69,9 @@
       "Bash(render services list)",
       "Bash(npm run deploy:frontend:*)",
       "Bash(PORT=3002 npm run dev)",
-      "Bash(PORT=3000 npm run dev)"
+      "Bash(PORT=3000 npm run dev)",
+      "Bash(./RENDER.exe --help)",
+      "Bash(./RENDER.exe services)"
     ],
     "deny": [],
     "additionalDirectories": [

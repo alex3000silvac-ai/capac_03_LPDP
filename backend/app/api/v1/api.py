@@ -5,24 +5,30 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     auth,
+    auth_demo,
     users,
     tenants,
     empresas,
     organizaciones,
     capacitacion,
     downloads,
+    mapeo_datos,
+    empresas_multitenant,
 )
 
 api_router = APIRouter()
 
 # Rutas principales
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
+api_router.include_router(auth_demo.router, prefix="/demo", tags=["demo-authentication"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(tenants.router, prefix="/tenants", tags=["tenants"])
 api_router.include_router(empresas.router, prefix="/empresas", tags=["empresas"])
 api_router.include_router(organizaciones.router, prefix="/organizaciones", tags=["organizaciones"])
 api_router.include_router(capacitacion.router, prefix="/capacitacion", tags=["capacitacion"])
 api_router.include_router(downloads.router, prefix="/downloads", tags=["downloads"])
+api_router.include_router(mapeo_datos.router, prefix="/mapeo-datos", tags=["mapeo-datos"])
+api_router.include_router(empresas_multitenant.router, prefix="/empresas-mt", tags=["empresas-multitenant"])
 
 # COMENTADO: Rutas de módulos funcionales - Causan errores de import
 # api_router.include_router(consentimientos.router, prefix="/consentimientos", tags=["consentimientos"])

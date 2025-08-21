@@ -91,6 +91,7 @@ import {
   PictureAsPdf,
   TableChart,
   Lightbulb,
+  Refresh,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabaseClient';
@@ -107,6 +108,9 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
   const [validationErrors, setValidationErrors] = useState([]);
   const [showVisualization, setShowVisualization] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [existingRATs, setExistingRATs] = useState([]);
+  const [showRATList, setShowRATList] = useState(false);
+  const [loadingRATs, setLoadingRATs] = useState(false);
   
   // Estado del RAT (Registro de Actividades de Tratamiento)
   const [ratData, setRatData] = useState({
@@ -335,35 +339,222 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     setValidationErrors([]);
   };
 
-  // Guardar en Supabase
+  // Guardar RAT usando el endpoint backend seguro
   const saveRAT = async () => {
     setLoading(true);
     try {
+      const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
+      const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+      
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
       const dataToSave = {
         ...ratData,
-        fecha_actualizacion: new Date().toISOString(),
-        tenant_id: user?.organizacion_id || 'demo',
+        tenant_id: user?.organizacion_id || user?.tenant_id || 'demo',
         created_by: user?.id || 'demo_user'
       };
 
-      const { data, error } = await supabase
-        .from('mapeos_datos')
-        .upsert(dataToSave, { onConflict: 'id' })
-        .select()
-        .single();
+      // Determinar si es creación o actualización
+      const method = ratData.id ? 'PUT' : 'POST';
+      const url = ratData.id 
+        ? `${API_URL}/api/v1/mapeo-datos/${ratData.id}`
+        : `${API_URL}/api/v1/mapeo-datos/`;
 
-      if (error) throw error;
+      console.log(`${method} ${url}`, { dataToSave });
 
-      setRatData(prev => ({ ...prev, id: data.id }));
-      setSavedMessage('✅ RAT guardado exitosamente en la base de datos');
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSave)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      // Actualizar los datos locales con la respuesta
+      setRatData(prev => ({ 
+        ...prev, 
+        id: data.id,
+        ...data.datos_completos 
+      }));
+      
+      setSavedMessage(`✅ RAT ${ratData.id ? 'actualizado' : 'guardado'} exitosamente`);
       setShowVisualization(true);
+      
+      console.log('RAT saved successfully:', data);
+      
     } catch (error) {
       console.error('Error saving RAT:', error);
-      setSavedMessage('❌ Error al guardar: ' + error.message);
+      setSavedMessage(`❌ Error al guardar: ${error.message}`);
+      
+      // Si es error de autenticación, redirigir al login
+      if (error.message.includes('401') || error.message.includes('token')) {
+        setSavedMessage('❌ Sesión expirada. Por favor, inicia sesión nuevamente.');
+        // Opcional: redirigir al login después de unos segundos
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 3000);
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Cargar RATs existentes del usuario
+  const loadExistingRATs = async () => {
+    setLoadingRATs(true);
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
+      const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+      
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
+      const response = await fetch(`${API_URL}/api/v1/mapeo-datos/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      const rats = await response.json();
+      setExistingRATs(rats);
+      console.log('RATs cargados:', rats);
+      
+    } catch (error) {
+      console.error('Error loading RATs:', error);
+      setSavedMessage(`❌ Error al cargar RATs: ${error.message}`);
+    } finally {
+      setLoadingRATs(false);
+    }
+  };
+
+  // Cargar un RAT específico para edición
+  const loadRATForEdit = async (ratId) => {
+    setLoading(true);
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
+      const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+
+      const response = await fetch(`${API_URL}/api/v1/mapeo-datos/${ratId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Error al cargar RAT');
+      }
+
+      const ratResponse = await response.json();
+      
+      // Cargar los datos completos en el estado
+      setRatData({
+        id: ratResponse.id,
+        ...ratResponse.datos_completos
+      });
+      
+      setActiveStep(0);
+      setShowRATList(false);
+      setSavedMessage(`✅ RAT "${ratResponse.nombre_actividad}" cargado para edición`);
+      
+      console.log('RAT loaded for edit:', ratResponse);
+      
+    } catch (error) {
+      console.error('Error loading RAT for edit:', error);
+      setSavedMessage(`❌ Error al cargar RAT: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Crear nuevo RAT
+  const createNewRAT = () => {
+    setRatData({
+      // FASE 1: Identificación
+      nombre_actividad: '',
+      area_responsable: '',
+      responsable_tratamiento: '',
+      dpo_contacto: '',
+      
+      // FASE 2: Base jurídica
+      base_licitud: '',
+      base_licitud_detalle: '',
+      
+      // FASE 3: Categorías de datos
+      categorias_datos: {
+        identificacion: [],
+        contacto: [],
+        demograficos: [],
+        economicos: [],
+        educacion: [],
+        salud: [],
+        sensibles: []
+      },
+      
+      // FASE 4: Finalidad y destinatarios
+      finalidad: '',
+      finalidad_detallada: '',
+      origen_datos: [],
+      destinatarios: [],
+      destinatarios_internos: [],
+      destinatarios_externos: [],
+      
+      transferencias_internacionales: {
+        existe: false,
+        paises: [],
+        garantias: '',
+        empresa_receptora: ''
+      },
+      
+      // FASE 5: Seguridad y conservación
+      tiempo_conservacion: '',
+      criterios_supresion: '',
+      medidas_seguridad: {
+        tecnicas: [],
+        organizativas: []
+      },
+      nivel_riesgo: 'medio',
+      evaluacion_riesgos: '',
+      medidas_mitigacion: [],
+      derechos_ejercidos: [],
+      procedimiento_derechos: '',
+      
+      // Metadata
+      version: '1.0',
+      estado: 'borrador',
+      observaciones: ''
+    });
+    
+    setActiveStep(0);
+    setShowRATList(false);
+    setSavedMessage('');
+    setShowVisualization(false);
+  };
+
+  // Efecto para cargar RATs al abrir
+  useEffect(() => {
+    if (showRATList) {
+      loadExistingRATs();
+    }
+  }, [showRATList]);
 
   // Exportar a PDF
   const exportToPDF = () => {
@@ -2174,6 +2365,59 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
               </Paper>
             </Grid>
 
+            {/* Gestión de RATs Existentes */}
+            <Grid item xs={12}>
+              <Paper sx={{ p: 3, bgcolor: 'primary.50', border: '2px solid', borderColor: 'primary.200' }}>
+                <Typography variant="h6" gutterBottom color="primary.main">
+                  📋 Gestión de RATs Existentes
+                </Typography>
+                
+                <Grid container spacing={2} sx={{ mb: 2 }}>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="info"
+                      size="large"
+                      startIcon={<FolderOpen />}
+                      onClick={() => setShowRATList(true)}
+                      disabled={loadingRATs}
+                    >
+                      Ver RATs Guardados
+                    </Button>
+                  </Grid>
+                  
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      color="primary"
+                      size="large"
+                      startIcon={<Add />}
+                      onClick={createNewRAT}
+                    >
+                      Nuevo RAT
+                    </Button>
+                  </Grid>
+                  
+                  {ratData.id && (
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        color="warning"
+                        size="large"
+                        startIcon={<Edit />}
+                        onClick={() => setSavedMessage(`📝 Editando RAT: ${ratData.nombre_actividad || 'Sin nombre'}`)}
+                      >
+                        Modo Edición
+                      </Button>
+                    </Grid>
+                  )}
+                </Grid>
+              </Paper>
+            </Grid>
+
             {/* Acciones de Exportación */}
             <Grid item xs={12}>
               <Paper sx={{ p: 3, bgcolor: 'grey.50' }}>
@@ -2377,6 +2621,150 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
           )}
         </Box>
       </Paper>
+
+      {/* Dialog para Lista de RATs Existentes */}
+      <Dialog 
+        open={showRATList} 
+        onClose={() => setShowRATList(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box display="flex" alignItems="center" justifyContent="space-between">
+            <Typography variant="h5">
+              <FolderOpen sx={{ mr: 1, verticalAlign: 'middle' }} />
+              RATs Guardados
+            </Typography>
+            <IconButton onClick={() => setShowRATList(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        
+        <DialogContent>
+          {loadingRATs ? (
+            <Box display="flex" justifyContent="center" p={3}>
+              <CircularProgress />
+              <Typography sx={{ ml: 2 }}>Cargando RATs...</Typography>
+            </Box>
+          ) : existingRATs.length === 0 ? (
+            <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.50' }}>
+              <Storage sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                No hay RATs guardados
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Crea tu primer Registro de Actividades de Tratamiento
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={createNewRAT}
+              >
+                Crear Nuevo RAT
+              </Button>
+            </Paper>
+          ) : (
+            <Grid container spacing={2}>
+              {existingRATs.map((rat) => (
+                <Grid item xs={12} md={6} key={rat.id}>
+                  <Card sx={{ 
+                    transition: 'all 0.3s',
+                    '&:hover': { 
+                      transform: 'translateY(-2px)', 
+                      boxShadow: 3 
+                    },
+                    border: ratData.id === rat.id ? '2px solid' : '1px solid',
+                    borderColor: ratData.id === rat.id ? 'primary.main' : 'grey.200'
+                  }}>
+                    <CardContent>
+                      <Box display="flex" alignItems="flex-start" justifyContent="space-between" mb={2}>
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                          {rat.nombre_actividad || 'RAT sin nombre'}
+                        </Typography>
+                        <Chip 
+                          label={rat.estado || 'borrador'} 
+                          size="small"
+                          color={
+                            rat.estado === 'aprobado' ? 'success' :
+                            rat.estado === 'revisión' ? 'warning' :
+                            'default'
+                          }
+                        />
+                      </Box>
+                      
+                      <Typography color="text.secondary" gutterBottom>
+                        <Business sx={{ verticalAlign: 'middle', mr: 0.5, fontSize: 16 }} />
+                        {rat.area_responsable || 'Área no especificada'}
+                      </Typography>
+                      
+                      <Typography color="text.secondary" gutterBottom>
+                        <Gavel sx={{ verticalAlign: 'middle', mr: 0.5, fontSize: 16 }} />
+                        Base: {rat.base_licitud || 'No especificada'}
+                      </Typography>
+                      
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        Actualizado: {new Date(rat.updated_at).toLocaleDateString('es-CL')} • v{rat.version}
+                      </Typography>
+                      
+                      <Box display="flex" gap={1} flexWrap="wrap">
+                        <Button
+                          size="small"
+                          variant="contained"
+                          startIcon={<Edit />}
+                          onClick={() => loadRATForEdit(rat.id)}
+                          disabled={loading}
+                        >
+                          Editar
+                        </Button>
+                        
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<Visibility />}
+                          onClick={() => {
+                            loadRATForEdit(rat.id);
+                            setShowVisualization(true);
+                          }}
+                        >
+                          Ver
+                        </Button>
+                        
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="error"
+                          startIcon={<PictureAsPdf />}
+                          onClick={() => {
+                            // Cargar datos y exportar PDF
+                            setRatData({
+                              id: rat.id,
+                              ...rat.datos_completos
+                            });
+                            setTimeout(exportToPDF, 100);
+                          }}
+                        >
+                          PDF
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </DialogContent>
+        
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => loadExistingRATs()} disabled={loadingRATs}>
+            <Refresh sx={{ mr: 1 }} />
+            Actualizar
+          </Button>
+          <Button onClick={createNewRAT} variant="contained" startIcon={<Add />}>
+            Nuevo RAT
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Snackbar for messages */}
       <Snackbar
