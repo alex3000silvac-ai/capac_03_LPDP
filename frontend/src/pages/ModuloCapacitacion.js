@@ -43,7 +43,6 @@ import {
   NavigateBefore,
   EmojiEvents,
 } from '@mui/icons-material';
-import Confetti from 'react-confetti';
 
 function ModuloCapacitacion() {
   const { moduloId } = useParams();
@@ -209,7 +208,6 @@ function ModuloCapacitacion() {
 
   return (
     <Box>
-      {moduloCompletado && <Confetti />}
       
       {/* Header del módulo */}
       <Paper sx={{ p: 3, mb: 3 }}>

@@ -37,7 +37,6 @@ import {
   Psychology,
   Science,
 } from '@mui/icons-material';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 function MiProgreso() {
   // Datos de ejemplo
@@ -192,15 +191,11 @@ function MiProgreso() {
               <Typography variant="h6" gutterBottom>
                 Competencias Desarrolladas
               </Typography>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={competencias} layout="horizontal">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="nombre" angle={-45} textAnchor="end" height={80} />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="valor" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
+              <Box sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  📊 Gráfico de competencias (próximamente)
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
