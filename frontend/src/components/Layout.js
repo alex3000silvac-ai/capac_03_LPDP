@@ -44,13 +44,6 @@ const drawerWidth = 280;
 
 const menuItems = [
   {
-    text: 'Módulo Cero',
-    icon: <SchoolIcon />,
-    path: '/modulo-cero',
-    description: 'LPDP en 5 minutos + Mapeo',
-    chip: '¡NUEVO!'
-  },
-  {
     text: 'Panel Principal',
     icon: <DashboardIcon />,
     path: '/dashboard',
