@@ -64,7 +64,8 @@
       "Bash(PORT=3000 npm start)",
       "Bash(PORT=3002 npm start)",
       "Bash(true)",
-      "Bash(NODE_OPTIONS=\"--max-old-space-size=2048\" npm run build)"
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=2048\" npm run build)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "additionalDirectories": [

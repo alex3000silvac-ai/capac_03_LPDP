@@ -276,40 +276,41 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
       {/* Título */}
       <Box ref={tituloRef}>
         {visibleElements.includes('titulo') && (
-        <Fade in timeout={1000}>
-          <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>
-            💼 TU INVENTARIO EN ACCIÓN
-          </Typography>
-        </Fade>
-      )}
+          <Fade in timeout={1000}>
+            <Typography variant="h3" align="center" sx={{ mb: 2, fontWeight: 700 }}>
+              💼 TU INVENTARIO EN ACCIÓN
+            </Typography>
+          </Fade>
+        )}
 
-      {visibleElements.includes('titulo') && (
-        <Fade in timeout={1500}>
-          <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 2 }}>
-            Así se ve el formulario real que completas para cada proceso
-          </Typography>
-        </Fade>
-      )}
+        {visibleElements.includes('titulo') && (
+          <Fade in timeout={1500}>
+            <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 2 }}>
+              Así se ve el formulario real que completas para cada proceso
+            </Typography>
+          </Fade>
+        )}
+      </Box>
 
       {/* Progreso Visual */}
       <Box ref={progresoRef}>
         {visibleElements.includes('progreso') && (
           <Box sx={{ mb: 4, maxWidth: 800, mx: 'auto' }}>
-          <LinearProgress 
-            variant="determinate" 
-            value={currentSection === -1 ? 0 : ((currentSection + 1) / 5) * 100}
-            sx={{ height: 8, borderRadius: 4, mb: 2 }}
-          />
-          <Stepper activeStep={currentSection} alternativeLabel>
-            {sectionTitles.map((title, index) => (
-              <Step key={title}>
-                <StepLabel>
-                  <Typography variant="caption">{title}</Typography>
-                </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </Box>
+            <LinearProgress 
+              variant="determinate" 
+              value={currentSection === -1 ? 0 : ((currentSection + 1) / 5) * 100}
+              sx={{ height: 8, borderRadius: 4, mb: 2 }}
+            />
+            <Stepper activeStep={currentSection} alternativeLabel>
+              {sectionTitles.map((title, index) => (
+                <Step key={title}>
+                  <StepLabel>
+                    <Typography variant="caption">{title}</Typography>
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          </Box>
         )}
       </Box>
 
@@ -318,52 +319,53 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
         {visibleElements.includes('diagrama') && (
           <Fade in timeout={2000}>
             <Paper sx={{ p: 3, mb: 4, maxWidth: 1000, mx: 'auto', bgcolor: 'grey.50' }}>
-            <Typography variant="h6" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
-              🔄 Flujo Visual del Proceso de Mapeo
-            </Typography>
-            
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-              {[
-                { icon: '📊', label: 'Identificar\nDatos', color: 'info.light', active: currentSection >= 0 },
-                { icon: '🎯', label: 'Definir\nFinalidades', color: 'success.light', active: currentSection >= 1 },
-                { icon: '👥', label: 'Mapear\nDestinatarios', color: 'warning.light', active: currentSection >= 2 },
-                { icon: '⏱️', label: 'Configurar\nRetención', color: 'error.light', active: currentSection >= 3 },
-                { icon: '🔒', label: 'Aplicar\nSeguridad', color: 'secondary.light', active: currentSection >= 4 }
-              ].map((step, index) => (
-                <React.Fragment key={index}>
-                  <Paper 
-                    elevation={step.active ? 6 : 2}
-                    sx={{
-                      p: 2,
-                      minWidth: 120,
-                      textAlign: 'center',
-                      bgcolor: step.active ? step.color : 'background.paper',
-                      transform: step.active ? 'scale(1.1)' : 'scale(1)',
-                      transition: 'all 0.3s ease-in-out'
-                    }}
-                  >
-                    <Typography variant="h3" sx={{ fontSize: 40 }}>{step.icon}</Typography>
-                    <Typography variant="caption" sx={{ fontWeight: 600, whiteSpace: 'pre-line' }}>
-                      {step.label}
-                    </Typography>
-                    {step.active && (
-                      <Box sx={{ mt: 1 }}>
-                        <Chip size="small" label="Activo" color="primary" />
+              <Typography variant="h6" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
+                🔄 Flujo Visual del Proceso de Mapeo
+              </Typography>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                {[
+                  { icon: '📊', label: 'Identificar\nDatos', color: 'info.light', active: currentSection >= 0 },
+                  { icon: '🎯', label: 'Definir\nFinalidades', color: 'success.light', active: currentSection >= 1 },
+                  { icon: '👥', label: 'Mapear\nDestinatarios', color: 'warning.light', active: currentSection >= 2 },
+                  { icon: '⏱️', label: 'Configurar\nRetención', color: 'error.light', active: currentSection >= 3 },
+                  { icon: '🔒', label: 'Aplicar\nSeguridad', color: 'secondary.light', active: currentSection >= 4 }
+                ].map((step, index) => (
+                  <React.Fragment key={index}>
+                    <Paper 
+                      elevation={step.active ? 6 : 2}
+                      sx={{
+                        p: 2,
+                        minWidth: 120,
+                        textAlign: 'center',
+                        bgcolor: step.active ? step.color : 'background.paper',
+                        transform: step.active ? 'scale(1.1)' : 'scale(1)',
+                        transition: 'all 0.3s ease-in-out'
+                      }}
+                    >
+                      <Typography variant="h3" sx={{ fontSize: 40 }}>{step.icon}</Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 600, whiteSpace: 'pre-line' }}>
+                        {step.label}
+                      </Typography>
+                      {step.active && (
+                        <Box sx={{ mt: 1 }}>
+                          <Chip size="small" label="Activo" color="primary" />
+                        </Box>
+                      )}
+                    </Paper>
+                    {index < 4 && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 40 }}>
+                        <Box sx={{ flexGrow: 1, height: 2, bgcolor: step.active ? 'primary.main' : 'grey.300' }} />
+                        <Typography variant="h6" sx={{ mx: 1, color: step.active ? 'primary.main' : 'grey.400' }}>→</Typography>
                       </Box>
                     )}
-                  </Paper>
-                  {index < 4 && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 40 }}>
-                      <Box sx={{ flexGrow: 1, height: 2, bgcolor: step.active ? 'primary.main' : 'grey.300' }} />
-                      <Typography variant="h6" sx={{ mx: 1, color: step.active ? 'primary.main' : 'grey.400' }}>→</Typography>
-                    </Box>
-                  )}
-                </React.Fragment>
-              ))}
-            </Box>
-          </Paper>
-        </Fade>
-      )}
+                  </React.Fragment>
+                ))}
+              </Box>
+            </Paper>
+          </Fade>
+        )}
+      </Box>
 
       {/* Formulario simulado */}
       <Card elevation={8} sx={{ maxWidth: 1200, mx: 'auto' }}>
@@ -646,27 +648,27 @@ const InterfazTrabajo = ({ duration = 90, onNext, onPrev, isAutoPlay = true }) =
             {visibleElements.includes('boton_final') && (
               <Fade in timeout={1500}>
                 <Box sx={{ textAlign: 'center', mt: 4 }}>
-                <Paper 
-                  elevation={4}
-                  sx={{ 
-                    p: 3,
-                    bgcolor: 'primary.main',
-                    color: 'primary.contrastText',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      bgcolor: 'primary.dark',
-                      transform: 'scale(1.02)'
-                    },
-                    transition: 'all 0.3s ease-in-out'
-                  }}
-                >
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    [GUARDAR Y CONTINUAR CON SIGUIENTE PROCESO] →
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
-                    Tu primer mapeo estará listo en menos de 10 minutos
-                  </Typography>
-                </Paper>
+                  <Paper 
+                    elevation={4}
+                    sx={{ 
+                      p: 3,
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        bgcolor: 'primary.dark',
+                        transform: 'scale(1.02)'
+                      },
+                      transition: 'all 0.3s ease-in-out'
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      [GUARDAR Y CONTINUAR CON SIGUIENTE PROCESO] →
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
+                      Tu primer mapeo estará listo en menos de 10 minutos
+                    </Typography>
+                  </Paper>
                 </Box>
               </Fade>
             )}
