@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Configuración de Supabase
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://demo.supabase.co';
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'demo-key';
+// Configuración de Supabase PRODUCCIÓN
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://xvnfpkxbsmfhqcyvjwmz.supabase.co';
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2bmZwa3hic21maHFjeXZqd216Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ3OTU5MDUsImV4cCI6MjA1MDM3MTkwNX0.hEUBw6tXs-_pAr2PUYjnAmiFsCFz9P42OUwTLqmeG_s';
 
-// Cliente de Supabase para desarrollo
+// Cliente de Supabase para PRODUCCIÓN
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
@@ -15,36 +15,39 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       eventsPerSecond: 2,
     },
   },
+  global: {
+    headers: {
+      'x-tenant-id': localStorage.getItem('tenant_id') || 'default'
+    }
+  }
 });
 
-// Cliente mock para desarrollo sin Supabase configurado
-export const mockSupabase = {
-  from: (table) => ({
-    upsert: async (data) => {
-      console.log(`Mock upsert to ${table}:`, data);
-      return { 
-        data: { ...data, id: 'mock-id-' + Date.now() }, 
-        error: null 
-      };
-    },
-    select: () => ({
-      single: async () => {
-        console.log(`Mock select from ${table}`);
-        return { 
-          data: { id: 'mock-id', ...{} }, 
-          error: null 
-        };
-      }
-    }),
-    insert: async (data) => {
-      console.log(`Mock insert to ${table}:`, data);
-      return { 
-        data: { ...data, id: 'mock-id-' + Date.now() }, 
-        error: null 
+// Función helper para operaciones con tenant
+export const supabaseWithTenant = (tenantId) => {
+  return {
+    from: (table) => {
+      const baseQuery = supabase.from(table);
+      return {
+        ...baseQuery,
+        select: (columns = '*') => baseQuery.select(columns).eq('tenant_id', tenantId),
+        insert: (data) => {
+          const dataWithTenant = Array.isArray(data) 
+            ? data.map(d => ({ ...d, tenant_id: tenantId }))
+            : { ...data, tenant_id: tenantId };
+          return baseQuery.insert(dataWithTenant);
+        },
+        update: (data) => baseQuery.update(data).eq('tenant_id', tenantId),
+        upsert: (data) => {
+          const dataWithTenant = Array.isArray(data)
+            ? data.map(d => ({ ...d, tenant_id: tenantId }))
+            : { ...data, tenant_id: tenantId };
+          return baseQuery.upsert(dataWithTenant);
+        },
+        delete: () => baseQuery.delete().eq('tenant_id', tenantId)
       };
     }
-  })
+  };
 };
 
-// Usar cliente mock si no hay configuración real
-export default supabaseUrl.includes('demo') ? mockSupabase : supabase;
+// Exportar cliente real de Supabase - NO MOCK
+export default supabase;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import supabase, { supabaseWithTenant } from '../config/supabaseClient';
 import {
   Box,
   Grid,
@@ -340,67 +341,95 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     setValidationErrors([]);
   };
 
-  // Guardar RAT usando el endpoint backend seguro
+  // Guardar RAT directamente en Supabase con tenant obligatorio
   const saveRAT = async () => {
     setLoading(true);
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
-      const token = localStorage.getItem('lpdp_token');
-      
-      if (!token) {
-        throw new Error('No hay token de autenticación');
+      // Verificar tenant obligatorio
+      const tenantId = user?.tenant_id || user?.organizacion_id;
+      if (!tenantId || tenantId === 'demo') {
+        throw new Error('Tenant ID es obligatorio. No se permite modo demo para grabación en producción.');
       }
 
+      // Preparar datos con tenant obligatorio
       const dataToSave = {
         ...ratData,
-        tenant_id: user?.organizacion_id || user?.tenant_id || 'demo',
-        created_by: user?.id || 'demo_user'
+        tenant_id: tenantId,
+        user_id: user?.id || user?.email,
+        created_by: user?.email || user?.username,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        status: 'active',
+        metadata: {
+          empresa: empresaInfo?.nombre || user?.organizacion_nombre,
+          sector: empresaInfo?.sector,
+          version: '3.0.0',
+          ley: 'LPDP-21719'
+        }
       };
 
-      // Determinar si es creación o actualización
-      const method = ratData.id ? 'PUT' : 'POST';
-      const url = ratData.id 
-        ? `${API_URL}/api/v1/mapeo-datos/${ratData.id}`
-        : `${API_URL}/api/v1/mapeo-datos/`;
+      console.log('Guardando en Supabase con tenant:', tenantId, dataToSave);
 
-      console.log(`${method} ${url}`, { dataToSave });
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSave)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+      // Usar el helper con tenant para garantizar aislamiento
+      const supabaseTenant = supabaseWithTenant(tenantId);
+      
+      let result;
+      if (ratData.id) {
+        // Actualizar registro existente
+        result = await supabaseTenant
+          .from('mapeo_datos_rat')
+          .update({
+            ...dataToSave,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', ratData.id)
+          .select()
+          .single();
+      } else {
+        // Crear nuevo registro
+        result = await supabaseTenant
+          .from('mapeo_datos_rat')
+          .insert(dataToSave)
+          .select()
+          .single();
       }
 
-      const data = await response.json();
-      
-      // Actualizar los datos locales con la respuesta
+      if (result.error) {
+        throw result.error;
+      }
+
+      // Actualizar estado local con la respuesta
       setRatData(prev => ({ 
         ...prev, 
-        id: data.id,
-        ...data.datos_completos 
+        id: result.data.id,
+        ...result.data
       }));
       
-      setSavedMessage(`✅ RAT ${ratData.id ? 'actualizado' : 'guardado'} exitosamente`);
+      setSavedMessage(`✅ RAT ${ratData.id ? 'actualizado' : 'guardado'} exitosamente en Supabase (Tenant: ${tenantId})`);
       setShowVisualization(true);
       
-      console.log('RAT saved successfully:', data);
+      console.log('RAT guardado exitosamente en Supabase:', result.data);
+      
+      // Registrar actividad en log de auditoría
+      await supabaseTenant
+        .from('audit_log')
+        .insert({
+          tenant_id: tenantId,
+          user_id: user?.id,
+          action: ratData.id ? 'UPDATE_RAT' : 'CREATE_RAT',
+          resource_type: 'mapeo_datos_rat',
+          resource_id: result.data.id,
+          metadata: { nombre_actividad: ratData.nombre_actividad },
+          timestamp: new Date().toISOString()
+        });
       
     } catch (error) {
-      console.error('Error saving RAT:', error);
-      setSavedMessage(`❌ Error al guardar: ${error.message}`);
+      console.error('Error guardando en Supabase:', error);
+      setSavedMessage(`❌ Error al guardar en Supabase: ${error.message}`);
       
-      // Si es error de autenticación, redirigir al login
-      if (error.message.includes('401') || error.message.includes('token')) {
-        setSavedMessage('❌ Sesión expirada. Por favor, inicia sesión nuevamente.');
-        // Opcional: redirigir al login después de unos segundos
+      // Si es error de autenticación o permisos
+      if (error.message?.includes('JWT') || error.message?.includes('authenticated')) {
+        setSavedMessage('❌ Error de autenticación. Por favor, inicia sesión nuevamente.');
         setTimeout(() => {
           window.location.href = '/login';
         }, 3000);
@@ -414,72 +443,90 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
   const loadExistingRATs = async () => {
     setLoadingRATs(true);
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
-      const token = localStorage.getItem('lpdp_token');
+      // Verificar tenant obligatorio
+      const tenantId = user?.tenant_id || user?.organizacion_id;
+      if (!tenantId || tenantId === 'demo') {
+        throw new Error('Tenant ID es obligatorio para cargar datos.');
+      }
+
+      console.log('Cargando RATs de Supabase para tenant:', tenantId);
+
+      // Usar helper con tenant para garantizar aislamiento
+      const supabaseTenant = supabaseWithTenant(tenantId);
       
-      if (!token) {
-        throw new Error('No hay token de autenticación');
+      const { data, error } = await supabaseTenant
+        .from('mapeo_datos_rat')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
       }
 
-      const response = await fetch(`${API_URL}/api/v1/mapeo-datos/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
-      }
-
-      const rats = await response.json();
-      setExistingRATs(rats);
-      console.log('RATs cargados:', rats);
+      setExistingRATs(data || []);
+      console.log(`Cargados ${data?.length || 0} RATs del tenant ${tenantId}`);
       
     } catch (error) {
-      console.error('Error loading RATs:', error);
+      console.error('Error cargando RATs de Supabase:', error);
       setSavedMessage(`❌ Error al cargar RATs: ${error.message}`);
     } finally {
       setLoadingRATs(false);
     }
   };
 
-  // Cargar un RAT específico para edición
+  // Cargar un RAT específico para edición desde Supabase
   const loadRATForEdit = async (ratId) => {
     setLoading(true);
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
-      const token = localStorage.getItem('lpdp_token');
-
-      const response = await fetch(`${API_URL}/api/v1/mapeo-datos/${ratId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Error al cargar RAT');
+      // Verificar tenant obligatorio
+      const tenantId = user?.tenant_id || user?.organizacion_id;
+      if (!tenantId || tenantId === 'demo') {
+        throw new Error('Tenant ID es obligatorio para editar datos.');
       }
 
-      const ratResponse = await response.json();
+      console.log('Cargando RAT para edición desde Supabase:', ratId);
+
+      // Usar helper con tenant
+      const supabaseTenant = supabaseWithTenant(tenantId);
       
-      // Cargar los datos completos en el estado
-      setRatData({
-        id: ratResponse.id,
-        ...ratResponse.datos_completos
-      });
+      const { data, error } = await supabaseTenant
+        .from('mapeo_datos_rat')
+        .select('*')
+        .eq('id', ratId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error('RAT no encontrado');
+      }
       
+      // Cargar los datos en el estado
+      setRatData(data);
       setActiveStep(0);
       setShowRATList(false);
-      setSavedMessage(`✅ RAT "${ratResponse.nombre_actividad}" cargado para edición`);
+      setSavedMessage(`✅ RAT "${data.nombre_actividad}" cargado para edición desde Supabase`);
       
-      console.log('RAT loaded for edit:', ratResponse);
+      console.log('RAT cargado para edición:', data);
+      
+      // Registrar en auditoría
+      await supabaseTenant
+        .from('audit_log')
+        .insert({
+          tenant_id: tenantId,
+          user_id: user?.id,
+          action: 'VIEW_RAT',
+          resource_type: 'mapeo_datos_rat',
+          resource_id: ratId,
+          metadata: { nombre_actividad: data.nombre_actividad },
+          timestamp: new Date().toISOString()
+        });
       
     } catch (error) {
-      console.error('Error loading RAT for edit:', error);
+      console.error('Error cargando RAT de Supabase:', error);
       setSavedMessage(`❌ Error al cargar RAT: ${error.message}`);
     } finally {
       setLoading(false);
