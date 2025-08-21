@@ -247,7 +247,7 @@ const ProtectedRoute = ({ children, requiredPermissions = [], allowDemo = false 
   }
 
   // Verificar permisos si se especifican
-  if (requiredPermissions.length > 0) {
+  if (requiredPermissions && requiredPermissions.length > 0) {
     const hasPermission = requiredPermissions.some(permission => 
       user.permissions?.includes(permission) || user.is_superuser
     );

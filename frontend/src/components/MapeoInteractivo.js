@@ -345,7 +345,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     setLoading(true);
     try {
       const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
-      const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+      const token = localStorage.getItem('lpdp_token');
       
       if (!token) {
         throw new Error('No hay token de autenticación');
@@ -415,7 +415,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     setLoadingRATs(true);
     try {
       const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
-      const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+      const token = localStorage.getItem('lpdp_token');
       
       if (!token) {
         throw new Error('No hay token de autenticación');
@@ -450,7 +450,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     setLoading(true);
     try {
       const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
-      const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+      const token = localStorage.getItem('lpdp_token');
 
       const response = await fetch(`${API_URL}/api/v1/mapeo-datos/${ratId}`, {
         headers: {
