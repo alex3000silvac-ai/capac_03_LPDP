@@ -71,7 +71,9 @@
       "Bash(PORT=3002 npm run dev)",
       "Bash(PORT=3000 npm run dev)",
       "Bash(./RENDER.exe --help)",
-      "Bash(./RENDER.exe services)"
+      "Bash(./RENDER.exe services)",
+      "Bash(./RENDER.exe services get srv-d2b6krjuibrs73fauhs0)",
+      "Bash(./RENDER.exe logs:*)"
     ],
     "deny": [],
     "additionalDirectories": [

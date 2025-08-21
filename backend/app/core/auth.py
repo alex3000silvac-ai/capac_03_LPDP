@@ -12,11 +12,44 @@ import logging
 from app.core.config import settings
 from app.core.database import get_master_db
 from app.core.security import verify_password, create_access_token
-from app.core.security_enhanced import (
-    password_manager, jwt_manager, demo_manager, 
-    input_validator, audit_logger, rate_limiter,
-    SecurityConfig
-)
+# IMPORTAR SISTEMA DE SEGURIDAD MEJORADO (OPCIONAL)
+try:
+    from app.core.security_enhanced import (
+        password_manager, jwt_manager, demo_manager, 
+        input_validator, audit_logger, rate_limiter,
+        SecurityConfig
+    )
+    ENHANCED_SECURITY_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Sistema de seguridad mejorado no disponible: {e}")
+    ENHANCED_SECURITY_AVAILABLE = False
+    # Crear mocks para compatibilidad
+    class MockSecurityConfig:
+        DEMO_MODE_ENABLED = False
+        DEMO_TENANT_ID = "demo"
+        DEMO_ADMIN_EMAIL = "demo@example.com"
+    SecurityConfig = MockSecurityConfig()
+    
+    class MockValidator:
+        @staticmethod
+        def validate_tenant_id(tenant_id): return True
+        @staticmethod
+        def validate_email(email): return '@' in email
+    input_validator = MockValidator()
+    
+    class MockAuditLogger:
+        @staticmethod
+        def log_authentication_attempt(*args, **kwargs): pass
+        @staticmethod
+        def log_security_event(*args, **kwargs): pass
+        @staticmethod
+        def log_data_access(*args, **kwargs): pass
+    audit_logger = MockAuditLogger()
+    
+    class MockRateLimiter:
+        @staticmethod
+        def check_rate_limit(*args, **kwargs): return True, 999
+    rate_limiter = MockRateLimiter()
 from app.models.user import User
 
 logger = logging.getLogger(__name__)

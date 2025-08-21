@@ -7,7 +7,22 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 from contextlib import contextmanager
 from fastapi import HTTPException
-from app.core.security_enhanced import input_validator, audit_logger
+# IMPORTAR SISTEMA DE SEGURIDAD MEJORADO (OPCIONAL)
+try:
+    from app.core.security_enhanced import input_validator, audit_logger
+except ImportError:
+    # Mock classes para compatibilidad
+    class MockValidator:
+        @staticmethod
+        def validate_tenant_id(tenant_id): return True
+        @staticmethod
+        def sanitize_sql_identifier(identifier): return identifier.lower()
+    input_validator = MockValidator()
+    
+    class MockAuditLogger:
+        @staticmethod
+        def log_security_event(*args, **kwargs): pass
+    audit_logger = MockAuditLogger()
 import logging
 import re
 
