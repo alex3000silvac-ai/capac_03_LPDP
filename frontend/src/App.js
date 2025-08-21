@@ -294,7 +294,11 @@ const AppContent = () => {
     <Layout>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
         <Route 
           path="/modulo-cero" 
           element={
@@ -303,7 +307,11 @@ const AppContent = () => {
             </ProtectedRoute>
           } 
         />
-        <Route path="/modulo/:moduloId" element={<ModuloCapacitacion />} />
+        <Route path="/modulo/:moduloId" element={
+          <ProtectedRoute>
+            <ModuloCapacitacion />
+          </ProtectedRoute>
+        } />
         <Route 
           path="/modulo/introduccion_lpdp" 
           element={
@@ -312,13 +320,41 @@ const AppContent = () => {
             </ProtectedRoute>
           } 
         />
-        <Route path="/modulo/conceptos_basicos" element={<ConceptosBasicos />} />
-        <Route path="/modulo3" element={<Modulo3Inventario />} />
-        <Route path="/glosario" element={<GlosarioLPDP />} />
-        <Route path="/sandbox" element={<PracticaSandbox />} />
-        <Route path="/sandbox-completo" element={<SandboxCompleto />} />
-        <Route path="/herramientas" element={<HerramientasLPDP />} />
-        <Route path="/mi-progreso" element={<MiProgreso />} />
+        <Route path="/modulo/conceptos_basicos" element={
+          <ProtectedRoute>
+            <ConceptosBasicos />
+          </ProtectedRoute>
+        } />
+        <Route path="/modulo3" element={
+          <ProtectedRoute>
+            <Modulo3Inventario />
+          </ProtectedRoute>
+        } />
+        <Route path="/glosario" element={
+          <ProtectedRoute>
+            <GlosarioLPDP />
+          </ProtectedRoute>
+        } />
+        <Route path="/sandbox" element={
+          <ProtectedRoute>
+            <PracticaSandbox />
+          </ProtectedRoute>
+        } />
+        <Route path="/sandbox-completo" element={
+          <ProtectedRoute>
+            <SandboxCompleto />
+          </ProtectedRoute>
+        } />
+        <Route path="/herramientas" element={
+          <ProtectedRoute>
+            <HerramientasLPDP />
+          </ProtectedRoute>
+        } />
+        <Route path="/mi-progreso" element={
+          <ProtectedRoute>
+            <MiProgreso />
+          </ProtectedRoute>
+        } />
         
         {/* Rutas de administración */}
         <Route 

@@ -20,28 +20,8 @@ export const AuthProvider = ({ children }) => {
   const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
-    // Modo demo automático si no hay token después de 3 segundos
-    const demoTimer = setTimeout(() => {
-      if (!token && !user) {
-        console.log('🎯 Activando modo demo automático - sin autenticación requerida');
-        setDemoMode(true);
-        setUser({
-          id: 'demo_user',
-          username: 'demo',
-          email: 'demo@scldp.cl',
-          tenant_id: 'demo',
-          is_superuser: false,
-          permissions: ['modulo_cero'],
-          first_name: 'Usuario',
-          last_name: 'Demo',
-          restricted_to: 'intro_only'
-        });
-        setLoading(false);
-      }
-    }, 3000);
-
+    // NO activar modo demo automáticamente - el usuario debe hacer login
     if (token) {
-      clearTimeout(demoTimer);
       try {
         const decoded = jwtDecode(token);
         const currentTime = Date.now() / 1000;
@@ -73,9 +53,10 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         setUser(null);
       }
+    } else {
+      // Si no hay token, marcar como no cargando para mostrar login
+      setLoading(false);
     }
-
-    return () => clearTimeout(demoTimer);
   }, [token]);
 
   const login = async (username, password, tenantId = 'demo') => {
