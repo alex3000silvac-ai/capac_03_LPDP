@@ -279,8 +279,8 @@ const AppContent = () => {
     );
   }
 
-  // Si hay usuario pero no hay tenant seleccionado
-  if (!currentTenant) {
+  // Si hay usuario pero no hay tenant seleccionado (excepto en modo demo)
+  if (!currentTenant && user?.tenant_id !== 'demo') {
     return (
       <Routes>
         <Route path="/select-tenant" element={<TenantSelector />} />
