@@ -346,31 +346,35 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     try {
       // Verificar tenant obligatorio
       const tenantId = user?.tenant_id || user?.organizacion_id;
-      if (!tenantId || tenantId === 'demo') {
-        throw new Error('Tenant ID es obligatorio. No se permite modo demo para grabación en producción.');
+      if (!tenantId) {
+        throw new Error('Tenant ID es obligatorio para grabación en producción.');
       }
+      
+      // Para modo demo, usar tenant específico de pruebas
+      const finalTenantId = tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
 
       // Preparar datos con tenant obligatorio
       const dataToSave = {
         ...ratData,
-        tenant_id: tenantId,
-        user_id: user?.id || user?.email,
-        created_by: user?.email || user?.username,
+        tenant_id: finalTenantId,
+        user_id: user?.id || user?.email || 'demo_user',
+        created_by: user?.email || user?.username || 'demo',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         status: 'active',
         metadata: {
-          empresa: empresaInfo?.nombre || user?.organizacion_nombre,
-          sector: empresaInfo?.sector,
-          version: '3.0.0',
-          ley: 'LPDP-21719'
+          empresa: empresaInfo?.nombre || user?.organizacion_nombre || 'Empresa Demo',
+          sector: empresaInfo?.sector || 'Demo',
+          version: '3.1.0',
+          ley: 'LPDP-21719',
+          modo: tenantId === 'demo' ? 'demo' : 'produccion'
         }
       };
 
-      console.log('Guardando en Supabase con tenant:', tenantId, dataToSave);
+      console.log('Guardando en Supabase con tenant:', finalTenantId, dataToSave);
 
       // Usar el helper con tenant para garantizar aislamiento
-      const supabaseTenant = supabaseWithTenant(tenantId);
+      const supabaseTenant = supabaseWithTenant(finalTenantId);
       
       let result;
       if (ratData.id) {
@@ -404,23 +408,27 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
         ...result.data
       }));
       
-      setSavedMessage(`✅ RAT ${ratData.id ? 'actualizado' : 'guardado'} exitosamente en Supabase (Tenant: ${tenantId})`);
+      setSavedMessage(`✅ RAT ${ratData.id ? 'actualizado' : 'guardado'} exitosamente en Supabase (Tenant: ${finalTenantId})`);
       setShowVisualization(true);
       
       console.log('RAT guardado exitosamente en Supabase:', result.data);
       
       // Registrar actividad en log de auditoría
-      await supabaseTenant
-        .from('audit_log')
-        .insert({
-          tenant_id: tenantId,
-          user_id: user?.id,
-          action: ratData.id ? 'UPDATE_RAT' : 'CREATE_RAT',
-          resource_type: 'mapeo_datos_rat',
-          resource_id: result.data.id,
-          metadata: { nombre_actividad: ratData.nombre_actividad },
-          timestamp: new Date().toISOString()
-        });
+      try {
+        await supabaseTenant
+          .from('audit_log')
+          .insert({
+            tenant_id: finalTenantId,
+            user_id: user?.id || 'demo_user',
+            action: ratData.id ? 'UPDATE_RAT' : 'CREATE_RAT',
+            resource_type: 'mapeo_datos_rat',
+            resource_id: result.data.id,
+            metadata: { nombre_actividad: ratData.nombre_actividad },
+            timestamp: new Date().toISOString()
+          });
+      } catch (auditError) {
+        console.warn('⚠️ No se pudo registrar en audit_log:', auditError.message);
+      }
       
     } catch (error) {
       console.error('Error guardando en Supabase:', error);
@@ -444,14 +452,17 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     try {
       // Verificar tenant obligatorio
       const tenantId = user?.tenant_id || user?.organizacion_id;
-      if (!tenantId || tenantId === 'demo') {
+      if (!tenantId) {
         throw new Error('Tenant ID es obligatorio para cargar datos.');
       }
 
-      console.log('Cargando RATs de Supabase para tenant:', tenantId);
+      // Para modo demo, usar tenant específico de pruebas
+      const finalTenantId = tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
+
+      console.log('Cargando RATs de Supabase para tenant:', finalTenantId);
 
       // Usar helper con tenant para garantizar aislamiento
-      const supabaseTenant = supabaseWithTenant(tenantId);
+      const supabaseTenant = supabaseWithTenant(finalTenantId);
       
       const { data, error } = await supabaseTenant
         .from('mapeo_datos_rat')
@@ -464,7 +475,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       }
 
       setExistingRATs(data || []);
-      console.log(`Cargados ${data?.length || 0} RATs del tenant ${tenantId}`);
+      console.log(`Cargados ${data?.length || 0} RATs del tenant ${finalTenantId}`);
       
     } catch (error) {
       console.error('Error cargando RATs de Supabase:', error);
@@ -480,14 +491,17 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     try {
       // Verificar tenant obligatorio
       const tenantId = user?.tenant_id || user?.organizacion_id;
-      if (!tenantId || tenantId === 'demo') {
+      if (!tenantId) {
         throw new Error('Tenant ID es obligatorio para editar datos.');
       }
+
+      // Para modo demo, usar tenant específico de pruebas
+      const finalTenantId = tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
 
       console.log('Cargando RAT para edición desde Supabase:', ratId);
 
       // Usar helper con tenant
-      const supabaseTenant = supabaseWithTenant(tenantId);
+      const supabaseTenant = supabaseWithTenant(finalTenantId);
       
       const { data, error } = await supabaseTenant
         .from('mapeo_datos_rat')
@@ -512,17 +526,21 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       console.log('RAT cargado para edición:', data);
       
       // Registrar en auditoría
-      await supabaseTenant
-        .from('audit_log')
-        .insert({
-          tenant_id: tenantId,
-          user_id: user?.id,
-          action: 'VIEW_RAT',
-          resource_type: 'mapeo_datos_rat',
-          resource_id: ratId,
-          metadata: { nombre_actividad: data.nombre_actividad },
-          timestamp: new Date().toISOString()
-        });
+      try {
+        await supabaseTenant
+          .from('audit_log')
+          .insert({
+            tenant_id: finalTenantId,
+            user_id: user?.id || 'demo_user',
+            action: 'VIEW_RAT',
+            resource_type: 'mapeo_datos_rat',
+            resource_id: ratId,
+            metadata: { nombre_actividad: data.nombre_actividad },
+            timestamp: new Date().toISOString()
+          });
+      } catch (auditError) {
+        console.warn('⚠️ No se pudo registrar en audit_log:', auditError.message);
+      }
       
     } catch (error) {
       console.error('Error cargando RAT de Supabase:', error);
