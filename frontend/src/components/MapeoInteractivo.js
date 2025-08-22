@@ -116,6 +116,12 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
   const [showRATList, setShowRATList] = useState(false);
   const [loadingRATs, setLoadingRATs] = useState(false);
   
+  // Obtener tenant ID actual
+  const getCurrentTenant = () => {
+    const tenantId = user?.tenant_id || user?.organizacion_id || 'demo';
+    return tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
+  };
+  
   // Función para generar ID único empresarial
   const generateRATId = (tenantId, areaResponsable) => {
     const timestamp = Date.now();
