@@ -393,6 +393,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
           // Solo para tenants no-demo, verificar conectividad
           setSavedMessage('🔍 Verificando conectividad...');
           forceLocalStorage = await shouldUseLocalStorageFirst();
+        }
         
         if (forceLocalStorage) {
           console.warn('🚨 USANDO LOCALSTORAGE: Demo mode O problemas conectividad');
