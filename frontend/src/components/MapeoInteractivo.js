@@ -930,12 +930,85 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     }
   };
 
+  // Verificar límites de RATs (límites generosos para buena UX)
+  const checkRATLimits = async (tenantId, userId, area = 'General') => {
+    try {
+      // Límites MUY generosos por defecto para excelente UX
+      const defaultLimits = {
+        demo: { maxTotal: 15, maxPerUser: 8, maxPerArea: 20 },
+        basic: { maxTotal: 75, maxPerUser: 30, maxPerArea: 50 },
+        premium: { maxTotal: 250, maxPerUser: 60, maxPerArea: 100 },
+        enterprise: { maxTotal: 1500, maxPerUser: 300, maxPerArea: 500 }
+      };
+      
+      // Detectar tipo de plan por tenant
+      const planType = tenantId.includes('demo') ? 'demo' : 
+                      tenantId.includes('enterprise') ? 'enterprise' :
+                      tenantId.includes('premium') ? 'premium' : 'basic';
+      
+      const limits = defaultLimits[planType];
+      
+      // Contar RATs actuales
+      const currentRATs = existingRATs || [];
+      const userRATs = currentRATs.filter(rat => rat.created_by === userId);
+      const areaRATs = currentRATs.filter(rat => rat.area_responsable === area);
+      
+      // Verificaciones con límites generosos
+      if (currentRATs.length >= limits.maxTotal) {
+        return {
+          allowed: false,
+          reason: `Límite alcanzado: máximo ${limits.maxTotal} RATs para plan ${planType}`,
+          current: currentRATs.length,
+          max: limits.maxTotal,
+          plan: planType,
+          suggestion: planType === 'demo' ? 'Considera actualizar a plan Basic' : 'Contacta soporte para aumentar límites'
+        };
+      }
+      
+      if (userRATs.length >= limits.maxPerUser) {
+        return {
+          allowed: false,
+          reason: `Límite personal: máximo ${limits.maxPerUser} RATs por usuario`,
+          current: userRATs.length,
+          max: limits.maxPerUser,
+          plan: planType,
+          suggestion: 'Considera archivar RATs antiguos o delegar a otros usuarios'
+        };
+      }
+      
+      return {
+        allowed: true,
+        remaining: {
+          total: limits.maxTotal - currentRATs.length,
+          user: limits.maxPerUser - userRATs.length,
+          area: limits.maxPerArea - areaRATs.length
+        },
+        plan: planType
+      };
+      
+    } catch (error) {
+      console.warn('Error verificando límites, permitiendo por defecto:', error);
+      return { allowed: true, plan: 'unknown' }; // Fallar abierto para buena UX
+    }
+  };
+
   // Crear nuevo RAT
-  const createNewRAT = () => {
+  const createNewRAT = async () => {
     const tenantId = getCurrentTenant();
+    const userId = 'usuario_actual'; // TODO: obtener usuario real del contexto
+    
+    // Verificar límites primero
+    const limitCheck = await checkRATLimits(tenantId, userId);
+    
+    if (!limitCheck.allowed) {
+      alert(`⚠️ ${limitCheck.reason}\n\nActual: ${limitCheck.current}/${limitCheck.max}\nPlan: ${limitCheck.plan}\n\n💡 ${limitCheck.suggestion}`);
+      return;
+    }
+    
     const newRATId = generateRATId(tenantId, 'GE'); // General por defecto
     
     console.log('🆕 Creando nuevo RAT con ID:', newRATId);
+    console.log('📊 Límites restantes:', limitCheck.remaining);
     
     const newRATData = {
       // Sistema y identificación
@@ -3342,10 +3415,17 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       >
         <DialogTitle>
           <Box display="flex" alignItems="center" justifyContent="space-between">
-            <Typography variant="h5">
-              <FolderOpen sx={{ mr: 1, verticalAlign: 'middle' }} />
-              RATs Guardados
-            </Typography>
+            <Box>
+              <Typography variant="h5">
+                <FolderOpen sx={{ mr: 1, verticalAlign: 'middle' }} />
+                RATs Guardados
+              </Typography>
+              {existingRATs && existingRATs.length > 0 && (
+                <Typography variant="caption" color="text.secondary">
+                  {existingRATs.length} RATs creados • Límites generosos para buena experiencia
+                </Typography>
+              )}
+            </Box>
             <IconButton onClick={() => setShowRATList(false)}>
               <Close />
             </IconButton>
