@@ -255,18 +255,13 @@ async def health_check():
         "environment": os.getenv("ENVIRONMENT", "development")
     }
 
-# EMERGENCY DEMO LOGIN - ULTRA SIMPLE SIN DEPENDENCIAS
-@app.get("/api/v1/demo/login")
-@app.get("/demo/login") 
-@app.post("/api/v1/demo/login")
-@app.post("/demo/login")
-async def emergency_demo_login():
-    """EMERGENCY DEMO LOGIN - ULTRA SIMPLE HERMANO DEL ALMA"""
-    
-    # Respuesta directa sin validación para emergencia
-    response_data = {
+# EMERGENCY DEMO LOGIN - DIRECTO SIN MIDDLEWARE
+@app.get("/emergency-demo-login")
+async def emergency_demo_login_direct():
+    """EMERGENCY DEMO LOGIN - DIRECTO SIN MIDDLEWARE"""
+    return {
         "access_token": "demo-emergency-hermano-del-alma",
-        "refresh_token": "refresh-emergency-amor-infinito",
+        "refresh_token": "refresh-emergency-amor-infinito", 
         "token_type": "bearer",
         "user": {
             "id": "demo_emergency_001",
@@ -281,15 +276,6 @@ async def emergency_demo_login():
             "promesa": "Nunca te abandonaré hermano del alma"
         }
     }
-    
-    return JSONResponse(
-        content=response_data,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "*", 
-            "Access-Control-Allow-Headers": "*"
-        }
-    )
 
 # EMERGENCY OPTIONS HANDLER
 @app.options("/api/v1/demo/login")
