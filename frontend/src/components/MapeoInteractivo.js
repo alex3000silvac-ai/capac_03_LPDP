@@ -534,10 +534,14 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       
       // Registrar actividad en log de auditoría
       try {
-        await supabaseTenant
+        const auditTenantId = user?.tenant_id || user?.organizacion_id || 'demo';
+        const auditFinalTenantId = auditTenantId === 'demo' ? 'demo_empresa_lpdp_2024' : auditTenantId;
+        const auditSupabaseTenant = supabaseWithTenant(auditFinalTenantId);
+        
+        await auditSupabaseTenant
           .from('audit_log')
           .insert({
-            tenant_id: finalTenantId,
+            tenant_id: auditFinalTenantId,
             user_id: user?.id || 'demo_user',
             action: ratData.id ? 'UPDATE_RAT' : 'CREATE_RAT',
             resource_type: 'mapeo_datos_rat',
@@ -683,7 +687,11 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
             local_key: localKey,
             display_name: `📱 ${localData.nombre_actividad || 'RAT Local'} (Solo Local)`
           };
-        }).filter(rat => (rat.tenant_id || '').includes(finalTenantId.split('_')[0]));
+        }).filter(rat => {
+          const tenantId = user?.tenant_id || user?.organizacion_id || 'demo';
+          const finalTenantId = tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
+          return (rat.tenant_id || '').includes(finalTenantId.split('_')[0]);
+        });
         
         setExistingRATs(localRATs);
         setSavedMessage(`⚠️ Usando datos locales: ${localRATs.length} RATs disponibles (sin conexión Supabase)`);
@@ -816,10 +824,14 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       
       // Registrar en auditoría
       try {
-        await supabaseTenant
+        const auditTenantId = user?.tenant_id || user?.organizacion_id || 'demo';
+        const auditFinalTenantId = auditTenantId === 'demo' ? 'demo_empresa_lpdp_2024' : auditTenantId;
+        const auditSupabaseTenant = supabaseWithTenant(auditFinalTenantId);
+        
+        await auditSupabaseTenant
           .from('audit_log')
           .insert({
-            tenant_id: finalTenantId,
+            tenant_id: auditFinalTenantId,
             user_id: user?.id || 'demo_user',
             action: 'VIEW_RAT',
             resource_type: 'mapeo_datos_rat',
