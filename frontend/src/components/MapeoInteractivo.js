@@ -1162,7 +1162,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                 value={ratData.categorias_titulares || []}
                 onChange={(e, newValue) => setRatData({...ratData, categorias_titulares: newValue || []})}
                 renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
+                  (value || []).map((option, index) => (
                     <Chip variant="outlined" label={option} {...getTagProps({ index })} />
                   ))
                 }
@@ -1633,7 +1633,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                 value={ratData.destinatarios_internos || []}
                 onChange={(e, newValue) => setRatData({...ratData, destinatarios_internos: newValue || []})}
                 renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
+                  (value || []).map((option, index) => (
                     <Chip 
                       variant="outlined" 
                       label={option}
@@ -1675,7 +1675,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                 value={ratData.terceros_encargados || []}
                 onChange={(e, newValue) => setRatData({...ratData, terceros_encargados: newValue || []})}
                 renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
+                  (value || []).map((option, index) => (
                     <Chip 
                       variant="outlined" 
                       label={option}
@@ -2061,7 +2061,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                     medidas_seguridad: {...ratData.medidas_seguridad, tecnicas: newValue || []}
                   })}
                   renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
+                    (value || []).map((option, index) => (
                       <Chip 
                         variant="outlined" 
                         label={option}
@@ -2111,7 +2111,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   medidas_seguridad: {...ratData.medidas_seguridad, organizativas: newValue || []}
                 })}
                 renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
+                  (value || []).map((option, index) => (
                     <Chip 
                       variant="outlined" 
                       label={option}
@@ -2183,7 +2183,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   value={ratData.riesgos_identificados || []}
                   onChange={(e, newValue) => setRatData({...ratData, riesgos_identificados: newValue || []})}
                   renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
+                    (value || []).map((option, index) => (
                       <Chip 
                         variant="outlined" 
                         label={option}
