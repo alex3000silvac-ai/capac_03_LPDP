@@ -1787,13 +1787,22 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
               />
             </Grid>
 
+            {/* Separador visual */}
+            <Grid item xs={12}>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle2" color="primary" gutterBottom>
+                📊 Volumen y Frecuencia de Datos
+              </Typography>
+            </Grid>
+
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
                 label="Volumen estimado de registros"
-                value={ratData.volumen_registros}
+                value={ratData.volumen_registros || ''}
                 onChange={(e) => setRatData({...ratData, volumen_registros: e.target.value})}
                 helperText="Ej: 1000-5000 registros, >10000 registros"
+                placeholder="Indique la cantidad aproximada de registros"
               />
             </Grid>
 
@@ -1801,10 +1810,13 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
               <FormControl fullWidth>
                 <InputLabel>Frecuencia de actualización</InputLabel>
                 <Select
-                  value={ratData.frecuencia_actualizacion}
+                  value={ratData.frecuencia_actualizacion || ''}
                   onChange={(e) => setRatData({...ratData, frecuencia_actualizacion: e.target.value})}
                   label="Frecuencia de actualización"
                 >
+                  <MenuItem value="">
+                    <em>Seleccionar frecuencia</em>
+                  </MenuItem>
                   <MenuItem value="tiempo_real">Tiempo real</MenuItem>
                   <MenuItem value="diaria">Diaria</MenuItem>
                   <MenuItem value="semanal">Semanal</MenuItem>
