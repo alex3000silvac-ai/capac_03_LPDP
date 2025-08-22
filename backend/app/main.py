@@ -25,9 +25,10 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Gestión del ciclo de vida de la aplicación"""
     # Startup
-    print("🚀 Iniciando Sistema LPDP en Render...")
-    print(f"🌐 Entorno: {os.getenv('ENVIRONMENT', 'development')}")
+    print("🚀 Iniciando Sistema LPDP v3.1.0 - Producción con Supabase...")
+    print(f"🌐 Entorno: {os.getenv('ENVIRONMENT', 'production')}")
     print(f"🗄️ Base de datos: {os.getenv('DATABASE_URL', 'No configurada')[:50]}...")
+    print("✅ Multi-tenant con Supabase habilitado")
     yield
     # Shutdown
     print("🛑 Cerrando Sistema LPDP...")
@@ -37,8 +38,8 @@ async def lifespan(app: FastAPI):
 # Crear aplicación
 app = FastAPI(
     title="Sistema LPDP - Ley 21.719",
-    description="Sistema integral de cumplimiento de la Ley de Protección de Datos Personales de Chile",
-    version="1.0.0",
+    description="Sistema integral de cumplimiento de la Ley de Protección de Datos Personales de Chile - Producción con Supabase",
+    version="3.1.0",
     openapi_url="/api/openapi.json",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
@@ -258,11 +259,13 @@ async def health_check():
 @app.get("/")
 async def root():
     return {
-        "message": "Sistema LPDP - Ley 21.719",
-        "version": "3.0.0",
+        "message": "Sistema LPDP - Ley 21.719 - Producción",
+        "version": "3.1.0",
         "docs": "/api/docs",
         "health": "/health",
-        "modulos_nuevos": "Módulo 3, Glosario LPDP, Sandbox Inventario disponibles"
+        "supabase": "Habilitado con Multi-tenant",
+        "modulos_nuevos": "Módulo 3, Glosario LPDP, Sandbox Inventario disponibles",
+        "ambiente": "PRODUCCIÓN"
     }
 
 # Test de nuevos módulos sin middleware
