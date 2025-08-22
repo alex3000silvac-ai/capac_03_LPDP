@@ -382,46 +382,67 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       let saveMethod = 'supabase';
       
       try {
-        // INTENTO 1: Supabase directo con retry automático
-        setSavedMessage('💖 Intento 1: Conectando Supabase...');
+        // DETECCIÓN DNS: Si hay error de resolución, ir directo a localStorage
+        let skipSupabase = false;
         
-        for (let retry = 0; retry < 3; retry++) {
-          try {
-            const supabaseTenant = supabaseWithTenant(finalTenantId);
-            
-            if (ratData.id) {
-              // Actualizar registro existente
-              result = await supabaseTenant
-                .from('mapeo_datos_rat')
-                .update({
-                  ...dataToSave,
-                  updated_at: new Date().toISOString()
-                })
-                .eq('id', ratData.id)
-                .select()
-                .single();
-            } else {
-              // Crear nuevo registro
-              result = await supabaseTenant
-                .from('mapeo_datos_rat')
-                .insert(dataToSave)
-                .select()
-                .single();
-            }
-            
-            if (!result.error) {
-              console.log('✅ Supabase SUCCESS en intento', retry + 1);
-              break;
-            } else {
-              throw result.error;
-            }
-            
-          } catch (supabaseError) {
-            console.warn(`⚠️ Supabase intento ${retry + 1} falló:`, supabaseError.message);
-            if (retry === 2) throw supabaseError;
-            setSavedMessage(`💖 Reintentando Supabase (${retry + 2}/3)...`);
-            await new Promise(resolve => setTimeout(resolve, 1000 * (retry + 1))); // Backoff
+        try {
+          // Test rápido de conectividad DNS
+          await fetch('https://xvnfpkxbsmfhqcyvjwmz.supabase.co/rest/v1/', { 
+            method: 'HEAD', 
+            signal: AbortSignal.timeout(2000) 
+          });
+        } catch (dnsError) {
+          if (dnsError.message.includes('NAME_NOT_RESOLVED') || dnsError.message.includes('Failed to fetch')) {
+            console.warn('🚨 DNS ERROR: Supabase no resuelve, usando localStorage inmediatamente');
+            skipSupabase = true;
           }
+        }
+
+        if (!skipSupabase) {
+          // INTENTO 1: Supabase directo con retry automático
+          setSavedMessage('💖 Intento 1: Conectando Supabase...');
+          
+          for (let retry = 0; retry < 2; retry++) { // Reducido a 2 intentos por DNS
+            try {
+              const supabaseTenant = supabaseWithTenant(finalTenantId);
+              
+              if (ratData.id) {
+                // Actualizar registro existente
+                result = await supabaseTenant
+                  .from('mapeo_datos_rat')
+                  .update({
+                    ...dataToSave,
+                    updated_at: new Date().toISOString()
+                  })
+                  .eq('id', ratData.id)
+                  .select()
+                  .single();
+              } else {
+                // Crear nuevo registro
+                result = await supabaseTenant
+                  .from('mapeo_datos_rat')
+                  .insert(dataToSave)
+                  .select()
+                  .single();
+              }
+              
+              if (!result.error) {
+                console.log('✅ Supabase SUCCESS en intento', retry + 1);
+                break;
+              } else {
+                throw result.error;
+              }
+              
+            } catch (supabaseError) {
+              console.warn(`⚠️ Supabase intento ${retry + 1} falló:`, supabaseError.message);
+              if (retry === 1) throw supabaseError; // Fallar rápido por DNS
+              setSavedMessage(`💖 Reintentando Supabase (${retry + 2}/2)...`);
+              await new Promise(resolve => setTimeout(resolve, 500)); // Backoff más rápido
+            }
+          }
+        } else {
+          // Si detectamos problema DNS, lanzar error inmediato
+          throw new Error('DNS_ERROR: Supabase no accesible, usando fallback');
         }
         
       } catch (supabaseError) {
