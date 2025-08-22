@@ -67,6 +67,9 @@ import {
   Add,
   Delete,
   Edit,
+  Refresh,
+  Cloud,
+  Storage,
   NavigateNext,
   NavigateBefore,
   Assessment,
@@ -666,36 +669,64 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     }
   };
 
-  // Cargar un RAT específico para edición desde Supabase
+  // Cargar un RAT específico para edición desde Supabase O LocalStorage
   const loadRATForEdit = async (ratId) => {
     setLoading(true);
+    setSavedMessage('🌊 Cargando RAT para edición...');
+    
     try {
-      // Verificar tenant obligatorio
-      const tenantId = user?.tenant_id || user?.organizacion_id;
-      if (!tenantId) {
-        throw new Error('Tenant ID es obligatorio para editar datos.');
-      }
+      let data = null;
+      let isLocalRAT = false;
 
-      // Para modo demo, usar tenant específico de pruebas
-      const finalTenantId = tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
+      // Verificar si es un RAT local (las claves locales tienen formato específico)
+      if (ratId && ratId.toString().startsWith('rat_')) {
+        console.log('💖 Cargando RAT LOCAL para edición:', ratId);
+        
+        try {
+          const localData = localStorage.getItem(ratId);
+          if (localData) {
+            data = JSON.parse(localData);
+            isLocalRAT = true;
+            console.log('✅ RAT local encontrado:', data.nombre_actividad);
+          } else {
+            throw new Error('RAT local no encontrado en localStorage');
+          }
+        } catch (localError) {
+          console.error('❌ Error cargando RAT local:', localError);
+          throw new Error('No se pudo cargar el RAT local');
+        }
+        
+      } else {
+        // Es un RAT de Supabase
+        console.log('☁️ Cargando RAT SUPABASE para edición:', ratId);
+        
+        // Verificar tenant obligatorio
+        const tenantId = user?.tenant_id || user?.organizacion_id;
+        if (!tenantId) {
+          throw new Error('Tenant ID es obligatorio para editar datos.');
+        }
 
-      console.log('Cargando RAT para edición desde Supabase:', ratId);
+        // Para modo demo, usar tenant específico de pruebas
+        const finalTenantId = tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
 
-      // Usar helper con tenant
-      const supabaseTenant = supabaseWithTenant(finalTenantId);
-      
-      const { data, error } = await supabaseTenant
-        .from('mapeo_datos_rat')
-        .select('*')
-        .eq('id', ratId)
-        .single();
+        // Usar helper con tenant
+        const supabaseTenant = supabaseWithTenant(finalTenantId);
+        
+        const { data: supabaseData, error } = await supabaseTenant
+          .from('mapeo_datos_rat')
+          .select('*')
+          .eq('id', ratId)
+          .single();
 
-      if (error) {
-        throw error;
-      }
+        if (error) {
+          throw error;
+        }
 
-      if (!data) {
-        throw new Error('RAT no encontrado');
+        if (!supabaseData) {
+          throw new Error('RAT no encontrado en Supabase');
+        }
+        
+        data = supabaseData;
       }
       
       // Cargar los datos en el estado con validación para arrays
@@ -747,9 +778,14 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       setRatData(safeData);
       setActiveStep(0);
       setShowRATList(false);
-      setSavedMessage(`✅ RAT "${data.nombre_actividad}" cargado para edición desde Supabase`);
       
-      console.log('RAT cargado para edición:', data);
+      // Mensaje según tipo de RAT
+      const sourceMessage = isLocalRAT 
+        ? '📱 desde almacenamiento LOCAL (se mantendrá local hasta sincronizar)'
+        : '☁️ desde SUPABASE';
+      setSavedMessage(`✅ RAT "${data.nombre_actividad}" cargado para edición ${sourceMessage}`);
+      
+      console.log(`RAT cargado para edición desde ${isLocalRAT ? 'LOCAL' : 'SUPABASE'}:`, data);
       
       // Registrar en auditoría
       try {
@@ -2777,6 +2813,152 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   <Alert severity="success" sx={{ mt: 2 }}>
                     {savedMessage}
                   </Alert>
+                )}
+              </Paper>
+            </Grid>
+
+            {/* 🌊 NUEVA SECCIÓN: RATs GUARDADOS PARA EDICIÓN - VISTA AL MAR ASEGURADA */}
+            <Grid item xs={12}>
+              <Paper sx={{ p: 3, bgcolor: 'background.paper', border: '2px dashed', borderColor: 'primary.main' }}>
+                <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                  <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Edit sx={{ color: 'primary.main' }} />
+                    🌊 RATs Guardados - Listos para Edición
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Refresh />}
+                    onClick={loadExistingRATs}
+                    disabled={loadingRATs}
+                    size="small"
+                  >
+                    {loadingRATs ? 'Cargando...' : 'Actualizar Lista'}
+                  </Button>
+                </Box>
+
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  <Typography variant="body2">
+                    💖 <strong>Hermano del alma:</strong> Aquí puedes ver y editar todos tus RATs guardados. 
+                    ¡El pasto se está cortando para darte la mejor vista al mar! 🏖️
+                  </Typography>
+                </Alert>
+
+                {loadingRATs ? (
+                  <Box display="flex" justifyContent="center" py={3}>
+                    <LinearProgress sx={{ width: '50%' }} />
+                  </Box>
+                ) : existingRATs.length > 0 ? (
+                  <Grid container spacing={2}>
+                    {existingRATs.map((rat, index) => (
+                      <Grid item xs={12} sm={6} md={4} key={rat.id || rat.local_key || index}>
+                        <Card 
+                          sx={{ 
+                            height: '100%',
+                            border: rat.is_local ? '2px solid orange' : '1px solid',
+                            borderColor: rat.is_local ? 'warning.main' : 'divider',
+                            bgcolor: rat.is_local ? 'warning.50' : 'background.paper',
+                            transition: 'all 0.3s ease',
+                            '&:hover': { 
+                              transform: 'translateY(-4px)',
+                              boxShadow: 4,
+                              borderColor: 'primary.main'
+                            }
+                          }}
+                        >
+                          <CardContent sx={{ pb: 1 }}>
+                            <Box display="flex" alignItems="center" gap={1} mb={1}>
+                              {rat.is_local ? (
+                                <Chip 
+                                  label="📱 Local" 
+                                  color="warning" 
+                                  size="small"
+                                  icon={<Storage />}
+                                />
+                              ) : (
+                                <Chip 
+                                  label="☁️ Online" 
+                                  color="success" 
+                                  size="small"
+                                  icon={<Cloud />}
+                                />
+                              )}
+                              {rat.sync_pending && (
+                                <Chip 
+                                  label="🔄 Pendiente" 
+                                  color="info" 
+                                  size="small"
+                                />
+                              )}
+                            </Box>
+                            
+                            <Typography variant="h6" gutterBottom sx={{ 
+                              fontSize: '1rem',
+                              fontWeight: 600,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {rat.display_name || rat.nombre_actividad || 'RAT Sin Nombre'}
+                            </Typography>
+                            
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                              📋 Área: {rat.area_responsable || 'No especificada'}
+                            </Typography>
+                            
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                              👤 Responsable: {rat.responsable_proceso || 'No especificado'}
+                            </Typography>
+                            
+                            <Typography variant="caption" color="text.secondary" display="block">
+                              📅 {rat.is_local ? 'Guardado local:' : 'Creado:'} {
+                                rat.local_save_timestamp || rat.created_at 
+                                  ? new Date(rat.local_save_timestamp || rat.created_at).toLocaleString('es-CL')
+                                  : 'Fecha no disponible'
+                              }
+                            </Typography>
+
+                            {rat.metadata?.empresa && (
+                              <Typography variant="caption" color="primary.main" display="block" mt={1}>
+                                🏢 {rat.metadata.empresa}
+                              </Typography>
+                            )}
+                          </CardContent>
+                          
+                          <Box sx={{ p: 2, pt: 0 }}>
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              color="primary"
+                              startIcon={<Edit />}
+                              onClick={() => loadRATForEdit(rat.id || rat.local_key)}
+                              sx={{
+                                background: rat.is_local 
+                                  ? 'linear-gradient(45deg, #FF9800 30%, #FFB74D 90%)'
+                                  : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                                '&:hover': {
+                                  background: rat.is_local
+                                    ? 'linear-gradient(45deg, #F57C00 30%, #FF9800 90%)'
+                                    : 'linear-gradient(45deg, #1976D2 30%, #2196F3 90%)'
+                                }
+                              }}
+                            >
+                              ✏️ Editar RAT
+                            </Button>
+                          </Box>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'grey.50' }}>
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                      📝 No hay RATs guardados aún
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      💖 Hermano del alma, cuando guardes tu primer RAT aparecerá aquí listo para editar.
+                      ¡El pasto sigue cortándose para tu vista al mar! 🌊
+                    </Typography>
+                  </Paper>
                 )}
               </Paper>
             </Grid>
