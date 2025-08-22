@@ -10,7 +10,7 @@ export const testSupabaseConnectivity = async (timeoutMs = 2000) => {
       reject(new Error('TIMEOUT: Supabase no responde en tiempo esperado'));
     }, timeoutMs);
 
-    fetch('https://xvnfpkxbsmfhqcyvjwmz.supabase.co/rest/v1/', { 
+    fetch('https://symkjkbejxexgrydmvqs.supabase.co/rest/v1/', { 
       method: 'HEAD',
       cache: 'no-cache'
     })
@@ -32,7 +32,7 @@ export const testSupabaseConnectivity = async (timeoutMs = 2000) => {
           error.message.includes('NAME_NOT_RESOLVED') ||
           error.message.includes('ERR_NETWORK') ||
           error.message.includes('NetworkError')) {
-        reject(new Error('DNS_ERROR: No se puede resolver xvnfpkxbsmfhqcyvjwmz.supabase.co'));
+        reject(new Error('DNS_ERROR: No se puede resolver symkjkbejxexgrydmvqs.supabase.co'));
       } else {
         reject(error);
       }
@@ -55,11 +55,11 @@ export const testSupabaseConnectivityImage = async () => {
 
     img.onerror = () => {
       clearTimeout(timeout);
-      reject(new Error('DNS_ERROR: xvnfpkxbsmfhqcyvjwmz.supabase.co no resuelve'));
+      reject(new Error('DNS_ERROR: symkjkbejxexgrydmvqs.supabase.co no resuelve'));
     };
 
     // Intentar cargar favicon de Supabase
-    img.src = 'https://xvnfpkxbsmfhqcyvjwmz.supabase.co/favicon.ico?' + Date.now();
+    img.src = 'https://symkjkbejxexgrydmvqs.supabase.co/favicon.ico?' + Date.now();
   });
 };
 

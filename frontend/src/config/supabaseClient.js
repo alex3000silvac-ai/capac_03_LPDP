@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Configuración de Supabase PRODUCCIÓN
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://xvnfpkxbsmfhqcyvjwmz.supabase.co';
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2bmZwa3hic21maHFjeXZqd216Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ3OTU5MDUsImV4cCI6MjA1MDM3MTkwNX0.hEUBw6tXs-_pAr2PUYjnAmiFsCFz9P42OUwTLqmeG_s';
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://symkjkbejxexgrydmvqs.supabase.co';
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5bWtqa2JlanhleGdyeWRtdnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0MjY4OTUsImV4cCI6MjA3MDAwMjg5NX0.26o_IJrzZ3rvSrcII7Bf5P0TW70sdPT9PgZmJo6VkTE';
 
 // Cliente de Supabase para PRODUCCIÓN
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

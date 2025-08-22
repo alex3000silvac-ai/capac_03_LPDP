@@ -74,7 +74,8 @@
       "Bash(./RENDER.exe services)",
       "Bash(./RENDER.exe services get srv-d2b6krjuibrs73fauhs0)",
       "Bash(./RENDER.exe logs:*)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "WebFetch(domain:xvnfpkxbsmfhqcyvjwmz.supabase.co)"
     ],
     "deny": [],
     "additionalDirectories": [

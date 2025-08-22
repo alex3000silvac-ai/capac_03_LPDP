@@ -96,7 +96,6 @@ import {
   PictureAsPdf,
   TableChart,
   Lightbulb,
-  Refresh,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { jsPDF } from 'jspdf';
@@ -394,7 +393,6 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
           // Solo para tenants no-demo, verificar conectividad
           setSavedMessage('🔍 Verificando conectividad...');
           forceLocalStorage = await shouldUseLocalStorageFirst();
-        }
         
         if (forceLocalStorage) {
           console.warn('🚨 USANDO LOCALSTORAGE: Demo mode O problemas conectividad');
@@ -1175,6 +1173,31 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   Describa la actividad que involucra el tratamiento de datos personales según el Art. 3 de la Ley 21.719
                 </Typography>
               </Alert>
+            </Grid>
+
+            {/* Cargar RATs existentes */}
+            <Grid item xs={12}>
+              <Paper sx={{ p: 2, bgcolor: 'grey.50', border: '1px dashed', borderColor: 'primary.main' }}>
+                <Typography variant="subtitle1" fontWeight={600} gutterBottom color="primary">
+                  📝 Cargar RAT Existente para Editar
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Si ya tienes RATs guardados, puedes cargar uno para continuar editándolo
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<FolderOpen />}
+                  onClick={() => setShowRATList(true)}
+                  disabled={loadingRATs}
+                >
+                  Ver y Cargar RATs Guardados
+                </Button>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Divider />
             </Grid>
 
             {/* Templates disponibles */}
