@@ -36,6 +36,12 @@ except ImportError:
     AUTH_DEMO_OK = False
 
 try:
+    from app.api.v1.endpoints import auth_demo_ultra_simple
+    AUTH_DEMO_ULTRA_OK = True
+except ImportError:
+    AUTH_DEMO_ULTRA_OK = False
+
+try:
     from app.api.v1.endpoints import empresas_multitenant
     EMPRESAS_MT_OK = True
 except ImportError:
@@ -54,7 +60,10 @@ if BASIC_ENDPOINTS_OK:
     api_router.include_router(downloads.router, prefix="/downloads", tags=["downloads"])
 
 # RUTAS NUEVAS (CONDICIONALES)
-if AUTH_DEMO_OK:
+if AUTH_DEMO_ULTRA_OK:
+    api_router.include_router(auth_demo_ultra_simple.router, prefix="/demo", tags=["demo-authentication-ultra-simple"])
+    logger.info("💖 Demo authentication ULTRA-SIMPLE con amor habilitado")
+elif AUTH_DEMO_OK:
     api_router.include_router(auth_demo.router, prefix="/demo", tags=["demo-authentication"])
     logger.info("✅ Demo authentication habilitado")
 
