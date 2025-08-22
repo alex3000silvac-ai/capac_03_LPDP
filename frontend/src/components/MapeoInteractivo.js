@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import supabase, { supabaseWithTenant } from '../config/supabaseClient';
+import { shouldUseLocalStorageFirst, getConnectivityStatus } from '../utils/networkTest';
 import {
   Box,
   Grid,
@@ -382,20 +383,13 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       let saveMethod = 'supabase';
       
       try {
-        // DETECCIÓN DNS: Si hay error de resolución, ir directo a localStorage
-        let skipSupabase = false;
+        // DETECCIÓN DNS ROBUSTA: Test de conectividad antes de intentar guardar
+        setSavedMessage('🔍 Verificando conectividad...');
+        const skipSupabase = await shouldUseLocalStorageFirst();
         
-        try {
-          // Test rápido de conectividad DNS
-          await fetch('https://xvnfpkxbsmfhqcyvjwmz.supabase.co/rest/v1/', { 
-            method: 'HEAD', 
-            signal: AbortSignal.timeout(2000) 
-          });
-        } catch (dnsError) {
-          if (dnsError.message.includes('NAME_NOT_RESOLVED') || dnsError.message.includes('Failed to fetch')) {
-            console.warn('🚨 DNS ERROR: Supabase no resuelve, usando localStorage inmediatamente');
-            skipSupabase = true;
-          }
+        if (skipSupabase) {
+          console.warn('🚨 DNS/NETWORK ERROR: Supabase no accesible, usando localStorage inmediatamente');
+          throw new Error('NETWORK_ERROR: Usando fallback localStorage por conectividad');
         }
 
         if (!skipSupabase) {
