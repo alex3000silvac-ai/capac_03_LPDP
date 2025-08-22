@@ -517,8 +517,53 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
         throw new Error('RAT no encontrado');
       }
       
-      // Cargar los datos en el estado
-      setRatData(data);
+      // Cargar los datos en el estado con validación para arrays
+      const safeData = {
+        ...data,
+        // Asegurar que todos los arrays estén inicializados
+        categorias_titulares: data.categorias_titulares || [],
+        finalidades: data.finalidades || [],
+        datos_sensibles: data.datos_sensibles || [],
+        sistemas_almacenamiento: data.sistemas_almacenamiento || [],
+        destinatarios_internos: data.destinatarios_internos || [],
+        terceros_encargados: data.terceros_encargados || [],
+        terceros_cesionarios: data.terceros_cesionarios || [],
+        riesgos_identificados: data.riesgos_identificados || [],
+        medidas_mitigacion: data.medidas_mitigacion || [],
+        // Asegurar que objetos anidados estén inicializados
+        categorias_datos: data.categorias_datos || {
+          identificacion: false,
+          contacto: false,
+          laboral: false,
+          academico: false,
+          financiero: false,
+          salud: false,
+          biometrico: false,
+          genetico: false,
+          socioeconomico: false,
+          navegacion: false,
+          geolocalizacion: false,
+          otros: ''
+        },
+        transferencias_internacionales: {
+          existe: data.transferencias_internacionales?.existe || false,
+          paises: Array.isArray(data.transferencias_internacionales?.paises) ? data.transferencias_internacionales.paises : [],
+          garantias: data.transferencias_internacionales?.garantias || '',
+          mecanismo: data.transferencias_internacionales?.mecanismo || ''
+        },
+        medidas_seguridad: {
+          tecnicas: Array.isArray(data.medidas_seguridad?.tecnicas) ? data.medidas_seguridad.tecnicas : [],
+          organizativas: Array.isArray(data.medidas_seguridad?.organizativas) ? data.medidas_seguridad.organizativas : [],
+          cifrado: data.medidas_seguridad?.cifrado || false,
+          seudonimizacion: data.medidas_seguridad?.seudonimizacion || false,
+          control_acceso: data.medidas_seguridad?.control_acceso || false,
+          logs_auditoria: data.medidas_seguridad?.logs_auditoria || false,
+          backup: data.medidas_seguridad?.backup || false,
+          segregacion: data.medidas_seguridad?.segregacion || false
+        }
+      };
+      
+      setRatData(safeData);
       setActiveStep(0);
       setShowRATList(false);
       setSavedMessage(`✅ RAT "${data.nombre_actividad}" cargado para edición desde Supabase`);
