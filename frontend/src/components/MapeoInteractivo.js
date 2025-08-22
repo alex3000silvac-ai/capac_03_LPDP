@@ -295,26 +295,26 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       case 0: // Identificación
         if (!ratData.nombre_actividad) errors.push('El nombre de la actividad es obligatorio');
         if (!ratData.area_responsable) errors.push('El área responsable es obligatoria');
-        if (ratData.finalidades.length === 0) errors.push('Debe especificar al menos una finalidad');
+        if ((ratData.finalidades || []).length === 0) errors.push('Debe especificar al menos una finalidad');
         if (!ratData.base_licitud) errors.push('La base de licitud es obligatoria');
         break;
       
       case 1: // Categorías
-        if (ratData.categorias_titulares.length === 0) errors.push('Debe identificar las categorías de titulares');
+        if ((ratData.categorias_titulares || []).length === 0) errors.push('Debe identificar las categorías de titulares');
         const hasCategoria = Object.values(ratData.categorias_datos).some(v => v === true || (typeof v === 'string' && v.length > 0));
         if (!hasCategoria) errors.push('Debe seleccionar al menos una categoría de datos');
         break;
       
       case 2: // Flujos
-        if (ratData.sistemas_almacenamiento.length === 0) errors.push('Debe identificar los sistemas de almacenamiento');
-        if (ratData.transferencias_internacionales.existe && ratData.transferencias_internacionales.paises.length === 0) {
+        if ((ratData.sistemas_almacenamiento || []).length === 0) errors.push('Debe identificar los sistemas de almacenamiento');
+        if (ratData.transferencias_internacionales?.existe && (ratData.transferencias_internacionales?.paises || []).length === 0) {
           errors.push('Debe especificar los países de destino para las transferencias internacionales');
         }
         break;
       
       case 3: // Seguridad
         if (!ratData.plazo_conservacion) errors.push('El plazo de conservación es obligatorio');
-        const hasSeguridad = Object.values(ratData.medidas_seguridad).some(v => v === true || (Array.isArray(v) && v.length > 0));
+        const hasSeguridad = Object.values(ratData.medidas_seguridad || {}).some(v => v === true || (Array.isArray(v) && v.length > 0));
         if (!hasSeguridad) errors.push('Debe especificar al menos una medida de seguridad');
         break;
     }
