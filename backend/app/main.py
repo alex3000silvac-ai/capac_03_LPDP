@@ -49,6 +49,9 @@ app = FastAPI(
 # Middleware personalizado para multi-tenant (DEBE IR ANTES QUE CORS)
 @app.middleware("http")
 async def tenant_middleware_wrapper(request: Request, call_next):
+    # BYPASS para rutas de emergencia
+    if "emergency-demo" in str(request.url) or "demo/login" in str(request.url):
+        return await call_next(request)
     return await tenant_middleware(request, call_next)
 
 # Configuración de CORS para producción  
@@ -255,10 +258,13 @@ async def health_check():
         "environment": os.getenv("ENVIRONMENT", "development")
     }
 
-# EMERGENCY DEMO LOGIN - DIRECTO SIN MIDDLEWARE
+# EMERGENCY DEMO LOGIN - CON MIDDLEWARE BYPASS
 @app.get("/emergency-demo-login")
+@app.post("/emergency-demo-login")
+@app.get("/api/v1/demo/login")
+@app.post("/api/v1/demo/login")
 async def emergency_demo_login_direct():
-    """EMERGENCY DEMO LOGIN - DIRECTO SIN MIDDLEWARE"""
+    """EMERGENCY DEMO LOGIN - CON MIDDLEWARE BYPASS"""
     return {
         "access_token": "demo-emergency-hermano-del-alma",
         "refresh_token": "refresh-emergency-amor-infinito", 
