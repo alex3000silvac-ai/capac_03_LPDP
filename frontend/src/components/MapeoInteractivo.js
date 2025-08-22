@@ -57,6 +57,7 @@ import {
   Storage,
   Security,
   Schedule,
+  Update,
   CheckCircle,
   Error,
   Info,
@@ -115,6 +116,82 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
   const [showRATList, setShowRATList] = useState(false);
   const [loadingRATs, setLoadingRATs] = useState(false);
   
+  // Función para generar ID único empresarial
+  const generateRATId = (tenantId, areaResponsable) => {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substr(2, 6).toUpperCase();
+    const areaPrefijo = {
+      'RRHH': 'RH',
+      'Marketing': 'MK', 
+      'Ventas': 'VE',
+      'Produccion': 'PR',
+      'Finanzas': 'FI',
+      'TI': 'TI',
+      'Legal': 'LE',
+      'Operaciones': 'OP',
+      'Calidad': 'CA',
+      'Logistica': 'LO'
+    }[areaResponsable] || 'GE'; // GE = General
+    
+    const tenantPrefijo = tenantId.split('_')[0].toUpperCase().substr(0, 3);
+    return `RAT-${tenantPrefijo}-${areaPrefijo}-${timestamp}-${random}`;
+  };
+
+  // Función para calcular checksum de integridad
+  const calculateChecksum = (ratData) => {
+    const criticalFields = {
+      nombre_actividad: ratData.nombre_actividad,
+      area_responsable: ratData.area_responsable,
+      base_licitud: ratData.base_licitud,
+      finalidades: ratData.finalidades,
+      tenant_id: ratData.tenant_id,
+      created_at: ratData.created_at
+    };
+    
+    const dataString = JSON.stringify(criticalFields);
+    let hash = 0;
+    for (let i = 0; i < dataString.length; i++) {
+      const char = dataString.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36);
+  };
+
+  // Función para validar integridad de RAT
+  const validateRATIntegrity = (ratData) => {
+    const errors = [];
+    
+    // Validar ID format
+    if (ratData.id && !ratData.id.match(/^RAT-[A-Z]{1,3}-[A-Z]{2}-\d+-[A-Z0-9]{6}$/)) {
+      errors.push('Formato de ID inválido');
+    }
+    
+    // Validar checksum si existe
+    if (ratData.checksum) {
+      const currentChecksum = calculateChecksum(ratData);
+      if (ratData.checksum !== currentChecksum) {
+        errors.push('Datos del RAT han sido modificados externamente');
+      }
+    }
+    
+    // Validar campos críticos
+    if (!ratData.nombre_actividad || !ratData.area_responsable || !ratData.base_licitud) {
+      errors.push('Campos críticos faltantes');
+    }
+    
+    // Validar timestamp
+    if (ratData.created_at && isNaN(Date.parse(ratData.created_at))) {
+      errors.push('Fecha de creación inválida');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      integrityScore: Math.max(0, 100 - (errors.length * 20))
+    };
+  };
+
   // Estado del RAT (Registro de Actividades de Tratamiento)
   const [ratData, setRatData] = useState({
     // FASE 1: Identificación
@@ -690,7 +767,9 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
         }).filter(rat => {
           const tenantId = user?.tenant_id || user?.organizacion_id || 'demo';
           const finalTenantId = tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
-          return (rat.tenant_id || '').includes(finalTenantId.split('_')[0]);
+          const ratTenantId = rat?.tenant_id || '';
+          const tenantPrefix = finalTenantId?.split('_')[0] || 'demo';
+          return ratTenantId.includes(tenantPrefix);
         });
         
         setExistingRATs(localRATs);
@@ -853,18 +932,34 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
 
   // Crear nuevo RAT
   const createNewRAT = () => {
-    setRatData({
+    const tenantId = getCurrentTenant();
+    const newRATId = generateRATId(tenantId, 'GE'); // General por defecto
+    
+    console.log('🆕 Creando nuevo RAT con ID:', newRATId);
+    
+    const newRATData = {
+      // Sistema y identificación
+      rat_id: newRATId,
+      tenant_id: tenantId,
+      created_by: 'usuario_actual',
+      
       // FASE 1: Identificación
       nombre_actividad: '',
       area_responsable: '',
-      responsable_tratamiento: '',
-      dpo_contacto: '',
+      responsable_proceso: '',
+      email_responsable: '',
+      telefono_responsable: '',
+      descripcion: '',
       
       // FASE 2: Base jurídica
       base_licitud: '',
-      base_licitud_detalle: '',
+      base_legal_descripcion: '',
+      finalidades: [],
+      finalidad_principal: '',
+      finalidades_secundarias: [],
       
       // FASE 3: Categorías de datos
+      categorias_titulares: [],
       categorias_datos: {
         identificacion: [],
         contacto: [],
@@ -874,45 +969,114 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
         salud: [],
         sensibles: []
       },
+      datos_sensibles: false,
+      datos_menores: false,
+      volumen_registros: '',
+      frecuencia_actualizacion: '',
       
-      // FASE 4: Finalidad y destinatarios
-      finalidad: '',
-      finalidad_detallada: '',
+      // FASE 4: Flujos y destinatarios
       origen_datos: [],
-      destinatarios: [],
+      sistemas_almacenamiento: [],
+      sistemas_tratamiento: [],
       destinatarios_internos: [],
       destinatarios_externos: [],
+      terceros_encargados: [],
+      terceros_cesionarios: [],
       
       transferencias_internacionales: {
         existe: false,
         paises: [],
         garantias: '',
-        empresa_receptora: ''
+        detalle: ''
       },
       
-      // FASE 5: Seguridad y conservación
-      tiempo_conservacion: '',
-      criterios_supresion: '',
-      medidas_seguridad: {
-        tecnicas: [],
-        organizativas: []
-      },
-      nivel_riesgo: 'medio',
-      evaluacion_riesgos: '',
+      // FASE 5: Seguridad y retención
+      plazo_conservacion: '',
+      criterio_conservacion: '',
+      destino_posterior: '',
+      medidas_seguridad_tecnicas: [],
+      medidas_seguridad_organizativas: [],
+      evaluacion_impacto: false,
+      requiere_dpia: false,
+      riesgos_identificados: [],
       medidas_mitigacion: [],
-      derechos_ejercidos: [],
+      nivel_riesgo: 'bajo',
+      
+      // Derechos ARCOPOL
       procedimiento_derechos: '',
+      plazo_respuesta_derechos: '15 días hábiles',
       
       // Metadata
       version: '1.0',
       estado: 'borrador',
-      observaciones: ''
-    });
+      status: 'active',
+      metadata: {}
+    };
     
+    setRatData(newRATData);
     setActiveStep(0);
     setShowRATList(false);
     setSavedMessage('');
     setShowVisualization(false);
+    
+    console.log('✅ Nuevo RAT creado correctamente');
+  };
+
+  // Función para borrar RAT
+  const deleteRAT = async (ratId, ratNombre) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar el RAT "${ratNombre}"?\n\nEsta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const tenantId = getCurrentTenant();
+      
+      // Borrar de Supabase
+      const { error } = await supabase
+        .from('mapeo_datos_rat')
+        .delete()
+        .eq('id', ratId)
+        .eq('tenant_id', tenantId);
+
+      if (error) {
+        console.error('Error borrando RAT de Supabase:', error);
+        
+        // Fallback: borrar de localStorage
+        const localKey = `ratData_${tenantId}`;
+        const localRATs = JSON.parse(localStorage.getItem(localKey) || '[]');
+        const updatedRATs = localRATs.filter(rat => rat.id !== ratId);
+        localStorage.setItem(localKey, JSON.stringify(updatedRATs));
+        
+        alert('⚠️ RAT eliminado localmente. Revise conexión a Supabase.');
+      } else {
+        console.log('✅ RAT eliminado de Supabase');
+        
+        // Registrar en audit_log si está disponible
+        try {
+          await supabase.from('audit_log').insert({
+            tenant_id: tenantId,
+            action: 'DELETE',
+            table_name: 'mapeo_datos_rat',
+            record_id: ratId,
+            changes: { status: 'deleted', nombre_actividad: ratNombre },
+            user_id: 'usuario_actual'
+          });
+        } catch (auditError) {
+          console.warn('No se pudo registrar en audit_log:', auditError);
+        }
+      }
+
+      // Recargar lista
+      await loadExistingRATs();
+      alert(`✅ RAT "${ratNombre}" eliminado correctamente`);
+      
+    } catch (error) {
+      console.error('Error eliminando RAT:', error);
+      alert('❌ Error al eliminar el RAT');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Efecto para cargar RATs al abrir
@@ -1326,12 +1490,12 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                     key={finalidad}
                     control={
                       <Checkbox
-                        checked={ratData.finalidades.includes(finalidad)}
+                        checked={(ratData.finalidades || []).includes(finalidad)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setRatData({...ratData, finalidades: [...ratData.finalidades, finalidad]});
+                            setRatData({...ratData, finalidades: [...(ratData.finalidades || []), finalidad]});
                           } else {
-                            setRatData({...ratData, finalidades: ratData.finalidades.filter(f => f !== finalidad)});
+                            setRatData({...ratData, finalidades: (ratData.finalidades || []).filter(f => f !== finalidad)});
                           }
                         }}
                       />
@@ -1615,10 +1779,10 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                                 ...ratData,
                                 categorias_datos: {...ratData.categorias_datos, salud: e.target.checked}
                               });
-                              if (e.target.checked && !ratData.datos_sensibles.includes('Salud')) {
+                              if (e.target.checked && !(ratData.datos_sensibles || []).includes('Salud')) {
                                 setRatData(prev => ({
                                   ...prev,
-                                  datos_sensibles: [...prev.datos_sensibles, 'Salud']
+                                  datos_sensibles: [...(prev.datos_sensibles || []), 'Salud']
                                 }));
                               }
                             }}
@@ -1644,10 +1808,10 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                                 ...ratData,
                                 categorias_datos: {...ratData.categorias_datos, biometrico: e.target.checked}
                               });
-                              if (e.target.checked && !ratData.datos_sensibles.includes('Biométricos')) {
+                              if (e.target.checked && !(ratData.datos_sensibles || []).includes('Biométricos')) {
                                 setRatData(prev => ({
                                   ...prev,
-                                  datos_sensibles: [...prev.datos_sensibles, 'Biométricos']
+                                  datos_sensibles: [...(prev.datos_sensibles || []), 'Biométricos']
                                 }));
                               }
                             }}
@@ -1673,10 +1837,10 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                                 ...ratData,
                                 categorias_datos: {...ratData.categorias_datos, genetico: e.target.checked}
                               });
-                              if (e.target.checked && !ratData.datos_sensibles.includes('Genéticos')) {
+                              if (e.target.checked && !(ratData.datos_sensibles || []).includes('Genéticos')) {
                                 setRatData(prev => ({
                                   ...prev,
-                                  datos_sensibles: [...prev.datos_sensibles, 'Genéticos']
+                                  datos_sensibles: [...(prev.datos_sensibles || []), 'Genéticos']
                                 }));
                               }
                             }}
@@ -1702,10 +1866,10 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                                 ...ratData,
                                 categorias_datos: {...ratData.categorias_datos, socioeconomico: e.target.checked}
                               });
-                              if (e.target.checked && !ratData.datos_sensibles.includes('Socioeconómicos')) {
+                              if (e.target.checked && !(ratData.datos_sensibles || []).includes('Socioeconómicos')) {
                                 setRatData(prev => ({
                                   ...prev,
-                                  datos_sensibles: [...prev.datos_sensibles, 'Socioeconómicos']
+                                  datos_sensibles: [...(prev.datos_sensibles || []), 'Socioeconómicos']
                                 }));
                               }
                             }}
@@ -1735,7 +1899,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                     'Vida sexual',
                     'Orientación sexual'
                   ]}
-                  value={ratData.datos_sensibles.filter(d => !['Salud', 'Biométricos', 'Genéticos', 'Socioeconómicos'].includes(d))}
+                  value={(ratData.datos_sensibles || []).filter(d => !['Salud', 'Biométricos', 'Genéticos', 'Socioeconómicos'].includes(d))}
                   onChange={(e, newValue) => {
                     const datosFijos = ratData.datos_sensibles.filter(d => 
                       ['Salud', 'Biométricos', 'Genéticos', 'Socioeconómicos'].includes(d)
@@ -3213,91 +3377,180 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
             </Paper>
           ) : (
             <Grid container spacing={2}>
-              {existingRATs.map((rat) => (
-                <Grid item xs={12} md={6} key={rat.id}>
-                  <Card sx={{ 
-                    transition: 'all 0.3s',
-                    '&:hover': { 
-                      transform: 'translateY(-2px)', 
-                      boxShadow: 3 
-                    },
-                    border: ratData.id === rat.id ? '2px solid' : '1px solid',
-                    borderColor: ratData.id === rat.id ? 'primary.main' : 'grey.200'
-                  }}>
-                    <CardContent>
-                      <Box display="flex" alignItems="flex-start" justifyContent="space-between" mb={2}>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                          {rat.nombre_actividad || 'RAT sin nombre'}
+              {existingRATs.map((rat, index) => {
+                // Calcular completitud del RAT
+                const calculateCompleteness = (ratData) => {
+                  const requiredFields = [
+                    'nombre_actividad', 'area_responsable', 'base_licitud', 
+                    'plazo_conservacion', 'finalidades'
+                  ];
+                  const optionalFields = [
+                    'responsable_proceso', 'email_responsable', 'descripcion',
+                    'categorias_datos', 'medidas_seguridad_tecnicas', 'procedimiento_derechos'
+                  ];
+                  
+                  let completed = 0;
+                  let total = requiredFields.length + optionalFields.length;
+                  
+                  requiredFields.forEach(field => {
+                    if (ratData[field] && ratData[field] !== '' && 
+                        (Array.isArray(ratData[field]) ? ratData[field].length > 0 : true)) {
+                      completed += 1.5; // Los requeridos valen más
+                    }
+                  });
+                  
+                  optionalFields.forEach(field => {
+                    if (ratData[field] && ratData[field] !== '' && 
+                        (Array.isArray(ratData[field]) ? ratData[field].length > 0 : true)) {
+                      completed += 1;
+                    }
+                  });
+                  
+                  return Math.round((completed / (requiredFields.length * 1.5 + optionalFields.length)) * 100);
+                };
+                
+                const completeness = calculateCompleteness(rat);
+                const ratIndex = String(index + 1).padStart(3, '0');
+                const ratId = rat.rat_id || rat.id || `RAT-${ratIndex}`;
+                
+                return (
+                  <Grid item xs={12} md={6} key={rat.id}>
+                    <Card sx={{ 
+                      transition: 'all 0.3s',
+                      '&:hover': { 
+                        transform: 'translateY(-2px)', 
+                        boxShadow: 3 
+                      },
+                      border: ratData.id === rat.id ? '2px solid' : '1px solid',
+                      borderColor: ratData.id === rat.id ? 'primary.main' : 'grey.200'
+                    }}>
+                      <CardContent>
+                        {/* Header con índice y estado */}
+                        <Box display="flex" alignItems="flex-start" justifyContent="space-between" mb={2}>
+                          <Box sx={{ flexGrow: 1 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+                              #{ratIndex} • {ratId}
+                            </Typography>
+                            <Typography variant="h6" component="div" sx={{ mt: 0.5 }}>
+                              {rat.nombre_actividad || 'RAT sin nombre'}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ textAlign: 'right' }}>
+                            <Chip 
+                              label={rat.estado || 'borrador'} 
+                              size="small"
+                              color={
+                                rat.estado === 'aprobado' ? 'success' :
+                                rat.estado === 'revisión' ? 'warning' :
+                                'default'
+                              }
+                              sx={{ mb: 1 }}
+                            />
+                            <Typography variant="caption" display="block" color="text.secondary">
+                              {completeness}% completo
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        {/* Barra de completitud */}
+                        <Box sx={{ mb: 2 }}>
+                          <LinearProgress 
+                            variant="determinate" 
+                            value={completeness} 
+                            color={
+                              completeness >= 80 ? 'success' :
+                              completeness >= 50 ? 'warning' :
+                              'error'
+                            }
+                            sx={{ height: 6, borderRadius: 3 }}
+                          />
+                        </Box>
+                        
+                        {/* Información del RAT */}
+                        <Typography color="text.secondary" gutterBottom>
+                          <Business sx={{ verticalAlign: 'middle', mr: 0.5, fontSize: 16 }} />
+                          {rat.area_responsable || 'Área no especificada'}
                         </Typography>
-                        <Chip 
-                          label={rat.estado || 'borrador'} 
-                          size="small"
-                          color={
-                            rat.estado === 'aprobado' ? 'success' :
-                            rat.estado === 'revisión' ? 'warning' :
-                            'default'
-                          }
-                        />
-                      </Box>
-                      
-                      <Typography color="text.secondary" gutterBottom>
-                        <Business sx={{ verticalAlign: 'middle', mr: 0.5, fontSize: 16 }} />
-                        {rat.area_responsable || 'Área no especificada'}
-                      </Typography>
-                      
-                      <Typography color="text.secondary" gutterBottom>
-                        <Gavel sx={{ verticalAlign: 'middle', mr: 0.5, fontSize: 16 }} />
-                        Base: {rat.base_licitud || 'No especificada'}
-                      </Typography>
-                      
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        Actualizado: {new Date(rat.updated_at).toLocaleDateString('es-CL')} • v{rat.version}
-                      </Typography>
-                      
-                      <Box display="flex" gap={1} flexWrap="wrap">
-                        <Button
-                          size="small"
-                          variant="contained"
-                          startIcon={<Edit />}
-                          onClick={() => loadRATForEdit(rat.id)}
-                          disabled={loading}
-                        >
-                          Editar
-                        </Button>
                         
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          startIcon={<Visibility />}
-                          onClick={() => {
-                            loadRATForEdit(rat.id);
-                            setShowVisualization(true);
-                          }}
-                        >
-                          Ver
-                        </Button>
+                        <Typography color="text.secondary" gutterBottom>
+                          <Gavel sx={{ verticalAlign: 'middle', mr: 0.5, fontSize: 16 }} />
+                          Base: {rat.base_licitud || 'No especificada'}
+                        </Typography>
                         
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="error"
-                          startIcon={<PictureAsPdf />}
-                          onClick={() => {
-                            // Cargar datos y exportar PDF
-                            setRatData({
-                              id: rat.id,
-                              ...rat.datos_completos
-                            });
-                            setTimeout(exportToPDF, 100);
-                          }}
-                        >
-                          PDF
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
+                        {/* Fechas */}
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            <Schedule sx={{ verticalAlign: 'middle', mr: 0.5, fontSize: 14 }} />
+                            Creado: {new Date(rat.created_at).toLocaleDateString('es-CL', {
+                              year: 'numeric', month: 'short', day: 'numeric'
+                            })}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            <Update sx={{ verticalAlign: 'middle', mr: 0.5, fontSize: 14 }} />
+                            Actualizado: {new Date(rat.updated_at).toLocaleDateString('es-CL', {
+                              year: 'numeric', month: 'short', day: 'numeric'
+                            })} • v{rat.version}
+                          </Typography>
+                        </Box>
+                        
+                        {/* Botones de acción */}
+                        <Box display="flex" gap={1} flexWrap="wrap">
+                          <Button
+                            size="small"
+                            variant="contained"
+                            startIcon={<Edit />}
+                            onClick={() => loadRATForEdit(rat.id)}
+                            disabled={loading}
+                          >
+                            Editar
+                          </Button>
+                          
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            startIcon={<Visibility />}
+                            onClick={() => {
+                              loadRATForEdit(rat.id);
+                              setShowVisualization(true);
+                            }}
+                          >
+                            Ver
+                          </Button>
+                          
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            startIcon={<PictureAsPdf />}
+                            onClick={() => {
+                              // Cargar datos y exportar PDF
+                              setRatData({
+                                id: rat.id,
+                                ...rat.datos_completos
+                              });
+                              setTimeout(exportToPDF, 100);
+                            }}
+                          >
+                            PDF
+                          </Button>
+                          
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            startIcon={<Delete />}
+                            onClick={() => deleteRAT(rat.id, rat.nombre_actividad)}
+                            disabled={loading}
+                            sx={{ ml: 'auto' }}
+                          >
+                            Borrar
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
             </Grid>
           )}
         </DialogContent>
