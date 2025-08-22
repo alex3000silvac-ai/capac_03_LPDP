@@ -1159,8 +1159,8 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   'Accionistas',
                   'Contactos comerciales'
                 ]}
-                value={ratData.categorias_titulares}
-                onChange={(e, newValue) => setRatData({...ratData, categorias_titulares: newValue})}
+                value={ratData.categorias_titulares || []}
+                onChange={(e, newValue) => setRatData({...ratData, categorias_titulares: newValue || []})}
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip variant="outlined" label={option} {...getTagProps({ index })} />
@@ -1587,8 +1587,8 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   'Sensores IoT',
                   'Sistema de videovigilancia'
                 ]}
-                value={ratData.sistemas_almacenamiento}
-                onChange={(e, newValue) => setRatData({...ratData, sistemas_almacenamiento: newValue})}
+                value={ratData.sistemas_almacenamiento || []}
+                onChange={(e, newValue) => setRatData({...ratData, sistemas_almacenamiento: newValue || []})}
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip 
@@ -1630,8 +1630,8 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   'TI',
                   'Auditoría Interna'
                 ]}
-                value={ratData.destinatarios_internos}
-                onChange={(e, newValue) => setRatData({...ratData, destinatarios_internos: newValue})}
+                value={ratData.destinatarios_internos || []}
+                onChange={(e, newValue) => setRatData({...ratData, destinatarios_internos: newValue || []})}
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip 
@@ -1672,8 +1672,8 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   'Consultora',
                   'Empresa de selección de personal'
                 ]}
-                value={ratData.terceros_encargados}
-                onChange={(e, newValue) => setRatData({...ratData, terceros_encargados: newValue})}
+                value={ratData.terceros_encargados || []}
+                onChange={(e, newValue) => setRatData({...ratData, terceros_encargados: newValue || []})}
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip 
@@ -1716,8 +1716,8 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   'Universidades',
                   'Centros de investigación'
                 ]}
-                value={ratData.terceros_cesionarios}
-                onChange={(e, newValue) => setRatData({...ratData, terceros_cesionarios: newValue})}
+                value={ratData.terceros_cesionarios || []}
+                onChange={(e, newValue) => setRatData({...ratData, terceros_cesionarios: newValue || []})}
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip 
@@ -1785,12 +1785,12 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                           '🇯🇵 Japón',
                           '🇦🇺 Australia'
                         ]}
-                        value={ratData.transferencias_internacionales.paises}
+                        value={ratData.transferencias_internacionales?.paises || []}
                         onChange={(e, newValue) => setRatData({
                           ...ratData,
                           transferencias_internacionales: {
                             ...ratData.transferencias_internacionales,
-                            paises: newValue
+                            paises: newValue || []
                           }
                         })}
                         renderTags={(value, getTagProps) =>
@@ -2055,10 +2055,10 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                     'SIEM',
                     'Gestión de vulnerabilidades'
                   ]}
-                  value={ratData.medidas_seguridad.tecnicas}
+                  value={ratData.medidas_seguridad?.tecnicas || []}
                   onChange={(e, newValue) => setRatData({
                     ...ratData,
-                    medidas_seguridad: {...ratData.medidas_seguridad, tecnicas: newValue}
+                    medidas_seguridad: {...ratData.medidas_seguridad, tecnicas: newValue || []}
                   })}
                   renderTags={(value, getTagProps) =>
                     value.map((option, index) => (
@@ -2105,10 +2105,10 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                   'Control de acceso físico',
                   'Procedimiento de destrucción segura'
                 ]}
-                value={ratData.medidas_seguridad.organizativas}
+                value={ratData.medidas_seguridad?.organizativas || []}
                 onChange={(e, newValue) => setRatData({
                   ...ratData,
-                  medidas_seguridad: {...ratData.medidas_seguridad, organizativas: newValue}
+                  medidas_seguridad: {...ratData.medidas_seguridad, organizativas: newValue || []}
                 })}
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
@@ -2180,8 +2180,8 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                     'Uso incompatible',
                     'Retención excesiva'
                   ]}
-                  value={ratData.riesgos_identificados}
-                  onChange={(e, newValue) => setRatData({...ratData, riesgos_identificados: newValue})}
+                  value={ratData.riesgos_identificados || []}
+                  onChange={(e, newValue) => setRatData({...ratData, riesgos_identificados: newValue || []})}
                   renderTags={(value, getTagProps) =>
                     value.map((option, index) => (
                       <Chip 
