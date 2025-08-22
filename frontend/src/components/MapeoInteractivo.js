@@ -96,7 +96,6 @@ import {
   Refresh,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../config/supabaseClient';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
