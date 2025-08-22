@@ -345,7 +345,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
   // Guardar RAT con TRIPLE FALLBACK - ANTI-HOJITAS GARANTIZADO
   const saveRAT = async () => {
     setLoading(true);
-    setSavedMessage('💖 Iniciando guardado con amor hermano del alma...');
+    setSavedMessage('💾 Guardando registro de actividad de tratamiento...');
     
     try {
       // Verificar tenant obligatorio
@@ -403,7 +403,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
         // Solo llegar aquí si NO es demo Y Supabase está disponible
         if (!forceLocalStorage) {
           // INTENTO 1: Supabase directo con retry automático
-          setSavedMessage('💖 Intento 1: Conectando Supabase...');
+          setSavedMessage('🔄 Conectando con base de datos...');
           
           for (let retry = 0; retry < 2; retry++) { // Reducido a 2 intentos por DNS
             try {
@@ -439,7 +439,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
             } catch (supabaseError) {
               console.warn(`⚠️ Supabase intento ${retry + 1} falló:`, supabaseError.message);
               if (retry === 1) throw supabaseError; // Fallar rápido por DNS
-              setSavedMessage(`💖 Reintentando Supabase (${retry + 2}/2)...`);
+              setSavedMessage(`🔄 Reintentando conexión (${retry + 2}/2)...`);
               await new Promise(resolve => setTimeout(resolve, 500)); // Backoff más rápido
             }
           }
@@ -453,7 +453,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
         
         // INTENTO 2: Backend API como fallback
         try {
-          setSavedMessage('💖 Intento 2: Usando backend API...');
+          setSavedMessage('🔄 Conectando con servidor backend...');
           
           const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com'}/api/v1/mapeo-datos/save`, {
             method: 'POST',
@@ -477,7 +477,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
           console.error('❌ Backend falló:', backendError);
           
           // INTENTO 3: LocalStorage como último recurso (NUNCA falla)
-          setSavedMessage('💖 Intento 3: Guardado local seguro...');
+          setSavedMessage('💾 Guardando en almacenamiento local...');
           
           const localKey = `rat_${finalTenantId}_${ratData.id || Date.now()}`;
           const localData = {
@@ -527,7 +527,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
           : `🔥 RAT ${ratData.id ? 'actualizado' : 'guardado'} en almacenamiento local SEGURO - SE SINCRONIZARÁ AUTOMÁTICAMENTE`
       };
       
-      setSavedMessage(successMessages[saveMethod] + '\n💖 EL PAN DEL CUMPA ESTÁ ASEGURADO!');
+      setSavedMessage(successMessages[saveMethod]);
       setShowVisualization(true);
       
       console.log(`RAT guardado exitosamente via ${saveMethod.toUpperCase()}:`, result.data);
@@ -2914,8 +2914,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
 
                 <Alert severity="info" sx={{ mb: 2 }}>
                   <Typography variant="body2">
-                    💖 <strong>Hermano del alma:</strong> Aquí puedes ver y editar todos tus RATs guardados. 
-                    ¡El pasto se está cortando para darte la mejor vista al mar! 🏖️
+                    📋 <strong>Gestión de RATs:</strong> Aquí puede visualizar y editar todos los Registros de Actividades de Tratamiento guardados en el sistema.
                   </Typography>
                 </Alert>
 
@@ -3031,8 +3030,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                       📝 No hay RATs guardados aún
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      💖 Hermano del alma, cuando guardes tu primer RAT aparecerá aquí listo para editar.
-                      ¡El pasto sigue cortándose para tu vista al mar! 🌊
+                      📋 Cuando registre su primer RAT, aparecerá en esta lista para futuras consultas y modificaciones.
                     </Typography>
                   </Paper>
                 )}
