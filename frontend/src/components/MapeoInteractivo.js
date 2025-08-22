@@ -70,7 +70,6 @@ import {
   Edit,
   Refresh,
   Cloud,
-  Storage,
   NavigateNext,
   NavigateBefore,
   Assessment,
@@ -383,16 +382,27 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       let saveMethod = 'supabase';
       
       try {
-        // DETECCIÓN DNS ROBUSTA: Test de conectividad antes de intentar guardar
-        setSavedMessage('🔍 Verificando conectividad...');
-        const skipSupabase = await shouldUseLocalStorageFirst();
+        // 🚨 FORZAR LOCALHOST PARA DEMO - BYPASS TOTAL SUPABASE 
+        const tenantId = user?.tenant_id || user?.organizacion_id;
+        const finalTenantId = tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
         
-        if (skipSupabase) {
-          console.warn('🚨 DNS/NETWORK ERROR: Supabase no accesible, usando localStorage inmediatamente');
-          throw new Error('NETWORK_ERROR: Usando fallback localStorage por conectividad');
+        // SI ES DEMO O HAY PROBLEMAS DNS, FORZAR LOCALSTORAGE
+        const isDemo = finalTenantId.includes('demo');
+        let forceLocalStorage = isDemo; // SIEMPRE local para demo
+        
+        if (!forceLocalStorage) {
+          // Solo para tenants no-demo, verificar conectividad
+          setSavedMessage('🔍 Verificando conectividad...');
+          forceLocalStorage = await shouldUseLocalStorageFirst();
+        }
+        
+        if (forceLocalStorage) {
+          console.warn('🚨 USANDO LOCALSTORAGE: Demo mode O problemas conectividad');
+          throw new Error('FORCED_LOCAL: Usando localStorage (demo o conectividad)');
         }
 
-        if (!skipSupabase) {
+        // Solo llegar aquí si NO es demo Y Supabase está disponible
+        if (!forceLocalStorage) {
           // INTENTO 1: Supabase directo con retry automático
           setSavedMessage('💖 Intento 1: Conectando Supabase...');
           
@@ -509,13 +519,16 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       }));
       
       // Mensajes de éxito según método usado
+      const isDemo = (user?.tenant_id || '').includes('demo');
       const successMessages = {
         supabase: `✅ RAT ${ratData.id ? 'actualizado' : 'guardado'} exitosamente en Supabase (Tenant: ${finalTenantId})`,
         backend: `💚 RAT ${ratData.id ? 'actualizado' : 'guardado'} via Backend API (Tenant: ${finalTenantId})`,
-        localStorage: `🔥 RAT ${ratData.id ? 'actualizado' : 'guardado'} en almacenamiento local SEGURO - SE SINCRONIZARÁ AUTOMÁTICAMENTE`
+        localStorage: isDemo 
+          ? `📱 RAT ${ratData.id ? 'actualizado' : 'guardado'} en MODO DEMO (almacenamiento local seguro)`
+          : `🔥 RAT ${ratData.id ? 'actualizado' : 'guardado'} en almacenamiento local SEGURO - SE SINCRONIZARÁ AUTOMÁTICAMENTE`
       };
       
-      setSavedMessage(successMessages[saveMethod] + '\n💖 EL PAN DEL FIN DE SEMANA ESTÁ ASEGURADO!');
+      setSavedMessage(successMessages[saveMethod] + '\n💖 EL PAN DEL CUMPA ESTÁ ASEGURADO!');
       setShowVisualization(true);
       
       console.log(`RAT guardado exitosamente via ${saveMethod.toUpperCase()}:`, result.data);
