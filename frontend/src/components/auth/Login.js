@@ -58,6 +58,13 @@ const Login = () => {
 
   const handleDemoLogin = async () => {
     setFormData({
+      username: 'demo',
+      password: 'demo123'
+    });
+  };
+
+  const handleAdminDemoLogin = async () => {
+    setFormData({
       username: 'admin',
       password: 'Admin123!'
     });
@@ -308,12 +315,37 @@ const Login = () => {
                   </Button>
                 </Grid>
 
-                {/* Botón Demo */}
+                {/* Botón Demo Restringido */}
                 <Grid item xs={12}>
                   <Button
                     fullWidth
                     variant="outlined"
                     onClick={handleDemoLogin}
+                    sx={{
+                      py: 1.5,
+                      fontSize: '1rem',
+                      borderColor: 'rgba(255, 215, 0, 0.5)',
+                      color: 'rgba(255, 215, 0, 0.9)',
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      '&:hover': {
+                        borderColor: 'rgba(255, 215, 0, 0.8)',
+                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                        color: '#FFD700'
+                      },
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    👁️ Demo Solo Vista (demo/demo123)
+                  </Button>
+                </Grid>
+
+                {/* Botón Demo Admin */}
+                <Grid item xs={12}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={handleAdminDemoLogin}
                     sx={{
                       py: 1.5,
                       fontSize: '1rem',
@@ -330,7 +362,7 @@ const Login = () => {
                     }}
                   >
                     <Business sx={{ mr: 1.5 }} />
-                    Cargar Credenciales Demo
+                    Demo Admin (admin/Admin123!)
                   </Button>
                 </Grid>
               </Grid>

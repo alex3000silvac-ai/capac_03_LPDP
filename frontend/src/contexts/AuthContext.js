@@ -63,7 +63,13 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('Intentando login con:', { username, password, tenantId });
       
-      const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+      // Detectar si es usuario demo ultra restringido
+      const isDemoUser = username === 'demo' && password === 'demo123';
+      const endpoint = isDemoUser 
+        ? `${API_URL}/api/v1/demo/login`
+        : `${API_URL}/api/v1/auth/login`;
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +97,21 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('lpdp_token', data.access_token);
       setToken(data.access_token);
 
-      // Decodificar y establecer usuario
+      // Para usuario demo, usar los datos directos de la respuesta
+      if (isDemoUser && data.user) {
+        const userData = {
+          ...data.user,
+          tenant_id: data.user.tenant_id || tenantId,
+          restrictions: data.restrictions || {},
+          demo_data: data.demo_data || {},
+          is_demo: true,
+          restricted_to: 'demo_view_only'
+        };
+        setUser(userData);
+        return userData;
+      }
+
+      // Para usuarios normales, decodificar JWT
       const decoded = jwtDecode(data.access_token);
       const userData = {
         id: decoded.sub,
@@ -166,7 +186,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isRestricted = () => {
-    return user && user.restricted_to === 'intro_only';
+    return user && (
+      user.restricted_to === 'intro_only' || 
+      user.restricted_to === 'demo_view_only' ||
+      user.is_demo === true
+    );
   };
 
   const value = {
