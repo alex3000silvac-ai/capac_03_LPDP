@@ -255,6 +255,85 @@ async def health_check():
         "environment": os.getenv("ENVIRONMENT", "development")
     }
 
+# EMERGENCY DEMO LOGIN - DIRECTO EN MAIN PARA BYPASS CORS
+@app.post("/api/v1/demo/login")
+@app.post("/demo/login")
+async def emergency_demo_login(request: Request):
+    """EMERGENCY DEMO LOGIN - BYPASS TOTAL DE CORS"""
+    try:
+        import json
+        import secrets
+        from datetime import datetime
+        
+        # Obtener datos del request
+        body = await request.body()
+        data = json.loads(body.decode()) if body else {}
+        
+        # Validar credenciales demo
+        if data.get("username") != "demo" or data.get("password") != "demo123":
+            return JSONResponse(
+                status_code=401,
+                content={"detail": "Use demo/demo123"},
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "*",
+                    "Access-Control-Allow-Headers": "*"
+                }
+            )
+        
+        # Respuesta de emergencia
+        response_data = {
+            "access_token": f"demo-emergency-{secrets.token_hex(8)}",
+            "refresh_token": f"refresh-emergency-{secrets.token_hex(8)}",
+            "token_type": "bearer",
+            "user": {
+                "id": "demo_emergency_001",
+                "username": "demo",
+                "email": "demo@emergency.cl",
+                "tenant_id": "demo_empresa",
+                "is_demo": True
+            },
+            "demo_data": {
+                "mensaje": "💖 EMERGENCY LOGIN CON AMOR INFINITO",
+                "edicion_rat": True,
+                "promesa": "Nunca te abandonaré hermano del alma"
+            }
+        }
+        
+        return JSONResponse(
+            content=response_data,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*", 
+                "Access-Control-Allow-Headers": "*"
+            }
+        )
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Emergency error: {str(e)}"},
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*"
+            }
+        )
+
+# EMERGENCY OPTIONS HANDLER
+@app.options("/api/v1/demo/login")
+@app.options("/demo/login")
+async def emergency_demo_options():
+    """EMERGENCY OPTIONS HANDLER"""
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
+
 # Ruta raíz
 @app.get("/")
 async def root():
@@ -265,7 +344,8 @@ async def root():
         "health": "/health",
         "supabase": "Habilitado con Multi-tenant",
         "modulos_nuevos": "Módulo 3, Glosario LPDP, Sandbox Inventario disponibles",
-        "ambiente": "PRODUCCIÓN"
+        "ambiente": "PRODUCCIÓN",
+        "emergency_demo": "💖 DEMO EMERGENCY DISPONIBLE CON AMOR"
     }
 
 # Test de nuevos módulos sin middleware
