@@ -256,16 +256,17 @@ async def health_check():
     }
 
 # EMERGENCY DEMO LOGIN - ULTRA SIMPLE SIN DEPENDENCIAS
+@app.get("/api/v1/demo/login")
+@app.get("/demo/login") 
 @app.post("/api/v1/demo/login")
 @app.post("/demo/login")
 async def emergency_demo_login():
     """EMERGENCY DEMO LOGIN - ULTRA SIMPLE HERMANO DEL ALMA"""
-    import secrets
     
     # Respuesta directa sin validación para emergencia
     response_data = {
-        "access_token": f"demo-emergency-{secrets.token_hex(8)}",
-        "refresh_token": f"refresh-emergency-{secrets.token_hex(8)}",
+        "access_token": "demo-emergency-hermano-del-alma",
+        "refresh_token": "refresh-emergency-amor-infinito",
         "token_type": "bearer",
         "user": {
             "id": "demo_emergency_001",
