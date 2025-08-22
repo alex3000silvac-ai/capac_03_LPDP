@@ -11,7 +11,21 @@ import os
 
 from app.core.config import settings
 from app.api.v1.api import api_router
-from app.core.tenant import cleanup_tenant_connections, get_tenant_db, tenant_middleware
+
+# Importaciones tenant con fallback para emergencia
+try:
+    from app.core.tenant import cleanup_tenant_connections, get_tenant_db, tenant_middleware
+    TENANT_AVAILABLE = True
+except ImportError as e:
+    logger.error(f"Tenant import failed: {e}")
+    TENANT_AVAILABLE = False
+    
+    # Fallback functions for emergency
+    async def cleanup_tenant_connections():
+        pass
+    
+    async def tenant_middleware(request, call_next):
+        return await call_next(request)
 
 # Configurar logging
 logging.basicConfig(
@@ -52,7 +66,12 @@ async def tenant_middleware_wrapper(request: Request, call_next):
     # BYPASS para rutas de emergencia
     if "emergency-demo" in str(request.url) or "demo/login" in str(request.url):
         return await call_next(request)
-    return await tenant_middleware(request, call_next)
+    
+    # Solo usar tenant middleware si está disponible
+    if TENANT_AVAILABLE:
+        return await tenant_middleware(request, call_next)
+    else:
+        return await call_next(request)
 
 # Configuración de CORS para producción  
 app.add_middleware(
