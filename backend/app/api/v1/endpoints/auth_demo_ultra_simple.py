@@ -3,7 +3,7 @@ ENDPOINT DEMO ULTRA SIMPLIFICADO - ANTI-HOJITAS GARANTIZADO
 Sin dependencias complejas, funciona siempre
 """
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 import secrets
