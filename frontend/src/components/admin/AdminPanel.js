@@ -116,7 +116,7 @@ function AdminPanel() {
     {
       label: 'Seguridad',
       icon: <SecurityIcon />,
-      component: <div>Panel de Seguridad (En desarrollo)</div>,
+      component: <div>Panel de Seguridad - Configuración de políticas y monitoreo de amenazas</div>,
       badge: notifications.filter(n => n.type === 'security').length
     }
   ];

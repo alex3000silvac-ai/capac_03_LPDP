@@ -78,10 +78,24 @@ function ModuloCapacitacion() {
             },
           ],
           conceptos_clave: [
-            'Dato personal: Cualquier información que identifique o haga identificable a una persona',
-            'Privacidad: Derecho fundamental protegido por la Constitución',
-            'Autodeterminación informativa: Tu derecho a controlar qué se hace con tus datos',
+            'Dato personal: Cualquier información que identifique o haga identificable a una persona (Art. 2 lit. a Ley 21.719)',
+            'Privacidad: Derecho fundamental protegido por la Constitución Art. 19 N°4',
+            'Autodeterminación informativa: Derecho a controlar qué se hace con tus datos',
+            'Principio de responsabilidad proactiva: Las empresas deben demostrar cumplimiento',
+            'Datos sensibles especiales en Chile: Situación socioeconómica (Art. 2 lit. g)',
           ],
+          marco_legal: {
+            ley_principal: 'Ley N° 21.719 que modifica la Ley N° 19.628',
+            articulos_clave: [
+              'Art. 4: Principios del tratamiento de datos',
+              'Art. 8: Bases de licitud del tratamiento',
+              'Art. 25: Registro de Actividades de Tratamiento (RAT)',
+              'Art. 27: Evaluación de Impacto (EIPD)',
+              'Art. 29: Notificación de brechas'
+            ],
+            agencia_reguladora: 'Agencia de Protección de Datos Personales (en proceso de creación)',
+            sanciones_maximas: 'Hasta 20,000 UTM para infracciones gravísimas'
+          },
         },
       },
       {

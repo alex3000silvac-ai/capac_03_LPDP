@@ -161,7 +161,7 @@ const HerramientasLPDP = () => {
       tipo: 'pdf',
       instrucciones: [
         'Revise cada requisito de la Ley 21.719',
-        'Marque estado: Completo, En proceso, Pendiente',
+        'Marque estado: Completo, Pendiente, No Aplica',
         'Priorice acciones según criticidad',
         'Establezca fechas de cumplimiento',
         'Use como base para auditorías internas'
@@ -185,18 +185,94 @@ const HerramientasLPDP = () => {
   ];
 
   const sectoresIndustriales = [
-    'Acuicultura/Salmonicultura',
-    'Manufactura',
-    'Servicios Financieros',
-    'Retail/Comercio',
-    'Salud',
-    'Educación',
-    'Tecnología',
-    'Construcción',
-    'Transporte',
-    'Energía',
+    // Recursos Naturales y Primarios
+    'Minería (Cobre, Oro, Plata, Litio)',
+    'Agricultura y Ganadería',
+    'Acuicultura y Salmonicultura',
+    'Pesca Industrial',
+    'Forestal y Celulosa',
+    'Vitivinícola',
+    'Fruticultura (Exportación)',
+    
+    // Industria Manufacturera
+    'Manufactura General',
+    'Industria Alimentaria',
+    'Textil y Confecciones',
+    'Metalurgia',
+    'Química y Petroquímica',
+    'Farmacéutica',
+    'Automotriz y Autopartes',
+    'Muebles y Madera',
+    'Papel y Cartón',
+    'Plásticos y Caucho',
+    'Cemento y Construcción',
+    
+    // Servicios y Comercio
+    'Retail y Comercio',
+    'Servicios Financieros y Bancarios',
+    'Seguros y AFP',
+    'Inmobiliario',
+    'Turismo y Hotelería',
+    'Restaurantes y Gastronomía',
+    'Logística y Distribución',
+    'Consultoría y Servicios Profesionales',
+    
+    // Tecnología y Comunicaciones
+    'Tecnología de la Información',
     'Telecomunicaciones',
-    'Otro'
+    'Medios de Comunicación',
+    'Publicidad y Marketing',
+    'E-commerce y Marketplace',
+    'Fintech',
+    'Software y Desarrollo',
+    
+    // Servicios Públicos y Utilities
+    'Energía Eléctrica',
+    'Gas y Combustibles',
+    'Agua y Saneamiento',
+    'Telecomunicaciones',
+    'Transporte Público',
+    'Aeroportuario y Portuario',
+    
+    // Salud y Educación
+    'Salud Privada',
+    'Salud Pública',
+    'Educación Superior',
+    'Educación Básica y Media',
+    'Capacitación y Formación',
+    
+    // Transporte y Logística
+    'Transporte Terrestre',
+    'Transporte Marítimo',
+    'Transporte Aéreo',
+    'Courier y Mensajería',
+    'Almacenamiento y Bodegaje',
+    
+    // Construcción e Infraestructura
+    'Construcción Residencial',
+    'Construcción Industrial',
+    'Ingeniería y Obras Públicas',
+    'Arquitectura y Diseño',
+    
+    // Gobierno y Sector Público
+    'Administración Pública',
+    'Municipalidades',
+    'Organismos Públicos',
+    'Fuerzas Armadas y Orden',
+    
+    // Organizaciones
+    'Fundaciones y ONGs',
+    'Asociaciones Gremiales',
+    'Colegios Profesionales',
+    'Sindicatos',
+    
+    // Otros Sectores
+    'Deportes y Recreación',
+    'Arte y Cultura',
+    'Investigación y Desarrollo',
+    'Cooperativas',
+    'Religioso',
+    'Otro (Especificar)'
   ];
 
   const handleEmpresaChange = (field, value) => {
@@ -778,14 +854,13 @@ INSTRUCCIONES:
 ==============
 Marque el estado de cada requisito:
 ✓ COMPLETO: Implementado y funcionando
-◐ EN PROCESO: Iniciado pero no terminado  
-✗ PENDIENTE: No iniciado
+✗ PENDIENTE: No iniciado o incompleto
 N/A: No aplica a la organización
 
 PUNTUACIÓN:
 Completo = 3 puntos
-En proceso = 1 punto
-Pendiente = 0 puntos
+Pendiente = 1 punto
+No Aplica = 0 puntos
 
 ═══════════════════════════════════════════════════════════════
 

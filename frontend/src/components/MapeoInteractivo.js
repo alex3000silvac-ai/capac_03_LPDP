@@ -265,9 +265,14 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
       mecanismo: ''
     },
     
-    // FASE 4: Plazos y Seguridad
+    // FASE 4: Plazos y Seguridad - Campo 6 Tabla 1 Plan Estratégico
     plazo_conservacion: '',
+    plazo_conservacion_especifico: '',
+    plazo_conservacion_tipo: 'especifico', // 'especifico', 'criterio', 'indefinido_justificado'
     criterio_eliminacion: '',
+    justificacion_plazo: '',
+    revision_periodica: true,
+    frecuencia_revision: 'anual', // 'mensual', 'trimestral', 'anual'
     medidas_seguridad: {
       tecnicas: [],
       organizativas: [],
@@ -282,6 +287,17 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     medidas_mitigacion: [],
     nivel_riesgo: 'bajo',
     requiere_dpia: false,
+    
+    // Campo 8 - Decisiones Automatizadas (Plan Estratégico Tabla 1)
+    decisiones_automatizadas: {
+      existe: false,
+      descripcion_logica: '',
+      fuentes_datos: [],
+      consecuencias_titular: '',
+      tipo_decision: '', // 'scoring', 'perfilado', 'recomendaciones', 'evaluacion'
+      algoritmos_ia: false,
+      derecho_intervencion: true
+    },
     
     // Metadata
     fecha_creacion: new Date().toISOString(),
@@ -458,20 +474,6 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     'Plazos y Seguridad',
     'Revisión y Exportación'
   ];
-
-  // Aplicar template seleccionado
-  const applyTemplate = (templateKey) => {
-    const template = templates[templateKey];
-    if (template) {
-      setRatData(prev => ({
-        ...prev,
-        ...template.data,
-        fecha_actualizacion: new Date().toISOString()
-      }));
-      setSelectedTemplate(templateKey);
-      setSavedMessage(`Template "${template.nombre}" aplicado exitosamente`);
-    }
-  };
 
   // Validación por fase
   const validatePhase = (phase) => {
@@ -1102,7 +1104,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
   // Crear nuevo RAT
   const createNewRAT = async () => {
     const tenantId = getCurrentTenant();
-    const userId = 'usuario_actual'; // TODO: obtener usuario real del contexto
+    const userId = user?.id || 'demo_user';
     
     // Verificar límites primero
     const limitCheck = await checkRATLimits(tenantId, userId);
