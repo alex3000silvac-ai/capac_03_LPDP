@@ -849,7 +849,7 @@ const ModuloCero = () => {
                 }}
                 startIcon={<Construction />}
               >
-                🏗️ CONSTRUIR MI MAPEO DE DATOS
+                🏗️ CONSTRUCTOR RAT PROFESIONAL
               </Button>
             </Paper>
 

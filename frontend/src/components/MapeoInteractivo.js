@@ -112,6 +112,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
   const [validationErrors, setValidationErrors] = useState([]);
   const [showVisualization, setShowVisualization] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [existingRATs, setExistingRATs] = useState([]);
   const [showRATList, setShowRATList] = useState(false);
   const [loadingRATs, setLoadingRATs] = useState(false);
@@ -120,6 +121,26 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
   const getCurrentTenant = () => {
     const tenantId = user?.tenant_id || user?.organizacion_id || 'demo';
     return tenantId === 'demo' ? 'demo_empresa_lpdp_2024' : tenantId;
+  };
+
+  // Aplicar template seleccionado
+  const applyTemplate = (templateKey) => {
+    const template = templates[templateKey];
+    if (template) {
+      setRatData(prevData => ({
+        ...prevData,
+        ...template.data,
+        // Mantener metadata del usuario
+        tenant_id: prevData.tenant_id,
+        created_by: prevData.created_by,
+        id: prevData.id,
+        fecha_creacion: prevData.fecha_creacion,
+        fecha_actualizacion: new Date().toISOString()
+      }));
+      setSelectedTemplate(templateKey);
+      setShowTemplateSelector(false);
+      setSavedMessage(`✅ Template "${template.nombre}" aplicado correctamente`);
+    }
   };
   
   // Función para generar ID único empresarial
@@ -271,80 +292,160 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     created_by: user?.id || 'demo_user'
   });
 
-  // Templates predefinidos por industria
+  // Templates predefinidos por industria (expandidos)
   const templates = {
     salmonera: {
       nombre: 'Industria Salmonera',
       icon: '🐟',
+      descripcion: 'Específico para acuicultura y salmonicultura chilena',
       data: {
         nombre_actividad: 'Monitoreo de Salud de Biomasa',
-        area_responsable: 'Producción',
-        finalidades: ['Optimización productiva', 'Cumplimiento sanitario', 'Bienestar animal'],
+        area_responsable: 'Produccion',
+        finalidades: ['Optimización productiva', 'Cumplimiento sanitario SERNAPESCA', 'Bienestar animal'],
         base_licitud: 'interes_legitimo',
-        categorias_titulares: ['Operarios', 'Veterinarios', 'Inspectores'],
-        sistemas_almacenamiento: ['Sensores IoT', 'Software Acuicultura', 'ERP'],
+        categorias_titulares: ['Operarios marinos', 'Veterinarios', 'Inspectores SERNAPESCA'],
+        sistemas_almacenamiento: ['Sensores IoT acuáticos', 'Software Acuicultura', 'ERP Sectorial'],
         medidas_seguridad: {
           cifrado: true,
           control_acceso: true,
-          logs_auditoria: true
-        }
+          logs_auditoria: true,
+          backup: true
+        },
+        volumen_registros: '10,000-50,000',
+        frecuencia_actualizacion: 'Tiempo real (IoT)',
+        plazo_conservacion: '5 años (normativa sanitaria)'
       }
     },
     retail: {
       nombre: 'Comercio Retail',
       icon: '🛍️',
+      descripcion: 'Para tiendas, e-commerce y retail tradicional',
       data: {
         nombre_actividad: 'Programa de Fidelización de Clientes',
         area_responsable: 'Marketing',
-        finalidades: ['Marketing directo', 'Análisis de preferencias', 'Ofertas personalizadas'],
+        finalidades: ['Marketing directo', 'Análisis de preferencias', 'Ofertas personalizadas', 'Programa puntos'],
         base_licitud: 'consentimiento',
-        categorias_titulares: ['Clientes', 'Prospectos'],
-        sistemas_almacenamiento: ['CRM', 'Data Warehouse', 'App Móvil'],
-        datos_sensibles: [],
+        categorias_titulares: ['Clientes registrados', 'Visitantes web', 'Suscriptores newsletter'],
+        sistemas_almacenamiento: ['CRM', 'Plataforma E-commerce', 'Sistema POS'],
         medidas_seguridad: {
           cifrado: true,
-          seudonimizacion: true,
-          control_acceso: true
-        }
+          control_acceso: true,
+          seudonimizacion: true
+        },
+        volumen_registros: '1,000-10,000',
+        plazo_conservacion: '2 años desde última compra'
+      }
+    },
+    servicios_financieros: {
+      nombre: 'Servicios Financieros',
+      icon: '🏦',
+      descripcion: 'Bancos, cooperativas, fintechs y servicios crediticios',
+      data: {
+        nombre_actividad: 'Evaluación Crediticia y Scoring',
+        area_responsable: 'Finanzas',
+        finalidades: ['Evaluación riesgo crediticio', 'Cumplimiento DICOM', 'Prevención fraude'],
+        base_licitud: 'interes_legitimo',
+        categorias_titulares: ['Solicitantes crédito', 'Clientes existentes', 'Avalistas'],
+        datos_sensibles: ['Situación socioeconómica'],
+        sistemas_almacenamiento: ['Core Bancario', 'Sistema Scoring', 'Base DICOM'],
+        transferencias_internacionales: {
+          existe: true,
+          paises: ['Estados Unidos'],
+          garantias: 'Cláusulas Contractuales Tipo',
+          mecanismo: 'CCT'
+        },
+        medidas_seguridad: {
+          cifrado: true,
+          control_acceso: true,
+          logs_auditoria: true,
+          backup: true,
+          segregacion: true
+        },
+        requiere_dpia: true,
+        plazo_conservacion: '10 años (normativa financiera)'
       }
     },
     salud: {
       nombre: 'Sector Salud',
       icon: '🏥',
+      descripcion: 'Clínicas, hospitales, centros médicos y farmacias',
       data: {
         nombre_actividad: 'Gestión de Historias Clínicas',
-        area_responsable: 'Dirección Médica',
-        finalidades: ['Atención médica', 'Continuidad asistencial', 'Investigación'],
-        base_licitud: 'obligacion_legal',
-        categorias_titulares: ['Pacientes', 'Beneficiarios'],
-        datos_sensibles: ['Datos de salud', 'Datos genéticos'],
-        sistemas_almacenamiento: ['Sistema HIS', 'PACS', 'Laboratorio'],
+        area_responsable: 'Salud',
+        finalidades: ['Atención médica', 'Historia clínica', 'Facturación FONASA'],
+        base_licitud: 'interes_vital',
+        categorias_titulares: ['Pacientes', 'Familiares responsables', 'Personal médico'],
+        datos_sensibles: ['Salud', 'Biométrico'],
+        sistemas_almacenamiento: ['Sistema HIS', 'PACS Imágenes', 'Laboratorio'],
         medidas_seguridad: {
           cifrado: true,
-          seudonimizacion: true,
           control_acceso: true,
           logs_auditoria: true,
+          backup: true,
           segregacion: true
         },
-        requiere_dpia: true
+        requiere_dpia: true,
+        plazo_conservacion: '15 años (historia clínica)',
+        menores_edad: true
       }
     },
     educacion: {
-      nombre: 'Instituciones Educativas',
+      nombre: 'Sector Educación',
       icon: '🎓',
+      descripcion: 'Colegios, universidades, institutos y centros de capacitación',
       data: {
         nombre_actividad: 'Gestión Académica de Estudiantes',
-        area_responsable: 'Registro Académico',
-        finalidades: ['Gestión educativa', 'Evaluación académica', 'Certificación'],
+        area_responsable: 'Educacion',
+        finalidades: ['Proceso educativo', 'Registro académico', 'Certificación'],
         base_licitud: 'contrato',
         categorias_titulares: ['Estudiantes', 'Apoderados', 'Docentes'],
-        menores_edad: true,
-        sistemas_almacenamiento: ['Sistema Académico', 'Plataforma LMS', 'Portal Web'],
+        sistemas_almacenamiento: ['Sistema Académico', 'Plataforma LMS', 'Registro Civil'],
         medidas_seguridad: {
+          cifrado: true,
           control_acceso: true,
-          logs_auditoria: true,
           backup: true
-        }
+        },
+        plazo_conservacion: '20 años (certificados)',
+        menores_edad: true
+      }
+    },
+    manufactura: {
+      nombre: 'Manufactura e Industria',
+      icon: '🏭',
+      descripcion: 'Fábricas, plantas industriales y manufactura',
+      data: {
+        nombre_actividad: 'Control de Acceso y Seguridad Industrial',
+        area_responsable: 'Operaciones',
+        finalidades: ['Control acceso planta', 'Seguridad laboral', 'Registro asistencia'],
+        base_licitud: 'interes_legitimo',
+        categorias_titulares: ['Trabajadores', 'Contratistas', 'Visitantes'],
+        sistemas_almacenamiento: ['Sistema Control Acceso', 'CCTV', 'Sistema RRHH'],
+        medidas_seguridad: {
+          cifrado: true,
+          control_acceso: true,
+          logs_auditoria: true
+        },
+        volumen_registros: '500-5,000',
+        plazo_conservacion: '2 años (registros acceso)'
+      }
+    },
+    logistica: {
+      nombre: 'Logística y Transporte',
+      icon: '🚚',
+      descripcion: 'Empresas de transporte, courier y logística',
+      data: {
+        nombre_actividad: 'Gestión de Despachos y Entregas',
+        area_responsable: 'Logistica',
+        finalidades: ['Coordinación entregas', 'Tracking envíos', 'Confirmación recepción'],
+        base_licitud: 'contrato',
+        categorias_titulares: ['Destinatarios', 'Remitentes', 'Conductores'],
+        sistemas_almacenamiento: ['Sistema WMS', 'GPS Tracking', 'App Mobile'],
+        terceros_encargados: ['Subcontratistas transporte'],
+        medidas_seguridad: {
+          cifrado: true,
+          control_acceso: true
+        },
+        plazo_conservacion: '1 año (comprobantes entrega)'
       }
     }
   };
@@ -3367,6 +3468,34 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
         </Grid>
       </Paper>
 
+      {/* Templates Quick Access */}
+      <Paper sx={{ p: 2, mb: 3 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6" color="primary">
+            🎯 Inicio Rápido por Industria
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => setShowTemplateSelector(true)}
+            startIcon={<Lightbulb />}
+            sx={{ textTransform: 'none' }}
+          >
+            Usar Template
+          </Button>
+        </Box>
+        
+        {selectedTemplate && (
+          <Box mt={2}>
+            <Chip 
+              label={`Template: ${templates[selectedTemplate]?.nombre}`}
+              onDelete={() => setSelectedTemplate(null)}
+              color="primary"
+              variant="filled"
+            />
+          </Box>
+        )}
+      </Paper>
+
       {/* Stepper */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Stepper activeStep={activeStep} alternativeLabel>
@@ -3681,6 +3810,72 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
           </Button>
           <Button onClick={createNewRAT} variant="contained" startIcon={<Add />}>
             Nuevo RAT
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Diálogo Selector de Templates */}
+      <Dialog 
+        open={showTemplateSelector} 
+        onClose={() => setShowTemplateSelector(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box display="flex" alignItems="center">
+            <Lightbulb sx={{ mr: 2, color: 'primary.main' }} />
+            <Box>
+              <Typography variant="h5" fontWeight={600}>
+                Seleccionar Template por Industria
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Inicie rápido con un template pre-configurado según su sector
+              </Typography>
+            </Box>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            {Object.entries(templates).map(([key, template]) => (
+              <Grid item xs={12} sm={6} md={4} key={key}>
+                <Card 
+                  sx={{ 
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    '&:hover': { 
+                      transform: 'translateY(-4px)',
+                      boxShadow: 4 
+                    },
+                    border: selectedTemplate === key ? 2 : 0,
+                    borderColor: 'primary.main'
+                  }}
+                  onClick={() => applyTemplate(key)}
+                >
+                  <CardContent sx={{ textAlign: 'center', p: 3 }}>
+                    <Typography variant="h2" sx={{ mb: 1 }}>
+                      {template.icon}
+                    </Typography>
+                    <Typography variant="h6" gutterBottom fontWeight={600}>
+                      {template.nombre}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      {template.descripcion}
+                    </Typography>
+                    <Chip 
+                      label="Aplicar Template"
+                      color="primary"
+                      variant="outlined"
+                      size="small"
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowTemplateSelector(false)}>
+            Cancelar
           </Button>
         </DialogActions>
       </Dialog>

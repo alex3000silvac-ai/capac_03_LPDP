@@ -25,6 +25,7 @@ import HerramientasLPDP from './pages/HerramientasLPDP';
 import ConceptosBasicos from './pages/ConceptosBasicos';
 import ModuloCero from './pages/ModuloCero';
 import ConsolidadoRAT from './components/ConsolidadoRAT';
+import RutaCapacitacionLPDP from './pages/RutaCapacitacionLPDP';
 
 // Tema oscuro profesional
 const theme = createTheme({
@@ -359,6 +360,11 @@ const AppContent = () => {
         <Route path="/consolidado-rat" element={
           <ProtectedRoute>
             <ConsolidadoRAT />
+          </ProtectedRoute>
+        } />
+        <Route path="/ruta-capacitacion" element={
+          <ProtectedRoute>
+            <RutaCapacitacionLPDP />
           </ProtectedRoute>
         } />
         

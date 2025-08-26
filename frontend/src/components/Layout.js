@@ -58,10 +58,11 @@ const menuItems = [
     chip: '¡NUEVO!',
   },
   {
-    text: 'Módulos de Capacitación',
+    text: 'Ruta de Especialización LPDP',
     icon: <SchoolIcon />,
-    path: '/modulos',
-    description: 'Contenido teórico y ejercicios',
+    path: '/ruta-capacitacion',
+    description: 'Programa completo: Fundamentos → Certificación',
+    chip: 'RUTA',
   },
   {
     text: 'Módulo 3: Inventario RAT',
