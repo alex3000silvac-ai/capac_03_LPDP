@@ -1167,38 +1167,45 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
 
   // Exportar a PDF
   const exportToPDF = () => {
-    const doc = new jsPDF();
-    
-    // Título
-    doc.setFontSize(20);
-    doc.text('Registro de Actividades de Tratamiento (RAT)', 20, 20);
-    
-    // Información de la empresa
-    doc.setFontSize(12);
-    doc.text(`Empresa: ${empresaInfo?.nombre || 'Demo Company'}`, 20, 35);
-    doc.text(`Fecha: ${new Date().toLocaleDateString('es-CL')}`, 20, 42);
-    doc.text(`Versión: ${ratData.version}`, 20, 49);
-    
-    // Línea divisoria
-    doc.line(20, 55, 190, 55);
-    
-    // Sección 1: Identificación
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('1. IDENTIFICACIÓN DE LA ACTIVIDAD', 20, 65);
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(11);
-    
-    let yPos = 75;
-    doc.text(`Nombre: ${ratData.nombre_actividad}`, 25, yPos);
+    try {
+      // Validar que haya datos mínimos
+      if (!ratData.nombre_actividad || !ratData.area_responsable) {
+        setSavedMessage('⚠️ Por favor complete al menos el nombre de la actividad y área responsable antes de exportar');
+        return;
+      }
+
+      const doc = new jsPDF();
+      
+      // Título
+      doc.setFontSize(20);
+      doc.text('Registro de Actividades de Tratamiento (RAT)', 20, 20);
+      
+      // Información de la empresa
+      doc.setFontSize(12);
+      doc.text(`Empresa: ${empresaInfo?.nombre || 'Demo Company'}`, 20, 35);
+      doc.text(`Fecha: ${new Date().toLocaleDateString('es-CL')}`, 20, 42);
+      doc.text(`Versión: ${ratData.version || '1.0'}`, 20, 49);
+      
+      // Línea divisoria
+      doc.line(20, 55, 190, 55);
+      
+      // Sección 1: Identificación
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('1. IDENTIFICACIÓN DE LA ACTIVIDAD', 20, 65);
+      doc.setFont(undefined, 'normal');
+      doc.setFontSize(11);
+      
+      let yPos = 75;
+      doc.text(`Nombre: ${ratData.nombre_actividad || 'Sin especificar'}`, 25, yPos);
+      yPos += 7;
+      doc.text(`Área Responsable: ${ratData.area_responsable || 'Sin especificar'}`, 25, yPos);
+      yPos += 7;
+      doc.text(`Responsable: ${ratData.responsable_proceso || 'Sin especificar'}`, 25, yPos);
+      yPos += 7;
+      doc.text(`Base de Licitud: ${ratData.base_licitud || 'Sin especificar'}`, 25, yPos);
     yPos += 7;
-    doc.text(`Área Responsable: ${ratData.area_responsable}`, 25, yPos);
-    yPos += 7;
-    doc.text(`Responsable: ${ratData.responsable_proceso}`, 25, yPos);
-    yPos += 7;
-    doc.text(`Base de Licitud: ${ratData.base_licitud}`, 25, yPos);
-    yPos += 7;
-    doc.text(`Finalidades: ${ratData.finalidades.join(', ')}`, 25, yPos);
+    doc.text(`Finalidades: ${ratData.finalidades?.length > 0 ? ratData.finalidades.join(', ') : 'Sin especificar'}`, 25, yPos);
     
     // Sección 2: Categorías de Datos
     yPos += 15;
@@ -1209,7 +1216,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     doc.setFontSize(11);
     
     yPos += 10;
-    doc.text(`Categorías de Titulares: ${ratData.categorias_titulares.join(', ')}`, 25, yPos);
+    doc.text(`Categorías de Titulares: ${ratData.categorias_titulares?.length > 0 ? ratData.categorias_titulares.join(', ') : 'Sin especificar'}`, 25, yPos);
     yPos += 7;
     
     const categoriasActivas = Object.entries(ratData.categorias_datos)
@@ -1236,23 +1243,23 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     doc.setFontSize(11);
     
     yPos += 10;
-    doc.text(`Sistemas: ${ratData.sistemas_almacenamiento.join(', ')}`, 25, yPos);
+    doc.text(`Sistemas: ${ratData.sistemas_almacenamiento?.length > 0 ? ratData.sistemas_almacenamiento.join(', ') : 'Sin especificar'}`, 25, yPos);
     
-    if (ratData.destinatarios_internos.length > 0) {
+    if (ratData.destinatarios_internos?.length > 0) {
       yPos += 7;
-      doc.text(`Destinatarios Internos: ${ratData.destinatarios_internos.join(', ')}`, 25, yPos);
+      doc.text(`Destinatarios Internos: ${ratData.destinatarios_internos?.length > 0 ? ratData.destinatarios_internos.join(', ') : 'No aplica'}`, 25, yPos);
     }
     
-    if (ratData.terceros_encargados.length > 0) {
+    if (ratData.terceros_encargados?.length > 0) {
       yPos += 7;
-      doc.text(`Encargados: ${ratData.terceros_encargados.join(', ')}`, 25, yPos);
+      doc.text(`Encargados: ${ratData.terceros_encargados?.length > 0 ? ratData.terceros_encargados.join(', ') : 'No aplica'}`, 25, yPos);
     }
     
-    if (ratData.transferencias_internacionales.existe) {
+    if (ratData.transferencias_internacionales?.existe) {
       yPos += 7;
-      doc.text(`Transferencias Internacionales: ${ratData.transferencias_internacionales.paises.join(', ')}`, 25, yPos);
+      doc.text(`Transferencias Internacionales: ${ratData.transferencias_internacionales?.paises?.length > 0 ? ratData.transferencias_internacionales.paises.join(', ') : 'No aplica'}`, 25, yPos);
       yPos += 7;
-      doc.text(`Garantías: ${ratData.transferencias_internacionales.garantias}`, 25, yPos);
+      doc.text(`Garantías: ${ratData.transferencias_internacionales?.garantias || 'No especificadas'}`, 25, yPos);
     }
     
     // Sección 4: Seguridad y Plazos
@@ -1287,12 +1294,12 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     yPos += 7;
     
     const medidasActivas = [];
-    if (ratData.medidas_seguridad.cifrado) medidasActivas.push('Cifrado');
-    if (ratData.medidas_seguridad.seudonimizacion) medidasActivas.push('Seudonimización');
-    if (ratData.medidas_seguridad.control_acceso) medidasActivas.push('Control de Acceso');
-    if (ratData.medidas_seguridad.logs_auditoria) medidasActivas.push('Logs de Auditoría');
-    if (ratData.medidas_seguridad.backup) medidasActivas.push('Backup');
-    if (ratData.medidas_seguridad.segregacion) medidasActivas.push('Segregación de Datos');
+    if (ratData.medidas_seguridad?.cifrado) medidasActivas.push('Cifrado');
+    if (ratData.medidas_seguridad?.seudonimizacion) medidasActivas.push('Seudonimización');
+    if (ratData.medidas_seguridad?.control_acceso) medidasActivas.push('Control de Acceso');
+    if (ratData.medidas_seguridad?.logs_auditoria) medidasActivas.push('Logs de Auditoría');
+    if (ratData.medidas_seguridad?.backup) medidasActivas.push('Backup');
+    if (ratData.medidas_seguridad?.segregacion) medidasActivas.push('Segregación de Datos');
     
     medidasActivas.forEach(medida => {
       doc.text(`• ${medida}`, 30, yPos);
@@ -1309,109 +1316,135 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
     doc.text('Cumple con los requisitos de la Ley 21.719 de Protección de Datos Personales de Chile', 20, yPos);
     
     // Guardar el PDF
-    doc.save(`RAT_${ratData.nombre_actividad.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+    const nombreActividad = ratData.nombre_actividad ? ratData.nombre_actividad.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_') : 'RAT';
+    const fecha = new Date().toISOString().split('T')[0];
+    const nombreArchivo = `RAT_${nombreActividad}_${fecha}.pdf`;
+    
+    doc.save(nombreArchivo);
     setSavedMessage('📄 PDF exportado exitosamente');
+    } catch (error) {
+      console.error('Error al exportar PDF:', error);
+      setSavedMessage('❌ Error al exportar PDF. Por favor intente nuevamente.');
+    }
   };
 
   // Exportar a Excel
   const exportToExcel = () => {
-    const wb = XLSX.utils.book_new();
-    
-    // Hoja 1: Información General
-    const wsData = [
-      ['REGISTRO DE ACTIVIDADES DE TRATAMIENTO (RAT)'],
-      [],
-      ['Campo', 'Valor'],
-      ['Nombre de la Actividad', ratData.nombre_actividad],
-      ['Área Responsable', ratData.area_responsable],
-      ['Responsable del Proceso', ratData.responsable_proceso],
-      ['Email', ratData.email_responsable],
-      ['Base de Licitud', ratData.base_licitud],
-      ['Justificación', ratData.justificacion_base],
-      ['Finalidades', ratData.finalidades.join(', ')],
-      [],
-      ['CATEGORÍAS DE DATOS'],
-      ['Titulares', ratData.categorias_titulares.join(', ')],
-      ['Datos Sensibles', ratData.datos_sensibles.join(', ')],
-      ['Incluye Menores', ratData.menores_edad ? 'Sí' : 'No'],
-      ['Volumen de Registros', ratData.volumen_registros],
-      [],
-      ['FLUJOS Y DESTINATARIOS'],
-      ['Sistemas', ratData.sistemas_almacenamiento.join(', ')],
-      ['Destinatarios Internos', ratData.destinatarios_internos.join(', ')],
-      ['Terceros Encargados', ratData.terceros_encargados.join(', ')],
-      ['Terceros Cesionarios', ratData.terceros_cesionarios.join(', ')],
-      [],
-      ['TRANSFERENCIAS INTERNACIONALES'],
-      ['Existe Transferencia', ratData.transferencias_internacionales.existe ? 'Sí' : 'No'],
-      ['Países', ratData.transferencias_internacionales.paises.join(', ')],
-      ['Garantías', ratData.transferencias_internacionales.garantias],
-      [],
-      ['SEGURIDAD Y PLAZOS'],
-      ['Plazo de Conservación', ratData.plazo_conservacion],
-      ['Criterio de Eliminación', ratData.criterio_eliminacion],
-      ['Nivel de Riesgo', ratData.nivel_riesgo],
-      ['Requiere DPIA', ratData.requiere_dpia ? 'Sí' : 'No'],
-      [],
-      ['INFORMACIÓN DEL REGISTRO'],
-      ['Fecha de Creación', new Date(ratData.fecha_creacion).toLocaleDateString('es-CL')],
-      ['Última Actualización', new Date(ratData.fecha_actualizacion).toLocaleDateString('es-CL')],
-      ['Versión', ratData.version],
-      ['Estado', ratData.estado]
-    ];
-    
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    
-    // Ajustar anchos de columna
-    ws['!cols'] = [{ wch: 30 }, { wch: 50 }];
-    
-    XLSX.utils.book_append_sheet(wb, ws, 'RAT');
-    
-    // Hoja 2: Categorías de Datos (detalle)
-    const wsData2 = [
-      ['DETALLE DE CATEGORÍAS DE DATOS'],
-      [],
-      ['Categoría', 'Incluida', 'Detalles']
-    ];
-    
-    Object.entries(ratData.categorias_datos).forEach(([key, value]) => {
-      if (typeof value === 'boolean') {
-        wsData2.push([key, value ? 'Sí' : 'No', '']);
-      } else if (typeof value === 'string' && value) {
-        wsData2.push([key, 'Sí', value]);
+    try {
+      // Validar que haya datos mínimos
+      if (!ratData.nombre_actividad || !ratData.area_responsable) {
+        setSavedMessage('⚠️ Por favor complete al menos el nombre de la actividad y área responsable antes de exportar');
+        return;
       }
-    });
-    
-    const ws2 = XLSX.utils.aoa_to_sheet(wsData2);
-    ws2['!cols'] = [{ wch: 20 }, { wch: 10 }, { wch: 40 }];
-    XLSX.utils.book_append_sheet(wb, ws2, 'Categorías');
-    
-    // Hoja 3: Medidas de Seguridad
-    const wsData3 = [
-      ['MEDIDAS DE SEGURIDAD'],
-      [],
-      ['Medida', 'Implementada'],
-      ['Cifrado', ratData.medidas_seguridad.cifrado ? 'Sí' : 'No'],
-      ['Seudonimización', ratData.medidas_seguridad.seudonimizacion ? 'Sí' : 'No'],
-      ['Control de Acceso', ratData.medidas_seguridad.control_acceso ? 'Sí' : 'No'],
-      ['Logs de Auditoría', ratData.medidas_seguridad.logs_auditoria ? 'Sí' : 'No'],
-      ['Backup', ratData.medidas_seguridad.backup ? 'Sí' : 'No'],
-      ['Segregación', ratData.medidas_seguridad.segregacion ? 'Sí' : 'No'],
-      [],
-      ['MEDIDAS TÉCNICAS ADICIONALES'],
-      ...ratData.medidas_seguridad.tecnicas.map(m => [m, 'Sí']),
-      [],
-      ['MEDIDAS ORGANIZATIVAS'],
-      ...ratData.medidas_seguridad.organizativas.map(m => [m, 'Sí'])
-    ];
-    
-    const ws3 = XLSX.utils.aoa_to_sheet(wsData3);
-    ws3['!cols'] = [{ wch: 30 }, { wch: 15 }];
-    XLSX.utils.book_append_sheet(wb, ws3, 'Seguridad');
-    
-    // Guardar el archivo
-    XLSX.writeFile(wb, `RAT_${ratData.nombre_actividad.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
-    setSavedMessage('📊 Excel exportado exitosamente');
+
+      const wb = XLSX.utils.book_new();
+      
+      // Hoja 1: Información General
+      const wsData = [
+        ['REGISTRO DE ACTIVIDADES DE TRATAMIENTO (RAT)'],
+        [],
+        ['Campo', 'Valor'],
+        ['Nombre de la Actividad', ratData.nombre_actividad || 'Sin especificar'],
+        ['Área Responsable', ratData.area_responsable || 'Sin especificar'],
+        ['Responsable del Proceso', ratData.responsable_proceso || 'Sin especificar'],
+        ['Email', ratData.email_responsable || 'Sin especificar'],
+        ['Base de Licitud', ratData.base_licitud || 'Sin especificar'],
+        ['Justificación', ratData.justificacion_base || 'Sin especificar'],
+        ['Finalidades', ratData.finalidades?.length > 0 ? ratData.finalidades.join(', ') : 'Sin especificar'],
+        [],
+        ['CATEGORÍAS DE DATOS'],
+        ['Titulares', ratData.categorias_titulares?.length > 0 ? ratData.categorias_titulares.join(', ') : 'Sin especificar'],
+        ['Datos Sensibles', ratData.datos_sensibles?.length > 0 ? ratData.datos_sensibles.join(', ') : 'No aplica'],
+        ['Incluye Menores', ratData.menores_edad ? 'Sí' : 'No'],
+        ['Volumen de Registros', ratData.volumen_registros || 'Sin especificar'],
+        [],
+        ['FLUJOS Y DESTINATARIOS'],
+        ['Sistemas', ratData.sistemas_almacenamiento?.length > 0 ? ratData.sistemas_almacenamiento.join(', ') : 'Sin especificar'],
+        ['Destinatarios Internos', ratData.destinatarios_internos?.length > 0 ? ratData.destinatarios_internos.join(', ') : 'No aplica'],
+        ['Terceros Encargados', ratData.terceros_encargados?.length > 0 ? ratData.terceros_encargados.join(', ') : 'No aplica'],
+        ['Terceros Cesionarios', ratData.terceros_cesionarios?.length > 0 ? ratData.terceros_cesionarios.join(', ') : 'No aplica'],
+        [],
+        ['TRANSFERENCIAS INTERNACIONALES'],
+        ['Existe Transferencia', ratData.transferencias_internacionales?.existe ? 'Sí' : 'No'],
+        ['Países', ratData.transferencias_internacionales?.paises?.length > 0 ? ratData.transferencias_internacionales.paises.join(', ') : 'No aplica'],
+        ['Garantías', ratData.transferencias_internacionales?.garantias || 'No aplica'],
+        [],
+        ['SEGURIDAD Y PLAZOS'],
+        ['Plazo de Conservación', ratData.plazo_conservacion || 'Sin especificar'],
+        ['Criterio de Eliminación', ratData.criterio_eliminacion || 'Sin especificar'],
+        ['Nivel de Riesgo', ratData.nivel_riesgo || 'bajo'],
+        ['Requiere DPIA', ratData.requiere_dpia ? 'Sí' : 'No'],
+        [],
+        ['INFORMACIÓN DEL REGISTRO'],
+        ['Fecha de Creación', ratData.fecha_creacion ? new Date(ratData.fecha_creacion).toLocaleDateString('es-CL') : new Date().toLocaleDateString('es-CL')],
+        ['Última Actualización', ratData.fecha_actualizacion ? new Date(ratData.fecha_actualizacion).toLocaleDateString('es-CL') : new Date().toLocaleDateString('es-CL')],
+        ['Versión', ratData.version || '1.0'],
+        ['Estado', ratData.estado || 'borrador']
+      ];
+      
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      
+      // Ajustar anchos de columna
+      ws['!cols'] = [{ wch: 30 }, { wch: 50 }];
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'RAT');
+      
+      // Hoja 2: Categorías de Datos (detalle)
+      const wsData2 = [
+        ['DETALLE DE CATEGORÍAS DE DATOS'],
+        [],
+        ['Categoría', 'Incluida', 'Detalles']
+      ];
+      
+      if (ratData.categorias_datos) {
+        Object.entries(ratData.categorias_datos).forEach(([key, value]) => {
+          if (typeof value === 'boolean') {
+            wsData2.push([key, value ? 'Sí' : 'No', '']);
+          } else if (typeof value === 'string' && value) {
+            wsData2.push([key, 'Sí', value]);
+          }
+        });
+      }
+      
+      const ws2 = XLSX.utils.aoa_to_sheet(wsData2);
+      ws2['!cols'] = [{ wch: 20 }, { wch: 10 }, { wch: 40 }];
+      XLSX.utils.book_append_sheet(wb, ws2, 'Categorías');
+      
+      // Hoja 3: Medidas de Seguridad
+      const wsData3 = [
+        ['MEDIDAS DE SEGURIDAD'],
+        [],
+        ['Medida', 'Implementada'],
+        ['Cifrado', ratData.medidas_seguridad?.cifrado ? 'Sí' : 'No'],
+        ['Seudonimización', ratData.medidas_seguridad?.seudonimizacion ? 'Sí' : 'No'],
+        ['Control de Acceso', ratData.medidas_seguridad?.control_acceso ? 'Sí' : 'No'],
+        ['Logs de Auditoría', ratData.medidas_seguridad?.logs_auditoria ? 'Sí' : 'No'],
+        ['Backup', ratData.medidas_seguridad?.backup ? 'Sí' : 'No'],
+        ['Segregación', ratData.medidas_seguridad?.segregacion ? 'Sí' : 'No'],
+        [],
+        ['MEDIDAS TÉCNICAS ADICIONALES'],
+        ...(ratData.medidas_seguridad?.tecnicas?.map(m => [m, 'Sí']) || []),
+        [],
+        ['MEDIDAS ORGANIZATIVAS'],
+        ...(ratData.medidas_seguridad?.organizativas?.map(m => [m, 'Sí']) || [])
+      ];
+      
+      const ws3 = XLSX.utils.aoa_to_sheet(wsData3);
+      ws3['!cols'] = [{ wch: 30 }, { wch: 15 }];
+      XLSX.utils.book_append_sheet(wb, ws3, 'Seguridad');
+      
+      // Generar nombre de archivo seguro
+      const nombreActividad = ratData.nombre_actividad ? ratData.nombre_actividad.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_') : 'RAT';
+      const fecha = new Date().toISOString().split('T')[0];
+      const nombreArchivo = `RAT_${nombreActividad}_${fecha}.xlsx`;
+      
+      // Guardar el archivo
+      XLSX.writeFile(wb, nombreArchivo);
+      setSavedMessage('📊 Excel exportado exitosamente');
+    } catch (error) {
+      console.error('Error al exportar Excel:', error);
+      setSavedMessage('❌ Error al exportar Excel. Por favor intente nuevamente.');
+    }
   };
 
   // Renderizado de cada fase
@@ -2815,7 +2848,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                       </TableRow>
                       <TableRow>
                         <TableCell><strong>Titulares:</strong></TableCell>
-                        <TableCell>{ratData.categorias_titulares.join(', ')}</TableCell>
+                        <TableCell>{ratData.categorias_titulares?.length > 0 ? ratData.categorias_titulares.join(', ') : 'Sin especificar'}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell><strong>Datos Sensibles:</strong></TableCell>
@@ -2834,7 +2867,7 @@ function MapeoInteractivo({ onClose, empresaInfo }) {
                         <TableCell>
                           {ratData.transferencias_internacionales.existe ? (
                             <Chip 
-                              label={`Sí - ${ratData.transferencias_internacionales.paises.join(', ')}`} 
+                              label={`Sí - ${ratData.transferencias_internacionales?.paises?.length > 0 ? ratData.transferencias_internacionales.paises.join(', ') : 'Sin especificar'}`} 
                               color="warning" 
                               size="small" 
                             />

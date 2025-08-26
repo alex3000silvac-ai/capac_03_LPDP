@@ -24,6 +24,7 @@ import IntroduccionLPDP from './pages/IntroduccionLPDP';
 import HerramientasLPDP from './pages/HerramientasLPDP';
 import ConceptosBasicos from './pages/ConceptosBasicos';
 import ModuloCero from './pages/ModuloCero';
+import ConsolidadoRAT from './components/ConsolidadoRAT';
 
 // Tema oscuro profesional
 const theme = createTheme({
@@ -353,6 +354,11 @@ const AppContent = () => {
         <Route path="/mi-progreso" element={
           <ProtectedRoute>
             <MiProgreso />
+          </ProtectedRoute>
+        } />
+        <Route path="/consolidado-rat" element={
+          <ProtectedRoute>
+            <ConsolidadoRAT />
           </ProtectedRoute>
         } />
         

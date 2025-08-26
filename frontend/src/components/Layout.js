@@ -38,6 +38,7 @@ import {
   Book,
   Science,
   Logout as LogoutIcon,
+  Assessment,
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
@@ -68,6 +69,13 @@ const menuItems = [
     path: '/modulo3',
     description: 'Registro de Actividades de Tratamiento',
     chip: 'NUEVO',
+  },
+  {
+    text: 'Consolidado RAT',
+    icon: <Assessment />,
+    path: '/consolidado-rat',
+    description: 'Vista global de todos los RATs',
+    chip: 'SISTEMA',
   },
   {
     text: 'Glosario LPDP',
