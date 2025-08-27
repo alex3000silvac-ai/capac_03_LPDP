@@ -1,7 +1,8 @@
+// 🔌 AUTHCONTEXT MODO OFFLINE COMPLETO
+// Para desarrollo local sin backend externo
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
+console.log('🔌 Iniciando AuthContext en modo OFFLINE');
 
 const AuthContext = createContext();
 
@@ -15,237 +16,100 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('lpdp_token'));
-  const [loading, setLoading] = useState(true);
-  const [demoMode, setDemoMode] = useState(false);
+  const [token, setToken] = useState(localStorage.getItem('offline_token'));
+  const [loading, setLoading] = useState(false); // Sin loading en offline
+  const [demoMode, setDemoMode] = useState(true);
 
+  // Auto-login en modo offline
   useEffect(() => {
-    // NO activar modo demo automáticamente - el usuario debe hacer login
+    console.log('🔌 AutoLogin modo offline');
+    
+    // Si ya hay token, restaurar usuario
     if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        const currentTime = Date.now() / 1000;
-        
-        if (decoded.exp < currentTime) {
-          // Token expirado
-          localStorage.removeItem('lpdp_token');
-          setToken(null);
-          setUser(null);
-        } else {
-          // Token válido
-          const userData = {
-            id: decoded.sub,
-            username: decoded.username,
-            email: decoded.email,
-            tenant_id: decoded.tenant_id || 'demo',
-            is_superuser: decoded.is_superuser || false,
-            permissions: decoded.permissions || [],
-            first_name: decoded.first_name,
-            last_name: decoded.last_name,
-            restricted_to: decoded.restricted_to || null
-          };
-          setUser(userData);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Error decodificando token:', error);
-        localStorage.removeItem('lpdp_token');
-        setToken(null);
-        setUser(null);
-      }
+      const offlineUser = {
+        id: 'offline_user_001',
+        username: 'demo_offline',
+        email: 'demo@offline.local',
+        tenant_id: 'demo_offline',
+        organizacion_id: 'demo_offline',
+        organizacion_nombre: 'Empresa Demo Offline',
+        is_superuser: false,
+        permissions: ['rat:create', 'rat:read', 'rat:update', 'eipd:create', 'providers:manage'],
+        first_name: 'Usuario',
+        last_name: 'Demo',
+        restricted_to: null,
+        is_demo: true,
+        offline_mode: true
+      };
+      setUser(offlineUser);
     } else {
-      // Si no hay token, marcar como no cargando para mostrar login
-      setLoading(false);
+      // Auto-crear token offline
+      const offlineToken = 'offline_token_' + Date.now();
+      localStorage.setItem('offline_token', offlineToken);
+      localStorage.setItem('tenant_id', 'demo_offline');
+      setToken(offlineToken);
+      
+      const offlineUser = {
+        id: 'offline_user_001',
+        username: 'demo_offline',
+        email: 'demo@offline.local', 
+        tenant_id: 'demo_offline',
+        organizacion_id: 'demo_offline',
+        organizacion_nombre: 'Empresa Demo Offline',
+        is_superuser: false,
+        permissions: ['rat:create', 'rat:read', 'rat:update', 'eipd:create', 'providers:manage'],
+        first_name: 'Usuario',
+        last_name: 'Demo',
+        restricted_to: null,
+        is_demo: true,
+        offline_mode: true
+      };
+      setUser(offlineUser);
     }
+    
+    setLoading(false);
   }, [token]);
 
-  const login = async (username, password, tenantId = 'demo') => {
-    try {
-      console.log('Intentando login con:', { username, password, tenantId });
-      
-      // Detectar si es usuario demo ultra restringido
-      const isDemoUser = username === 'demo' && password === 'demo123';
-      
-      let endpoint;
-      let emergencyMode = false;
-      
-      if (isDemoUser) {
-        // Intentar endpoint principal primero
-        endpoint = `${API_URL}/api/v1/demo/login`;
-      } else {
-        endpoint = `${API_URL}/api/v1/auth/login`;
-      }
-      
-      let response;
-      
-      try {
-        response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Tenant-ID': tenantId
-          },
-          body: JSON.stringify({
-            username,
-            password,
-            tenant_id: tenantId
-          })
-        });
-
-        console.log('Respuesta del servidor:', response.status, response.statusText);
-
-        // Si es demo y el endpoint principal falla, intentar emergency
-        if (!response.ok && isDemoUser) {
-          console.log('💖 Endpoint principal falló, intentando emergency...');
-          const emergencyEndpoint = `${API_URL}/emergency-demo-login`;
-          
-          response = await fetch(emergencyEndpoint, {
-            method: 'GET', // Emergency es GET simple
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          });
-          
-          emergencyMode = true;
-          console.log('💖 Emergency response:', response.status);
-        }
-
-      } catch (fetchError) {
-        console.error('💖 Fetch error:', fetchError);
-        
-        // Si todo falla y es demo, usar datos hardcoded
-        if (isDemoUser) {
-          console.log('💖 Usando datos demo hardcoded para emergencia...');
-          const emergencyData = {
-            access_token: "demo-emergency-hermano-del-alma-hardcoded",
-            refresh_token: "refresh-emergency-amor-infinito-hardcoded", 
-            token_type: "bearer",
-            user: {
-              id: "demo_emergency_hardcoded",
-              username: "demo",
-              email: "demo@emergency-hardcoded.cl",
-              tenant_id: "demo_empresa",
-              is_demo: true
-            },
-            demo_data: {
-              mensaje: "💖 EMERGENCY HARDCODED CON AMOR INFINITO",
-              edicion_rat: true,
-              promesa: "Nunca te abandonaré hermano del alma"
-            }
-          };
-          
-          // Simular response exitoso
-          const data = emergencyData;
-          const token = data.access_token;
-          
-          localStorage.setItem('lpdp_token', token);
-          setToken(token);
-          
-          const userData = {
-            id: data.user.id,
-            username: data.user.username,
-            email: data.user.email,
-            tenant_id: data.user.tenant_id,
-            is_superuser: data.user.is_superuser || false,
-            permissions: data.user.permissions || [],
-            first_name: data.user.first_name,
-            last_name: data.user.last_name,
-            restricted_to: data.user.restricted_to || 'intro_only',
-            emergency_mode: true
-          };
-          
-          setUser(userData);
-          return userData;
-        }
-        
-        throw fetchError;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: 'Error de conexión' }));
-        console.error('Error del servidor:', errorData);
-        throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log('Datos de respuesta:', data);
-      
-      // Guardar token
-      localStorage.setItem('lpdp_token', data.access_token);
-      setToken(data.access_token);
-
-      // Para usuario demo, usar los datos directos de la respuesta
-      if (isDemoUser && data.user) {
-        const userData = {
-          ...data.user,
-          tenant_id: data.user.tenant_id || tenantId,
-          restrictions: data.restrictions || {},
-          demo_data: data.demo_data || {},
-          is_demo: true,
-          restricted_to: 'demo_view_only'
-        };
-        setUser(userData);
-        return userData;
-      }
-
-      // Para usuarios normales, decodificar JWT
-      const decoded = jwtDecode(data.access_token);
-      const userData = {
-        id: decoded.sub,
-        username: decoded.username,
-        email: decoded.email,
-        tenant_id: decoded.tenant_id || tenantId,
-        is_superuser: decoded.is_superuser || false,
-        permissions: decoded.permissions || [],
-        first_name: decoded.first_name,
-        last_name: decoded.last_name,
-        restricted_to: decoded.restricted_to || null
-      };
-
-      setUser(userData);
-      return userData;
-
-    } catch (error) {
-      console.error('Error en login:', error);
-      throw error;
-    }
+  const login = async (username, password, tenantId = 'demo_offline') => {
+    console.log('🔌 Login offline:', { username, tenantId });
+    
+    // En modo offline, cualquier credencial funciona
+    const offlineToken = 'offline_token_' + Date.now();
+    localStorage.setItem('offline_token', offlineToken);
+    localStorage.setItem('tenant_id', tenantId);
+    setToken(offlineToken);
+    
+    const userData = {
+      id: 'offline_user_' + Date.now(),
+      username: username || 'demo_offline',
+      email: `${username}@offline.local`,
+      tenant_id: tenantId,
+      organizacion_id: tenantId,
+      organizacion_nombre: 'Empresa Demo Offline',
+      is_superuser: username === 'admin',
+      permissions: ['rat:create', 'rat:read', 'rat:update', 'eipd:create', 'providers:manage'],
+      first_name: 'Usuario',
+      last_name: 'Offline',
+      restricted_to: null,
+      is_demo: true,
+      offline_mode: true
+    };
+    
+    setUser(userData);
+    return userData;
   };
 
   const logout = () => {
-    localStorage.removeItem('lpdp_token');
+    console.log('🔌 Logout offline');
+    localStorage.removeItem('offline_token');
+    localStorage.removeItem('tenant_id');
     setToken(null);
     setUser(null);
   };
 
   const refreshToken = async () => {
-    try {
-      const refreshToken = localStorage.getItem('lpdp_refresh_token');
-      if (!refreshToken) {
-        throw new Error('No hay refresh token');
-      }
-
-      const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          refresh_token: refreshToken
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al refrescar token');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('lpdp_token', data.access_token);
-      setToken(data.access_token);
-
-    } catch (error) {
-      console.error('Error refrescando token:', error);
-      logout();
-    }
+    console.log('🔌 RefreshToken offline - no necesario');
+    return Promise.resolve();
   };
 
   const updateUser = (userData) => {
@@ -259,15 +123,11 @@ export const AuthProvider = ({ children }) => {
   const hasPermission = (permission) => {
     if (!user) return false;
     if (user.is_superuser) return true;
-    return user.permissions.includes(permission);
+    return user.permissions?.includes(permission) || false;
   };
 
   const isRestricted = () => {
-    return user && (
-      user.restricted_to === 'intro_only' || 
-      user.restricted_to === 'demo_view_only' ||
-      user.is_demo === true
-    );
+    return false; // Sin restricciones en modo offline
   };
 
   const value = {
@@ -290,3 +150,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthContext;

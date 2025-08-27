@@ -35,21 +35,26 @@ import {
   Assignment,
   Work,
   Assessment,
+  Map,
+  Business,
+  Security,
+  Gavel,
+  Build,
 } from '@mui/icons-material';
 import { API_BASE_URL } from '../config';
 import { useAuth } from '../contexts/AuthContext';
 
 
-// Función para obtener el icono apropiado según el módulo
+// Función para obtener el icono apropiado según el módulo - CONSERVADOR
 const getModuleIcon = (moduleId, index) => {
-  if (moduleId === 'modulo3_inventario') return '🗂️';
-  if (moduleId === 'introduccion_lpdp') return '📖';
+  if (moduleId === 'modulo3_inventario') return '📁';
+  if (moduleId === 'introduccion_lpdp') return '📋';
   if (moduleId === 'conceptos_basicos') return '🔍';
-  if (moduleId === 'uso_sistema') return '🛠️';
+  if (moduleId === 'uso_sistema') return '⚙️';
   
-  // Iconos por defecto basados en índice
-  const defaultIcons = ['📖', '🔍', '🗂️', '🛠️', '🎯', '📊', '🔒', '⚖️'];
-  return defaultIcons[index] || '📚';
+  // Iconos conservadores por defecto
+  const defaultIcons = ['📋', '🔍', '📁', '⚙️', '📊', '📈', '🔒', '⚖️'];
+  return defaultIcons[index] || '📄';
 };
 
 function Dashboard() {
@@ -66,54 +71,67 @@ function Dashboard() {
         setLoading(true);
         setError(null);
         
-        // Intenta obtener datos de la API real
-        const response = await fetch(`${API_BASE_URL}/api/v1/capacitacion/modulos`);
+        console.log('🔌 Cargando módulos en modo OFFLINE');
         
-        if (response.ok) {
-          const data = await response.json();
+        // Datos offline directos - sin fetch externo
+        const modulosOffline = [
+          {
+            id: 'introduccion_lpdp',
+            titulo: 'Introducción a LPDP',
+            descripcion: 'Conceptos fundamentales de la Ley 21.719',
+            duracion: '45 min',
+            nivel: 'básico',
+            estado: 'completado',
+            progreso: 100,
+            icono: '📖'
+          },
+          {
+            id: 'modulo3_inventario',
+            titulo: 'Constructor RAT',
+            descripcion: 'Mapeo y documentación de tratamientos',
+            duracion: '90 min',
+            nivel: 'intermedio',
+            estado: 'disponible',
+            progreso: 0,
+            icono: '🗂️',
+            actual: true
+          },
+          {
+            id: 'conceptos_basicos',
+            titulo: 'Conceptos Avanzados',
+            descripcion: 'Profundización en normativa LPDP',
+            duracion: '60 min',
+            nivel: 'avanzado',
+            estado: 'bloqueado',
+            progreso: 0,
+            icono: '🔍'
+          }
+        ];
+        
+        // Aplicar restricciones según tipo de usuario
+        const isAdmin = user?.is_superuser || user?.username === 'admin';
+        const isDemoRestricted = isRestricted();
+        
+        const modulosFormateados = modulosOffline.map((modulo, index) => {
+          let estado = modulo.estado;
+          let progreso = modulo.progreso;
           
-          // Transforma los datos de la API al formato esperado
-          const modulosFormateados = data.modulos.map((modulo, index) => {
-            // Si es admin/superuser, todos los módulos están desbloqueados
-            const isAdmin = user?.is_superuser || user?.username === 'admin';
-            // Si es usuario demo restringido, solo mostrar el primer módulo
-            const isDemoRestricted = isRestricted();
-            
-            let estado, progreso;
-            
-            if (isDemoRestricted) {
-              // Usuario demo: solo primer módulo disponible
-              estado = index === 0 ? 'disponible' : 'bloqueado';
-              progreso = 0;
-            } else if (isAdmin) {
-              // Admin tiene acceso a todo
-              estado = index === 0 ? 'completado' : 'disponible';
-              progreso = index === 0 ? 100 : 0;
-            } else {
-              // Usuario normal con progresión secuencial
-              estado = modulo.estado || (index === 0 ? 'completado' : index === 1 ? 'en_progreso' : 'bloqueado');
-              progreso = modulo.progreso || (index === 0 ? 100 : index === 1 ? 60 : 0);
-            }
-            
-            return {
-              id: modulo.id || `MOD-00${index + 1}`,
-              titulo: modulo.nombre || modulo.titulo,
-              descripcion: modulo.descripcion,
-              duracion: `${modulo.duracion_estimada || 45} min`,
-              progreso: progreso,
-              estado: estado,
-              icono: getModuleIcon(modulo.id || modulo.nombre, index),
-              actual: !isAdmin && index === 1, // Solo marca "actual" para usuarios normales
-              nivel: modulo.nivel || 'básico',
-              dirigido_a: modulo.dirigido_a,
-              incluye: modulo.incluye,
-            };
-          });
+          if (isDemoRestricted && index > 0) {
+            estado = 'bloqueado';
+            progreso = 0;
+          } else if (isAdmin) {
+            estado = 'disponible';
+          }
           
-          setModulos(modulosFormateados);
-        } else {
-          throw new Error('No se pudo obtener los módulos');
-        }
+          return {
+            ...modulo,
+            estado,
+            progreso,
+            actual: !isAdmin && index === 1
+          };
+        });
+        
+        setModulos(modulosFormateados);
       } catch (err) {
         console.error('Error al cargar módulos:', err);
         setError('No se pudieron cargar los módulos. Mostrando datos de ejemplo.');
@@ -241,49 +259,141 @@ function Dashboard() {
         </Typography>
       </Alert>
 
-      {/* Header con estadísticas */}
+      {/* MAPA CONCEPTUAL DEL SISTEMA */}
+      <Paper sx={{ p: 4, mb: 4, background: 'linear-gradient(135deg, #495057 0%, #6c757d 100%)' }}>
+        <Typography variant="h5" sx={{ mb: 3, fontWeight: 700, textAlign: 'center', color: 'white' }}>
+          🗺️ MAPA DEL SISTEMA - ¿Qué hacer en cada módulo?
+        </Typography>
+        
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" sx={{ mb: 2, color: 'white', fontWeight: 600 }}>
+                📋 1. CAPACITACIÓN Y FUNDAMENTOS
+              </Typography>
+              <List dense>
+                <ListItem>
+                  <ListItemIcon><School color="primary" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Módulo Cero" 
+                    secondary="Aprender conceptos básicos de Ley 21.719 (7 min)" 
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><EmojiEvents color="warning" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Ruta de Capacitación" 
+                    secondary="4 módulos completos + certificación DPO" 
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><Assignment color="info" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Glosario LPDP" 
+                    secondary="75+ términos técnicos con ejemplos chilenos" 
+                  />
+                </ListItem>
+              </List>
+            </Box>
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" sx={{ mb: 2, color: '#ffffff', fontWeight: 600 }}>
+                ⚙️ 2. DOCUMENTACIÓN Y CUMPLIMIENTO
+              </Typography>
+              <List dense>
+                <ListItem>
+                  <ListItemIcon><Build color="success" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Constructor RAT" 
+                    secondary="Crear registro de actividades (desde Módulo Cero)" 
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><Assessment color="primary" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Consolidado RAT" 
+                    secondary="Ver todos los RATs + exportar reportes" 
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><Security color="error" /></ListItemIcon>
+                  <ListItemText 
+                    primary="EIPD (Art. 27)" 
+                    secondary="Evaluaciones de impacto para alto riesgo" 
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><Business color="secondary" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Gestión Proveedores" 
+                    secondary="Contratos DPA + evaluaciones de seguridad" 
+                  />
+                </ListItem>
+              </List>
+            </Box>
+          </Grid>
+        </Grid>
+        
+        <Alert severity="info" sx={{ mt: 3 }}>
+          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+            🚀 FLUJO RECOMENDADO:
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            <strong>1.</strong> Complete Módulo Cero (7 min) → 
+            <strong>2.</strong> Use Constructor RAT con templates de 70+ industrias → 
+            <strong>3.</strong> Revise Consolidado RAT → 
+            <strong>4.</strong> Si hay alto riesgo, haga EIPD → 
+            <strong>5.</strong> Gestione proveedores con DPAs → 
+            <strong>6.</strong> Certifíquese como DPO en Ruta de Capacitación
+          </Typography>
+        </Alert>
+      </Paper>
+
+      {/* Header con estadísticas - CONSERVADOR */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 3, bgcolor: 'primary.light', color: 'white' }}>
+          <Paper sx={{ p: 3, bgcolor: '#495057', color: 'white' }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box>
-                <Typography variant="h4" fontWeight={600}>0%</Typography>
-                <Typography variant="body2">Progreso Total</Typography>
+                <Typography variant="h4" fontWeight={600} sx={{ color: 'white' }}>0%</Typography>
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>Progreso Total</Typography>
               </Box>
-              <TrendingUp fontSize="large" />
+              <TrendingUp fontSize="large" sx={{ color: 'rgba(255,255,255,0.8)' }} />
             </Box>
           </Paper>
         </Grid>
         <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: 3, bgcolor: '#343a40', border: '1px solid #495057' }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box>
-                <Typography variant="h4" fontWeight={600}>0</Typography>
-                <Typography variant="body2">Módulos Completados</Typography>
+                <Typography variant="h4" fontWeight={600} sx={{ color: '#ffffff' }}>0</Typography>
+                <Typography variant="body2" sx={{ color: '#dee2e6' }}>Módulos Completados</Typography>
               </Box>
-              <CheckCircle fontSize="large" color="success" />
+              <CheckCircle fontSize="large" sx={{ color: '#6c757d' }} />
             </Box>
           </Paper>
         </Grid>
         <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: 3, bgcolor: '#343a40', border: '1px solid #495057' }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box>
-                <Typography variant="h4" fontWeight={600}>0h</Typography>
-                <Typography variant="body2">Tiempo Invertido</Typography>
+                <Typography variant="h4" fontWeight={600} sx={{ color: '#ffffff' }}>0h</Typography>
+                <Typography variant="body2" sx={{ color: '#dee2e6' }}>Tiempo Invertido</Typography>
               </Box>
-              <Timer fontSize="large" color="primary" />
+              <Timer fontSize="large" sx={{ color: '#6c757d' }} />
             </Box>
           </Paper>
         </Grid>
         <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: 3, bgcolor: '#343a40', border: '1px solid #495057' }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box>
-                <Typography variant="h4" fontWeight={600}>0</Typography>
-                <Typography variant="body2">Logros Obtenidos</Typography>
+                <Typography variant="h4" fontWeight={600} sx={{ color: '#ffffff' }}>0</Typography>
+                <Typography variant="body2" sx={{ color: '#dee2e6' }}>Logros Obtenidos</Typography>
               </Box>
-              <EmojiEvents fontSize="large" color="warning" />
+              <EmojiEvents fontSize="large" sx={{ color: '#6c757d' }} />
             </Box>
           </Paper>
         </Grid>
@@ -295,6 +405,103 @@ function Dashboard() {
           {error}
         </Alert>
       )}
+
+      {/* Mapa Conceptual del Sistema LPDP - CONSERVADOR */}
+      <Paper sx={{ p: 4, mb: 4, bgcolor: '#343a40', border: '2px solid #495057' }}>
+        <Box display="flex" alignItems="center" mb={3}>
+          <Map sx={{ color: 'primary.main', mr: 2, fontSize: 32 }} />
+          <Typography variant="h5" sx={{ fontWeight: 600, color: 'primary.main' }}>
+            Mapa Conceptual: Sistema LPDP Chile
+          </Typography>
+        </Box>
+        
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 3, height: '100%', bgcolor: '#495057', border: '1px solid #6c757d' }}>
+              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', color: '#ffffff' }}>
+                <Business sx={{ mr: 1, color: '#ffffff' }} />
+                Módulos del Sistema
+              </Typography>
+              <List dense>
+                <ListItem>
+                  <ListItemIcon><School /></ListItemIcon>
+                  <ListItemText 
+                    primary="Módulo Cero: Fundamentos" 
+                    secondary="7 minutos - Conceptos clave LPDP"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><Assignment /></ListItemIcon>
+                  <ListItemText 
+                    primary="Constructor RAT" 
+                    secondary="Registro de Actividades de Tratamiento"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><Assessment /></ListItemIcon>
+                  <ListItemText 
+                    primary="Herramientas LPDP" 
+                    secondary="Calculadoras, evaluadores y plantillas"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><Build /></ListItemIcon>
+                  <ListItemText 
+                    primary="Simulador Práctico" 
+                    secondary="Práctica con casos reales"
+                  />
+                </ListItem>
+              </List>
+            </Paper>
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 3, height: '100%', bgcolor: '#495057', border: '1px solid #6c757d' }}>
+              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', color: '#ffffff' }}>
+                <Security sx={{ mr: 1, color: '#ffffff' }} />
+                Proceso de Implementación
+              </Typography>
+              <Box sx={{ position: 'relative' }}>
+                {[
+                  { step: 1, title: 'Capacitación', desc: 'Módulo Cero: Conceptos básicos', icon: '📚' },
+                  { step: 2, title: 'Mapeo', desc: 'Constructor RAT: Identificar datos', icon: '🗺️' },
+                  { step: 3, title: 'Documentación', desc: 'Completar registros oficiales', icon: '📋' },
+                  { step: 4, title: 'Cumplimiento', desc: 'Validar y exportar', icon: '✅' }
+                ].map((item, index) => (
+                  <Box key={item.step} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Avatar sx={{ 
+                      bgcolor: '#6c757d', 
+                      color: 'white', 
+                      width: 32, 
+                      height: 32, 
+                      fontSize: '14px',
+                      mr: 2
+                    }}>
+                      {item.step}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="body2" fontWeight={600}>
+                        {item.icon} {item.title}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {item.desc}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        <Alert severity="info" sx={{ mt: 3 }}>
+          <Typography variant="body2">
+            <strong>💡 Guía de Uso:</strong> Comience con el Módulo Cero para entender los fundamentos, 
+            luego use el Constructor RAT para mapear sus datos específicos. 
+            Finalmente, utilice las herramientas complementarias para completar su programa de cumplimiento.
+          </Typography>
+        </Alert>
+      </Paper>
 
       {/* Módulos de Capacitación */}
       <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
@@ -338,7 +545,7 @@ function Dashboard() {
               )}
               <CardContent>
                 <Box display="flex" alignItems="center" mb={2}>
-                  <Avatar sx={{ bgcolor: 'primary.light', width: 56, height: 56 }}>
+                  <Avatar sx={{ bgcolor: '#495057', width: 56, height: 56 }}>
                     <Typography variant="h4">{modulo.icono}</Typography>
                   </Avatar>
                   <Box ml={2}>
@@ -401,7 +608,7 @@ function Dashboard() {
       {/* Sección de Práctica */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Card>
+          <Card sx={{ bgcolor: '#343a40', border: '1px solid #495057' }}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} mb={2}>
                 Próximas Actividades
@@ -460,7 +667,7 @@ function Dashboard() {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Card>
+          <Card sx={{ bgcolor: '#343a40', border: '1px solid #495057' }}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} mb={2}>
                 Tus Logros
@@ -474,6 +681,8 @@ function Dashboard() {
                         textAlign: 'center',
                         opacity: logro.obtenido ? 1 : 0.3,
                         filter: logro.obtenido ? 'none' : 'grayscale(100%)',
+                        bgcolor: '#495057',
+                        border: '1px solid #6c757d'
                       }}
                     >
                       <Typography variant="h2">{logro.icono}</Typography>
@@ -493,7 +702,7 @@ function Dashboard() {
 
         {/* Nueva sección: Herramientas Profesionales */}
         <Grid item xs={12}>
-          <Card sx={{ background: 'linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)' }}>
+          <Card sx={{ background: 'linear-gradient(135deg, #495057 0%, #6c757d 100%)' }}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} mb={2} sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'white' }}>
                 <CloudDownload /> Herramientas Profesionales LPDP
@@ -503,7 +712,7 @@ function Dashboard() {
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} md={3}>
-                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(255,255,255,0.1)' }}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(73,80,87,0.1)', border: '1px solid rgba(108,117,125,0.2)' }}>
                     <Assignment fontSize="large" sx={{ color: 'white', mb: 1 }} />
                     <Typography variant="subtitle2" sx={{ color: 'white' }}>
                       Plantillas RAT
@@ -514,7 +723,7 @@ function Dashboard() {
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(255,255,255,0.1)' }}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(73,80,87,0.1)', border: '1px solid rgba(108,117,125,0.2)' }}>
                     <Work fontSize="large" sx={{ color: 'white', mb: 1 }} />
                     <Typography variant="subtitle2" sx={{ color: 'white' }}>
                       Formularios
@@ -525,7 +734,7 @@ function Dashboard() {
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(255,255,255,0.1)' }}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(73,80,87,0.1)', border: '1px solid rgba(108,117,125,0.2)' }}>
                     <Assessment fontSize="large" sx={{ color: 'white', mb: 1 }} />
                     <Typography variant="subtitle2" sx={{ color: 'white' }}>
                       Matriz Riesgos
@@ -536,7 +745,7 @@ function Dashboard() {
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(255,255,255,0.1)' }}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'rgba(73,80,87,0.1)', border: '1px solid rgba(108,117,125,0.2)' }}>
                     <CheckCircle fontSize="large" sx={{ color: 'white', mb: 1 }} />
                     <Typography variant="subtitle2" sx={{ color: 'white' }}>
                       Checklist

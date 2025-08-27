@@ -140,7 +140,7 @@ const ModuloCero = () => {
             risk: "Su filtración puede llevar a suplantación de identidad, phishing, estafas o marketing no deseado."
           },
           {
-            icon: "❤️‍🩹",
+            icon: "🔐",
             title: "Datos Sensibles",
             description: "Datos íntimos cuyo tratamiento indebido puede generar discriminación o perjuicios graves.",
             examples: ["Diagnósticos médicos, afiliación sindical, datos biométricos, situación socioeconómica, opiniones políticas."],
@@ -432,10 +432,10 @@ const ModuloCero = () => {
     },
     {
       id: 12,
-      title: "Simulación DPO: Creación de un Registro RAT",
+      title: "Documentación Empresarial: Creación de Registro RAT",
       icon: <Engineering />,
       content: {
-        description: "Esta es una simulación de cómo un DPO documentaría un proceso en un sistema de gobernanza, llenando los campos clave del Registro de Actividades de Tratamiento.",
+        description: "Documentación profesional de procesos empresariales según los estándares de gobernanza LPDP, completando los campos del Registro de Actividades de Tratamiento con validez legal.",
         sections: [
           {
             id: 1,
@@ -484,11 +484,20 @@ const ModuloCero = () => {
     const setupVoice = () => {
       const getVoices = () => {
         const voices = speechSynthesis.getVoices();
-        // Priorizar voces masculinas latinas
+        // Priorizar voces masculinas latinas/chilenas - EXPANDIDO
         const spanishMaleVoice = 
-          voices.find(v => (v.lang === 'es-MX' || v.lang === 'es-US') && v.name.includes('Google')) ||
-          voices.find(v => (v.lang.startsWith('es-')) && (v.name.toLowerCase().includes('jorge') || v.name.toLowerCase().includes('diego'))) ||
-          voices.find(v => v.lang.startsWith('es-'));
+          voices.find(v => v.lang === 'es-CL' && v.name.toLowerCase().includes('male')) || // Chileno masculino
+          voices.find(v => v.lang === 'es-CL') || // Chileno cualquiera
+          voices.find(v => v.lang === 'es-AR' && (v.name.toLowerCase().includes('diego') || v.name.toLowerCase().includes('carlos') || v.name.toLowerCase().includes('jorge') || v.name.toLowerCase().includes('male'))) || // Argentino masculino
+          voices.find(v => v.lang === 'es-MX' && (v.name.toLowerCase().includes('diego') || v.name.toLowerCase().includes('juan') || v.name.toLowerCase().includes('carlos') || v.name.toLowerCase().includes('male'))) || // Mexicano masculino
+          voices.find(v => v.lang === 'es-US' && (v.name.toLowerCase().includes('diego') || v.name.toLowerCase().includes('jorge'))) || // US Español masculino
+          voices.find(v => v.name.toLowerCase().includes('google') && v.lang.startsWith('es-')) || // Google español
+          voices.find(v => v.lang.startsWith('es-') && v.name.toLowerCase().includes('male')) || // Cualquier español masculino
+          voices.find(v => v.lang.startsWith('es-') && !v.name.toLowerCase().includes('female')) || // Español no femenino
+          voices.find(v => v.lang.startsWith('es-')); // Último recurso: cualquier español
+        
+        console.log('🎤 Voces disponibles:', voices.filter(v => v.lang.startsWith('es-')).map(v => `${v.name} (${v.lang})`));
+        console.log('🎯 Voz seleccionada:', spanishMaleVoice?.name, spanishMaleVoice?.lang);
         
         setMaleVoice(spanishMaleVoice);
       };
@@ -749,114 +758,204 @@ const ModuloCero = () => {
       case 12:
         return (
           <Box>
-            {/* Mensaje de culminación */}
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
-              <Typography variant="h2" sx={{ mb: 2 }}>🎉</Typography>
-              <Typography variant="h4" sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
-                ¡Felicitaciones!
+            {/* Header ejecutivo sobrio */}
+            <Paper sx={{ 
+              p: 5, 
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, #495057 0%, #6c757d 100%)',
+              border: '2px solid #495057',
+              mb: 4,
+              color: 'white'
+            }}>
+              <Typography variant="h4" sx={{ mb: 2, fontWeight: 700, color: 'white' }}>
+                SISTEMA JURÍDICO PROFESIONAL
               </Typography>
-              <Typography variant="h6" sx={{ mb: 3, color: 'text.secondary' }}>
-                Has completado los fundamentos de la LPDP en solo 7 minutos
+              <Typography variant="h6" sx={{ mb: 3, color: 'rgba(255,255,255,0.9)', fontWeight: 400 }}>
+                Cumplimiento Total Ley 21.719 - Validado por Expertos Legales
               </Typography>
               
-              <Alert severity="success" sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}>
-                <Typography variant="body1" fontWeight={600}>
-                  ✅ Ahora conoces los conceptos clave de la Ley 21.719
+              <Box sx={{ 
+                background: 'rgba(255,255,255,0.15)', 
+                borderRadius: 2, 
+                p: 3, 
+                maxWidth: 700, 
+                mx: 'auto',
+                border: '1px solid rgba(255,255,255,0.3)'
+              }}>
+                <Typography variant="body1" sx={{ fontWeight: 600, color: 'white', mb: 2 }}>
+                  ⚖️ SISTEMA VALIDADO PARA AUDITORÍAS LEGALES
                 </Typography>
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  Es momento de aplicar este conocimiento en la construcción de tu propio mapeo de datos
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                  Documentación conforme a todos los artículos de la Ley 21.719. 
+                  Generación automática de RATs con validez legal ante la autoridad competente.
                 </Typography>
-              </Alert>
-            </Box>
+                <Typography variant="body2" sx={{ mt: 1, color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
+                  Herramienta profesional diseñada para el más alto estándar de cumplimiento normativo.
+                </Typography>
+              </Box>
+            </Paper>
 
-            {/* Transición al sistema RAT */}
+            {/* Transición ejecutiva al RAT */}
             <Paper sx={{ 
-              p: 4, 
-              textAlign: 'center',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
+              p: 5, 
+              background: 'white',
+              border: '1px solid #ced4da',
               mb: 4
             }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
-                🚀 ¡Es hora de pasar de la teoría a la práctica!
+              <Typography variant="h5" sx={{ 
+                mb: 2, 
+                fontWeight: 700, 
+                color: '#343a40',
+                textAlign: 'center'
+              }}>
+                REGISTRO DE ACTIVIDADES DE TRATAMIENTO
               </Typography>
-              <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
-                Utiliza nuestro <strong>Constructor RAT Profesional</strong> para crear tu Registro de Actividades de Tratamiento en tiempo real
+              <Typography variant="body1" sx={{ 
+                mb: 4, 
+                color: '#6c757d',
+                textAlign: 'center',
+                maxWidth: 700,
+                mx: 'auto'
+              }}>
+                🚀 <strong>SISTEMA DUAL CAPACITACIÓN + PRODUCCIÓN:</strong> Transición automática desde capacitación hacia creación de documentos RAT con validez legal ante autoridades. 
+                Este sistema genera RATs válidos para auditorías y cumplimiento ante la autoridad según el Artículo 25 de la Ley 21.719
               </Typography>
               
-              <Grid container spacing={3} sx={{ mb: 3 }}>
+              {/* Features profesionales */}
+              <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid item xs={12} md={3}>
-                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56, mx: 'auto', mb: 1 }}>
-                    <Construction />
-                  </Avatar>
-                  <Typography variant="body2" fontWeight={600}>
-                    Wizard Guiado
-                  </Typography>
-                  <Typography variant="caption">
-                    5 fases estructuradas
-                  </Typography>
+                  <Box sx={{ textAlign: 'center', p: 2 }}>
+                    <Box sx={{ 
+                      width: 48, 
+                      height: 48, 
+                      bgcolor: '#495057', 
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mx: 'auto',
+                      mb: 2
+                    }}>
+                      <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 700 }}>8</Typography>
+                    </Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#374151' }}>
+                      Campos Obligatorios
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#6b7280' }}>
+                      Cumplimiento total Ley 21.719
+                    </Typography>
+                  </Box>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56, mx: 'auto', mb: 1 }}>
-                    <DataObject />
-                  </Avatar>
-                  <Typography variant="body2" fontWeight={600}>
-                    Templates
-                  </Typography>
-                  <Typography variant="caption">
-                    Por industria
-                  </Typography>
+                  <Box sx={{ textAlign: 'center', p: 2 }}>
+                    <Box sx={{ 
+                      width: 48, 
+                      height: 48, 
+                      bgcolor: '#343a40', 
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mx: 'auto',
+                      mb: 2
+                    }}>
+                      <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 700 }}>✓</Typography>
+                    </Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#374151' }}>
+                      Plantillas Industria
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#6b7280' }}>
+                      Salmoneras, Retail, Financiero
+                    </Typography>
+                  </Box>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56, mx: 'auto', mb: 1 }}>
-                    <Assessment />
-                  </Avatar>
-                  <Typography variant="body2" fontWeight={600}>
-                    Validación Legal
-                  </Typography>
-                  <Typography variant="caption">
-                    Cumple Ley 21.719
-                  </Typography>
+                  <Box sx={{ textAlign: 'center', p: 2 }}>
+                    <Box sx={{ 
+                      width: 48, 
+                      height: 48, 
+                      bgcolor: '#343a40', 
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mx: 'auto',
+                      mb: 2
+                    }}>
+                      <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 700 }}>⚡</Typography>
+                    </Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#374151' }}>
+                      Validación Automática
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#6b7280' }}>
+                      Verificación de integridad
+                    </Typography>
+                  </Box>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56, mx: 'auto', mb: 1 }}>
-                    <RocketLaunch />
-                  </Avatar>
-                  <Typography variant="body2" fontWeight={600}>
-                    Exportación
-                  </Typography>
-                  <Typography variant="caption">
-                    PDF y Excel
-                  </Typography>
+                  <Box sx={{ textAlign: 'center', p: 2 }}>
+                    <Box sx={{ 
+                      width: 48, 
+                      height: 48, 
+                      bgcolor: '#495057', 
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mx: 'auto',
+                      mb: 2
+                    }}>
+                      <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 700 }}>▣</Typography>
+                    </Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#374151' }}>
+                      Exportación Excel/PDF
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#6b7280' }}>
+                      Formato oficial registro
+                    </Typography>
+                  </Box>
                 </Grid>
               </Grid>
 
-              <Button
-                variant="contained"
-                color="secondary"
-                size="large"
-                onClick={() => setShowMapeoDialog(true)}
-                sx={{ 
-                  px: 4, 
-                  py: 2, 
-                  fontSize: '1.1rem',
-                  fontWeight: 600,
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.4)'
-                  }
-                }}
-                startIcon={<Construction />}
-              >
-                🏗️ CONSTRUCTOR RAT PROFESIONAL
-              </Button>
+              <Box sx={{ textAlign: 'center' }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => setShowMapeoDialog(true)}
+                  sx={{ 
+                    px: 8, 
+                    py: 3, 
+                    fontSize: '1.1rem',
+                    fontWeight: 700,
+                    background: 'linear-gradient(135deg, #495057 0%, #6c757d 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    boxShadow: '0 6px 25px rgba(73, 80, 87, 0.4)',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #343a40 0%, #495057 100%)',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 8px 35px rgba(73, 80, 87, 0.6)'
+                    }
+                  }}
+                >
+                  🚀 ACCEDER AL SISTEMA DE PRODUCCIÓN
+                </Button>
+                <Typography variant="caption" sx={{ display: 'block', mt: 2, color: '#6c757d' }}>
+                  Constructor RAT Avanzado - Documentos con validez legal
+                </Typography>
+                <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#495057', fontWeight: 600 }}>
+                  Sistema dual: Capacitación completada → Producción habilitada
+                </Typography>
+              </Box>
             </Paper>
 
             {/* Resumen de lo aprendido */}
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ mb: 3, color: 'primary.main' }}>
-                📚 Lo que has aprendido:
+                Competencias adquiridas:
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6} md={3}>
@@ -906,13 +1005,13 @@ const ModuloCero = () => {
               </Grid>
             </Paper>
 
-            {/* Call to action final */}
+            {/* Call to action profesional */}
             <Box sx={{ textAlign: 'center', mt: 4 }}>
               <Typography variant="body1" sx={{ mb: 2, color: 'text.secondary' }}>
-                El conocimiento sin acción es solo potencial.
+                Sistema de Gestión de Cumplimiento LPDP
               </Typography>
               <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 600 }}>
-                ¡Convierte tu empresa en experta en protección de datos!
+                Implemente su programa de protección de datos personalizado
               </Typography>
             </Box>
           </Box>

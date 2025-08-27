@@ -274,7 +274,7 @@ function SandboxCompleto() {
     rrhh: {
       nombre: 'Recursos Humanos',
       icon: <People />,
-      color: '#4CAF50',
+      color: '#ffffff',
       procesos: [
         'Reclutamiento y Selección',
         'Gestión de Nómina',

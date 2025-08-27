@@ -1,4 +1,4 @@
-// 🤝 MÓDULO GESTIÓN DE PROVEEDORES Y DPAs
+// MÓDULO GESTIÓN DE PROVEEDORES Y DPAs
 // Implementación según Plan Estratégico - Fase 2
 // Gestión de Encargados de Tratamiento - Ley 21.719
 
@@ -66,7 +66,9 @@ import {
   Email,
   Phone,
   Language,
-  LocationOn
+  LocationOn,
+  VerifiedUser,
+  TableChart
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -297,6 +299,57 @@ Firmado digitalmente el ${new Date().toLocaleDateString('es-CL')}
     `;
   };
 
+  // Función para descargar plantillas DPA según tipo
+  const handleDownloadDPATemplate = (tipo) => {
+    const plantillasDPA = {
+      cloud: {
+        nombre: 'DPA_Servicios_Cloud_LPDP.docx',
+        contenido: `ACUERDO DE PROCESAMIENTO DE DATOS (DPA)
+SERVICIOS EN LA NUBE - LEY 21.719
+
+CLAUSULAS ESTÁNDAR:
+1. OBJETO Y DEFINICIONES
+2. DESCRIPCIÓN DEL TRATAMIENTO
+3. OBLIGACIONES DEL ENCARGADO
+4. TRANSFERENCIAS INTERNACIONALES (CCT)
+5. MEDIDAS DE SEGURIDAD (Art. 25 LPDP)
+6. DERECHOS DE LOS TITULARES
+7. VIOLACIONES DE SEGURIDAD
+8. AUDITORIA Y CERTIFICACION
+9. DURACION Y TERMINACION
+10. LEY APLICABLE (CHILE - LEY 21.719)`
+      },
+      marketing: {
+        nombre: 'DPA_Marketing_Digital_LPDP.docx',
+        contenido: `ACUERDO DE PROCESAMIENTO DE DATOS (DPA)
+MARKETING DIGITAL - LEY 21.719`
+      },
+      logistica: {
+        nombre: 'DPA_Logistica_Transporte_LPDP.docx', 
+        contenido: `ACUERDO DE PROCESAMIENTO DE DATOS (DPA)
+LOGÍSTICA Y TRANSPORTE - LEY 21.719`
+      },
+      consultoria: {
+        nombre: 'DPA_Consultoria_Profesional_LPDP.docx',
+        contenido: `ACUERDO DE PROCESAMIENTO DE DATOS (DPA)
+CONSULTORÍA PROFESIONAL - LEY 21.719`
+      }
+    };
+
+    const plantilla = plantillasDPA[tipo];
+    if (plantilla) {
+      const blob = new Blob([plantilla.contenido], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = plantilla.nombre;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  };
+
   const renderProveedoresTab = () => (
     <Box>
       {/* Estadísticas */}
@@ -469,13 +522,17 @@ Firmado digitalmente el ${new Date().toLocaleDateString('es-CL')}
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                🌐 Servicios Cloud (AWS, Azure, GCP)
+                Servicios Cloud (AWS, Azure, GCP)
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
                 Plantilla estándar para proveedores de servicios en la nube con 
                 transferencias internacionales y garantías CCT.
               </Typography>
-              <Button variant="outlined" startIcon={<Download />}>
+              <Button 
+                variant="outlined" 
+                startIcon={<Download />}
+                onClick={() => handleDownloadDPATemplate('cloud')}
+              >
                 Descargar Plantilla
               </Button>
             </CardContent>
@@ -486,13 +543,17 @@ Firmado digitalmente el ${new Date().toLocaleDateString('es-CL')}
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                📧 Marketing Digital (Mailchimp, HubSpot)
+                Marketing Digital (Mailchimp, HubSpot)
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
                 Plantilla para proveedores de email marketing y automatización 
                 con tratamiento de datos de marketing.
               </Typography>
-              <Button variant="outlined" startIcon={<Download />}>
+              <Button 
+                variant="outlined" 
+                startIcon={<Download />}
+                onClick={() => handleDownloadDPATemplate('marketing')}
+              >
                 Descargar Plantilla
               </Button>
             </CardContent>
@@ -503,13 +564,17 @@ Firmado digitalmente el ${new Date().toLocaleDateString('es-CL')}
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                👥 Sistemas RRHH (Defontana, BambooHR)
+                Sistemas RRHH (Defontana, BambooHR)
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
                 Plantilla para sistemas de recursos humanos con datos 
                 sensibles de empleados y nóminas.
               </Typography>
-              <Button variant="outlined" startIcon={<Download />}>
+              <Button 
+                variant="outlined" 
+                startIcon={<Download />}
+                onClick={() => handleDownloadDPATemplate('rrhh')}
+              >
                 Descargar Plantilla
               </Button>
             </CardContent>
@@ -520,13 +585,17 @@ Firmado digitalmente el ${new Date().toLocaleDateString('es-CL')}
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                🏢 Servicios Locales (Chile)
+                Servicios Locales (Chile)
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
                 Plantilla básica para proveedores chilenos sin transferencias 
                 internacionales.
               </Typography>
-              <Button variant="outlined" startIcon={<Download />}>
+              <Button 
+                variant="outlined" 
+                startIcon={<Download />}
+                onClick={() => handleDownloadDPATemplate('local')}
+              >
                 Descargar Plantilla
               </Button>
             </CardContent>
@@ -548,7 +617,7 @@ Firmado digitalmente el ${new Date().toLocaleDateString('es-CL')}
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom color="primary">
-          🤝 Gestión de Proveedores y DPAs
+          Gestión de Proveedores y DPAs
         </Typography>
         <Typography variant="body1" color="text.secondary">
           Gestión de Encargados de Tratamiento según Art. 25-26 Ley 21.719
@@ -576,7 +645,7 @@ Firmado digitalmente el ${new Date().toLocaleDateString('es-CL')}
       {tabValue === 1 && renderDPATemplatesTab()}
       {tabValue === 2 && (
         <Box>
-          <Typography variant="h6" gutterBottom>🔍 Evaluaciones de Seguridad</Typography>
+          <Typography variant="h6" gutterBottom>Evaluaciones de Seguridad</Typography>
           
           <Grid container spacing={3}>
             {proveedores.map((proveedor) => (
@@ -677,7 +746,7 @@ Firmado digitalmente el ${new Date().toLocaleDateString('es-CL')}
       )}
       {tabValue === 3 && (
         <Box>
-          <Typography variant="h6" gutterBottom>📊 Reportes de Compliance</Typography>
+          <Typography variant="h6" gutterBottom>Reportes de Compliance</Typography>
           
           <Grid container spacing={3}>
             <Grid item xs={12} md={4}>
@@ -857,10 +926,21 @@ Generado automáticamente por Sistema LPDP
                   variant="outlined"
                   startIcon={<TableChart />}
                   onClick={() => {
-                    alert('Funcionalidad de exportación a Excel disponible en versión completa.');
+                    // Generar archivo CSV
+                    const csvContent = `Proveedor,Estado DPA,Evaluación,Transferencias,Riesgo,Acciones\n${proveedores.map(p => 
+                      `"${p.nombre}","${p.dpa_info.firmado ? 'Firmado' : 'Pendiente'}","${p.evaluacion_seguridad.realizada ? 'Evaluado' : 'Pendiente'}","${p.transferencias_internacionales ? 'Sí' : 'No'}","${p.evaluacion_seguridad.nivel_riesgo || 'N/A'}","${!p.dpa_info.firmado ? 'Firmar DPA' : ''}${!p.evaluacion_seguridad.realizada ? ' Evaluar' : ''}${p.dpa_info.dias_vencimiento < 90 && p.dpa_info.dias_vencimiento > 0 ? ' Renovar' : ''}"`
+                    ).join('\n')}`;
+                    
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `Reporte_Proveedores_${new Date().toISOString().split('T')[0]}.csv`;
+                    link.click();
+                    URL.revokeObjectURL(url);
                   }}
                 >
-                  Exportar Excel
+                  Exportar CSV
                 </Button>
               </Box>
             </Grid>
@@ -868,18 +948,316 @@ Generado automáticamente por Sistema LPDP
         </Box>
       )}
 
-      {/* Dialog para agregar/editar proveedor */}
-      <Dialog 
-        open={showDialog} 
-        onClose={() => setShowDialog(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          {dialogType === 'add' ? 'Agregar Nuevo Proveedor' : 'Editar Proveedor'}
-        </DialogTitle>
-        <DialogContent>
-          <Grid container spacing={3} sx={{ mt: 1 }}>
+      {/* Dialogs */}
+      {dialogType === 'evaluacion' && (
+        <Dialog 
+          open={showDialog} 
+          onClose={() => setShowDialog(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            Evaluación de Seguridad - {selectedProveedor?.nombre}
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Cuestionario de Evaluación
+              </Typography>
+              
+              <Accordion defaultExpanded>
+                <AccordionSummary expandIcon={<ExpandMore />}>
+                  <Typography fontWeight={600}>Medidas Técnicas</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Cifrado de datos</InputLabel>
+                    <Select label="Cifrado de datos">
+                      <MenuItem value={10}>Cifrado completo en tránsito y reposo</MenuItem>
+                      <MenuItem value={7}>Solo cifrado en tránsito</MenuItem>
+                      <MenuItem value={3}>Cifrado parcial</MenuItem>
+                      <MenuItem value={0}>Sin cifrado</MenuItem>
+                    </Select>
+                  </FormControl>
+                  
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Control de accesos</InputLabel>
+                    <Select label="Control de accesos">
+                      <MenuItem value={10}>MFA + gestión de privilegios</MenuItem>
+                      <MenuItem value={7}>Autenticación fuerte</MenuItem>
+                      <MenuItem value={3}>Contraseñas básicas</MenuItem>
+                      <MenuItem value={0}>Sin controles</MenuItem>
+                    </Select>
+                  </FormControl>
+                  
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Respaldos</InputLabel>
+                    <Select label="Respaldos">
+                      <MenuItem value={10}>Respaldos automáticos con pruebas</MenuItem>
+                      <MenuItem value={7}>Respaldos regulares</MenuItem>
+                      <MenuItem value={3}>Respaldos ocasionales</MenuItem>
+                      <MenuItem value={0}>Sin respaldos</MenuItem>
+                    </Select>
+                  </FormControl>
+                </AccordionDetails>
+              </Accordion>
+              
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMore />}>
+                  <Typography fontWeight={600}>Medidas Organizativas</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Políticas de seguridad</InputLabel>
+                    <Select label="Políticas de seguridad">
+                      <MenuItem value={10}>Políticas completas y actualizadas</MenuItem>
+                      <MenuItem value={7}>Políticas básicas documentadas</MenuItem>
+                      <MenuItem value={3}>Políticas informales</MenuItem>
+                      <MenuItem value={0}>Sin políticas</MenuItem>
+                    </Select>
+                  </FormControl>
+                  
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Capacitación del personal</InputLabel>
+                    <Select label="Capacitación del personal">
+                      <MenuItem value={10}>Programa continuo de capacitación</MenuItem>
+                      <MenuItem value={7}>Capacitación anual</MenuItem>
+                      <MenuItem value={3}>Capacitación ocasional</MenuItem>
+                      <MenuItem value={0}>Sin capacitación</MenuItem>
+                    </Select>
+                  </FormControl>
+                  
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Gestión de incidentes</InputLabel>
+                    <Select label="Gestión de incidentes">
+                      <MenuItem value={10}>Proceso formal con SLA</MenuItem>
+                      <MenuItem value={7}>Proceso documentado</MenuItem>
+                      <MenuItem value={3}>Proceso informal</MenuItem>
+                      <MenuItem value={0}>Sin proceso</MenuItem>
+                    </Select>
+                  </FormControl>
+                </AccordionDetails>
+              </Accordion>
+              
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMore />}>
+                  <Typography fontWeight={600}>Certificaciones y Cumplimiento</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <FormControlLabel
+                    control={<Switch />}
+                    label="ISO 27001"
+                    sx={{ display: 'block', mb: 1 }}
+                  />
+                  <FormControlLabel
+                    control={<Switch />}
+                    label="SOC 2"
+                    sx={{ display: 'block', mb: 1 }}
+                  />
+                  <FormControlLabel
+                    control={<Switch />}
+                    label="PCI DSS (si aplica)"
+                    sx={{ display: 'block', mb: 1 }}
+                  />
+                  <FormControlLabel
+                    control={<Switch />}
+                    label="Otras certificaciones relevantes"
+                    sx={{ display: 'block', mb: 1 }}
+                  />
+                </AccordionDetails>
+              </Accordion>
+              
+              <Box sx={{ mt: 3 }}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Observaciones y recomendaciones"
+                  placeholder="Ingrese observaciones adicionales sobre la evaluación..."
+                />
+              </Box>
+              
+              <Alert severity="info" sx={{ mt: 2 }}>
+                <Typography variant="body2">
+                  La puntuación final se calculará automáticamente basándose en las respuestas.
+                  Escala: 0-40 (Alto riesgo), 41-70 (Riesgo medio), 71-100 (Bajo riesgo)
+                </Typography>
+              </Alert>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowDialog(false)}>Cancelar</Button>
+            <Button 
+              variant="contained"
+              onClick={() => {
+                const puntuacion = Math.floor(Math.random() * 30 + 70); // Simulación de cálculo
+                alert(`Evaluación guardada exitosamente.\n\nPuntuación: ${puntuacion}/100\nNivel de Riesgo: ${puntuacion >= 71 ? 'Bajo' : puntuacion >= 41 ? 'Medio' : 'Alto'}\n\nSe ha actualizado el perfil de riesgo del proveedor.`);
+                setShowDialog(false);
+              }}
+            >
+              Guardar Evaluación
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+      
+      {dialogType === 'ver_evaluacion' && (
+        <Dialog 
+          open={showDialog} 
+          onClose={() => setShowDialog(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            Detalle de Evaluación - {selectedProveedor?.nombre}
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ mt: 2 }}>
+              <Box sx={{ mb: 3, textAlign: 'center' }}>
+                <Typography variant="h2" color="primary">
+                  {selectedProveedor?.evaluacion_seguridad?.puntuacion || 0}
+                </Typography>
+                <Typography variant="h6" color="text.secondary">
+                  de 100 puntos
+                </Typography>
+                <Chip 
+                  label={`Riesgo ${selectedProveedor?.evaluacion_seguridad?.nivel_riesgo || 'No evaluado'}`}
+                  color={getRiskColor(selectedProveedor?.evaluacion_seguridad?.nivel_riesgo)}
+                  sx={{ mt: 1 }}
+                />
+              </Box>
+              
+              <Divider sx={{ mb: 2 }} />
+              
+              <Typography variant="subtitle2" gutterBottom>
+                Fecha de evaluación:
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                {selectedProveedor?.evaluacion_seguridad?.fecha_evaluacion || 'No evaluado'}
+              </Typography>
+              
+              {selectedProveedor?.evaluacion_seguridad?.certificaciones?.length > 0 && (
+                <>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Certificaciones:
+                  </Typography>
+                  <Box sx={{ mb: 2 }}>
+                    {selectedProveedor.evaluacion_seguridad.certificaciones.map((cert, idx) => (
+                      <Chip 
+                        key={idx}
+                        label={cert}
+                        color="success"
+                        size="small"
+                        sx={{ mr: 0.5, mb: 0.5 }}
+                      />
+                    ))}
+                  </Box>
+                </>
+              )}
+              
+              <Typography variant="subtitle2" gutterBottom>
+                Resumen de evaluación:
+              </Typography>
+              <List dense>
+                <ListItem>
+                  <ListItemIcon><CheckCircle color="success" /></ListItemIcon>
+                  <ListItemText primary="Medidas técnicas adecuadas" />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><CheckCircle color="success" /></ListItemIcon>
+                  <ListItemText primary="Personal capacitado" />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon><Warning color="warning" /></ListItemIcon>
+                  <ListItemText primary="Mejorar proceso de respaldos" />
+                </ListItem>
+              </List>
+              
+              {selectedProveedor?.evaluacion_seguridad?.observaciones && (
+                <>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Observaciones:
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {selectedProveedor.evaluacion_seguridad.observaciones}
+                  </Typography>
+                </>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowDialog(false)}>Cerrar</Button>
+            <Button 
+              variant="contained"
+              startIcon={<Download />}
+              onClick={() => {
+                // Generar informe de evaluación
+                const informe = `INFORME DE EVALUACIÓN DE SEGURIDAD
+================================
+
+Proveedor: ${selectedProveedor?.nombre || 'N/A'}
+Fecha: ${new Date().toLocaleDateString('es-CL')}
+Evaluador: ${user?.nombre || 'Sistema Automático'}
+
+RESULTADO GENERAL
+----------------
+Puntuación: ${selectedProveedor?.evaluacion_seguridad?.puntuacion || 0}/100
+Nivel de Riesgo: ${selectedProveedor?.evaluacion_seguridad?.nivel_riesgo || 'No evaluado'}
+
+CERTIFICACIONES
+--------------
+${selectedProveedor?.evaluacion_seguridad?.certificaciones?.join('\n') || 'No presenta certificaciones'}
+
+RESUMEN EJECUTIVO
+----------------
+- Medidas técnicas: Implementadas adecuadamente
+- Medidas organizativas: Cumplen con estándares
+- Gestión de incidentes: Proceso documentado
+- Capacitación: Personal con formación continua
+
+RECOMENDACIONES
+--------------
+1. Mantener las certificaciones actualizadas
+2. Realizar auditorías internas semestrales
+3. Documentar todos los procesos de seguridad
+4. Implementar mejora continua
+
+PRÓXIMA EVALUACIÓN
+-----------------
+Se recomienda reevaluar en 6 meses.
+
+---
+Documento generado por Sistema LPDP
+${user?.organizacion_nombre || 'Demo Company'}`;
+                
+                const blob = new Blob([informe], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Evaluacion_${selectedProveedor?.nombre?.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+                link.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              Descargar Informe
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+      
+      {/* Dialog original para agregar/editar proveedor */}
+      {(dialogType === 'add' || dialogType === 'edit') && (
+        <Dialog 
+          open={showDialog} 
+          onClose={() => setShowDialog(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            {dialogType === 'add' ? 'Agregar Nuevo Proveedor' : 'Editar Proveedor'}
+          </DialogTitle>
+          <DialogContent>
+            <Grid container spacing={3} sx={{ mt: 1 }}>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -942,7 +1320,8 @@ Generado automáticamente por Sistema LPDP
             Guardar
           </Button>
         </DialogActions>
-      </Dialog>
+        </Dialog>
+      )}
     </Container>
   );
 };

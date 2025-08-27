@@ -39,6 +39,8 @@ import {
   Science,
   Logout as LogoutIcon,
   Assessment,
+  Security,
+  Business,
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
@@ -48,68 +50,82 @@ const menuItems = [
     text: 'Panel Principal',
     icon: <DashboardIcon />,
     path: '/dashboard',
-    description: 'Vista general de tu aprendizaje',
+    description: 'Dashboard ejecutivo y métricas',
+    section: 'general',
+    order: 1
   },
+  // SECCIÓN 1: CAPACITACIÓN (FASE INICIAL)
   {
-    text: 'Módulo Cero',
+    text: '📚 Módulo Cero - Capacitación LPDP',
     icon: <SchoolIcon />,
     path: '/modulo-cero',
-    description: 'LPDP en 7 minutos - Presentación interactiva',
-    chip: '¡NUEVO!',
+    description: '🎯 INICIO: Fundamentos Ley 21.719 (7 min)',
+    chip: 'PASO 1',
+    section: 'capacitacion',
+    order: 2,
+    progress: 100
+  },
+  // SECCIÓN 2: CONSTRUCCIÓN (FASE PRODUCTIVA)
+  {
+    text: '🏗️ Constructor RAT - Producción',
+    icon: <Science />,
+    path: '/constructor-rat',
+    description: '🔧 PRODUCIR: Mapeo real de tratamientos',
+    chip: 'PASO 2',
+    section: 'construccion',
+    order: 3,
+    progress: 0
   },
   {
-    text: 'Ruta de Especialización LPDP',
-    icon: <SchoolIcon />,
-    path: '/ruta-capacitacion',
-    description: 'Programa completo: Fundamentos → Certificación',
-    chip: 'RUTA',
+    text: '⚠️ Evaluación de Impacto (EIPD)',
+    icon: <Security />,
+    path: '/evaluacion-impacto',
+    description: '🛡️ EVALUAR: Art. 27 - Tratamientos alto riesgo',
+    chip: 'PASO 3',
+    section: 'construccion',
+    order: 4,
+    progress: 0
   },
+  // SECCIÓN 3: GESTIÓN (FASE OPERACIONAL)
   {
-    text: 'Módulo 3: Inventario RAT',
-    icon: <Inventory />,
-    path: '/modulo3',
-    description: 'Registro de Actividades de Tratamiento',
-    chip: 'NUEVO',
-  },
-  {
-    text: 'Consolidado RAT',
+    text: '📊 Consolidado RAT Empresarial',
     icon: <Assessment />,
     path: '/consolidado-rat',
-    description: 'Vista global de todos los RATs',
-    chip: 'SISTEMA',
+    description: '📈 GESTIONAR: Vista ejecutiva completa',
+    chip: 'PASO 4',
+    section: 'gestion',
+    order: 5,
+    progress: 0
   },
   {
-    text: 'Glosario LPDP',
+    text: '🤝 Gestión de Proveedores',
+    icon: <Business />,
+    path: '/gestion-proveedores',
+    description: '📄 CONTROLAR: DPAs y encargados',
+    chip: 'PASO 5',
+    section: 'gestion',
+    order: 6,
+    progress: 0
+  },
+  // SECCIÓN 4: REPORTES Y AUDITORÍA
+  {
+    text: '📋 Reportes y Auditoría',
+    icon: <TimelineIcon />,
+    path: '/reportes',
+    description: '🔍 REPORTAR: Cumplimiento normativo',
+    chip: 'PASO 6',
+    section: 'reportes',
+    order: 7,
+    progress: 0
+  },
+  // RECURSOS ADICIONALES
+  {
+    text: '📖 Glosario LPDP',
     icon: <Book />,
     path: '/glosario',
-    description: 'Términos clave Ley 21.719',
-    chip: 'REF',
-  },
-  {
-    text: 'Simulaciones',
-    icon: <PsychologyIcon />,
-    path: '/simulaciones',
-    description: 'Entrevistas interactivas',
-  },
-  {
-    text: 'Modo Práctica',
-    icon: <ScienceIcon />,
-    path: '/sandbox',
-    description: 'Experimenta sin riesgos',
-    chip: 'SANDBOX',
-  },
-  {
-    text: 'Sandbox Completo',
-    icon: <Science />,
-    path: '/sandbox-completo',
-    description: 'Sistema RAT profesional completo',
-    chip: 'PRO',
-  },
-  {
-    text: 'Mi Progreso',
-    icon: <TimelineIcon />,
-    path: '/mi-progreso',
-    description: 'Logros y certificados',
+    description: '📚 CONSULTAR: Términos técnicos Ley 21.719',
+    section: 'recursos',
+    order: 8
   },
 ];
 
@@ -170,7 +186,7 @@ function Layout({ children }) {
               Jurídica Digital SPA
             </Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
-              Sistema de Capacitación LPDP
+              Sistema Dual: Capacitación + Producción LPDP
             </Typography>
           </Box>
         </Box>
@@ -237,13 +253,18 @@ function Layout({ children }) {
           border: '1px solid rgba(0, 188, 212, 0.3)',
         }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.9 }}>
-            Tu Progreso
+            Progreso LPDP
           </Typography>
           <Typography variant="h4" sx={{ mt: 1, fontWeight: 700 }}>
-            0%
+            17%
           </Typography>
           <Typography variant="caption" sx={{ opacity: 0.9 }}>
-            0 de 8 módulos completados
+            Paso 1 de 6 completado
+          </Typography>
+          <Typography variant="caption" sx={{ display: 'block', mt: 1, opacity: 0.8, fontSize: '0.7rem' }}>
+            ✅ Capacitación completada
+            <br />
+            🔄 Listo para Producción RAT
           </Typography>
         </Box>
         

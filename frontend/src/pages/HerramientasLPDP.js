@@ -1258,7 +1258,7 @@ y después de cualquier cambio significativo en procesos.
   return (
     <Box sx={{ p: 3 }}>
       {/* Header */}
-      <Card sx={{ mb: 3, background: 'linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)' }}>
+      <Card sx={{ mb: 3, background: 'linear-gradient(135deg, #495057 0%, #6c757d 100%)' }}>
         <CardContent>
           <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'white' }}>
             <CloudDownload /> Herramientas Profesionales LPDP

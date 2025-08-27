@@ -68,6 +68,9 @@ import {
   DataObject,
   CloudDownload,
   Description,
+  AccountTree as DiagramIcon,
+  ArrowForward,
+  Folder,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import supabase, { supabaseWithTenant } from '../config/supabaseClient';
@@ -655,6 +658,125 @@ FASE 5 - GOVERNANCE:
           Visión global de todos los tratamientos de datos personales de la organización según Ley 21.719
         </Typography>
       </Box>
+
+      {/* Diagrama de Procesos LPDP */}
+      <Paper sx={{ p: 3, mb: 4, background: 'linear-gradient(135deg, #495057 0%, #6c757d 100%)' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, color: 'white' }}>
+          <DiagramIcon sx={{ mr: 2, fontSize: 28 }} />
+          <Typography variant="h5" fontWeight={700} color="white">
+            🔄 Flujo de Procesos LPDP - Ley 21.719
+          </Typography>
+        </Box>
+        
+        <Grid container spacing={2} alignItems="center">
+          {/* Paso 1 */}
+          <Grid item xs={12} md={2.4}>
+            <Card sx={{ 
+              p: 2, 
+              textAlign: 'center', 
+              bgcolor: '#495057', 
+              color: 'white',
+              border: '2px solid #1e8449',
+              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 }
+            }}>
+              <Folder sx={{ fontSize: 32, mb: 1 }} />
+              <Typography variant="h6" fontWeight={600}>PASO 1</Typography>
+              <Typography variant="body2">Capacitación</Typography>
+              <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                Módulo Cero + Fundamentos
+              </Typography>
+            </Card>
+          </Grid>
+          
+          {/* Flecha 1 */}
+          <Grid item xs={12} md={0.2} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <ArrowForward sx={{ color: 'white', fontSize: 24 }} />
+          </Grid>
+          
+          {/* Paso 2 */}
+          <Grid item xs={12} md={2.4}>
+            <Card sx={{ 
+              p: 2, 
+              textAlign: 'center', 
+              bgcolor: '#495057', 
+              color: 'white',
+              border: '2px solid #1a252f',
+              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 }
+            }}>
+              <DataObject sx={{ fontSize: 32, mb: 1 }} />
+              <Typography variant="h6" fontWeight={600}>PASO 2</Typography>
+              <Typography variant="body2">Constructor RAT</Typography>
+              <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                Mapeo de Tratamientos
+              </Typography>
+            </Card>
+          </Grid>
+          
+          {/* Flecha 2 */}
+          <Grid item xs={12} md={0.2} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <ArrowForward sx={{ color: 'white', fontSize: 24 }} />
+          </Grid>
+          
+          {/* Paso 3 */}
+          <Grid item xs={12} md={2.4}>
+            <Card sx={{ 
+              p: 2, 
+              textAlign: 'center', 
+              bgcolor: '#6c757d', 
+              color: 'white',
+              border: '2px solid #d68910',
+              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 }
+            }}>
+              <Security sx={{ fontSize: 32, mb: 1 }} />
+              <Typography variant="h6" fontWeight={600}>PASO 3</Typography>
+              <Typography variant="body2">Evaluación EIPD</Typography>
+              <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                Art. 27 - Alto Riesgo
+              </Typography>
+            </Card>
+          </Grid>
+          
+          {/* Flecha 3 */}
+          <Grid item xs={12} md={0.2} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <ArrowForward sx={{ color: 'white', fontSize: 24 }} />
+          </Grid>
+          
+          {/* Paso 4 */}
+          <Grid item xs={12} md={2.4}>
+            <Card sx={{ 
+              p: 2, 
+              textAlign: 'center', 
+              bgcolor: '#5d6d7e', 
+              color: 'white',
+              border: '2px solid #6c757d',
+              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 }
+            }}>
+              <Assessment sx={{ fontSize: 32, mb: 1 }} />
+              <Typography variant="h6" fontWeight={600}>PASO 4</Typography>
+              <Typography variant="body2">Consolidado</Typography>
+              <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                Gestión Empresarial
+              </Typography>
+            </Card>
+          </Grid>
+        </Grid>
+        
+        <Alert 
+          severity="info" 
+          sx={{ 
+            mt: 3, 
+            bgcolor: 'rgba(255,255,255,0.1)', 
+            color: 'white',
+            '& .MuiAlert-icon': { color: 'white' }
+          }}
+        >
+          <Typography variant="body2">
+            <strong>📊 ESTADO ACTUAL:</strong> Tienes {stats.totalRATs} RATs registrados. 
+            {stats.requierenDPIA > 0 && ` ⚠️ ${stats.requierenDPIA} requieren EIPD obligatoria.`}
+            {stats.transferenciasInternacionales > 0 && ` 🌍 ${stats.transferenciasInternacionales} incluyen transferencias internacionales.`}
+          </Typography>
+        </Alert>
+      </Paper>
 
       {loading ? (
         <LinearProgress />

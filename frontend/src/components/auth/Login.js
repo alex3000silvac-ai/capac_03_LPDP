@@ -64,7 +64,7 @@ const Login = () => {
       alignItems="center"
       justifyContent="center"
       sx={{
-        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%)',
+        background: 'linear-gradient(135deg, #212529 0%, #343a40 25%, #495057 50%, #6c757d 75%, #868e96 100%)',
         padding: 2,
         position: 'relative',
         overflow: 'hidden'
@@ -100,7 +100,7 @@ const Login = () => {
           {/* Header con gradiente */}
           <Box
             sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #495057 0%, #6c757d 100%)',
               p: 4,
               textAlign: 'center',
               position: 'relative',
@@ -201,14 +201,14 @@ const Login = () => {
                         },
                         '&.Mui-focused': {
                           backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                          borderColor: '#667eea',
+                          borderColor: '#6c757d',
                           boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.2)'
                         }
                       },
                       '& .MuiInputLabel-root': {
                         color: 'rgba(255, 255, 255, 0.7)',
                         '&.Mui-focused': {
-                          color: '#667eea'
+                          color: '#6c757d'
                         }
                       },
                       '& .MuiInputBase-input': {
@@ -243,14 +243,14 @@ const Login = () => {
                         },
                         '&.Mui-focused': {
                           backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                          borderColor: '#667eea',
+                          borderColor: '#6c757d',
                           boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.2)'
                         }
                       },
                       '& .MuiInputLabel-root': {
                         color: 'rgba(255, 255, 255, 0.7)',
                         '&.Mui-focused': {
-                          color: '#667eea'
+                          color: '#6c757d'
                         }
                       },
                       '& .MuiInputBase-input': {
@@ -275,13 +275,13 @@ const Login = () => {
                       py: 2,
                       fontSize: '1.1rem',
                       fontWeight: 600,
-                      background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                      background: 'linear-gradient(45deg, #495057 30%, #6c757d 90%)',
                       borderRadius: 3,
                       textTransform: 'none',
-                      boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
+                      boxShadow: '0 8px 25px rgba(73, 80, 87, 0.3)',
                       '&:hover': {
-                        background: 'linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)',
-                        boxShadow: '0 12px 35px rgba(102, 126, 234, 0.4)',
+                        background: 'linear-gradient(45deg, #343a40 30%, #495057 90%)',
+                        boxShadow: '0 12px 35px rgba(108, 117, 125, 0.4)',
                         transform: 'translateY(-2px)'
                       },
                       '&:disabled': {
@@ -313,7 +313,7 @@ const Login = () => {
                   mt: 3,
                   backgroundColor: 'rgba(244, 67, 54, 0.1)',
                   border: '1px solid rgba(244, 67, 54, 0.3)',
-                  color: '#ff6b6b'
+                  color: '#c0392b'
                 }}
               >
                 {error}
