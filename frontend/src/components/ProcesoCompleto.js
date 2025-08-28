@@ -171,7 +171,12 @@ const ProcesoCompleto = () => {
       <Grid container spacing={4}>
         {/* Panel de Documentos Completos */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{
+            backgroundColor: '#1e293b',
+            color: 'white',
+            border: '1px solid #334155',
+            boxShadow: '0 4px 20px rgba(15, 23, 42, 0.4)'
+          }}>
             <CardContent>
               <Typography variant="h6" fontWeight={700} gutterBottom>
                 📋 RESUMEN DE DOCUMENTOS - TODOS COMPLETOS
@@ -232,7 +237,12 @@ const ProcesoCompleto = () => {
 
         {/* Panel de Cierre de Proceso */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{
+            backgroundColor: '#1e293b',
+            color: 'white', 
+            border: '1px solid #334155',
+            boxShadow: '0 4px 20px rgba(15, 23, 42, 0.4)'
+          }}>
             <CardContent>
               <Typography variant="h6" fontWeight={700} gutterBottom>
                 🏁 CIERRE OFICIAL DEL PROCESO
@@ -298,7 +308,13 @@ const ProcesoCompleto = () => {
       </Grid>
 
       {/* Timeline del Proceso Completo */}
-      <Card sx={{ mt: 4 }}>
+      <Card sx={{ 
+        mt: 4,
+        backgroundColor: '#1e293b',
+        color: 'white',
+        border: '1px solid #334155',
+        boxShadow: '0 4px 20px rgba(15, 23, 42, 0.4)'
+      }}>
         <CardContent>
           <Typography variant="h6" fontWeight={700} gutterBottom>
             <TimelineIcon sx={{ mr: 1, verticalAlign: 'middle' }} />

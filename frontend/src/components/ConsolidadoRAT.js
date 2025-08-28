@@ -125,38 +125,42 @@ const ConsolidadoRAT = () => {
       
       let allRATs = [];
 
-      // 1. Intentar cargar de Supabase
+      // 1. PRIORITARIO: Cargar de Supabase (producción)
+      let useSupabase = false;
       try {
         const { data, error } = await supabaseWithTenant(tenantId)
           .from('mapeo_datos_rat')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!error && data) {
-          allRATs = [...allRATs, ...data];
-          console.log('📊 ConsolidadoRAT - Supabase data:', data.length);
+        if (!error && data && data.length > 0) {
+          allRATs = data; // Solo usar Supabase si hay datos
+          useSupabase = true;
+          console.log('📊 ConsolidadoRAT - Usando Supabase:', data.length, 'RATs');
         }
       } catch (supabaseError) {
-        console.log('⚠️ Supabase no disponible, usando localStorage');
+        console.log('⚠️ Supabase error, fallback a localStorage');
       }
 
-      // 2. Cargar también de localStorage como backup
-      try {
-        const localKeys = Object.keys(localStorage).filter(key => 
-          key.startsWith(`rat_${tenantId}_`) || key.startsWith('rat_demo_')
-        );
-        
-        const localRATs = localKeys.map(key => {
-          const ratData = JSON.parse(localStorage.getItem(key));
-          return {
-            ...ratData,
-            id: ratData.id || key,
-            source: 'localStorage',
-            created_at: ratData.fecha_creacion || ratData.created_at
-          };
-        });
+      // 2. FALLBACK: Cargar de localStorage solo si Supabase vacío
+      if (!useSupabase) {
+        try {
+          const localKeys = Object.keys(localStorage).filter(key => 
+            key.startsWith(`rat_${tenantId}_`) || key.startsWith('rat_demo_')
+          );
+          
+          const localRATs = localKeys.map(key => {
+            const ratData = JSON.parse(localStorage.getItem(key));
+            return {
+              ...ratData,
+              id: ratData.id || key,
+              source: 'localStorage',
+              created_at: ratData.fecha_creacion || ratData.created_at
+            };
+          });
 
-        allRATs = [...allRATs, ...localRATs];
+          allRATs = localRATs;
+          console.log('📊 ConsolidadoRAT - Usando localStorage:', localRATs.length, 'RATs');
         console.log('📱 ConsolidadoRAT - localStorage data:', localRATs.length);
         console.log('📦 ConsolidadoRAT - Total RATs:', allRATs.length);
 

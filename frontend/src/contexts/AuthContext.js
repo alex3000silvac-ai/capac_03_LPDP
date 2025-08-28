@@ -139,8 +139,17 @@ export const AuthProvider = ({ children }) => {
     if (error) {
       console.error('🚀 Error logout:', error);
     }
+    
+    // Limpiar completamente localStorage para pruebas de seguridad
+    localStorage.removeItem('supabase.auth.token');
+    localStorage.removeItem('tenant_id');
+    localStorage.clear(); // Para pruebas integrales
+    
     setToken(null);
     setUser(null);
+    
+    // Forzar recarga para validar protección
+    window.location.href = '/login';
   };
 
   const refreshToken = async () => {
