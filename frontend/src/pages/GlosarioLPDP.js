@@ -66,9 +66,6 @@ import {
   Delete,
   GetApp,
   AccountTree,
-  CheckCircle,
-  VerifiedUser,
-  CloudDownload,
   Settings,
   Build,
   People,
@@ -76,7 +73,6 @@ import {
   Psychology,
   Science,
   ShuffleOn,
-  Minimize,
   SettingsSuggest,
   Storage,
 } from '@mui/icons-material';
