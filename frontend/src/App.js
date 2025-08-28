@@ -260,18 +260,14 @@ const AppContent = () => {
     );
   }
 
-  // Si hay usuario pero no hay tenant seleccionado, usar juridica_digital por defecto
-  if (!currentTenant && user) {
-    // Establecer tenant por defecto para jurídica
-    const defaultTenant = {
-      id: 'juridica_digital',
-      company_name: 'Jurídica Digital',
-      display_name: 'Jurídica Digital',
-      user_id: user.id
-    };
-    localStorage.setItem('lpdp_current_tenant', JSON.stringify(defaultTenant));
-    window.location.reload();
-    return null;
+  // Si hay usuario pero no hay tenant seleccionado (excepto en modo demo)
+  if (!currentTenant && user?.tenant_id !== 'demo') {
+    return (
+      <Routes>
+        <Route path="/select-tenant" element={<TenantSelector />} />
+        <Route path="*" element={<Navigate to="/select-tenant" replace />} />
+      </Routes>
+    );
   }
 
   // Usuario autenticado y tenant seleccionado
