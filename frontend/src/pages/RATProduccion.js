@@ -207,6 +207,7 @@ const RATProduccion = () => {
   const [exportFormat, setExportFormat] = useState('pdf');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   const [industryTemplate, setIndustryTemplate] = useState('');
+  const [loading, setLoading] = useState(false);
   
   // Estados para generación completa de RAT por industria
   const [selectedIndustry, setSelectedIndustry] = useState('');
