@@ -27,7 +27,6 @@ import {
 } from '@mui/material';
 import {
   Menu as MenuIcon,
-  Dashboard as DashboardIcon,
   School as SchoolIcon,
   Psychology as PsychologyIcon,
   Science as ScienceIcon,
@@ -41,92 +40,104 @@ import {
   Assessment,
   Security,
   Business,
+  RocketLaunch,
+  Link as LinkIcon,
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
 
 const menuItems = [
+  // DASHBOARD PRINCIPAL
   {
-    text: 'Panel Principal',
-    icon: <DashboardIcon />,
-    path: '/dashboard',
-    description: 'Dashboard ejecutivo y métricas',
-    section: 'general',
-    order: 1
+    text: '🛡️ Dashboard DPO',
+    icon: <SchoolIcon />,
+    path: '/dashboard-dpo',
+    description: 'Centro de Control - Notificaciones y Tareas',
+    section: 'principal',
+    order: 1,
+    isNew: true
   },
-  // SECCIÓN 1: CAPACITACIÓN (FASE INICIAL)
+  
+  // CAPACITACIÓN Y APRENDIZAJE
   {
-    text: '📚 Módulo Cero - Capacitación LPDP',
+    text: 'Módulo Cero',
     icon: <SchoolIcon />,
     path: '/modulo-cero',
-    description: '🎯 INICIO: Fundamentos Ley 21.719 (7 min)',
-    chip: 'PASO 1',
+    description: 'Fundamentos de la Ley 21.719 (7 minutos)',
     section: 'capacitacion',
-    order: 2,
-    progress: 100
+    order: 2
   },
-  // SECCIÓN 2: CONSTRUCCIÓN (FASE PRODUCTIVA)
+  
+  // HERRAMIENTAS DE PRODUCCIÓN
   {
-    text: '🏗️ Constructor RAT - Producción',
-    icon: <Science />,
-    path: '/constructor-rat',
-    description: '🔧 PRODUCIR: Mapeo real de tratamientos',
-    chip: 'PASO 2',
-    section: 'construccion',
+    text: 'RAT Producción',
+    icon: <RocketLaunch />,
+    path: '/rat-produccion',
+    description: 'Generador RAT completo por industria',
+    chip: 'NUEVO',
+    section: 'herramientas',
     order: 3,
-    progress: 0
+    isNew: true
   },
   {
-    text: '⚠️ Evaluación de Impacto (EIPD)',
+    text: 'Evaluación de Impacto',
     icon: <Security />,
     path: '/evaluacion-impacto',
-    description: '🛡️ EVALUAR: Art. 27 - Tratamientos alto riesgo',
-    chip: 'PASO 3',
-    section: 'construccion',
-    order: 4,
-    progress: 0
+    description: 'EIPD para tratamientos de alto riesgo',
+    section: 'herramientas',
+    order: 3
   },
-  // SECCIÓN 3: GESTIÓN (FASE OPERACIONAL)
+  
+  // GESTIÓN Y CONTROL
   {
-    text: '📊 Consolidado RAT Empresarial',
+    text: 'Consolidado RAT',
     icon: <Assessment />,
     path: '/consolidado-rat',
-    description: '📈 GESTIONAR: Vista ejecutiva completa',
-    chip: 'PASO 4',
+    description: 'Vista ejecutiva de todos los RATs',
     section: 'gestion',
-    order: 5,
-    progress: 0
+    order: 4
   },
   {
-    text: '🤝 Gestión de Proveedores',
+    text: 'Gestión de Proveedores',
     icon: <Business />,
     path: '/gestion-proveedores',
-    description: '📄 CONTROLAR: DPAs y encargados',
-    chip: 'PASO 5',
+    description: 'Contratos DPA y encargados del tratamiento',
+    section: 'gestion',
+    order: 5
+  },
+  {
+    text: '🔗 Gestión Asociaciones',
+    icon: <Business />,
+    path: '/gestion-asociaciones',
+    description: 'Asociar documentos existentes a RATs',
+    chip: 'NUEVO',
     section: 'gestion',
     order: 6,
-    progress: 0
+    isNew: true
   },
-  // SECCIÓN 4: REPORTES Y AUDITORÍA
+  
+  // RECURSOS
   {
-    text: '📋 Reportes y Auditoría',
-    icon: <TimelineIcon />,
-    path: '/reportes',
-    description: '🔍 REPORTAR: Cumplimiento normativo',
-    chip: 'PASO 6',
-    section: 'reportes',
-    order: 7,
-    progress: 0
-  },
-  // RECURSOS ADICIONALES
-  {
-    text: '📖 Glosario LPDP',
+    text: 'Glosario LPDP',
     icon: <Book />,
     path: '/glosario',
-    description: '📚 CONSULTAR: Términos técnicos Ley 21.719',
+    description: 'Diccionario de términos técnicos',
     section: 'recursos',
     order: 8
   },
+  
+  // PROCESO COMPLETO
+  {
+    text: '🏁 Proceso Completo',
+    icon: <Book />,
+    path: '/proceso-completo',
+    description: 'Ver RAT completamente cerrado',
+    chip: 'FINAL',
+    section: 'recursos',
+    order: 9,
+    isNew: true
+  },
+  
 ];
 
 function Layout({ children }) {
@@ -194,13 +205,53 @@ function Layout({ children }) {
       <Divider />
       
       <List sx={{ flex: 1, px: 2, py: 2 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+        {menuItems.map((item, index) => {
+          const showSectionHeader = index === 0 || item.section !== menuItems[index - 1]?.section;
+          const sectionTitles = {
+            'principal': '📊 PANEL PRINCIPAL',
+            'capacitacion': '🎓 CAPACITACIÓN',
+            'herramientas': '🔧 HERRAMIENTAS RAT',
+            'gestion': '📈 GESTIÓN',
+            'recursos': '📚 RECURSOS',
+          };
+          
+          return (
+            <React.Fragment key={item.text}>
+              {showSectionHeader && (
+                <Box sx={{ mt: index > 0 ? 2 : 0, mb: 1 }}>
+                  <Typography
+                    variant="overline"
+                    sx={{
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: 'text.secondary',
+                      letterSpacing: 1,
+                      pl: 1
+                    }}
+                  >
+                    {sectionTitles[item.section]}
+                  </Typography>
+                  <Divider sx={{ mt: 0.5, mb: 1, opacity: 0.3 }} />
+                </Box>
+              )}
+              <ListItem disablePadding sx={{ mb: 1 }}>
             <ListItemButton
               onClick={() => handleNavigation(item.path)}
               selected={location.pathname === item.path}
               sx={{
                 borderRadius: 2,
+                // Estilo especial para el nuevo módulo
+                ...(item.isNew && {
+                  background: 'linear-gradient(135deg, #00bcd4 0%, #33d9f0 100%)',
+                  color: '#000',
+                  fontWeight: 700,
+                  boxShadow: '0 4px 12px rgba(0, 188, 212, 0.4)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #0097a7 0%, #00bcd4 100%)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 20px rgba(0, 188, 212, 0.6)',
+                  }
+                }),
                 '&.Mui-selected': {
                   bgcolor: theme.palette.primary.light + '20',
                   '&:hover': {
@@ -211,9 +262,11 @@ function Layout({ children }) {
             >
               <ListItemIcon
                 sx={{
-                  color: location.pathname === item.path 
-                    ? theme.palette.primary.main 
-                    : 'inherit',
+                  color: item.isNew
+                    ? '#000'
+                    : (location.pathname === item.path 
+                      ? theme.palette.primary.main 
+                      : 'inherit'),
                 }}
               >
                 {item.icon}
@@ -223,23 +276,34 @@ function Layout({ children }) {
                 secondary={item.description}
                 primaryTypographyProps={{
                   fontSize: '0.95rem',
-                  fontWeight: location.pathname === item.path ? 600 : 400,
+                  fontWeight: item.isNew ? 700 : (location.pathname === item.path ? 600 : 400),
+                  color: item.isNew ? '#000' : 'inherit'
                 }}
                 secondaryTypographyProps={{
                   fontSize: '0.75rem',
+                  color: item.isNew ? 'rgba(0,0,0,0.7)' : 'inherit'
                 }}
               />
               {item.chip && (
                 <Chip 
                   label={item.chip} 
                   size="small" 
-                  color="secondary"
-                  sx={{ ml: 1 }}
+                  color={item.isNew ? "default" : "secondary"}
+                  sx={{ 
+                    ml: 1,
+                    ...(item.isNew && {
+                      bgcolor: 'rgba(255,255,255,0.9)',
+                      color: '#000',
+                      fontWeight: 700
+                    })
+                  }}
                 />
               )}
             </ListItemButton>
           </ListItem>
-        ))}
+            </React.Fragment>
+          );
+        })}
       </List>
 
       <Divider />

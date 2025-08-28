@@ -3,6 +3,7 @@
 // Gestión de Encargados de Tratamiento - Ley 21.719
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -74,6 +75,12 @@ import { useAuth } from '../contexts/AuthContext';
 
 const GestionProveedores = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  
+  // Parámetros de URL del Dashboard DPO
+  const ratOrigen = searchParams.get('rat') || '';
+  const documentoId = searchParams.get('documento') || '';
+  const esNuevo = searchParams.get('nuevo') === 'true';
   const [tabValue, setTabValue] = useState(0);
   const [proveedores, setProveedores] = useState([]);
   const [showDialog, setShowDialog] = useState(false);

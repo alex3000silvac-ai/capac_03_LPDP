@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 DEBUG - Dashboard DPO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-info {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .test-scenario {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #007acc;
+            border-radius: 4px;
+        }
+        .success { color: #00aa00; }
+        .warning { color: #ff8800; }
+        .error { color: #ff0000; }
+    </style>
+</head>
+<body>
+    <h1>🔧 DEBUG DASHBOARD DPO - Guía de Pruebas</h1>
+    
+    <div class="debug-info">
+        📍 UBICACIÓN: http://localhost:3002/dashboard-dpo<br>
+        🔍 ABRIR: Consola del navegador (F12)<br>
+        🎯 BUSCAR: Mensajes con 🔥, 🚀, 📋, 📊
+    </div>
+
+    <h2>🧪 ESCENARIOS DE PRUEBA</h2>
+    
+    <div class="test-scenario">
+        <h3>📋 PRUEBA 1: Click en fila de tabla (abre dialog)</h3>
+        <ol>
+            <li>Ir a Dashboard DPO</li>
+            <li>Click en cualquier FILA de la tabla (no en el botón)</li>
+            <li>Se abre dialog con detalles</li>
+            <li>Click en botón del dialog (🔥 debe aparecer en consola)</li>
+            <li class="success">✅ DEBE: Mostrar alert o redireccionar</li>
+        </ol>
+    </div>
+    
+    <div class="test-scenario">
+        <h3>🎯 PRUEBA 2: Click directo en botón "Completar"</h3>
+        <ol>
+            <li>Ir a Dashboard DPO</li>
+            <li>Click DIRECTO en botón "Crear/Completar/Asociar" de la tabla</li>
+            <li class="success">✅ DEBE: Ejecutar inmediatamente (sin dialog)</li>
+            <li class="success">✅ DEBE: Mostrar alert con opciones</li>
+        </ol>
+    </div>
+    
+    <div class="test-scenario">
+        <h3>🏥 PRUEBA 3: Específica para SALUD</h3>
+        <ol>
+            <li>Buscar fila con "EIPD-SALUD" o "DPIA-SALUD"</li>
+            <li>Probar ambos flujos (click fila + click botón)</li>
+            <li class="success">✅ DEBE: Mostrar "Datos Médicos" en análisis</li>
+            <li class="success">✅ DEBE: Redireccionar a /evaluacion-impacto o /dpia-algoritmos</li>
+        </ol>
+    </div>
+
+    <h2>🔍 DEBUGGING EN CONSOLA</h2>
+    
+    <div class="debug-info">
+        // MENSAJES ESPERADOS EN CONSOLA:<br><br>
+        🔥 Dialog button clicked, selectedTask: {id: "...", tipo: "...", ...}<br>
+        🚀 handleCompletarDocumento called with task: {id: "...", ...}<br>
+        📋 Tipo documento: EIPD<br>
+        📊 Estado documento: {accion: "CREAR_NUEVO", mensaje: "..."}<br><br>
+        // SI NO APARECEN ESTOS MENSAJES, HAY UN PROBLEMA
+    </div>
+
+    <h2>❌ PROBLEMAS COMUNES</h2>
+    
+    <div class="test-scenario">
+        <h3>🚨 Si botón del dialog no funciona:</h3>
+        <ul>
+            <li class="error">❌ selectedTask es null</li>
+            <li class="warning">⚠️ handleCompletarDocumento no se ejecuta</li>
+            <li class="warning">⚠️ Error de JavaScript en consola</li>
+            <li class="success">✅ SOLUCIÓN: Cerrar dialog y usar botón directo de tabla</li>
+        </ul>
+    </div>
+    
+    <div class="test-scenario">
+        <h3>🔄 Si redirección falla:</h3>
+        <ul>
+            <li>Verificar que las rutas existen en App.js</li>
+            <li>/evaluacion-impacto ✅</li>
+            <li>/dpia-algoritmos ✅</li>
+            <li>/gestion-proveedores ✅</li>
+            <li>/consulta-previa ✅</li>
+            <li>/gestion-asociaciones ✅</li>
+        </ul>
+    </div>
+
+    <h2>🎯 RESULTADO ESPERADO</h2>
+    
+    <div class="debug-info">
+        FLUJO EXITOSO:<br>
+        1. Click → Console logs → Alert informativo → Redirección → Página de destino<br><br>
+        
+        PARA TU CASO SALUD:<br>
+        📋 "Creando nueva Evaluación de Impacto en Protección de Datos..."<br>
+        ✅ "Se pre-llenará con datos del RAT-SALUD-2024"<br>
+        ✅ "Se asociará automáticamente al RAT"<br>
+        🚀 "Redirigiendo al editor..."<br>
+        → window.location.href = "/evaluacion-impacto?rat=RAT-SALUD-2024&nuevo=true"
+    </div>
+
+    <hr>
+    <p><strong>💡 TIP:</strong> Si algo no funciona, usa el botón directo de la tabla en lugar del dialog modal.</p>
+    
+</body>
+</html>

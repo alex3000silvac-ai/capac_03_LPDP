@@ -3,6 +3,7 @@
 // Cumplimiento Ley 21.719 Chile - Artículo 27
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -64,6 +65,13 @@ import { useAuth } from '../contexts/AuthContext';
 
 const ModuloEIPD = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  
+  // Parámetros de URL del Dashboard DPO
+  const ratOrigen = searchParams.get('rat') || '';
+  const documentoId = searchParams.get('documento') || '';
+  const esNuevo = searchParams.get('nuevo') === 'true';
+  const esEdicion = searchParams.get('editar') === 'true';
   const [activeStep, setActiveStep] = useState(0);
   const [eipd, setEipd] = useState({
     // Información básica
@@ -156,6 +164,48 @@ const ModuloEIPD = () => {
 
   const [showDialog, setShowDialog] = useState(false);
   const [dialogType, setDialogType] = useState('');
+
+  // useEffect para pre-llenar datos desde RAT o cargar documento existente
+  useEffect(() => {
+    if (esNuevo && ratOrigen) {
+      // Pre-llenar desde RAT
+      console.log('🔗 Pre-llenando EIPD desde RAT:', ratOrigen);
+      setEipd(prev => ({
+        ...prev,
+        nombre_evaluacion: `EIPD para ${ratOrigen}`,
+        rat_asociado_id: ratOrigen,
+        rat_asociado_nombre: ratOrigen,
+        requiere_eipd: {
+          ...prev.requiere_eipd,
+          justificacion: `EIPD requerida automáticamente para ${ratOrigen} por detección de datos sensibles`,
+          decision_final: true
+        }
+      }));
+    } else if (esEdicion && documentoId) {
+      // Cargar documento existente
+      console.log('✏️ Cargando EIPD existente:', documentoId);
+      // Aquí cargarías los datos del documento desde la API
+      cargarDocumentoExistente(documentoId);
+    }
+  }, [ratOrigen, documentoId, esNuevo, esEdicion]);
+
+  const cargarDocumentoExistente = async (docId) => {
+    // Simular carga de documento existente
+    const documentoSimulado = {
+      id: docId,
+      nombre_evaluacion: 'EIPD Datos Médicos Generales',
+      responsable_evaluacion: 'Dr. Juan Pérez (DPO Salud)',
+      rat_asociado_id: 'RAT-SALUD-2024',
+      rat_asociado_nombre: 'RAT-SALUD-2024',
+      requiere_eipd: {
+        justificacion: 'Procesamiento de datos médicos y situación socioeconómica',
+        decision_final: true
+      }
+    };
+    
+    setEipd(prev => ({ ...prev, ...documentoSimulado }));
+    setActiveStep(1); // Ir al paso siguiente si ya está iniciado
+  };
 
   // Criterios para determinar si requiere EIPD (Art. 27 Ley 21.719)
   const criteriosEIPD = [

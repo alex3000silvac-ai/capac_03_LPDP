@@ -2,6 +2,7 @@
 // Para desarrollo local sin backend externo
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { ratService } from '../services/ratService';
 
 console.log('🔌 Iniciando TenantContext en modo OFFLINE');
 
@@ -82,6 +83,9 @@ export const TenantProvider = ({ children }) => {
       localStorage.setItem('tenant_id', selectedTenant.id);
       localStorage.setItem('lpdp_current_tenant', JSON.stringify(selectedTenant));
       
+      // CRÍTICO: Notificar al ratService del tenant actual
+      ratService.setCurrentTenant(selectedTenant);
+      
       console.log('🔌 Tenant seleccionado automáticamente:', selectedTenant.company_name);
     }
   }, [isAuthenticated, user]);
@@ -95,6 +99,7 @@ export const TenantProvider = ({ children }) => {
       try {
         const tenant = JSON.parse(savedTenant);
         setCurrentTenant(tenant);
+        ratService.setCurrentTenant(tenant);
         console.log('🔌 Tenant restaurado desde localStorage:', tenant.company_name);
       } catch (error) {
         console.log('🔌 Error parseando tenant guardado, usando demo');

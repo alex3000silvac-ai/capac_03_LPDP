@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import conservativeTheme from './theme/conservativeTheme';
 import { Box, CircularProgress } from '@mui/material';
+import { COLORS, rgba } from './theme/colors';
 
 // Contextos
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -12,7 +12,6 @@ import { TenantProvider, useTenant } from './contexts/TenantContext';
 // Componentes
 import Layout from './components/Layout';
 import Login from './components/auth/Login';
-import Dashboard from './pages/Dashboard';
 import ModuloCapacitacion from './pages/ModuloCapacitacion';
 import PracticaSandbox from './pages/PracticaSandbox';
 import MiProgreso from './pages/MiProgreso';
@@ -30,8 +29,163 @@ import RutaCapacitacionLPDP from './pages/RutaCapacitacionLPDP';
 import PlanesLPDP from './pages/PlanesLPDP';
 import ModuloEIPD from './components/ModuloEIPD';
 import GestionProveedores from './components/GestionProveedores';
+import RATProduccion from './pages/RATProduccion';
+import RATFormWithCompliance from './components/RATFormWithCompliance';
+import DashboardDPO from './pages/DashboardDPO';
+import ProcesoCompletoPage from './pages/ProcesoCompleto';
+import GestionAsociaciones from './pages/GestionAsociaciones';
+import DPIAAlgoritmos from './pages/DPIAAlgoritmos';
+import ConsultaPreviaAgencia from './components/ConsultaPreviaAgencia';
 
-// Tema conservador eliminado - ahora usamos importado
+// Tema oscuro profesional - SIN HARDCODEO
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: COLORS.primary,
+    secondary: COLORS.secondary,
+    background: COLORS.background,
+    text: COLORS.text,
+    success: COLORS.semantic.success,
+    warning: COLORS.semantic.warning,
+    error: COLORS.semantic.error,
+    info: COLORS.semantic.info,
+    divider: COLORS.divider,
+  },
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontWeight: 700,
+      color: COLORS.text.primary,
+    },
+    h2: {
+      fontWeight: 600,
+      color: COLORS.text.primary,
+    },
+    h3: {
+      fontWeight: 600,
+      color: COLORS.text.primary,
+    },
+    h4: {
+      fontWeight: 600,
+      color: COLORS.text.primary,
+    },
+    h5: {
+      fontWeight: 500,
+      color: COLORS.text.primary,
+    },
+    h6: {
+      fontWeight: 500,
+      color: COLORS.text.primary,
+    },
+    body1: {
+      color: COLORS.text.primary,
+    },
+    body2: {
+      color: COLORS.text.secondary,
+    },
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundColor: COLORS.background.default,
+          color: COLORS.text.primary,
+          scrollbarColor: `${COLORS.border.strong} ${COLORS.background.paper}`,
+          '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
+            width: '8px',
+            height: '8px',
+          },
+          '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
+            borderRadius: '4px',
+            backgroundColor: COLORS.border.strong,
+            '&:hover': {
+              backgroundColor: COLORS.border.medium,
+            },
+          },
+          '&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track': {
+            backgroundColor: COLORS.background.paper,
+          },
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: COLORS.background.paper,
+          borderBottom: `1px solid ${COLORS.divider}`,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: COLORS.background.paper,
+          borderRadius: '12px',
+          border: `1px solid ${COLORS.divider}`,
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: COLORS.background.paper,
+          borderRadius: '12px',
+          border: `1px solid ${COLORS.divider}`,
+          boxShadow: `0 4px 20px ${rgba(COLORS.background.default, 0.5)}`,
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '8px',
+          textTransform: 'none',
+          fontWeight: 600,
+        },
+        contained: {
+          boxShadow: `0 2px 10px ${rgba(COLORS.primary.main, 0.3)}`,
+          '&:hover': {
+            boxShadow: `0 4px 20px ${rgba(COLORS.primary.main, 0.4)}`,
+          },
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            backgroundColor: COLORS.background.surface,
+            '& fieldset': {
+              borderColor: COLORS.border.light,
+            },
+            '&:hover fieldset': {
+              borderColor: COLORS.border.strong,
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: COLORS.primary.main,
+            },
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          backgroundColor: COLORS.background.surface,
+          color: COLORS.text.primary,
+          border: `1px solid ${COLORS.border.light}`,
+        },
+      },
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: {
+          backgroundColor: COLORS.divider,
+        },
+      },
+    },
+  },
+});
 
 // Componente de carga
 const LoadingScreen = () => (
@@ -65,9 +219,9 @@ const ProtectedRoute = ({ children, requiredPermissions = [], allowDemo = false 
     return <Navigate to="/select-tenant" replace />;
   }
 
-  // Si es usuario demo restringido y la ruta no permite demo, bloquear
+  // Si es usuario restringido y la ruta no permite acceso, bloquear
   if (isRestricted() && !allowDemo) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/dashboard-dpo" replace />;
   }
 
   // Verificar permisos si se especifican
@@ -117,12 +271,43 @@ const AppContent = () => {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={
+        <Route path="/" element={<Navigate to="/dashboard-dpo" replace />} />
+        
+        {/* Dashboard Principal del DPO */}
+        <Route path="/dashboard-dpo" element={
           <ProtectedRoute>
-            <Dashboard />
+            <DashboardDPO />
           </ProtectedRoute>
         } />
+        
+        {/* Proceso Completo - Cierre de RAT */}
+        <Route path="/proceso-completo" element={
+          <ProtectedRoute>
+            <ProcesoCompletoPage />
+          </ProtectedRoute>
+        } />
+        
+        {/* Gestión de Asociaciones */}
+        <Route path="/gestion-asociaciones" element={
+          <ProtectedRoute>
+            <GestionAsociaciones />
+          </ProtectedRoute>
+        } />
+        
+        {/* DPIA Algoritmos */}
+        <Route path="/dpia-algoritmos" element={
+          <ProtectedRoute>
+            <DPIAAlgoritmos />
+          </ProtectedRoute>
+        } />
+        
+        {/* Consulta Previa Agencia Nacional */}
+        <Route path="/consulta-previa" element={
+          <ProtectedRoute>
+            <ConsultaPreviaAgencia />
+          </ProtectedRoute>
+        } />
+        
         <Route 
           path="/modulo-cero" 
           element={
@@ -184,11 +369,6 @@ const AppContent = () => {
             <ConsolidadoRAT />
           </ProtectedRoute>
         } />
-        <Route path="/constructor-rat" element={
-          <ProtectedRoute allowDemo={true}>
-            <SandboxCompleto />
-          </ProtectedRoute>
-        } />
         <Route path="/ruta-capacitacion" element={
           <ProtectedRoute>
             <RutaCapacitacionLPDP />
@@ -204,9 +384,21 @@ const AppContent = () => {
             <GestionProveedores />
           </ProtectedRoute>
         } />
+        <Route path="/rat-produccion" element={
+          <ProtectedRoute>
+            <RATProduccion />
+          </ProtectedRoute>
+        } />
         <Route path="/reportes" element={
           <ProtectedRoute>
             <ConsolidadoRAT />
+          </ProtectedRoute>
+        } />
+        
+        {/* RAT con Compliance - Sistema Real */}
+        <Route path="/rat-compliance" element={
+          <ProtectedRoute>
+            <RATFormWithCompliance />
           </ProtectedRoute>
         } />
         
@@ -229,7 +421,7 @@ const AppContent = () => {
         />
         
         {/* Ruta por defecto */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/modulo-cero" replace />} />
       </Routes>
     </Layout>
   );
@@ -264,27 +456,27 @@ const TenantSelector = () => {
             onClick={() => handleTenantSelect(tenant)}
             style={{
               padding: '16px',
-              border: '2px solid #495057',
+              border: `2px solid ${COLORS.primary.main}`,
               borderRadius: '12px',
-              background: '#343a40',
-              color: '#ffffff',
+              background: COLORS.background.paper,
+              color: COLORS.text.primary,
               cursor: 'pointer',
               fontSize: '16px',
               fontWeight: 'bold',
               transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'
+              boxShadow: `0 4px 15px ${rgba(COLORS.background.default, 0.3)}`
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = '#495057';
-              e.target.style.borderColor = '#6c757d';
+              e.target.style.background = COLORS.background.surface;
+              e.target.style.borderColor = COLORS.primary.light;
               e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 6px 25px rgba(108, 117, 125, 0.4)';
+              e.target.style.boxShadow = `0 6px 25px ${rgba(COLORS.primary.main, 0.4)}`;
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = '#343a40';
-              e.target.style.borderColor = '#495057';
+              e.target.style.background = COLORS.background.paper;
+              e.target.style.borderColor = COLORS.primary.main;
               e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.3)';
+              e.target.style.boxShadow = `0 4px 15px ${rgba(COLORS.background.default, 0.3)}`;
             }}
           >
             {tenant.company_name}
@@ -298,7 +490,7 @@ const TenantSelector = () => {
 // Componente principal
 const App = () => {
   return (
-    <ThemeProvider theme={conservativeTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
         <TenantProvider>
