@@ -72,6 +72,7 @@ import {
   TableChart
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import proveedoresService from '../services/proveedoresService';
 
 const GestionProveedores = () => {
   const { user } = useAuth();
@@ -148,95 +149,110 @@ const GestionProveedores = () => {
     alto_riesgo: 0
   });
 
-  // Datos de ejemplo para demostración
+  // Cargar proveedores desde Supabase con fallback a datos demo
   useEffect(() => {
-    const proveedoresDemo = [
-      {
-        id: 'prov_001',
-        nombre: 'AWS Chile',
-        razon_social: 'Amazon Web Services Chile SpA',
-        rut: '77.777.777-7',
-        categoria_proveedor: 'cloud',
-        servicios_prestados: ['Hosting', 'Base de datos', 'Backup'],
-        ubicacion_datos: 'extranjero',
-        transferencias_internacionales: true,
-        paises_transferencia: ['Estados Unidos', 'Irlanda'],
-        dpa_info: {
-          firmado: true,
-          fecha_firma: '2024-01-15',
-          vigencia_fin: '2025-01-15',
-          version: '2.1',
-          requiere_renovacion: false,
-          dias_vencimiento: 120
-        },
-        evaluacion_seguridad: {
-          realizada: true,
-          fecha_evaluacion: '2024-02-01',
-          puntuacion: 95,
-          nivel_riesgo: 'bajo',
-          certificaciones: ['ISO 27001', 'SOC 2', 'PCI DSS']
-        },
-        estado: 'activo'
-      },
-      {
-        id: 'prov_002', 
-        nombre: 'Mailchimp',
-        razon_social: 'The Rocket Science Group LLC',
-        rut: 'EXT-001',
-        categoria_proveedor: 'marketing',
-        servicios_prestados: ['Email Marketing', 'Automatización'],
-        ubicacion_datos: 'extranjero',
-        transferencias_internacionales: true,
-        paises_transferencia: ['Estados Unidos'],
-        dpa_info: {
-          firmado: false,
-          requiere_renovacion: true,
-          dias_vencimiento: -30 // Vencido
-        },
-        evaluacion_seguridad: {
-          realizada: false,
-          nivel_riesgo: 'medio'
-        },
-        estado: 'activo'
-      },
-      {
-        id: 'prov_003',
-        nombre: 'Defontana',
-        razon_social: 'Defontana SpA',
-        rut: '88.888.888-8', 
-        categoria_proveedor: 'tecnologia',
-        servicios_prestados: ['Sistema RRHH', 'Nóminas'],
-        ubicacion_datos: 'chile',
-        transferencias_internacionales: false,
-        dpa_info: {
-          firmado: true,
-          fecha_firma: '2024-03-01',
-          vigencia_fin: '2025-03-01',
-          version: '1.0',
-          dias_vencimiento: 155
-        },
-        evaluacion_seguridad: {
-          realizada: true,
-          puntuacion: 78,
-          nivel_riesgo: 'bajo'
-        },
-        estado: 'activo'
+    const cargarProveedores = async () => {
+      console.log('🔍 GestionProveedores - Cargando proveedores...');
+      
+      try {
+        // Intentar cargar desde Supabase
+        const response = await proveedoresService.getProveedores();
+        
+        if (response.success && response.data.length > 0) {
+          console.log('✅ Proveedores cargados desde:', response.source, '- Cantidad:', response.data.length);
+          setProveedores(response.data);
+        } else {
+          // Fallback a datos demo si no hay proveedores en BD
+          console.log('⚠️ Sin proveedores en BD, usando datos demo');
+          const proveedoresDemo = [
+            {
+              id: 'prov_001',
+              nombre: 'AWS Chile',
+              razon_social: 'Amazon Web Services Chile SpA',
+              rut: '77.777.777-7',
+              categoria_proveedor: 'cloud',
+              servicios_prestados: ['Hosting', 'Base de datos', 'Backup'],
+              ubicacion_datos: 'extranjero',
+              transferencias_internacionales: true,
+              paises_transferencia: ['Estados Unidos', 'Irlanda'],
+              dpa_info: {
+                firmado: true,
+                fecha_firma: '2024-01-15',
+                vigencia_fin: '2025-01-15',
+                version: '2.1',
+                requiere_renovacion: false,
+                dias_vencimiento: 120
+              },
+              evaluacion_seguridad: {
+                realizada: true,
+                fecha_evaluacion: '2024-02-01',
+                puntuacion: 95,
+                nivel_riesgo: 'bajo',
+                certificaciones: ['ISO 27001', 'SOC 2', 'PCI DSS']
+              },
+              estado: 'activo',
+              tenant_id: user?.tenant_id || user?.organizacion_id || 'demo'
+            },
+            {
+              id: 'prov_002', 
+              nombre: 'Mailchimp',
+              razon_social: 'The Rocket Science Group LLC',
+              rut: 'EXT-001',
+              categoria_proveedor: 'marketing',
+              servicios_prestados: ['Email Marketing', 'Automatización'],
+              ubicacion_datos: 'extranjero',
+              transferencias_internacionales: true,
+              paises_transferencia: ['Estados Unidos'],
+              dpa_info: {
+                firmado: false,
+                requiere_renovacion: true,
+                dias_vencimiento: -30
+              },
+              evaluacion_seguridad: {
+                realizada: false,
+                nivel_riesgo: 'medio'
+              },
+              estado: 'activo',
+              tenant_id: user?.tenant_id || user?.organizacion_id || 'demo'
+            }
+          ];
+          setProveedores(proveedoresDemo);
+        }
+        
+        // Validar aislación multi-tenant
+        const validacion = await proveedoresService.validarAislacionTenant();
+        if (validacion.secure) {
+          console.log('✅ Aislación multi-tenant verificada');
+        } else {
+          console.warn('⚠️ Problema de aislación:', validacion.message);
+        }
+        
+      } catch (error) {
+        console.error('❌ Error cargando proveedores:', error);
+        setProveedores([]); // Array vacío en caso de error
       }
-    ];
-    
-    setProveedores(proveedoresDemo);
-    
-    // Calcular estadísticas
+    };
+
+    if (user) {
+      cargarProveedores();
+    }
+  }, [user]);
+
+  // Calcular estadísticas cuando cambien los proveedores
+  useEffect(() => {
     const stats = {
-      total_proveedores: proveedoresDemo.length,
-      con_dpa_firmado: proveedoresDemo.filter(p => p.dpa_info.firmado).length,
-      sin_dpa: proveedoresDemo.filter(p => !p.dpa_info.firmado).length,
-      proximos_vencer: proveedoresDemo.filter(p => p.dpa_info.dias_vencimiento < 90 && p.dpa_info.dias_vencimiento > 0).length,
-      evaluaciones_pendientes: proveedoresDemo.filter(p => !p.evaluacion_seguridad.realizada).length,
-      alto_riesgo: proveedoresDemo.filter(p => p.evaluacion_seguridad.nivel_riesgo === 'alto').length
+      total_proveedores: proveedores.length,
+      con_dpa_firmado: proveedores.filter(p => p.dpa_info?.firmado).length,
+      sin_dpa: proveedores.filter(p => !p.dpa_info?.firmado).length,
+      proximos_vencer: proveedores.filter(p => {
+        if (!p.dpa_info?.dias_vencimiento) return false;
+        return p.dpa_info.dias_vencimiento < 90 && p.dpa_info.dias_vencimiento > 0;
+      }).length,
+      evaluaciones_pendientes: proveedores.filter(p => !p.evaluacion_seguridad?.realizada).length,
+      alto_riesgo: proveedores.filter(p => p.evaluacion_seguridad?.nivel_riesgo === 'alto').length
     };
     setStats(stats);
-  }, []);
+  }, [proveedores]);
 
   const handleAddProveedor = () => {
     setDialogType('add');
@@ -247,23 +263,53 @@ const GestionProveedores = () => {
     setShowDialog(true);
   };
 
-  const handleSaveProveedor = () => {
-    if (dialogType === 'add') {
-      setProveedores([...proveedores, newProveedor]);
-    } else if (dialogType === 'edit') {
-      setProveedores(proveedores.map(p => 
-        p.id === newProveedor.id ? newProveedor : p
-      ));
+  const handleSaveProveedor = async () => {
+    try {
+      if (dialogType === 'add') {
+        console.log('💾 Guardando nuevo proveedor:', newProveedor.nombre);
+        
+        const response = await proveedoresService.createProveedor(newProveedor);
+        
+        if (response.success) {
+          console.log('✅ Proveedor creado exitosamente desde:', response.source);
+          setProveedores([...proveedores, response.data]);
+        } else {
+          console.error('❌ Error creando proveedor:', response.error);
+          alert('Error al crear proveedor: ' + (response.error || 'Error desconocido'));
+        }
+        
+      } else if (dialogType === 'edit') {
+        console.log('✏️ Actualizando proveedor:', newProveedor.id);
+        
+        const response = await proveedoresService.updateProveedor(newProveedor.id, newProveedor);
+        
+        if (response.success) {
+          console.log('✅ Proveedor actualizado exitosamente desde:', response.source);
+          setProveedores(proveedores.map(p => 
+            p.id === newProveedor.id ? response.data : p
+          ));
+        } else {
+          console.error('❌ Error actualizando proveedor:', response.error);
+          alert('Error al actualizar proveedor: ' + (response.error || 'Error desconocido'));
+        }
+      }
+      
+      setShowDialog(false);
+      
+      // Reset form
+      setNewProveedor({
+        ...newProveedor,
+        id: `prov_${Date.now()}`,
+        nombre: '',
+        razon_social: '',
+        rut: '',
+        tenant_id: user?.tenant_id || user?.organizacion_id || 'demo'
+      });
+      
+    } catch (error) {
+      console.error('❌ Error en handleSaveProveedor:', error);
+      alert('Error al guardar proveedor: ' + error.message);
     }
-    setShowDialog(false);
-    // Reset form
-    setNewProveedor({
-      ...newProveedor,
-      id: `prov_${Date.now()}`,
-      nombre: '',
-      razon_social: '',
-      rut: ''
-    });
   };
 
   const getRiskColor = (riesgo) => {
@@ -329,17 +375,87 @@ CLAUSULAS ESTÁNDAR:
       marketing: {
         nombre: 'DPA_Marketing_Digital_LPDP.docx',
         contenido: `ACUERDO DE PROCESAMIENTO DE DATOS (DPA)
-MARKETING DIGITAL - LEY 21.719`
+MARKETING DIGITAL - LEY 21.719
+
+CLAUSULAS ESPECÍFICAS PARA EMAIL MARKETING:
+1. OBJETO Y ALCANCE
+2. BASES DE DATOS DE CONTACTOS
+3. CONSENTIMIENTO Y OPT-OUT
+4. SEGMENTACIÓN Y PERFILADO
+5. MÉTRICAS Y ANALYTICS
+6. RETENCIÓN DE DATOS
+7. TRANSFERENCIAS INTERNACIONALES
+8. CUMPLIMIENTO CAN-SPAM Y GDPR
+9. DERECHOS DE LOS TITULARES
+10. LEY 21.719 - CHILE`
+      },
+      rrhh: {
+        nombre: 'DPA_Sistemas_RRHH_LPDP.docx',
+        contenido: `ACUERDO DE PROCESAMIENTO DE DATOS (DPA)
+SISTEMAS DE RECURSOS HUMANOS - LEY 21.719
+
+CLAUSULAS PARA DATOS DE EMPLEADOS:
+1. DATOS SENSIBLES DE TRABAJADORES
+2. INFORMACIÓN DE NÓMINAS
+3. EVALUACIONES DE DESEMPEÑO
+4. DATOS BIOMÉTRICOS
+5. INFORMACIÓN PREVISIONAL
+6. RETENCIÓN SEGÚN CÓDIGO TRABAJO
+7. ACCESO RESTRINGIDO
+8. AUDITORÍA Y LOGS
+9. RESPALDOS SEGUROS
+10. CUMPLIMIENTO LEY 21.719`
+      },
+      local: {
+        nombre: 'DPA_Servicios_Locales_LPDP.docx',
+        contenido: `ACUERDO DE PROCESAMIENTO DE DATOS (DPA)
+SERVICIOS LOCALES CHILE - LEY 21.719
+
+CLAUSULAS NACIONALES:
+1. OBJETO Y DEFINICIONES
+2. DATOS DENTRO DE CHILE
+3. SIN TRANSFERENCIAS INTERNACIONALES
+4. CUMPLIMIENTO LEY 21.719
+5. MEDIDAS DE SEGURIDAD LOCALES
+6. FISCALIZACIÓN AUTORIDAD
+7. NOTIFICACIÓN DE BRECHAS
+8. DERECHOS ARCO
+9. RESPONSABILIDAD CIVIL
+10. JURISDICCIÓN CHILENA`
       },
       logistica: {
         nombre: 'DPA_Logistica_Transporte_LPDP.docx', 
         contenido: `ACUERDO DE PROCESAMIENTO DE DATOS (DPA)
-LOGÍSTICA Y TRANSPORTE - LEY 21.719`
+LOGÍSTICA Y TRANSPORTE - LEY 21.719
+
+CLAUSULAS ESPECÍFICAS LOGÍSTICA:
+1. DATOS DE ENVÍOS
+2. INFORMACIÓN DE DESTINATARIOS
+3. GEOLOCALIZACIÓN Y TRACKING
+4. DATOS DE CONDUCTORES
+5. INFORMACIÓN ADUANERA
+6. RETENCIÓN POR TRAZABILIDAD
+7. COMPARTIR CON TERCEROS
+8. SEGURIDAD EN TRÁNSITO
+9. RESPALDOS OPERACIONALES
+10. LEY 21.719 Y NORMATIVA TRANSPORTE`
       },
       consultoria: {
         nombre: 'DPA_Consultoria_Profesional_LPDP.docx',
         contenido: `ACUERDO DE PROCESAMIENTO DE DATOS (DPA)
-CONSULTORÍA PROFESIONAL - LEY 21.719`
+CONSULTORÍA PROFESIONAL - LEY 21.719
+
+CLAUSULAS PARA CONSULTORES:
+1. CONFIDENCIALIDAD EXTENDIDA
+2. ACCESO LIMITADO A DATOS
+3. USO EXCLUSIVO PARA PROYECTO
+4. PROHIBICIÓN DE COPIA
+5. DEVOLUCIÓN AL FINALIZAR
+6. DESTRUCCIÓN CERTIFICADA
+7. NO SUBCONTRATACIÓN
+8. AUDITORÍAS PERIÓDICAS
+9. SEGURO DE RESPONSABILIDAD
+10. CUMPLIMIENTO LEY 21.719`
       }
     };
 
@@ -500,13 +616,42 @@ CONSULTORÍA PROFESIONAL - LEY 21.719`
                   )}
                 </TableCell>
                 <TableCell>
-                  <IconButton size="small" title="Ver detalles">
+                  <IconButton 
+                    size="small" 
+                    title="Ver detalles"
+                    onClick={() => {
+                      setSelectedProveedor(proveedor);
+                      setDialogType('ver_evaluacion');
+                      setShowDialog(true);
+                    }}
+                  >
                     <Visibility />
                   </IconButton>
-                  <IconButton size="small" title="Editar">
+                  <IconButton 
+                    size="small" 
+                    title="Editar"
+                    onClick={() => {
+                      setNewProveedor(proveedor);
+                      setDialogType('edit');
+                      setShowDialog(true);
+                    }}
+                  >
                     <Edit />
                   </IconButton>
-                  <IconButton size="small" title="Generar DPA">
+                  <IconButton 
+                    size="small" 
+                    title="Generar DPA"
+                    onClick={() => {
+                      const dpaContent = generateDPATemplate(proveedor);
+                      const blob = new Blob([dpaContent], { type: 'text/plain;charset=utf-8' });
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = `DPA_${proveedor.nombre.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+                      link.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                  >
                     <Assignment />
                   </IconButton>
                 </TableCell>
@@ -602,6 +747,48 @@ CONSULTORÍA PROFESIONAL - LEY 21.719`
                 variant="outlined" 
                 startIcon={<Download />}
                 onClick={() => handleDownloadDPATemplate('local')}
+              >
+                Descargar Plantilla
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Logística y Transporte
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Plantilla para servicios de logística, courier y transporte con 
+                tracking y geolocalización.
+              </Typography>
+              <Button 
+                variant="outlined" 
+                startIcon={<Download />}
+                onClick={() => handleDownloadDPATemplate('logistica')}
+              >
+                Descargar Plantilla
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Consultoría Profesional
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Plantilla para consultores externos con acceso limitado y 
+                confidencialidad extendida.
+              </Typography>
+              <Button 
+                variant="outlined" 
+                startIcon={<Download />}
+                onClick={() => handleDownloadDPATemplate('consultoria')}
               >
                 Descargar Plantilla
               </Button>

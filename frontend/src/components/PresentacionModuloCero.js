@@ -34,7 +34,7 @@ const PresentacionModuloCero = ({ autoStart = false }) => {
 
   const openInNewWindow = () => {
     // Intentar abrir el HTML, si falla usar la versión React embebida
-    const newWindow = window.open('/presentacion-modulo-cero.html', '_blank', 
+    const newWindow = window.open('/presentacion-modulo-cero.html?v=2', '_blank', 
       'width=1200,height=800,scrollbars=yes,resizable=yes');
     
     // Si no se puede abrir, mostrar el diálogo interno
@@ -169,7 +169,7 @@ const PresentacionModuloCero = ({ autoStart = false }) => {
           
           <DialogContent sx={{ p: 0, height: '100%' }}>
             <iframe
-              src="/presentacion-modulo-cero.html"
+              src="/presentacion-modulo-cero.html?v=2"
               style={{
                 width: '100%',
                 height: '100%',

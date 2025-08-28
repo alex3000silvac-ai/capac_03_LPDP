@@ -48,6 +48,21 @@ import {
   Assessment,
   Visibility,
   Edit,
+  Person,
+  VerifiedUser,
+  Target,
+  Minimize,
+  CheckCircle,
+  CloudDownload,
+  Block,
+  SmartToy,
+  Shield,
+  Error,
+  VisibilityOff,
+  Balance,
+  Architecture,
+  Description,
+  TableChart,
   Delete,
   Block,
   Description,
@@ -1236,6 +1251,362 @@ const GlosarioLPDP = () => {
         'Evaluación crediticia previa'
       ],
       requisito: 'A solicitud del interesado'
+    },
+    
+    // TÉRMINOS AGREGADOS DEL GLOSARIO EXTENDIDO LEY 21.719
+    titular_datos: {
+      termino: 'Titular de los Datos',
+      definicion: 'Persona natural a quien se refieren los datos personales que son objeto de tratamiento. Es el protagonista y beneficiario final de la ley, empoderado con un catálogo de derechos robustos.',
+      articulo: 'Art. 2, lit. t',
+      categoria: 'sujetos',
+      icono: <Person />,
+      importante: true,
+      nota_chile: 'La Ley 21.719 empodera al titular con derechos administrativos expeditos ante la APDP, sin necesidad de recurrir a tribunales.'
+    },
+    
+    responsable_tratamiento: {
+      termino: 'Responsable del Tratamiento',
+      definicion: 'Persona natural o jurídica, pública o privada, que toma las decisiones sobre los fines y medios del tratamiento de datos personales.',
+      articulo: 'Art. 2, lit. r',
+      categoria: 'sujetos',
+      icono: <Business />,
+      importante: true,
+      ejemplos: [
+        'Empresas que recopilan datos de clientes',
+        'Instituciones públicas',
+        'Organizaciones sin fines de lucro',
+        'Profesionales independientes'
+      ],
+      nota_chile: 'Su responsabilidad es indelegable, incluso si externaliza el procesamiento a terceros.'
+    },
+    
+    encargado_tratamiento: {
+      termino: 'Encargado del Tratamiento',
+      definicion: 'Persona que trata datos personales por cuenta y en nombre del responsable, siguiendo sus instrucciones. También conocido como mandatario o procesador de datos.',
+      articulo: 'Art. 2, lit. h',
+      categoria: 'sujetos',
+      icono: <Engineering />,
+      ejemplos: [
+        'Proveedores de servicios cloud',
+        'Empresas de marketing digital',
+        'Procesadores de nómina externos',
+        'Consultoras de análisis de datos'
+      ],
+      nota_chile: 'Requiere contrato formal que regule sus obligaciones con el responsable.'
+    },
+    
+    delegado_proteccion_datos: {
+      termino: 'Delegado de Protección de Datos (DPO)',
+      definicion: 'Profesional con conocimientos especializados en protección de datos que supervisa el cumplimiento interno, asesora a la organización y actúa como punto de contacto con la APDP.',
+      articulo: 'Art. 46',
+      categoria: 'compliance',
+      icono: <VerifiedUser />,
+      importante: true,
+      nota_chile: 'Obligatorio para organizaciones con Modelo de Prevención de Infracciones. Altamente recomendable para tratamientos de alto riesgo.'
+    },
+    
+    principio_licitud: {
+      termino: 'Principio de Licitud, Lealtad y Transparencia',
+      definicion: 'Todo tratamiento debe ser lícito (con base legal), leal (sin engaño) y transparente (informando claramente al titular).',
+      articulo: 'Art. 12',
+      categoria: 'principios',
+      icono: <Gavel />,
+      importante: true,
+      nota_chile: 'Fundamento de todo tratamiento legítimo de datos en Chile.'
+    },
+    
+    principio_finalidad: {
+      termino: 'Principio de Finalidad',
+      definicion: 'Los datos deben recolectarse para fines específicos, explícitos y legítimos, no pudiendo tratarse posteriormente para fines incompatibles.',
+      articulo: 'Art. 13',
+      categoria: 'principios',
+      icono: <Target />,
+      ejemplos: [
+        'Datos de contacto para envío de productos',
+        'Información médica para tratamiento de salud',
+        'Datos laborales para gestión de nómina'
+      ]
+    },
+    
+    principio_minimizacion: {
+      termino: 'Principio de Minimización',
+      definicion: 'El tratamiento debe ser adecuado, pertinente y limitado a lo estrictamente necesario. No recolectar más datos de los requeridos.',
+      articulo: 'Art. 14',
+      categoria: 'principios',
+      icono: <Minimize />,
+      importante: true,
+      nota_chile: 'Obliga a justificar cada dato solicitado en formularios y procesos.'
+    },
+    
+    principio_calidad: {
+      termino: 'Principio de Calidad',
+      definicion: 'Los datos deben ser exactos, completos y actualizados. El responsable debe adoptar medidas para corregir o suprimir datos inexactos.',
+      articulo: 'Art. 15',
+      categoria: 'principios',
+      icono: <CheckCircle />
+    },
+    
+    principio_seguridad: {
+      termino: 'Principio de Seguridad',
+      definicion: 'Implementar medidas técnicas y organizativas apropiadas para garantizar un nivel de seguridad adecuado al riesgo del tratamiento.',
+      articulo: 'Art. 16',
+      categoria: 'principios',
+      icono: <Security />,
+      importante: true,
+      ejemplos: [
+        'Cifrado de datos',
+        'Control de accesos',
+        'Respaldos periódicos',
+        'Planes de contingencia'
+      ]
+    },
+    
+    principio_confidencialidad: {
+      termino: 'Principio de Confidencialidad',
+      definicion: 'Obligación de guardar secreto sobre los datos personales. Esta obligación subsiste incluso después de finalizada la relación.',
+      articulo: 'Art. 17',
+      categoria: 'principios',
+      icono: <Lock />
+    },
+    
+    principio_responsabilidad_proactiva: {
+      termino: 'Principio de Responsabilidad Proactiva (Accountability)',
+      definicion: 'No solo cumplir con la ley, sino ser capaz de demostrar dicho cumplimiento ante la APDP mediante documentación y evidencias.',
+      articulo: 'Art. 18',
+      categoria: 'principios',
+      icono: <Assignment />,
+      importante: true,
+      nota_chile: 'Cambio fundamental: ya no basta cumplir, hay que demostrar que se cumple.'
+    },
+    
+    derecho_portabilidad: {
+      termino: 'Derecho de Portabilidad',
+      definicion: 'Derecho a recibir los datos personales en formato digital, estructurado y de uso común, y solicitar su transferencia a otro responsable.',
+      articulo: 'Art. 19',
+      categoria: 'derechos',
+      icono: <CloudDownload />,
+      nuevo: true,
+      nota_chile: 'Nuevo derecho que fomenta la competencia entre proveedores de servicios.'
+    },
+    
+    derecho_bloqueo: {
+      termino: 'Derecho de Bloqueo',
+      definicion: 'Permite solicitar la suspensión temporal del tratamiento mientras se resuelve una solicitud de rectificación, supresión u oposición.',
+      articulo: 'Art. 19',
+      categoria: 'derechos',
+      icono: <Block />,
+      nuevo: true,
+      nota_chile: 'Medida cautelar que protege al titular durante el proceso de reclamación.'
+    },
+    
+    derecho_oposicion_decisiones: {
+      termino: 'Oposición a Decisiones Automatizadas',
+      definicion: 'Derecho a no ser objeto de decisiones basadas únicamente en tratamiento automatizado que produzcan efectos jurídicos significativos.',
+      articulo: 'Art. 19',
+      categoria: 'derechos',
+      icono: <SmartToy />,
+      nuevo: true,
+      importante: true,
+      ejemplos: [
+        'Aprobación automática de créditos',
+        'Selección algorítmica de personal',
+        'Perfilado para seguros'
+      ],
+      nota_chile: 'Protección contra la "tiranía del algoritmo". Exige posibilidad de revisión humana.'
+    },
+    
+    eipd: {
+      termino: 'Evaluación de Impacto (EIPD/DPIA)',
+      definicion: 'Análisis preventivo y sistemático de riesgos que un tratamiento podría generar para los derechos de los titulares. Obligatoria para tratamientos de alto riesgo.',
+      articulo: 'Art. 22',
+      categoria: 'compliance',
+      icono: <Assessment />,
+      importante: true,
+      ejemplos: [
+        'Tratamiento masivo de datos sensibles',
+        'Vigilancia sistemática de espacios públicos',
+        'Uso de IA para decisiones críticas'
+      ],
+      nota_chile: 'Herramienta fundamental de privacidad desde el diseño. Su omisión es infracción grave.'
+    },
+    
+    registro_actividades_tratamiento: {
+      termino: 'Registro de Actividades de Tratamiento (RAT)',
+      definicion: 'Inventario detallado de todas las actividades de tratamiento de datos que realiza una organización. Debe mantenerse actualizado y disponible para la APDP.',
+      articulo: 'Art. 21',
+      categoria: 'compliance',
+      icono: <TableChart />,
+      importante: true,
+      nota_chile: 'Columna vertebral de la gobernanza de datos. Primer documento que solicitará la APDP en fiscalizaciones.'
+    },
+    
+    brecha_seguridad: {
+      termino: 'Brecha de Seguridad',
+      definicion: 'Vulneración de seguridad que afecta datos personales. Debe notificarse a la APDP sin dilación indebida y, si hay alto riesgo, también a los afectados.',
+      articulo: 'Art. 23',
+      categoria: 'seguridad',
+      icono: <Warning />,
+      importante: true,
+      ejemplos: [
+        'Hackeo de base de datos',
+        'Pérdida de dispositivos con información',
+        'Acceso no autorizado a sistemas',
+        'Envío erróneo de datos a terceros'
+      ],
+      nota_chile: 'Transparencia obligatoria. El ocultamiento es infracción grave.'
+    },
+    
+    transferencia_internacional: {
+      termino: 'Transferencia Internacional',
+      definicion: 'Envío de datos personales fuera de Chile. Solo permitida a países con nivel adecuado de protección o con garantías suficientes.',
+      articulo: 'Art. 24',
+      categoria: 'compliance',
+      icono: <Public />,
+      importante: true,
+      ejemplos: [
+        'Uso de servicios cloud internacionales',
+        'Compartir datos con filiales extranjeras',
+        'Procesamiento offshore'
+      ],
+      nota_chile: 'Crítico para empresas globales. Requiere mecanismos legales válidos para cada transferencia.'
+    },
+    
+    modelo_prevencion_infracciones: {
+      termino: 'Modelo de Prevención de Infracciones (MPI)',
+      definicion: 'Sistema voluntario de gestión de cumplimiento que incluye DPO, identificación de riesgos, protocolos y canales de denuncia. Atenúa sanciones si está certificado.',
+      articulo: 'Art. 45-46',
+      categoria: 'compliance',
+      icono: <Shield />,
+      importante: true,
+      nota_chile: 'Herramienta estratégica de gestión de riesgos. Puede reducir significativamente las multas.'
+    },
+    
+    infraccion_leve: {
+      termino: 'Infracción Leve',
+      definicion: 'Incumplimientos formales o de información, como no comunicar toda la información requerida a los titulares.',
+      articulo: 'Art. 34',
+      categoria: 'sanciones',
+      icono: <Info />,
+      multa: 'Hasta 500 UTM'
+    },
+    
+    infraccion_grave: {
+      termino: 'Infracción Grave',
+      definicion: 'Violaciones a principios o derechos, como tratar datos sin base legal, no adoptar medidas de seguridad u omitir notificación de brechas.',
+      articulo: 'Art. 35',
+      categoria: 'sanciones',
+      icono: <Warning />,
+      importante: true,
+      multa: 'Hasta 5.000 UTM o 2% de ingresos anuales'
+    },
+    
+    infraccion_gravisima: {
+      termino: 'Infracción Gravísima',
+      definicion: 'Conductas dolosas o con desprecio manifiesto por la normativa, como tratamiento fraudulento o desobediencia a la APDP.',
+      articulo: 'Art. 36',
+      categoria: 'sanciones',
+      icono: <Error />,
+      importante: true,
+      multa: 'Hasta 20.000 UTM o 4% de ingresos anuales'
+    },
+    
+    registro_nacional_cumplimiento: {
+      termino: 'Registro Nacional de Cumplimiento',
+      definicion: 'Registro público administrado por la APDP donde se inscriben las sanciones firmes. Añade sanción reputacional a la económica.',
+      articulo: 'Art. 40',
+      categoria: 'sanciones',
+      icono: <Visibility />,
+      nota_chile: 'La publicidad de infracciones puede generar más daño reputacional que la propia multa.'
+    },
+    
+    fuentes_accesibles_publico: {
+      termino: 'Fuentes Accesibles al Público',
+      definicion: 'Registros o recopilaciones de datos personales de acceso no restringido o reservado a solicitantes, como guías telefónicas o registros públicos.',
+      articulo: 'Art. 2, lit. i',
+      categoria: 'conceptos',
+      icono: <Public />,
+      ejemplos: [
+        'Diario Oficial',
+        'Registros públicos del Estado',
+        'Guías telefónicas publicadas',
+        'Listas profesionales públicas'
+      ]
+    },
+    
+    datos_anonimizados: {
+      termino: 'Datos Anonimizados',
+      definicion: 'Información que no puede relacionarse con una persona identificada o identificable. Al anonimizarse, dejan de ser datos personales.',
+      articulo: 'Art. 2',
+      categoria: 'conceptos',
+      icono: <VisibilityOff />,
+      nota_chile: 'La anonimización debe ser irreversible para que los datos queden fuera del ámbito de la ley.'
+    },
+    
+    seudonimizacion: {
+      termino: 'Seudonimización',
+      definicion: 'Tratamiento que impide atribuir datos a un titular sin información adicional mantenida por separado con medidas técnicas.',
+      articulo: 'Art. 2',
+      categoria: 'seguridad',
+      icono: <Fingerprint />,
+      nota_chile: 'A diferencia de la anonimización, la seudonimización es reversible y los datos siguen siendo personales.'
+    },
+    
+    interes_legitimo: {
+      termino: 'Interés Legítimo',
+      definicion: 'Base legal que permite el tratamiento cuando es necesario para intereses legítimos del responsable, siempre que no prevalezcan los derechos del titular.',
+      articulo: 'Art. 11',
+      categoria: 'conceptos',
+      icono: <Balance />,
+      importante: true,
+      nota_chile: 'Requiere test de ponderación documentado entre intereses empresariales y derechos individuales.'
+    },
+    
+    privacidad_desde_diseno: {
+      termino: 'Privacidad desde el Diseño',
+      definicion: 'Principio que exige considerar la protección de datos desde las fases iniciales de diseño de productos, servicios o procesos.',
+      articulo: 'Implícito en Art. 22',
+      categoria: 'principios',
+      icono: <Architecture />,
+      importante: true,
+      nota_chile: 'Se materializa principalmente a través de las EIPD para proyectos nuevos.'
+    },
+    
+    vigencia_ley: {
+      termino: 'Vigencia de la Ley 21.719',
+      definicion: 'La ley fue publicada el 13 de diciembre de 2024 y entrará en plena vigencia el 1 de diciembre de 2026, con período de transición.',
+      articulo: 'Artículos transitorios',
+      categoria: 'legal',
+      icono: <Timer />,
+      importante: true,
+      nota_chile: 'Las organizaciones tienen hasta diciembre 2026 para adaptarse completamente.'
+    },
+    
+    clausulas_contractuales_tipo: {
+      termino: 'Cláusulas Contractuales Tipo',
+      definicion: 'Modelos de contratos aprobados por la APDP que ofrecen garantías suficientes para transferencias internacionales de datos.',
+      articulo: 'Art. 24',
+      categoria: 'compliance',
+      icono: <Description />,
+      nota_chile: 'Mecanismo clave para transferencias a países sin decisión de adecuación.'
+    },
+    
+    decision_adecuacion: {
+      termino: 'Decisión de Adecuación',
+      definicion: 'Determinación de la APDP de que un país u organización internacional ofrece nivel adecuado de protección de datos.',
+      articulo: 'Art. 24',
+      categoria: 'compliance',
+      icono: <VerifiedUser />,
+      nota_chile: 'Facilita enormemente las transferencias internacionales al país reconocido.'
+    },
+    
+    habeas_data: {
+      termino: 'Habeas Data',
+      definicion: 'Garantía constitucional que protege el derecho de acceso y control sobre los datos personales propios en bases de datos.',
+      articulo: 'Art. 19 N°4 Constitución',
+      categoria: 'derechos',
+      icono: <Gavel />,
+      importante: true,
+      nota_chile: 'Derecho constitucional que la Ley 21.719 operacionaliza y fortalece.'
     }
   };
 

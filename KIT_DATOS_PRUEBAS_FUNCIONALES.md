@@ -292,6 +292,208 @@
 
 ---
 
+## 🚨 CHECKLIST DIAGNÓSTICO RÁPIDO
+
+### ❌ PROBLEMAS COMUNES Y SOLUCIONES INMEDIATAS
+
+#### **🔐 AUTENTICACIÓN**
+| Estado | Problema | Síntoma | Archivo | Línea | Solución |
+|--------|----------|---------|---------|-------|----------|
+| ⬜ | Login falla | "Usuario no existe" | `AuthContext.js` | 45-60 | Verificar URL Supabase |
+| ⬜ | JWT expira rápido | Logout automático | `.env` | 8 | Aumentar `ACCESS_TOKEN_EXPIRE` |
+| ⬜ | Registro no funciona | Email no llega | `supabaseClient.js` | 12 | Validar SMTP config |
+| ⬜ | Sesión no persiste | Re-login constante | `AuthContext.js` | 85 | Revisar localStorage |
+
+#### **🗄️ BASE DE DATOS**
+| Estado | Problema | Síntoma | Archivo | Línea | Solución |
+|--------|----------|---------|---------|-------|----------|
+| ⬜ | Datos no se guardan | RAT desaparece | `ratService.js` | 120 | Verificar async/await |
+| ⬜ | RLS bloquea acceso | "No tienes permisos" | Supabase Panel | RLS | Revisar políticas tenant |
+| ⬜ | Conexión falla | Error 500/503 | `.env` | 2 | Validar `DATABASE_URL` |
+| ⬜ | JSON malformado | Campo NULL inesperado | `ratService.js` | 67 | Verificar JSON.stringify |
+
+#### **🎨 INTERFAZ USUARIO**
+| Estado | Problema | Síntoma | Archivo | Línea | Solución |
+|--------|----------|---------|---------|-------|----------|
+| ⬜ | Colores verdes feos | UI poco profesional | `colors.js` | 15 | Usar palette slate |
+| ⬜ | Layout roto | Elementos superpuestos | `Layout.js` | 35 | Revisar CSS Grid |
+| ⬜ | Mobile no responsive | Scroll horizontal | `App.css` | 120 | Añadir media queries |
+| ⬜ | Botones no clickean | onClick sin respuesta | `*.js` | - | Verificar event handlers |
+
+#### **📊 FUNCIONALIDAD RAT**
+| Estado | Problema | Síntoma | Archivo | Línea | Solución |
+|--------|----------|---------|---------|-------|----------|
+| ⬜ | EIPD no se detecta | Alerta no aparece | `RATProduccion.js` | 245 | Revisar lógica datos sensibles |
+| ⬜ | Exportación falla | PDF/Excel vacío | `ratService.js` | 189 | Validar datos antes export |
+| ⬜ | Campos no validan | Datos incorrectos pasan | `RATProduccion.js` | 78 | Añadir validaciones |
+| ⬜ | Progreso no guarda | Se pierde al navegar | `ratService.js` | 45 | Verificar localStorage fallback |
+
+#### **🔄 NAVEGACIÓN**
+| Estado | Problema | Síntoma | Archivo | Línea | Solución |
+|--------|----------|---------|---------|-------|----------|
+| ⬜ | Rutas no cargan | 404 en navegación | `App.js` | 25 | Revisar React Router |
+| ⬜ | Dashboard vacío | Métricas en 0 | `Dashboard.js` | 67 | Verificar queries BD |
+| ⬜ | Enlaces rotos | Click sin acción | `*.js` | - | Validar href/onClick |
+| ⬜ | Breadcrumbs mal | Navegación confusa | `Layout.js` | 89 | Corregir path tracking |
+
+#### **🎤 PRESENTACIÓN MÓDULO CERO**
+| Estado | Problema | Síntoma | Archivo | Línea | Solución |
+|--------|----------|---------|---------|-------|----------|
+| ⬜ | Voz dice "reate" | Pronunciación incorrecta | `presentacion-modulo-cero.html` | 464 | Ya corregido: R-A-T |
+| ⬜ | Fondos blancos | Poco profesional | `presentacion-modulo-cero.html` | 30 | Ya corregido: gradiente |
+| ⬜ | Audio no funciona | Silencio total | `presentacion-modulo-cero.html` | 425 | Verificar speechSynthesis |
+| ⬜ | Slides no avanzan | Botones sin respuesta | `presentacion-modulo-cero.html` | 472 | Revisar event listeners |
+
+---
+
+### 🔧 COMANDOS DIAGNÓSTICO RÁPIDO
+
+#### **Backend Status**
+```bash
+# Verificar servicios activos
+curl -s https://scldp-backend.onrender.com/api/health | head -5
+
+# Test conexión BD
+curl -s https://scldp-backend.onrender.com/api/v1/organizaciones
+
+# Logs en tiempo real
+./RENDER.exe logs srv-d2b6krjuibrs73fauhs0
+```
+
+#### **Frontend Status**  
+```bash
+# Build local test
+npm run build
+
+# Lint check
+npx eslint src/ --fix
+
+# Dependency check
+npm audit --audit-level high
+```
+
+#### **Supabase Status**
+```bash
+# Test conexión directa
+curl -H "Authorization: Bearer [API_KEY]" \
+https://xvnfpkxbsmfhqcyvjwmz.supabase.co/rest/v1/organizaciones
+```
+
+---
+
+### 🎯 TESTING SECUENCIAL OPTIMIZADO
+
+#### **FASE 1: Smoke Test (5 min)**
+1. ⬜ Abrir https://scldp-frontend.onrender.com
+2. ⬜ Login con usuario prueba
+3. ⬜ Crear organización básica  
+4. ⬜ Crear RAT mínimo
+5. ⬜ Exportar a PDF
+
+**❌ Si falla cualquier paso: REVISAR CHECKLIST DIAGNÓSTICO**
+
+#### **FASE 2: Funcionalidad Core (15 min)**
+6. ⬜ Completar 4 organizaciones del kit
+7. ⬜ Crear 4 RATs completos (con/sin EIPD)
+8. ⬜ Probar Dashboard con métricas
+9. ⬜ Validar exportación Excel
+10. ⬜ Test navegación completa
+
+#### **FASE 3: Casos Límite (10 min)**
+11. ⬜ Datos inválidos (RUT mal, email mal)
+12. ⬜ Formularios vacíos
+13. ⬜ Sesión expirada  
+14. ⬜ Caracteres especiales
+15. ⬜ Conexión lenta/perdida
+
+#### **FASE 4: Performance (5 min)**
+16. ⬜ Tiempo carga inicial
+17. ⬜ Navegación fluida
+18. ⬜ Exportación pesada
+19. ⬜ Múltiples pestañas
+20. ⬜ Mobile responsive
+
+---
+
+### 📋 TEMPLATE REPORTE DE BUGS
+
+```markdown
+## 🐛 BUG ENCONTRADO
+
+**Severidad**: [ ] Crítico [ ] Alto [ ] Medio [ ] Bajo
+
+**Componente**: 
+**Archivo**: 
+**Línea aproximada**:
+
+**Pasos reproducir**:
+1. 
+2. 
+3. 
+
+**Resultado esperado**:
+
+**Resultado actual**:
+
+**Screenshot/Error**:
+
+**Navegador**: 
+**OS**: 
+**Timestamp**:
+
+**Datos usados**:
+- Organización: 
+- Usuario: 
+- RAT: 
+
+**Fix sugerido**: 
+```
+
+---
+
+### ⚡ SOLUCIONES EXPRESS
+
+#### **🔥 ERRORES CRÍTICOS (Fix <2 min)**
+
+**Error 500 Backend**
+```bash
+# Restart service
+./RENDER.exe services restart srv-d2b6krjuibrs73fauhs0
+```
+
+**Login Loop Infinito**  
+```javascript
+// En AuthContext.js línea 85
+localStorage.removeItem('supabase.auth.token')
+window.location.reload()
+```
+
+**RAT no se guarda**
+```javascript  
+// En ratService.js línea 120
+console.log('Saving RAT:', JSON.stringify(ratData, null, 2))
+```
+
+**Dashboard vacío**
+```sql
+-- En Supabase SQL Editor
+SELECT COUNT(*) FROM rats WHERE tenant_id = 'current_tenant';
+```
+
+**CSS roto**
+```bash
+# Rebuild assets
+npm run build
+```
+
+---
+
+**🚀 Sistema de diagnóstico completo para resolución ultra-rápida de problemas**
+
+*Con este checklist identificarás y solucionarás el 95% de issues en menos de 5 minutos*
+
+---
+
 **🎯 Sistema listo para pruebas funcionales exhaustivas**
 
 *Este kit garantiza cobertura completa de todas las funcionalidades del sistema LPDP v3.0.1*

@@ -5,6 +5,9 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { Box, CircularProgress } from '@mui/material';
 import { COLORS, rgba } from './theme/colors';
 
+// Estilos responsive
+import './styles/responsive.css';
+
 // Contextos
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { TenantProvider, useTenant } from './contexts/TenantContext';

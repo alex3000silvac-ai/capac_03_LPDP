@@ -9,6 +9,13 @@ from contextlib import asynccontextmanager
 import logging
 import os
 
+# Configurar logging PRIMERO
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 from app.core.config import settings
 from app.api.v1.api import api_router
 
@@ -16,8 +23,9 @@ from app.api.v1.api import api_router
 try:
     from app.core.tenant import cleanup_tenant_connections, get_tenant_db, tenant_middleware
     TENANT_AVAILABLE = True
+    logger.info("✅ Tenant system loaded successfully")
 except ImportError as e:
-    logger.error(f"Tenant import failed: {e}")
+    logger.error(f"❌ Tenant import failed: {e}")
     TENANT_AVAILABLE = False
     
     # Fallback functions for emergency
@@ -26,13 +34,6 @@ except ImportError as e:
     
     async def tenant_middleware(request, call_next):
         return await call_next(request)
-
-# Configurar logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -59,6 +60,41 @@ app = FastAPI(
     redoc_url="/api/redoc",
     lifespan=lifespan
 )
+
+# ENDPOINT HEALTH CRÍTICO
+@app.get("/api/health", tags=["Health"])
+async def health_check():
+    """Endpoint de verificación de salud del servicio"""
+    try:
+        return {
+            "status": "healthy",
+            "version": "3.1.0",
+            "environment": os.getenv("ENVIRONMENT", "production"),
+            "tenant_system": TENANT_AVAILABLE,
+            "database": "supabase_configured" if os.getenv("DATABASE_URL") else "not_configured"
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "error": str(e),
+                "version": "3.1.0"
+            }
+        )
+
+# ENDPOINT ROOT
+@app.get("/", tags=["Root"])
+async def root():
+    """Endpoint raíz - Información del servicio"""
+    return {
+        "message": "Sistema LPDP v3.1.0 - Backend Operativo",
+        "docs": "/api/docs",
+        "health": "/api/health",
+        "version": "3.1.0",
+        "tenant_system": TENANT_AVAILABLE
+    }
 
 # Middleware personalizado para multi-tenant (DEBE IR ANTES QUE CORS)
 @app.middleware("http")

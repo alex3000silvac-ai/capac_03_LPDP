@@ -1,0 +1,396 @@
+/* ========================================
+   ESTILOS RESPONSIVE SISTEMA LPDP v3.0.1
+   Optimización móvil básica
+   ======================================== */
+
+/* BREAKPOINTS */
+/* Mobile: 320px - 768px */
+/* Tablet: 768px - 1024px */
+/* Desktop: 1024px+ */
+
+/* ========================================
+   UTILIDADES GENERALES MÓVIL
+   ======================================== */
+@media (max-width: 768px) {
+  /* Ocultar elementos no críticos en móvil */
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* Textos más pequeños en móvil */
+  .MuiTypography-h1 {
+    font-size: 2rem !important;
+  }
+
+  .MuiTypography-h2 {
+    font-size: 1.75rem !important;
+  }
+
+  .MuiTypography-h3 {
+    font-size: 1.5rem !important;
+  }
+
+  .MuiTypography-h4 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Reducir padding en contenedores */
+  .MuiContainer-root {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  /* Botones más grandes para touch */
+  .MuiButton-root {
+    min-height: 44px !important;
+  }
+
+  .MuiIconButton-root {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
+/* ========================================
+   TABLAS RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  /* Scroll horizontal en tablas */
+  .MuiTableContainer-root {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .MuiTable-root {
+    min-width: 600px !important;
+  }
+
+  /* Ocultar columnas menos importantes en móvil */
+  .MuiTableCell-root.hide-mobile,
+  .MuiTableHead-root .hide-mobile {
+    display: none !important;
+  }
+
+  /* Texto más pequeño en celdas */
+  .MuiTableCell-root {
+    padding: 8px 4px !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+/* ========================================
+   FORMULARIOS RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  /* Campos de formulario en columna única */
+  .MuiGrid-item[class*="MuiGrid-grid-md-"] {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Inputs más grandes */
+  .MuiTextField-root .MuiInputBase-input {
+    font-size: 16px !important; /* Previene zoom en iOS */
+  }
+
+  /* Selectores más grandes */
+  .MuiSelect-select {
+    font-size: 16px !important;
+  }
+}
+
+/* ========================================
+   DIÁLOGOS RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  /* Diálogos pantalla completa en móvil */
+  .MuiDialog-paperWidthMd,
+  .MuiDialog-paperWidthLg {
+    margin: 8px !important;
+    max-width: calc(100% - 16px) !important;
+    max-height: calc(100% - 16px) !important;
+  }
+
+  .MuiDialogContent-root {
+    padding: 16px !important;
+  }
+}
+
+/* ========================================
+   CARDS RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .MuiCard-root {
+    margin-bottom: 16px !important;
+  }
+
+  .MuiCardContent-root {
+    padding: 16px !important;
+  }
+
+  /* Grid de cards en columna única */
+  .MuiGrid-item[class*="MuiGrid-grid-md-6"],
+  .MuiGrid-item[class*="MuiGrid-grid-md-4"],
+  .MuiGrid-item[class*="MuiGrid-grid-md-3"] {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ========================================
+   NAVEGACIÓN RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  /* Navegación inferior en móvil */
+  .navigation-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    padding: 8px;
+  }
+
+  .navigation-bottom .MuiButton-root {
+    min-width: auto !important;
+    flex-direction: column !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+/* ========================================
+   DASHBOARD RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  /* Métricas en columnas más anchas */
+  .metrics-grid .MuiGrid-item {
+    flex-basis: 50% !important;
+    max-width: 50% !important;
+  }
+
+  /* Charts más pequeños */
+  .chart-container {
+    height: 200px !important;
+  }
+
+  /* Ocultar gráficos complejos en móvil */
+  .complex-chart {
+    display: none !important;
+  }
+}
+
+/* ========================================
+   PRESENTACIÓN MÓDULO CERO RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .presentation-container iframe {
+    height: calc(100vh - 120px) !important;
+  }
+
+  .slide {
+    padding: 20px !important;
+    margin: 10px !important;
+  }
+
+  .slide h1 {
+    font-size: 2rem !important;
+  }
+
+  .slide h2 {
+    font-size: 1.5rem !important;
+  }
+
+  .navigation {
+    bottom: 10px !important;
+    gap: 10px !important;
+  }
+
+  .nav-btn {
+    padding: 10px 16px !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+/* ========================================
+   GLOSARIO RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .glosario-search {
+    margin-bottom: 16px !important;
+  }
+
+  .termino-card {
+    margin-bottom: 12px !important;
+  }
+
+  .termino-definicion {
+    font-size: 0.875rem !important;
+  }
+
+  /* Filtros en scroll horizontal */
+  .filtros-container {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+
+  .MuiChip-root {
+    margin: 2px !important;
+  }
+}
+
+/* ========================================
+   GESTIÓN PROVEEDORES RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  /* Tabs scrollables */
+  .MuiTabs-flexContainer {
+    overflow-x: auto !important;
+  }
+
+  .MuiTab-root {
+    min-width: 120px !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Plantillas DPA en columna única */
+  .plantillas-grid .MuiGrid-item {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Estadísticas más compactas */
+  .stats-card .MuiCardContent-root {
+    padding: 12px !important;
+  }
+
+  .stats-card .MuiTypography-h4 {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* ========================================
+   CONSOLIDADO RAT RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  /* Filtros colapsables */
+  .filtros-avanzados {
+    display: none !important;
+  }
+
+  .filtro-basico {
+    width: 100% !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* RAT cards más compactas */
+  .rat-card {
+    padding: 12px !important;
+  }
+
+  .rat-title {
+    font-size: 1rem !important;
+  }
+
+  .rat-details {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* ========================================
+   UTILIDADES TOUCH
+   ======================================== */
+@media (max-width: 768px) {
+  /* Mejorar área de touch */
+  .touch-target {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  /* Eliminar hover effects en móvil */
+  .MuiButton-root:hover,
+  .MuiIconButton-root:hover,
+  .MuiCard-root:hover {
+    background-color: inherit !important;
+    box-shadow: inherit !important;
+    transform: none !important;
+  }
+
+  /* Espaciado vertical más compacto */
+  .MuiBox-root {
+    margin-bottom: 16px !important;
+  }
+
+  .section-spacing {
+    margin-top: 24px !important;
+    margin-bottom: 24px !important;
+  }
+}
+
+/* ========================================
+   LANDSCAPE TABLET ADJUSTMENTS
+   ======================================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .MuiGrid-item[class*="MuiGrid-grid-md-6"] {
+    flex-basis: 50% !important;
+    max-width: 50% !important;
+  }
+
+  .MuiContainer-root {
+    max-width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* ========================================
+   PRINT STYLES (BONUS)
+   ======================================== */
+@media print {
+  .no-print,
+  .MuiButton-root,
+  .MuiIconButton-root,
+  .navigation,
+  .MuiFab-root {
+    display: none !important;
+  }
+
+  .MuiCard-root {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+
+  .MuiTable-root {
+    font-size: 12px !important;
+  }
+}
+
+/* ========================================
+   ACCESIBILIDAD
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible para navegación por teclado */
+.MuiButton-root:focus-visible,
+.MuiIconButton-root:focus-visible {
+  outline: 2px solid #1976d2 !important;
+  outline-offset: 2px !important;
+}
+
+/* Alto contraste */
+@media (prefers-contrast: high) {
+  .MuiCard-root {
+    border: 2px solid #000 !important;
+  }
+
+  .MuiButton-outlined {
+    border-width: 2px !important;
+  }
+}

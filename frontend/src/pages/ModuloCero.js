@@ -249,7 +249,7 @@ function ModuloCero() {
                           fontWeight="bold"
                           sx={{
                             animation: 'text-shimmer 2s ease-in-out infinite alternate',
-                            background: 'linear-gradient(45deg, #ffffff 30%, #f8fafc 50%, #ffffff 70%)',
+                            background: 'linear-gradient(45deg, #e2e8f0 30%, #cbd5e1 50%, #94a3b8 70%)',
                             backgroundSize: '200% auto',
                             backgroundClip: 'text',
                             WebkitBackgroundClip: 'text',
