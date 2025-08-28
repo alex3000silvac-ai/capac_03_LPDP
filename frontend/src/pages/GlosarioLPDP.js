@@ -2321,6 +2321,5 @@ const GlosarioLPDP = () => {
   );
 };
 
-// Alias removido - Person ya importado desde MUI
-
+// GlosarioLPDP - Sistema LPDP v3.1.0 - All duplicates removed
 export default GlosarioLPDP;
