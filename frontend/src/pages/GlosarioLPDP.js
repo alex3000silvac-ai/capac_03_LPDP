@@ -2321,7 +2321,6 @@ const GlosarioLPDP = () => {
   );
 };
 
-// Alias para íconos
-const Person = People;
+// Alias removido - Person ya importado desde MUI
 
 export default GlosarioLPDP;
