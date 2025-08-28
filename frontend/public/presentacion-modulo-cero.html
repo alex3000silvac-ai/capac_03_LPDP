@@ -27,7 +27,7 @@
             display: none;
             width: 90%;
             max-width: 1000px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 50%, #94a3b8 75%, #64748b 100%);
             border-radius: 15px;
             padding: 60px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
@@ -452,7 +452,7 @@
                     utterance.pitch = 0.95; // Tono ligeramente más bajo
                     utterance.volume = 0.9;
                     
-                    // Pausas naturales
+                    // Pausas naturales y pronunciación corregida
                     const naturalText = text
                         .replace(/\./g, '. ')
                         .replace(/,/g, ', ')
@@ -460,7 +460,13 @@
                         .replace(/;/g, '; ')
                         .replace(/\n/g, '. ')
                         .replace(/(Ley\s21\.719)/g, 'Ley veintiuno punto setecientos diecinueve')
-                        .replace(/LPDP/g, 'L P D P');
+                        .replace(/LPDP/g, 'L P D P')
+                        .replace(/RAT/g, 'R A T')
+                        .replace(/crear un RAT/gi, 'crear un R A T')
+                        .replace(/tu RAT/gi, 'tu R A T')
+                        .replace(/del RAT/gi, 'del R A T')
+                        .replace(/un RAT/gi, 'un R A T')
+                        .replace(/el RAT/gi, 'el R A T');
                     
                     utterance.text = naturalText;
                     

@@ -96,7 +96,8 @@
       "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" GENERATE_SOURCEMAP=false npm run build)",
       "Bash(PORT=3002 GENERATE_SOURCEMAP=false npm start)",
       "Bash(timeout 300 npm run build)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(rg:*)"
     ],
     "deny": [],
     "additionalDirectories": [
