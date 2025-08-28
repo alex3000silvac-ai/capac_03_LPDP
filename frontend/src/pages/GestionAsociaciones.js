@@ -11,7 +11,7 @@ import AsociacionDocumentos from '../components/AsociacionDocumentos';
 
 const GestionAsociaciones = () => {
   const [searchParams] = useSearchParams();
-  const ratId = searchParams.get('rat') || 'RAT-2024-001';
+  const ratId = searchParams.get('rat') || 'RAT-EJEMPLO';
   const tipoDocumento = searchParams.get('tipo') || '';
   const documentoId = searchParams.get('documento') || '';
 

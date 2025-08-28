@@ -50,7 +50,7 @@ const ProcesoCompleto = () => {
   // Estados de los documentos - TODOS COMPLETOS
   const [documentos, setDocumentos] = useState([
     {
-      id: 'RAT-2024-001',
+      id: 'RAT-EJEMPLO-COMPLETO',
       tipo: 'RAT',
       nombre: 'Sistema de Scoring Crediticio',
       progreso: 100,
@@ -119,7 +119,7 @@ const ProcesoCompleto = () => {
     },
     {
       titulo: 'Proceso Cerrado',
-      descripcion: 'RAT-2024-001 oficialmente cerrado y compliant',
+      descripcion: 'RAT-EJEMPLO-COMPLETO oficialmente cerrado y compliant',
       completado: procesoCerrado
     }
   ];
@@ -157,7 +157,7 @@ const ProcesoCompleto = () => {
           ✅ TODOS LOS DOCUMENTOS COMPLETADOS
         </Typography>
         <Typography variant="body1">
-          El RAT-2024-001 y todos sus documentos derivados están al 100%. El proceso puede cerrarse oficialmente.
+          El RAT-EJEMPLO-COMPLETO y todos sus documentos derivados están al 100%. El proceso puede cerrarse oficialmente.
         </Typography>
       </Alert>
 
@@ -174,7 +174,7 @@ const ProcesoCompleto = () => {
                 {documentos.map((doc) => (
                   <ListItem key={doc.id} sx={{ 
                     border: '2px solid',
-                    borderColor: 'success.main',
+                    borderColor: '#5f6368',
                     borderRadius: 2,
                     mb: 1,
                     bgcolor: 'success.light',
@@ -258,7 +258,7 @@ const ProcesoCompleto = () => {
                     onClick={iniciarCierre}
                     startIcon={<CompleteIcon />}
                     sx={{ 
-                      bgcolor: 'success.main',
+                      bgcolor: '#5f6368',
                       '&:hover': { bgcolor: 'success.dark' },
                       fontSize: '1.1rem',
                       py: 2
@@ -272,10 +272,10 @@ const ProcesoCompleto = () => {
               {procesoCerrado && (
                 <Alert severity="success" sx={{ mt: 3 }}>
                   <Typography variant="h6" fontWeight={700}>
-                    🎉 PROCESO OFICIALMENTE CERRADO
+                    PROCESO OFICIALMENTE CERRADO
                   </Typography>
                   <Typography variant="body2">
-                    RAT-2024-001 está completo y certificado según Ley 21.719
+                    RAT-EJEMPLO-COMPLETO está completo y certificado según Ley 21.719
                   </Typography>
                 </Alert>
               )}
@@ -296,18 +296,18 @@ const ProcesoCompleto = () => {
             {[
               { fecha: '28/08/2024 09:00', evento: '📝 RAT Creado', desc: 'Área de Riesgos crea RAT Sistema Scoring', estado: 'completed' },
               { fecha: '28/08/2024 09:01', evento: '🤖 Sistema Detecta Triggers', desc: 'IA identifica necesidad de EIPD, DPIA y DPAs', estado: 'completed' },
-              { fecha: '28/08/2024 09:02', evento: '🔔 Notificación a DPO', desc: 'DPO recibe alertas de documentos pendientes', estado: 'completed' },
+              { fecha: '28/08/2024 09:02', evento: 'Notificación a DPO', desc: 'DPO recibe alertas de documentos pendientes', estado: 'completed' },
               { fecha: '29/08/2024 14:30', evento: '✅ EIPD Completada', desc: 'DPO completa Evaluación de Impacto', estado: 'completed' },
               { fecha: '30/08/2024 11:15', evento: '✅ DPAs Firmados', desc: 'Contratos con Dicom y AWS finalizados', estado: 'completed' },
               { fecha: '31/08/2024 16:45', evento: '✅ DPIA Aprobada', desc: 'Auditoría de algoritmos completada', estado: 'completed' },
-              { fecha: '01/09/2024 10:00', evento: '🏁 Proceso Cerrado', desc: 'RAT-2024-001 oficialmente completo', estado: procesoCerrado ? 'completed' : 'pending' }
+              { fecha: '01/09/2024 10:00', evento: 'Proceso Cerrado', desc: 'RAT-EJEMPLO-COMPLETO oficialmente completo', estado: procesoCerrado ? 'completed' : 'pending' }
             ].map((item, index) => (
               <Box key={index} sx={{ 
                 display: 'flex', 
                 mb: 2,
                 pl: 2,
                 borderLeft: '3px solid',
-                borderLeftColor: item.estado === 'completed' ? 'success.main' : 'grey.400',
+                borderLeftColor: item.estado === 'completed' ? '#5f6368' : 'grey.400',
                 opacity: item.estado === 'completed' ? 1 : 0.6
               }}>
                 <Box sx={{ minWidth: 150 }}>
@@ -331,15 +331,15 @@ const ProcesoCompleto = () => {
 
       {/* Dialog de Proceso Completado */}
       <Dialog open={showCompletionDialog} onClose={() => setShowCompletionDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
+        <DialogTitle sx={{ textAlign: 'center', bgcolor: '#5f6368', color: 'white' }}>
           <Typography variant="h4" fontWeight={900}>
-            🎉 PROCESO OFICIALMENTE CERRADO
+            PROCESO OFICIALMENTE CERRADO
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ mt: 3 }}>
           <Alert severity="success" sx={{ mb: 3 }}>
             <Typography variant="h6" fontWeight={700}>
-              RAT-2024-001: Sistema de Scoring Crediticio
+              RAT-EJEMPLO-COMPLETO: Sistema de Scoring Crediticio
             </Typography>
             <Typography variant="body1">
               Proceso completado exitosamente según Ley 21.719 de Protección de Datos Personales
@@ -375,14 +375,14 @@ const ProcesoCompleto = () => {
             p: 3, 
             bgcolor: 'grey.100', 
             border: '2px solid',
-            borderColor: 'success.main',
+            borderColor: '#5f6368',
             borderRadius: 2
           }}>
             <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
               CERTIFICADO DE CUMPLIMIENTO LPDP<br/>
               Ley 21.719 - Chile<br/>
               <br/>
-              RAT ID: RAT-2024-001<br/>
+              RAT ID: RAT-EJEMPLO-COMPLETO<br/>
               Tratamiento: Sistema de Scoring Crediticio Automático<br/>
               Responsable: Banco Santander Chile<br/>
               <br/>

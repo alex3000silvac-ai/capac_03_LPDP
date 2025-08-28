@@ -48,7 +48,7 @@ import {
   Sync as SyncIcon
 } from '@mui/icons-material';
 
-const AsociacionDocumentos = ({ ratId = 'RAT-2024-001' }) => {
+const AsociacionDocumentos = ({ ratId = 'RAT-EJEMPLO' }) => {
   const [showAssociationDialog, setShowAssociationDialog] = useState(false);
   const [documentosExistentes, setDocumentosExistentes] = useState([]);
   const [documentosAsociados, setDocumentosAsociados] = useState([]);
@@ -143,7 +143,7 @@ const AsociacionDocumentos = ({ ratId = 'RAT-2024-001' }) => {
   const cargarAsociacionesActuales = () => {
     const asociaciones = [
       {
-        ratId: 'RAT-2024-001',
+        ratId: 'RAT-EJEMPLO',
         documentoId: 'EIPD-2024-001',
         tipo: 'EIPD',
         estado_asociacion: 'auto_detectada',
@@ -152,7 +152,7 @@ const AsociacionDocumentos = ({ ratId = 'RAT-2024-001' }) => {
         puede_cambiar: true
       },
       {
-        ratId: 'RAT-2024-001', 
+        ratId: 'RAT-EJEMPLO', 
         documentoId: 'DPIA-2024-001',
         tipo: 'DPIA',
         estado_asociacion: 'manual',
@@ -161,7 +161,7 @@ const AsociacionDocumentos = ({ ratId = 'RAT-2024-001' }) => {
         puede_cambiar: true
       },
       {
-        ratId: 'RAT-2024-001',
+        ratId: 'RAT-EJEMPLO',
         documentoId: 'DPA-2024-001',
         tipo: 'DPA',
         estado_asociacion: 'auto_detectada',

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Módulo Cero - Ley 21.719</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+        
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 15px;
+            padding: 60px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.8rem;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        
+        h2 {
+            color: #5f6368;
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.4rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        
+        .content {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        
+        .step-list {
+            text-align: left;
+            margin: 20px 0;
+        }
+        
+        .step-list li {
+            margin: 15px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .play-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .play-btn:hover {
+            background: #218838;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        ul li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Título -->
+        <div class="slide active">
+            <h1>Módulo Cero</h1>
+            <div class="subtitle">Registro de Actividades de Tratamiento</div>
+            <div class="subtitle">Ley 21.719 - Chile</div>
+            <div class="highlight">
+                <strong>Objetivo:</strong> Crear tu primer RAT completo y profesional
+            </div>
+        </div>
+        
+        <!-- Slide 2: ¿Qué es un RAT? -->
+        <div class="slide">
+            <h2>¿Qué es un RAT?</h2>
+            <div class="content">
+                <p><strong>Registro de Actividades de Tratamiento</strong></p>
+                <ul>
+                    <li>Documento obligatorio según Ley 21.719</li>
+                    <li>Inventario de todos los datos personales que procesas</li>
+                    <li>Describe cómo, por qué y dónde tratas datos</li>
+                    <li>Base fundamental del cumplimiento normativo</li>
+                </ul>
+                <div class="highlight">
+                    Sin RAT = Multa hasta 10.000 UTM
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 3: ¿Quién debe crear un RAT? -->
+        <div class="slide">
+            <h2>¿Quién debe crear un RAT?</h2>
+            <div class="content">
+                <ul>
+                    <li>Todas las empresas que procesan datos personales</li>
+                    <li>Organizaciones públicas y privadas</li>
+                    <li>Profesionales independientes</li>
+                    <li>Startups y ONGs</li>
+                </ul>
+                <div class="highlight">
+                    <strong>Regla:</strong> Si recopilas nombres, emails, RUTs o cualquier dato que identifique personas, necesitas un RAT.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 4: Elementos de un RAT -->
+        <div class="slide">
+            <h2>Elementos Clave del RAT</h2>
+            <div class="content">
+                <ul>
+                    <li><strong>Finalidad:</strong> ¿Para qué usas los datos?</li>
+                    <li><strong>Categorías de datos:</strong> ¿Qué tipo de información?</li>
+                    <li><strong>Base lícita:</strong> ¿Por qué es legal procesarlos?</li>
+                    <li><strong>Destinatarios:</strong> ¿Con quién compartes los datos?</li>
+                    <li><strong>Transferencias:</strong> ¿Envías datos al extranjero?</li>
+                    <li><strong>Plazos:</strong> ¿Cuánto tiempo conservas los datos?</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Slide 5: Bases Lícitas -->
+        <div class="slide">
+            <h2>Bases Lícitas del Tratamiento</h2>
+            <div class="content">
+                <ol class="step-list">
+                    <li><strong>Consentimiento:</strong> La persona autoriza expresamente</li>
+                    <li><strong>Contrato:</strong> Necesario para cumplir un contrato</li>
+                    <li><strong>Obligación legal:</strong> Requerido por ley</li>
+                    <li><strong>Interés vital:</strong> Proteger vida o salud</li>
+                    <li><strong>Interés público:</strong> Misión de interés público</li>
+                    <li><strong>Interés legítimo:</strong> Intereses comerciales legítimos</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- Slide 6: Datos Sensibles -->
+        <div class="slide">
+            <h2>Datos de Categorías Especiales</h2>
+            <div class="content">
+                <p><strong>Requieren protección extra:</strong></p>
+                <ul>
+                    <li>Datos de salud</li>
+                    <li>Información biométrica</li>
+                    <li>Datos de menores de edad</li>
+                    <li>Situación socioeconómica</li>
+                    <li>Origen étnico o racial</li>
+                    <li>Opiniones políticas</li>
+                </ul>
+                <div class="highlight">
+                    <strong>¡Importante!</strong> Estos datos pueden requerir EIPD (Evaluación de Impacto)
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 7: EIPD - ¿Cuándo es obligatoria? -->
+        <div class="slide">
+            <h2>EIPD - Evaluación de Impacto</h2>
+            <div class="content">
+                <p><strong>Obligatoria cuando hay:</strong></p>
+                <ul>
+                    <li>Procesamiento masivo de datos sensibles</li>
+                    <li>Decisiones automatizadas</li>
+                    <li>Videovigilancia en gran escala</li>
+                    <li>Combinación de múltiples fuentes de datos</li>
+                </ul>
+                <div class="highlight">
+                    El sistema detectará automáticamente si tu RAT necesita EIPD
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 8: Pasos para crear tu RAT -->
+        <div class="slide">
+            <h2>Pasos para crear tu RAT</h2>
+            <div class="content">
+                <ol class="step-list">
+                    <li>Identifica tu industria</li>
+                    <li>Describe la actividad de tratamiento</li>
+                    <li>Especifica las categorías de datos</li>
+                    <li>Define las finalidades</li>
+                    <li>Establece la base lícita</li>
+                    <li>Identifica destinatarios</li>
+                    <li>Define plazos de conservación</li>
+                    <li>Describe medidas de seguridad</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- Slide 9: Consejos Prácticos -->
+        <div class="slide">
+            <h2>Consejos Prácticos</h2>
+            <div class="content">
+                <ul>
+                    <li><strong>Se específico:</strong> No uses términos genéricos</li>
+                    <li><strong>Se realista:</strong> Describe lo que realmente haces</li>
+                    <li><strong>Piensa en el futuro:</strong> ¿Planeas cambios?</li>
+                    <li><strong>Documenta todo:</strong> Guarda evidencia</li>
+                    <li><strong>Revisa regularmente:</strong> Actualiza tu RAT</li>
+                </ul>
+                <div class="highlight">
+                    <strong>Tip:</strong> Comienza simple y ve añadiendo detalle
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 10: Errores Comunes -->
+        <div class="slide">
+            <h2>Errores Comunes a Evitar</h2>
+            <div class="content">
+                <ul>
+                    <li>Usar "para mejorar la experiencia" como finalidad única</li>
+                    <li>Olvidar datos de empleados</li>
+                    <li>No especificar plazos de conservación</li>
+                    <li>Asumir que el consentimiento siempre es la base</li>
+                    <li>No actualizar cuando cambias procesos</li>
+                </ul>
+                <div class="highlight">
+                    El sistema te ayudará a evitar estos errores
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 11: Beneficios del RAT -->
+        <div class="slide">
+            <h2>Beneficios de tener un RAT</h2>
+            <div class="content">
+                <ul>
+                    <li><strong>Cumplimiento legal:</strong> Evita sanciones</li>
+                    <li><strong>Organización:</strong> Conoces tus datos</li>
+                    <li><strong>Confianza:</strong> Los clientes confían más</li>
+                    <li><strong>Eficiencia:</strong> Procesos más claros</li>
+                    <li><strong>Competitividad:</strong> Ventaja comercial</li>
+                </ul>
+                <div class="highlight">
+                    Un RAT bien hecho es una inversión en tu negocio
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 12: ¡Empecemos! -->
+        <div class="slide">
+            <h2>¡Es hora de crear tu RAT!</h2>
+            <div class="content">
+                <p><strong>¿Listo para empezar?</strong></p>
+                <div class="highlight">
+                    <p>El sistema te guiará paso a paso.</p>
+                    <p>Podrás:</p>
+                    <ul>
+                        <li>Guardar tu progreso</li>
+                        <li>Revisar y editar</li>
+                        <li>Exportar tu RAT completo</li>
+                        <li>Recibir alertas del DPO</li>
+                    </ul>
+                </div>
+                <div style="margin-top: 40px; font-size: 1.5rem; font-weight: bold; color: #667eea;">
+                    ¡Comencemos ahora!
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Controles -->
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">12</span>
+    </div>
+    
+    <button class="play-btn" onclick="toggleAutoPlay()">
+        <span id="play-text">▶ Reproducir</span>
+    </button>
+    
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Anterior</button>
+        <button class="nav-btn" onclick="nextSlide()">Siguiente →</button>
+    </div>
+    
+    <script>
+        let currentSlide = 0;
+        let totalSlides = document.querySelectorAll('.slide').length;
+        let isPlaying = false;
+        let playInterval;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n >= totalSlides) currentSlide = 0;
+            if (n < 0) currentSlide = totalSlides - 1;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Leer el texto del slide actual
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const text = slides[currentSlide].innerText;
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.8;
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+        
+        function previousSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+        
+        function toggleAutoPlay() {
+            const playText = document.getElementById('play-text');
+            
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playText.textContent = '▶ Reproducir';
+                isPlaying = false;
+            } else {
+                playInterval = setInterval(() => {
+                    nextSlide();
+                }, 10000); // 10 segundos por slide
+                playText.textContent = '⏸ Pausar';
+                isPlaying = true;
+            }
+        }
+        
+        // Controles de teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+            if (e.key === ' ') {
+                e.preventDefault();
+                toggleAutoPlay();
+            }
+        });
+        
+        // Inicializar
+        showSlide(0);
+    </script>
+</body>
+</html>

@@ -85,7 +85,7 @@ const NotificacionesDPO = () => {
       setLoading(true);
       setError(null);
       
-      console.log('📊 Cargando datos reales para usuario:', user.id);
+      console.log('Cargando datos reales para usuario:', user.id);
 
       // 1. Cargar actividades DPO pendientes
       const { data: actividadesData, error: actividadesError } = await supabase
@@ -180,15 +180,15 @@ const NotificacionesDPO = () => {
 
   const getIconoActividad = (tipoActividad) => {
     const iconos = {
-      'REVISION_EIPD': '🔍',
-      'CREAR_EIPD': '📋',
-      'REVISION_DPIA': '🤖',
-      'CREAR_DPIA': '🤖',
-      'REVISION_DPA': '📄',
-      'CREAR_DPA': '📄',
-      'CONSULTA_PREVIA': '🚨'
+      'REVISION_EIPD': '[REV]',
+      'CREAR_EIPD': '[NEW]',
+      'REVISION_DPIA': '[ALG]',
+      'CREAR_DPIA': '[ALG]',
+      'REVISION_DPA': '[DPA]',
+      'CREAR_DPA': '[DPA]',
+      'CONSULTA_PREVIA': '[CON]'
     };
-    return iconos[tipoActividad] || '📊';
+    return iconos[tipoActividad] || '[DOC]';
   };
 
   const calcularDiasVencimiento = (fechaVencimiento) => {
@@ -211,7 +211,7 @@ const NotificacionesDPO = () => {
     }
 
     const tipoDoc = task.documentoId?.split('-')[0] || task.tipo_actividad || 'EIPD';
-    console.log('📋 Tipo documento:', tipoDoc);
+    console.log('Tipo documento:', tipoDoc);
 
     // Determinar redirección según tipo de actividad
     const redirecciones = {
@@ -227,7 +227,7 @@ const NotificacionesDPO = () => {
     const tipoActividad = actividades.find(a => a.id === task.actividad_id)?.tipo_actividad;
     const url = redirecciones[tipoActividad] || `/evaluacion-impacto?rat=${encodeURIComponent(task.ratOrigen)}&nuevo=true`;
 
-    console.log('📍 Redirigiendo a:', url);
+    console.log('Redirigiendo a:', url);
     
     // Cerrar dialog y redireccionar
     setDialogOpen(false);

@@ -242,12 +242,12 @@ function Layout({ children }) {
                 borderRadius: 2,
                 // Estilo especial para el nuevo módulo
                 ...(item.isNew && {
-                  background: 'linear-gradient(135deg, #00bcd4 0%, #33d9f0 100%)',
+                  background: 'linear-gradient(135deg, #5f6368 0%, #80868b 100%)',
                   color: '#000',
                   fontWeight: 700,
                   boxShadow: '0 4px 12px rgba(0, 188, 212, 0.4)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #0097a7 0%, #00bcd4 100%)',
+                    background: 'linear-gradient(135deg, #0097a7 0%, #5f6368 100%)',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 6px 20px rgba(0, 188, 212, 0.6)',
                   }
@@ -310,25 +310,25 @@ function Layout({ children }) {
       <Box sx={{ p: 2 }}>
         <Box sx={{ 
           p: 2, 
-          background: 'linear-gradient(135deg, #00bcd4 0%, #33d9f0 100%)',
+          background: 'linear-gradient(135deg, #5f6368 0%, #80868b 100%)',
           borderRadius: 2, 
-          color: '#000',
-          boxShadow: '0 4px 20px 0 rgba(0, 188, 212, 0.3)',
-          border: '1px solid rgba(0, 188, 212, 0.3)',
+          color: '#fff',
+          boxShadow: '0 4px 20px 0 rgba(95, 99, 104, 0.3)',
+          border: '1px solid rgba(95, 99, 104, 0.3)',
         }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.9 }}>
             Progreso LPDP
           </Typography>
           <Typography variant="h4" sx={{ mt: 1, fontWeight: 700 }}>
-            17%
+            0%
           </Typography>
           <Typography variant="caption" sx={{ opacity: 0.9 }}>
-            Paso 1 de 6 completado
+            Sistema listo para usar
           </Typography>
           <Typography variant="caption" sx={{ display: 'block', mt: 1, opacity: 0.8, fontSize: '0.7rem' }}>
-            ✅ Capacitación completada
+            Sistema en modo producción
             <br />
-            🔄 Listo para Producción RAT
+            Listo para crear RATs reales
           </Typography>
         </Box>
         
@@ -404,8 +404,8 @@ function Layout({ children }) {
               variant="outlined"
               sx={{
                 backgroundColor: 'rgba(0, 188, 212, 0.1)',
-                borderColor: '#00bcd4',
-                color: '#00bcd4',
+                borderColor: '#5f6368',
+                color: '#5f6368',
                 fontWeight: 600,
               }}
             />

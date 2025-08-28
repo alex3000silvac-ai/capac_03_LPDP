@@ -12,7 +12,7 @@ const DashboardDPO = () => {
     <Box>
       <Paper sx={{ p: 3, mb: 3, bgcolor: 'primary.main', color: 'white' }}>
         <Typography variant="h4" fontWeight={700} gutterBottom>
-          🛡️ Centro de Control DPO - Sistema LPDP Chile
+          Centro de Control DPO - Sistema LPDP Chile
         </Typography>
         <Typography variant="h6">
           Monitoreo en tiempo real de cumplimiento Ley 21.719

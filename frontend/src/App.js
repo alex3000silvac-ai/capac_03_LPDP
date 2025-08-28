@@ -421,7 +421,7 @@ const AppContent = () => {
         />
         
         {/* Ruta por defecto */}
-        <Route path="*" element={<Navigate to="/modulo-cero" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard-dpo" replace />} />
       </Routes>
     </Layout>
   );

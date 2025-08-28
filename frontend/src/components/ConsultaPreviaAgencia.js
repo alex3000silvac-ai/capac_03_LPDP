@@ -46,7 +46,7 @@ import {
   CloudUpload as UploadIcon
 } from '@mui/icons-material';
 
-const ConsultaPreviaAgencia = ({ eipd_id = 'EIPD-2024-001', rat_id = 'RAT-2024-001' }) => {
+const ConsultaPreviaAgencia = ({ eipd_id = 'EIPD-2024-001', rat_id = 'RAT-EJEMPLO' }) => {
   const [searchParams] = useSearchParams();
   
   // Parámetros de URL del Dashboard DPO
@@ -285,7 +285,7 @@ const ConsultaPreviaAgencia = ({ eipd_id = 'EIPD-2024-001', rat_id = 'RAT-2024-0
                     <ListItem>
                       <ListItemIcon><DocumentIcon /></ListItemIcon>
                       <ListItemText 
-                        primary="RAT Origen (RAT-2024-001)"
+                        primary="RAT Origen (RAT-EJEMPLO)"
                         secondary="Registro de actividades de tratamiento"
                       />
                       <Chip label="Incluido automáticamente" color="success" size="small" />
