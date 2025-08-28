@@ -25,11 +25,13 @@
 ### **PASO 2: CONFIGURAR DATOS EN SUPABASE** 🗄️
 1. Acceder a **Supabase Dashboard**
 2. Ir a **SQL Editor**
-3. Ejecutar completamente `SETUP_TECHSTART_SIMPLE.sql`
-4. **Resultado**: 
-   - 3 proveedores predefinidos para techstart_spa
-   - 1 RAT ejemplo para validar no-duplicados
-   - Debe mostrar: PROVEEDORES: 3, RAT_EJEMPLO: 1
+3. Ejecutar completamente `SETUP_TECHSTART_ULTRA_SIMPLE.sql`
+4. **Resultado esperado**: 
+   ```
+   PROVEEDORES | 3
+   RAT_EJEMPLO | 1
+   ```
+5. **✅ Compatible**: Con cualquier estructura de tabla existente
 
 ### **PASO 3: CREAR USUARIO DE PRUEBA** 👤
 1. En Supabase → **Authentication** → **Users**
