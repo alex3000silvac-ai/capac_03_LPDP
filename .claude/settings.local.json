@@ -97,7 +97,9 @@
       "Bash(PORT=3002 GENERATE_SOURCEMAP=false npm start)",
       "Bash(timeout 300 npm run build)",
       "Bash(git merge:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(for i in {1..5})",
+      "Bash(done)"
     ],
     "deny": [],
     "additionalDirectories": [

@@ -305,12 +305,13 @@ async def get_modulo3_download_package(package_type: str):
 
 # Ruta de salud para Render
 @app.get("/health")
-async def health_check():
+async def health_check_render():
     return {
         "status": "healthy",
         "service": "Sistema LPDP Backend",
-        "version": "1.0.0",
-        "environment": os.getenv("ENVIRONMENT", "development")
+        "version": "3.1.0",
+        "environment": os.getenv("ENVIRONMENT", "production"),
+        "tenant_system": TENANT_AVAILABLE
     }
 
 # EMERGENCY DEMO LOGIN - CON MIDDLEWARE BYPASS
