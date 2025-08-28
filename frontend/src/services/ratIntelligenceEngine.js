@@ -4,7 +4,53 @@
  * Cobertura: 100% de los triggers de la Ley 21.719
  */
 
+import supabase from '../config/supabaseClient';
+
 const ratIntelligenceEngine = {
+  // CREAR ACTIVIDADES DPO AUTOMÁTICAMENTE EN SUPABASE
+  async createDPOActivities(alerts, ratId, tenantId) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const activities = alerts.map(alert => ({
+        rat_id: parseInt(ratId) || null,
+        tipo_actividad: alert.documento_requerido || 'REVISION_EIPD',
+        descripcion: alert.titulo,
+        estado: 'pendiente',
+        prioridad: alert.urgencia === 'critica' ? 'alta' : alert.urgencia === 'alta' ? 'alta' : 'media',
+        fecha_creacion: new Date().toISOString(),
+        fecha_vencimiento: new Date(Date.now() + (alert.plazo_dias || 15) * 24 * 60 * 60 * 1000).toISOString(),
+        asignado_a: user.id,
+        organizacion_id: 1, // Default organization
+        metadatos: {
+          documento_id: `${alert.documento_requerido}-${Date.now()}`,
+          fundamento_legal: alert.fundamento_legal,
+          area: alert.area,
+          rat_origen: ratId,
+          generado_automaticamente: true
+        }
+      }));
+
+      const { data, error } = await supabase
+        .from('actividades_dpo')
+        .insert(activities)
+        .select();
+
+      if (error) {
+        console.error('❌ Error creando actividades DPO:', error);
+        return { success: false, error };
+      }
+
+      console.log('✅ Actividades DPO creadas automáticamente:', data.length);
+      return { success: true, data };
+
+    } catch (error) {
+      console.error('❌ Error en createDPOActivities:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
   evaluateRATActivity: async (ratData) => {
     const area = ratData.area || this.detectArea(ratData);
     console.log(`🔍 ANÁLISIS COMPLETO RAT - Área: ${area}`, ratData);

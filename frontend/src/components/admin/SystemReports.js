@@ -194,9 +194,19 @@ function SystemReports() {
       const data = await response.json();
       
       if (data.download_url) {
-        // Descargar reporte
-        window.open(data.download_url, '_blank');
-        showNotification('Reporte generado y descargado exitosamente', 'success');
+        // SEGURIDAD: Validar que la URL no sea localhost antes de abrir
+        const url = new URL(data.download_url, window.location.origin);
+        
+        // Solo permitir URLs del mismo dominio o dominios seguros
+        if (url.hostname === window.location.hostname || 
+            url.hostname === 'scldp-backend.onrender.com' ||
+            url.hostname.endsWith('.onrender.com')) {
+          window.open(data.download_url, '_blank');
+          showNotification('Reporte generado y descargado exitosamente', 'success');
+        } else {
+          console.error('🚨 URL bloqueada por seguridad:', data.download_url);
+          showNotification('Error: URL de descarga no autorizada', 'error');
+        }
       } else {
         setReportData(data);
         showNotification('Reporte generado exitosamente', 'success');

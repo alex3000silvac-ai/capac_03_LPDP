@@ -56,23 +56,31 @@ export const ratService = {
         throw new Error('Usuario no autenticado');
       }
 
-      // Preparar datos para Supabase
+      // Preparar datos para Supabase según esquema mapeo_datos_rat
       const newRAT = {
-        titulo: `${industryName} - ${processKey || 'Proceso General'}`,
-        descripcion: ratData.finalidades?.descripcion || 'RAT generado desde sistema de producción',
-        area: ratData.responsable?.area || industryName,
-        responsable_tratamiento: JSON.stringify(ratData.responsable || {}),
-        categorias_datos: JSON.stringify(ratData.categorias || {}),
-        finalidades: JSON.stringify(ratData.finalidades || {}),
-        base_licita: ratData.finalidades?.baseLegal || 'No especificada',
-        destinatarios: JSON.stringify(ratData.transferencias?.destinatarios || []),
-        transferencias: JSON.stringify(ratData.transferencias || {}),
-        retencion: JSON.stringify(ratData.conservacion || {}),
-        medidas_seguridad: JSON.stringify(ratData.seguridad || {}),
-        tenant_id: getCurrentTenantId() || 'default',
+        tenant_id: getCurrentTenantId() || 'juridica_digital',
         user_id: user.id,
-        estado: 'Completado',
-        metadatos: JSON.stringify({
+        created_by: user.email,
+        nombre_actividad: `${industryName} - ${processKey || 'Proceso General'}`,
+        area_responsable: ratData.responsable?.area || industryName,
+        responsable_proceso: ratData.responsable?.nombre || 'No especificado',
+        email_responsable: ratData.responsable?.email || user.email,
+        telefono_responsable: ratData.responsable?.telefono || '',
+        descripcion: ratData.finalidades?.descripcion || 'RAT generado desde sistema de producción',
+        finalidad_principal: ratData.finalidades?.descripcion || 'No especificada',
+        base_licitud: ratData.finalidades?.baseLegal || 'No especificada',
+        base_legal: ratData.finalidades?.baseLegal || 'No especificada',
+        categorias_datos: ratData.categorias || {},
+        destinatarios_internos: ratData.transferencias?.destinatarios || [],
+        transferencias_internacionales: ratData.transferencias || {},
+        plazo_conservacion: ratData.conservacion?.periodo || 'No especificado',
+        medidas_seguridad_tecnicas: ratData.seguridad?.tecnicas || [],
+        medidas_seguridad_organizativas: ratData.seguridad?.organizativas || [],
+        status: 'completado',
+        estado: 'completado',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        metadata: {
           version: '1.0',
           industria: industryName,
           proceso: processKey,
@@ -80,12 +88,12 @@ export const ratService = {
           camposObligatoriosCompletos: validateRAT(ratData),
           usuario: user.email,
           timestamp: new Date().toISOString()
-        })
+        }
       };
 
-      // Guardar en Supabase
+      // Guardar en Supabase en la tabla correcta
       const { data, error } = await supabase
-        .from('rats')
+        .from('mapeo_datos_rat')
         .insert([newRAT])
         .select()
         .single();
@@ -123,6 +131,23 @@ export const ratService = {
       }
 
       console.log('✅ RAT guardado exitosamente en Supabase:', data);
+      
+      // GENERAR AUTOMÁTICAMENTE ACTIVIDADES DPO
+      try {
+        const ratIntelligenceEngine = (await import('./ratIntelligenceEngine')).default;
+        const evaluation = await ratIntelligenceEngine.evaluateRATActivity(ratData);
+        
+        if (evaluation.compliance_alerts && evaluation.compliance_alerts.length > 0) {
+          console.log('🚀 Creando actividades DPO automáticamente...');
+          await ratIntelligenceEngine.createDPOActivities(
+            evaluation.compliance_alerts, 
+            data.id, 
+            getCurrentTenantId()
+          );
+        }
+      } catch (evalError) {
+        console.error('⚠️ Error generando actividades DPO:', evalError);
+      }
       
       // TAMBIÉN guardar en localStorage como respaldo y para compatibilidad
       const localRAT = {
@@ -173,12 +198,13 @@ export const ratService = {
         return [];
       }
 
-      // Cargar RATs desde Supabase
+      // Cargar RATs desde Supabase usando tenant_id
+      const currentTenantId = getCurrentTenantId() || 'juridica_digital';
       const { data, error } = await supabase
-        .from('rats')
+        .from('mapeo_datos_rat')
         .select('*')
-        .eq('user_id', user.id)
-        .order('fecha_creacion', { ascending: false });
+        .eq('tenant_id', currentTenantId)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('❌ Error cargando RATs desde Supabase:', error);

@@ -4,14 +4,14 @@
 import supabase from '../config/supabaseClient';
 
 class ProveedoresService {
-  // Obtener tenant actual del usuario
+  // Obtener tenant actual del usuario con lógica inteligente
   getCurrentTenant() {
     // Primero intentar obtener de TenantContext
     const currentTenant = localStorage.getItem('lpdp_current_tenant');
     if (currentTenant) {
       try {
         const tenant = JSON.parse(currentTenant);
-        // Si el tenant es de jurídica, usar directamente
+        // Si el tenant contiene 'juridica', normalizar a juridica_digital
         if (tenant.id && tenant.id.includes('juridica')) {
           return 'juridica_digital';
         }
@@ -21,7 +21,7 @@ class ProveedoresService {
       }
     }
     
-    // Si no hay tenant, usar juridica_digital por defecto para este usuario
+    // Si no hay tenant, usar juridica_digital por defecto
     return 'juridica_digital';
   }
 
@@ -71,7 +71,7 @@ class ProveedoresService {
     }
   }
 
-  // OBTENER TODOS LOS PROVEEDORES DEL TENANT
+  // OBTENER TODOS LOS PROVEEDORES CON AUTO-DETECCIÓN DE TENANT
   async getProveedores() {
     try {
       const tenantId = this.getCurrentTenant();
@@ -79,22 +79,65 @@ class ProveedoresService {
       
       console.log('🔍 Buscando proveedores para tenant:', tenantId);
 
-      // 1. Intentar desde Supabase
-      const { data, error } = await client
+      // Estrategia inteligente: primero intentar con el tenant calculado
+      let { data, error } = await client
         .from('proveedores')
         .select('*')
         .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
-        console.log('📊 Proveedores desde Supabase:', data.length);
+      console.log('📊 Respuesta inicial - Tenant:', tenantId, 'Encontrados:', data?.length || 0);
+
+      // Si no encuentra datos y el tenant no es exactamente 'juridica_digital', 
+      // intentar con variantes comunes
+      if (!error && (!data || data.length === 0)) {
+        const tenantVariants = [
+          'juridica_digital',
+          // Agregar aquí otras variantes si es necesario
+        ];
+        
+        for (const variant of tenantVariants) {
+          if (variant !== tenantId) {
+            console.log('🔄 Probando variante de tenant:', variant);
+            const variantResult = await client
+              .from('proveedores')
+              .select('*')
+              .eq('tenant_id', variant)
+              .order('created_at', { ascending: false });
+            
+            if (!variantResult.error && variantResult.data && variantResult.data.length > 0) {
+              console.log('✅ Datos encontrados con tenant:', variant, 'Cantidad:', variantResult.data.length);
+              data = variantResult.data;
+              error = null;
+              break;
+            }
+          }
+        }
+      }
+
+      // Diagnóstico en caso de no encontrar datos
+      if (!error && (!data || data.length === 0)) {
+        console.log('🔍 Verificando qué tenant_ids existen en la BD...');
+        const { data: sampleData } = await client
+          .from('proveedores')
+          .select('tenant_id, nombre')
+          .limit(5);
+        console.log('🔍 Muestra de datos:', sampleData?.map(p => ({ tenant: p.tenant_id, nombre: p.nombre })));
+      }
+
+      if (error) {
+        console.error('❌ Error Supabase:', error);
+      }
+
+      if (!error && data && data.length > 0) {
+        console.log('✅ Proveedores cargados desde Supabase:', data.length);
         // Sincronizar con localStorage
         data.forEach(prov => this.saveToLocalStorage(prov));
         return { success: true, data, source: 'supabase' };
       }
 
-      // 2. Fallback a localStorage
-      console.log('⚠️ Usando localStorage como fallback');
+      // Fallback a localStorage
+      console.log('⚠️ Sin datos en Supabase, usando localStorage como fallback');
       const localProveedores = this.getFromLocalStorage();
       return { success: true, data: localProveedores, source: 'localStorage' };
 

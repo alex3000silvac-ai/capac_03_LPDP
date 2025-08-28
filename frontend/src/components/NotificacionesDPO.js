@@ -92,7 +92,7 @@ const NotificacionesDPO = () => {
         .from('actividades_dpo')
         .select(`
           *,
-          rats!inner(id, titulo, area, descripcion),
+          mapeo_datos_rat!inner(id, nombre_actividad, area_responsable, descripcion),
           organizaciones!inner(company_name)
         `)
         .eq('asignado_a', user.id)
@@ -108,7 +108,7 @@ const NotificacionesDPO = () => {
         .from('documentos_asociados')
         .select(`
           *,
-          rats!inner(titulo, area)
+          mapeo_datos_rat!inner(nombre_actividad, area_responsable)
         `)
         .eq('user_id', user.id)
         .order('fecha_asociacion', { ascending: false });
@@ -123,13 +123,13 @@ const NotificacionesDPO = () => {
         id: `NOTIF-${actividad.id}`,
         tipo: determinarTipoNotificacion(actividad.prioridad),
         titulo: `${getIconoActividad(actividad.tipo_actividad)} ${actividad.descripcion}`,
-        descripcion: `${actividad.rats.titulo} - ${actividad.organizaciones.company_name}`,
+        descripcion: `${actividad.mapeo_datos_rat.nombre_actividad} - ${actividad.organizaciones.company_name}`,
         fechaCreacion: new Date(actividad.fecha_creacion),
         vencimiento: calcularDiasVencimiento(actividad.fecha_vencimiento),
         documentoId: actividad.metadatos?.documento_id || `${actividad.tipo_actividad}-${actividad.id}`,
-        ratOrigen: actividad.rats.titulo,
+        ratOrigen: actividad.mapeo_datos_rat.nombre_actividad,
         progreso: 0,
-        area: actividad.rats.area?.toLowerCase() || 'general',
+        area: actividad.mapeo_datos_rat.area_responsable?.toLowerCase() || 'general',
         actividad_id: actividad.id,
         rat_id: actividad.rat_id,
         prioridad_original: actividad.prioridad

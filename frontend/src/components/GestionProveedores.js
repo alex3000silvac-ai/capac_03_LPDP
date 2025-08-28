@@ -162,8 +162,14 @@ const GestionProveedores = () => {
           console.log('✅ Proveedores cargados desde:', response.source, '- Cantidad:', response.data.length);
           setProveedores(response.data);
         } else {
-          // Fallback a datos demo si no hay proveedores en BD
-          console.log('⚠️ Sin proveedores en BD, usando datos demo');
+          // ERROR: No hay proveedores en la base de datos
+          console.error('❌ CRÍTICO: No hay proveedores en Supabase. Deben existir 15 proveedores.');
+          console.error('🔧 SOLUCIÓN: Insertar proveedores en tabla "proveedores" con tenant_id="juridica_digital"');
+          setProveedores([]);
+          return;
+          
+          /*
+          // DATOS DEMO ELIMINADOS - SISTEMA SOLO USA SUPABASE
           const proveedoresDemo = [
             {
               id: 'prov_001',
@@ -216,7 +222,7 @@ const GestionProveedores = () => {
               tenant_id: 'juridica_digital'
             }
           ];
-          setProveedores(proveedoresDemo);
+          */
         }
         
         // Validar aislación multi-tenant
