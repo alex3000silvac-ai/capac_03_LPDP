@@ -155,9 +155,9 @@ const ProcesoCompleto = () => {
       <Alert 
         sx={{ 
           mb: 4,
-          backgroundColor: '#f8f9fa',
+          background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
           border: '1px solid #5f6368',
-          color: '#2c3e50'
+          color: 'white'
         }}
       >
         <Typography variant="h5" fontWeight={700} gutterBottom>
@@ -189,9 +189,8 @@ const ProcesoCompleto = () => {
                     borderColor: '#5f6368',
                     borderRadius: 2,
                     mb: 1,
-                    bgcolor: '#f8f9fa',
-                    color: '#2c3e50',
-                    border: '1px solid #5f6368'
+                    background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+                    color: 'white'
                   }}>
                     <ListItemIcon>
                       {getIconByType(doc.tipo)}
@@ -290,9 +289,9 @@ const ProcesoCompleto = () => {
               {procesoCerrado && (
                 <Alert sx={{ 
                   mt: 3,
-                  backgroundColor: '#f8f9fa',
+                  background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
                   border: '1px solid #5f6368',
-                  color: '#2c3e50'
+                  color: 'white'
                 }}>
                   <Typography variant="h6" fontWeight={700}>
                     PROCESO OFICIALMENTE CERRADO
@@ -368,9 +367,9 @@ const ProcesoCompleto = () => {
         <DialogContent sx={{ mt: 3 }}>
           <Alert sx={{ 
             mb: 3,
-            backgroundColor: '#f8f9fa',
+            background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
             border: '1px solid #5f6368',
-            color: '#2c3e50'
+            color: 'white'
           }}>
             <Typography variant="h6" fontWeight={700}>
               RAT-EJEMPLO-COMPLETO: Sistema de Scoring Crediticio

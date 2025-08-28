@@ -6,8 +6,23 @@ import supabase from '../config/supabaseClient';
 class ProveedoresService {
   // Obtener tenant actual del usuario
   getCurrentTenant() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    return user?.tenant_id || user?.organizacion_id || 'demo';
+    // Primero intentar obtener de TenantContext
+    const currentTenant = localStorage.getItem('lpdp_current_tenant');
+    if (currentTenant) {
+      try {
+        const tenant = JSON.parse(currentTenant);
+        // Si el tenant es de jurídica, usar directamente
+        if (tenant.id && tenant.id.includes('juridica')) {
+          return 'juridica_digital';
+        }
+        return tenant.id;
+      } catch (e) {
+        console.error('Error parsing tenant:', e);
+      }
+    }
+    
+    // Si no hay tenant, usar juridica_digital por defecto para este usuario
+    return 'juridica_digital';
   }
 
   // Obtener cliente Supabase con RLS para tenant
