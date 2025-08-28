@@ -1,72 +1,79 @@
-// 🔌 MODO OFFLINE COMPLETO - Sin dependencias externas
-console.log('🔌 Iniciando modo OFFLINE - Sistema independiente');
+// 🚀 SUPABASE CLIENTE REAL - PRODUCCIÓN
+import { createClient } from '@supabase/supabase-js';
 
-// Mock completo de Supabase que siempre funciona
-const createMockClient = () => {
-  const createQuery = () => {
-    const query = {
-      select: function() { return query; },
-      insert: function() { return query; },
-      update: function() { return query; },
-      delete: function() { return query; },
-      upsert: function() { return query; },
-      eq: function() { return query; },
-      order: function() { return query; },
-      limit: function() { return query; },
-      then: function(resolve) { return resolve({ data: [], error: null }); }
-    };
-    return query;
-  };
+console.log('🚀 Iniciando cliente Supabase REAL para producción');
 
-  return {
-    from: (table) => createQuery(),
-    auth: {
-      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-      signInWithPassword: () => Promise.resolve({ 
-        data: { 
-          user: { 
-            id: 'offline_user',
-            email: 'demo@offline.local',
-            user_metadata: { 
-              first_name: 'Usuario',
-              last_name: 'Demo',
-              organizacion_nombre: 'Empresa Demo'
-            }
-          },
-          session: { access_token: 'offline_token' }
-        }, 
-        error: null 
-      }),
-      signOut: () => Promise.resolve({ error: null }),
-      onAuthStateChange: () => ({ 
-        data: { subscription: { unsubscribe: () => {} } }
-      })
+// Configuración de Supabase desde variables de entorno
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://xvnfpkxbsmfhqcyvjwmz.supabase.co';
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2bmZwa3hic21maHFjeXZqd216Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU0NzY1NzUsImV4cCI6MjA1MTA1MjU3NX0.Kqwfyvy5AYGiILyXJWjvL5RqLLlJDr5jb3mSs4yNmNQ';
+
+console.log('🚀 Configurando Supabase:', {
+  url: supabaseUrl,
+  keyPrefix: supabaseKey.substring(0, 20) + '...'
+});
+
+// Cliente real de Supabase
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    storageKey: 'supabase.auth.token',
+    storage: window.localStorage
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
     }
-  };
-};
+  }
+});
 
-// Cliente mock para desarrollo local
-export const supabase = createMockClient();
+console.log('🚀 Cliente Supabase inicializado exitosamente');
 
-// Helper para operaciones con tenant (modo offline)
+// Helper para operaciones con tenant (modo online)
 export const supabaseWithTenant = (tenantId) => {
-  console.log(`🏢 Operación tenant: ${tenantId} (modo offline)`);
+  console.log(`🏢 Operación tenant: ${tenantId} (modo online)`);
   return supabase;
 };
 
 // Función para obtener tenant actual
 export const getCurrentTenant = () => {
-  return localStorage.getItem('tenant_id') || 'demo_offline';
+  return localStorage.getItem('tenant_id') || 'default';
 };
 
-// Función para verificar si estamos online
-export const getConnectivityStatus = () => {
-  return { 
-    online: false, 
-    mode: 'offline_development',
-    message: 'Sistema funcionando en modo independiente' 
-  };
+// Función para verificar conectividad con Supabase
+export const getConnectivityStatus = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('organizaciones')
+      .select('count')
+      .limit(1);
+      
+    return { 
+      online: true, 
+      mode: 'supabase_production',
+      message: 'Conectado exitosamente a Supabase',
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('🚀 Error conectividad Supabase:', error);
+    return {
+      online: false,
+      mode: 'supabase_error', 
+      message: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
 };
 
-// Exportar cliente mock - MODO DESARROLLO
+// Test de conexión inicial
+supabase.auth.getSession().then(({ data, error }) => {
+  if (error) {
+    console.error('🚀 Error inicial Supabase:', error);
+  } else {
+    console.log('🚀 Supabase conectado correctamente, sesión:', data.session ? 'activa' : 'ninguna');
+  }
+});
+
+// Exportar cliente real - MODO PRODUCCIÓN
 export default supabase;

@@ -1,10 +1,10 @@
-// 🔌 TENANTCONTEXT MODO OFFLINE COMPLETO
-// Para desarrollo local sin backend externo
+// 🚀 TENANTCONTEXT MODO ONLINE - PRODUCCIÓN SUPABASE
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { ratService } from '../services/ratService';
+import { supabase } from '../config/supabaseClient';
 
-console.log('🔌 Iniciando TenantContext en modo OFFLINE');
+console.log('🚀 Iniciando TenantContext en modo PRODUCCIÓN SUPABASE');
 
 const TenantContext = createContext();
 
@@ -19,187 +19,292 @@ export const useTenant = () => {
 export const TenantProvider = ({ children }) => {
   const [currentTenant, setCurrentTenant] = useState(null);
   const [availableTenants, setAvailableTenants] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { user, token, isAuthenticated } = useAuth();
 
-  // Tenants offline predefinidos
-  const offlineTenants = [
-    {
-      id: 'demo_offline',
-      company_name: 'Empresa Demo Offline',
-      display_name: 'Empresa Demo Offline',
-      industry: 'Tecnología',
+  // Cargar organizaciones desde Supabase
+  const loadAvailableTenants = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('🚀 Usuario no autenticado, no se cargan tenants');
+      return [];
+    }
+    
+    try {
+      console.log('🚀 Cargando organizaciones desde Supabase para user:', user.id);
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('organizaciones')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      if (error) {
+        console.error('🚀 Error cargando organizaciones:', error);
+        // Si no hay organizaciones o hay error, crear una por defecto
+        const defaultOrg = await createDefaultOrganization();
+        return [defaultOrg];
+      }
+      
+      console.log('🚀 Organizaciones cargadas:', data?.length || 0);
+      
+      if (!data || data.length === 0) {
+        // Crear organización por defecto si no existe ninguna
+        const defaultOrg = await createDefaultOrganization();
+        setAvailableTenants([defaultOrg]);
+        return [defaultOrg];
+      }
+      
+      setAvailableTenants(data);
+      return data;
+      
+    } catch (error) {
+      console.error('🚀 Error cargando tenants:', error);
+      const defaultOrg = await createDefaultOrganization();
+      setAvailableTenants([defaultOrg]);
+      return [defaultOrg];
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const createDefaultOrganization = async () => {
+    if (!user) return null;
+    
+    const defaultOrg = {
+      id: `org_${user.id}`,
+      company_name: `Organización de ${user.email}`,
+      display_name: `Organización de ${user.email}`,
+      industry: 'General',
       size: 'Pequeña',
       country: 'Chile',
-      created_at: new Date().toISOString(),
-      is_demo: true,
-      offline_mode: true
-    },
-    {
-      id: 'empresa_chile_1',
-      company_name: 'Empresa Chilena Ejemplo',
-      display_name: 'Empresa Chilena Ejemplo',
-      industry: 'Servicios',
-      size: 'Mediana',
-      country: 'Chile',
+      user_id: user.id,
       created_at: new Date().toISOString(),
       is_demo: false,
-      offline_mode: true
-    },
-    {
-      id: 'juridica_digital_demo',
-      company_name: 'Jurídica Digital SPA',
-      display_name: 'Jurídica Digital SPA',
-      industry: 'Legal Tech',
-      size: 'Startup',
-      country: 'Chile',
-      created_at: new Date().toISOString(),
-      is_demo: false,
-      offline_mode: true
+      online_mode: true
+    };
+    
+    try {
+      const { data, error } = await supabase
+        .from('organizaciones')
+        .insert([defaultOrg])
+        .select()
+        .single();
+        
+      if (error) {
+        console.error('🚀 Error creando organización por defecto:', error);
+        return defaultOrg; // Devolver sin ID de Supabase
+      }
+      
+      console.log('🚀 Organización por defecto creada:', data);
+      return data;
+    } catch (error) {
+      console.error('🚀 Error creando organización por defecto:', error);
+      return defaultOrg;
     }
-  ];
+  };
 
   // Auto-setup cuando el usuario se autentica
   useEffect(() => {
-    if (isAuthenticated && user) {
-      console.log('🔌 Auto-setup tenants offline');
-      
-      setAvailableTenants(offlineTenants);
-      setLoading(false);
-
-      // Cargar tenant guardado o seleccionar el primero
-      const savedTenantId = localStorage.getItem('tenant_id') || localStorage.getItem('lpdp_current_tenant');
-      
-      let selectedTenant;
-      if (savedTenantId) {
-        selectedTenant = offlineTenants.find(t => t.id === savedTenantId || savedTenantId.includes(t.id));
+    const initializeTenants = async () => {
+      if (isAuthenticated && user) {
+        console.log('🚀 Auto-setup tenants online');
+        
+        const tenants = await loadAvailableTenants();
+        
+        if (tenants && tenants.length > 0) {
+          // Cargar tenant guardado o seleccionar el primero
+          const savedTenantData = localStorage.getItem('lpdp_current_tenant');
+          
+          let selectedTenant;
+          if (savedTenantData) {
+            try {
+              const savedTenant = JSON.parse(savedTenantData);
+              selectedTenant = tenants.find(t => t.id === savedTenant.id);
+            } catch (error) {
+              console.log('🚀 Error parseando tenant guardado');
+            }
+          }
+          
+          if (!selectedTenant) {
+            selectedTenant = tenants[0];
+          }
+          
+          setCurrentTenant(selectedTenant);
+          localStorage.setItem('tenant_id', selectedTenant.id);
+          localStorage.setItem('lpdp_current_tenant', JSON.stringify(selectedTenant));
+          
+          // CRÍTICO: Notificar al ratService del tenant actual
+          ratService.setCurrentTenant(selectedTenant);
+          
+          console.log('🚀 Tenant seleccionado automáticamente:', selectedTenant.company_name);
+        }
       }
-      
-      if (!selectedTenant) {
-        selectedTenant = offlineTenants[0]; // Demo offline por defecto
-      }
-      
-      setCurrentTenant(selectedTenant);
-      localStorage.setItem('tenant_id', selectedTenant.id);
-      localStorage.setItem('lpdp_current_tenant', JSON.stringify(selectedTenant));
-      
-      // CRÍTICO: Notificar al ratService del tenant actual
-      ratService.setCurrentTenant(selectedTenant);
-      
-      console.log('🔌 Tenant seleccionado automáticamente:', selectedTenant.company_name);
-    }
+    };
+    
+    initializeTenants();
   }, [isAuthenticated, user]);
 
   // Intentar restaurar tenant al inicializar
   useEffect(() => {
-    const savedTenant = localStorage.getItem('lpdp_current_tenant');
-    const savedTenantId = localStorage.getItem('tenant_id');
-    
-    if (savedTenant) {
-      try {
-        const tenant = JSON.parse(savedTenant);
-        setCurrentTenant(tenant);
-        ratService.setCurrentTenant(tenant);
-        console.log('🔌 Tenant restaurado desde localStorage:', tenant.company_name);
-      } catch (error) {
-        console.log('🔌 Error parseando tenant guardado, usando demo');
-        const demoTenant = offlineTenants[0];
-        setCurrentTenant(demoTenant);
-        localStorage.setItem('tenant_id', demoTenant.id);
-        localStorage.setItem('lpdp_current_tenant', JSON.stringify(demoTenant));
+    const restoreSavedTenant = () => {
+      const savedTenant = localStorage.getItem('lpdp_current_tenant');
+      
+      if (savedTenant && !isAuthenticated) {
+        try {
+          const tenant = JSON.parse(savedTenant);
+          setCurrentTenant(tenant);
+          ratService.setCurrentTenant(tenant);
+          console.log('🚀 Tenant restaurado desde localStorage:', tenant.company_name);
+        } catch (error) {
+          console.log('🚀 Error parseando tenant guardado');
+          localStorage.removeItem('lpdp_current_tenant');
+          localStorage.removeItem('tenant_id');
+        }
       }
-    } else if (savedTenantId) {
-      const tenant = offlineTenants.find(t => t.id === savedTenantId) || offlineTenants[0];
-      setCurrentTenant(tenant);
-      localStorage.setItem('lpdp_current_tenant', JSON.stringify(tenant));
-      console.log('🔌 Tenant seleccionado por ID:', tenant.company_name);
-    }
+    };
+    
+    restoreSavedTenant();
   }, []);
 
-  const loadAvailableTenants = async () => {
-    console.log('🔌 Cargando tenants offline');
-    setAvailableTenants(offlineTenants);
-    setLoading(false);
-    return offlineTenants;
-  };
+  // loadAvailableTenants ya está definido arriba
 
   const selectTenant = async (tenant) => {
-    console.log('🔌 Seleccionando tenant offline:', tenant.company_name);
+    console.log('🚀 Seleccionando tenant online:', tenant.company_name);
     
     setCurrentTenant(tenant);
     localStorage.setItem('tenant_id', tenant.id);
     localStorage.setItem('lpdp_current_tenant', JSON.stringify(tenant));
     
+    // Notificar al ratService
+    ratService.setCurrentTenant(tenant);
+    
     return true;
   };
 
   const createTenant = async (tenantData) => {
-    console.log('🔌 Creando tenant offline:', tenantData);
+    if (!user) throw new Error('Usuario no autenticado');
     
-    const newTenant = {
-      id: `offline_${Date.now()}`,
+    console.log('🚀 Creando tenant online:', tenantData);
+    
+    const newTenantData = {
       company_name: tenantData.company_name || 'Nueva Empresa',
       display_name: tenantData.company_name || 'Nueva Empresa',
       industry: tenantData.industry || 'Otros',
       size: tenantData.size || 'Pequeña',
       country: 'Chile',
-      created_at: new Date().toISOString(),
+      user_id: user.id,
       is_demo: false,
-      offline_mode: true,
+      online_mode: true,
       ...tenantData
     };
     
-    const updatedTenants = [...availableTenants, newTenant];
-    setAvailableTenants(updatedTenants);
-    
-    // Guardar en localStorage para persistencia
-    localStorage.setItem('offline_tenants', JSON.stringify(updatedTenants));
-    
-    return newTenant;
+    try {
+      const { data, error } = await supabase
+        .from('organizaciones')
+        .insert([newTenantData])
+        .select()
+        .single();
+        
+      if (error) {
+        console.error('🚀 Error creando organización:', error);
+        throw new Error(error.message);
+      }
+      
+      const updatedTenants = [...availableTenants, data];
+      setAvailableTenants(updatedTenants);
+      
+      console.log('🚀 Organización creada exitosamente:', data);
+      return data;
+      
+    } catch (error) {
+      console.error('🚀 Error creando tenant:', error);
+      throw error;
+    }
   };
 
   const updateTenant = async (tenantId, updateData) => {
-    console.log('🔌 Actualizando tenant offline:', tenantId, updateData);
+    console.log('🚀 Actualizando tenant online:', tenantId, updateData);
     
-    const updatedTenants = availableTenants.map(t => 
-      t.id === tenantId ? { ...t, ...updateData } : t
-    );
-    
-    setAvailableTenants(updatedTenants);
-    
-    // Si es el tenant actual, actualizarlo
-    if (currentTenant?.id === tenantId) {
-      const updatedTenant = { ...currentTenant, ...updateData };
-      setCurrentTenant(updatedTenant);
-      localStorage.setItem('lpdp_current_tenant', JSON.stringify(updatedTenant));
+    try {
+      const { data, error } = await supabase
+        .from('organizaciones')
+        .update(updateData)
+        .eq('id', tenantId)
+        .select()
+        .single();
+        
+      if (error) {
+        console.error('🚀 Error actualizando organización:', error);
+        throw new Error(error.message);
+      }
+      
+      const updatedTenants = availableTenants.map(t => 
+        t.id === tenantId ? data : t
+      );
+      setAvailableTenants(updatedTenants);
+      
+      // Si es el tenant actual, actualizarlo
+      if (currentTenant?.id === tenantId) {
+        setCurrentTenant(data);
+        localStorage.setItem('lpdp_current_tenant', JSON.stringify(data));
+      }
+      
+      console.log('🚀 Organización actualizada exitosamente:', data);
+      return data;
+      
+    } catch (error) {
+      console.error('🚀 Error actualizando tenant:', error);
+      throw error;
     }
-    
-    localStorage.setItem('offline_tenants', JSON.stringify(updatedTenants));
-    
-    return updatedTenants.find(t => t.id === tenantId);
   };
 
   const deleteTenant = async (tenantId) => {
-    console.log('🔌 Eliminando tenant offline:', tenantId);
+    console.log('🚀 Eliminando tenant online:', tenantId);
     
-    const filteredTenants = availableTenants.filter(t => t.id !== tenantId);
-    setAvailableTenants(filteredTenants);
-    
-    // Si es el tenant actual, seleccionar otro
-    if (currentTenant?.id === tenantId) {
-      const newTenant = filteredTenants[0] || offlineTenants[0];
-      setCurrentTenant(newTenant);
-      localStorage.setItem('tenant_id', newTenant.id);
-      localStorage.setItem('lpdp_current_tenant', JSON.stringify(newTenant));
+    try {
+      const { error } = await supabase
+        .from('organizaciones')
+        .delete()
+        .eq('id', tenantId);
+        
+      if (error) {
+        console.error('🚀 Error eliminando organización:', error);
+        throw new Error(error.message);
+      }
+      
+      const filteredTenants = availableTenants.filter(t => t.id !== tenantId);
+      setAvailableTenants(filteredTenants);
+      
+      // Si es el tenant actual, seleccionar otro
+      if (currentTenant?.id === tenantId) {
+        if (filteredTenants.length > 0) {
+          const newTenant = filteredTenants[0];
+          setCurrentTenant(newTenant);
+          localStorage.setItem('tenant_id', newTenant.id);
+          localStorage.setItem('lpdp_current_tenant', JSON.stringify(newTenant));
+        } else {
+          // Si no quedan tenants, crear uno por defecto
+          const defaultOrg = await createDefaultOrganization();
+          if (defaultOrg) {
+            setCurrentTenant(defaultOrg);
+            setAvailableTenants([defaultOrg]);
+            localStorage.setItem('tenant_id', defaultOrg.id);
+            localStorage.setItem('lpdp_current_tenant', JSON.stringify(defaultOrg));
+          }
+        }
+      }
+      
+      console.log('🚀 Organización eliminada exitosamente');
+      return true;
+      
+    } catch (error) {
+      console.error('🚀 Error eliminando tenant:', error);
+      throw error;
     }
-    
-    localStorage.setItem('offline_tenants', JSON.stringify(filteredTenants));
-    
-    return true;
   };
 
   const clearTenant = () => {
-    console.log('🔌 Limpiando tenant offline');
+    console.log('🚀 Limpiando tenant online');
     setCurrentTenant(null);
     localStorage.removeItem('tenant_id');
     localStorage.removeItem('lpdp_current_tenant');

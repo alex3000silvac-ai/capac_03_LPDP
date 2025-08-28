@@ -19,7 +19,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
@@ -43,12 +43,12 @@ const Login = () => {
 
     try {
       // Validar campos requeridos
-      if (!formData.username || !formData.password) {
+      if (!formData.email || !formData.password) {
         throw new Error('Por favor completa todos los campos');
       }
 
-      // Usar tenant 'demo' por defecto (empresa demo)
-      await login(formData.username, formData.password, 'demo');
+      // Login con email para Supabase
+      await login(formData.email, formData.password, 'default');
     } catch (err) {
       setError(err.message || 'Error al iniciar sesión');
     } finally {
@@ -184,9 +184,10 @@ const Login = () => {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Usuario"
-                    name="username"
-                    value={formData.username}
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
                     onChange={handleInputChange}
                     variant="outlined"
                     required
