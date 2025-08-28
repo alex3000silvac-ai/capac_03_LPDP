@@ -50,8 +50,8 @@ import {
   Edit,
   Person,
   VerifiedUser,
-  Target,
-  Minimize,
+  MyLocation,
+  Remove,
   CheckCircle,
   CloudDownload,
   Block,
@@ -72,7 +72,7 @@ import {
   WorkspacePremium,
   Psychology,
   Science,
-  ShuffleOn,
+  Shuffle,
   SettingsSuggest,
   Storage,
 } from '@mui/icons-material';
@@ -420,7 +420,7 @@ const GlosarioLPDP = () => {
       definicion: 'Principio que exige que los datos sean adecuados, pertinentes y limitados a lo necesario.',
       articulo: 'Art. 7',
       categoria: 'principios',
-      icono: <Minimize />,
+      icono: <Remove />,
       aplicacion: [
         'Recolectar solo lo necesario',
         'Eliminar lo superfluo',
@@ -496,7 +496,7 @@ const GlosarioLPDP = () => {
       definicion: 'Tratamiento que impide atribuir datos a un titular sin información adicional.',
       articulo: 'Art. 2',
       categoria: 'seguridad',
-      icono: <ShuffleOn />,
+      icono: <Shuffle />,
       caracteristicas: [
         'Datos separados de identidad',
         'Clave guardada aparte',
@@ -1311,7 +1311,7 @@ const GlosarioLPDP = () => {
       definicion: 'Los datos deben recolectarse para fines específicos, explícitos y legítimos, no pudiendo tratarse posteriormente para fines incompatibles.',
       articulo: 'Art. 13',
       categoria: 'principios',
-      icono: <Target />,
+      icono: <MyLocation />,
       ejemplos: [
         'Datos de contacto para envío de productos',
         'Información médica para tratamiento de salud',
@@ -1324,7 +1324,7 @@ const GlosarioLPDP = () => {
       definicion: 'El tratamiento debe ser adecuado, pertinente y limitado a lo estrictamente necesario. No recolectar más datos de los requeridos.',
       articulo: 'Art. 14',
       categoria: 'principios',
-      icono: <Minimize />,
+      icono: <Remove />,
       importante: true,
       nota_chile: 'Obliga a justificar cada dato solicitado en formularios y procesos.'
     },
