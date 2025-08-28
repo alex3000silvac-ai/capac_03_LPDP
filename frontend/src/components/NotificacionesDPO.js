@@ -78,6 +78,7 @@ const NotificacionesDPO = () => {
   const cargarDatosReales = async () => {
     if (!user?.id) {
       console.log('👤 Usuario no disponible para cargar datos');
+      setLoading(false);
       return;
     }
 
@@ -85,9 +86,15 @@ const NotificacionesDPO = () => {
       setLoading(true);
       setError(null);
       
-      console.log('Cargando datos reales para usuario:', user.id);
+      console.log('🔍 Iniciando carga de datos para usuario:', user.id);
+
+      // Verificar conexión a Supabase primero
+      if (!supabase) {
+        throw new Error('Cliente Supabase no inicializado');
+      }
 
       // 1. Cargar actividades DPO pendientes - SIN JOINS por ahora
+      console.log('📊 Consultando tabla actividades_dpo...');
       const { data: actividadesData, error: actividadesError } = await supabase
         .from('actividades_dpo')
         .select('*')
@@ -95,20 +102,38 @@ const NotificacionesDPO = () => {
         .order('fecha_creacion', { ascending: false });
 
       if (actividadesError) {
-        console.error('❌ Error cargando actividades:', actividadesError);
-        throw actividadesError;
+        console.error('❌ Error Supabase en actividades_dpo:', actividadesError);
+        console.error('❌ Detalles error:', {
+          message: actividadesError.message,
+          details: actividadesError.details,
+          hint: actividadesError.hint,
+          code: actividadesError.code
+        });
+        throw new Error(`Error BD: ${actividadesError.message}`);
       }
 
-      // 2. Cargar documentos asociados - SIN JOINS por ahora
-      const { data: documentosData, error: documentosError } = await supabase
-        .from('documentos_asociados')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('fecha_asociacion', { ascending: false });
+      console.log('✅ Actividades cargadas:', actividadesData?.length || 0);
 
-      if (documentosError) {
-        console.error('❌ Error cargando documentos:', documentosError);
-        // No throw - documentos son opcionales
+      // 2. Cargar documentos asociados - SIN JOINS por ahora (OPCIONAL)
+      let documentosData = [];
+      try {
+        console.log('📄 Intentando cargar documentos asociados...');
+        const { data: docs, error: documentosError } = await supabase
+          .from('documentos_asociados')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('fecha_asociacion', { ascending: false });
+
+        if (documentosError) {
+          console.warn('⚠️ Error cargando documentos (opcional):', documentosError);
+          documentosData = []; // Continuar sin documentos
+        } else {
+          documentosData = docs || [];
+          console.log('✅ Documentos cargados:', documentosData.length);
+        }
+      } catch (docError) {
+        console.warn('⚠️ Error en documentos (continuando):', docError);
+        documentosData = [];
       }
 
       // 3. Convertir actividades a notificaciones - SIN REFERENCIAS EXTERNAS
@@ -138,8 +163,25 @@ const NotificacionesDPO = () => {
         - Documentos: ${(documentosData || []).length}`);
 
     } catch (error) {
-      console.error('💥 Error cargando datos reales:', error);
-      setError('Error cargando datos del DPO. Verifica la conexión con Supabase.');
+      console.error('💥 Error crítico cargando datos:', error);
+      console.error('💥 Stack trace:', error.stack);
+      
+      // Mensajes de error más específicos
+      let errorMessage = 'Error desconocido en el sistema';
+      
+      if (error.message?.includes('JWT')) {
+        errorMessage = 'Error de autenticación. Por favor inicia sesión nuevamente.';
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Error de conexión a la base de datos. Verifica tu conexión a internet.';
+      } else if (error.message?.includes('actividades_dpo')) {
+        errorMessage = 'Error accediendo a las actividades DPO. La tabla puede no existir.';
+      } else if (error.message?.includes('permission')) {
+        errorMessage = 'Sin permisos para acceder a los datos DPO.';
+      } else {
+        errorMessage = `Error BD: ${error.message}`;
+      }
+      
+      setError(errorMessage);
       setNotificaciones([]);
       setActividades([]);
       setDocumentos([]);
@@ -150,14 +192,25 @@ const NotificacionesDPO = () => {
 
   // Efectos para cargar datos
   useEffect(() => {
+    console.log('🔄 useEffect triggered, user:', user?.id);
+    
     if (user?.id) {
+      console.log('👤 Usuario válido, cargando datos...');
       cargarDatosReales();
       
       // Recargar datos cada 60 segundos
-      const interval = setInterval(cargarDatosReales, 60000);
-      return () => clearInterval(interval);
+      const interval = setInterval(() => {
+        console.log('⏰ Recarga automática de datos...');
+        cargarDatosReales();
+      }, 60000);
+      return () => {
+        console.log('🧹 Limpiando interval');
+        clearInterval(interval);
+      };
     } else {
+      console.log('❌ Sin usuario, mostrando mensaje de autenticación');
       setLoading(false);
+      setError(null);
     }
   }, [user]);
 
