@@ -19,11 +19,10 @@ INSERT INTO proveedores (
     tenant_id,
     nombre,
     categoria_proveedor,
-    pais,
+    paises_transferencia,
+    transferencias_internacionales,
     dpa_info,
     evaluacion_seguridad,
-    datos_compartidos,
-    nivel_riesgo,
     estado,
     created_at
 ) VALUES (
@@ -31,19 +30,20 @@ INSERT INTO proveedores (
     'techstart_spa',
     'Transbank S.A.',
     'Procesador de Pagos',
-    'Chile',
+    '{"Chile"}'::TEXT[],
+    false,
     '{
         "firmado": true,
         "fecha_firma": "2024-01-15",
-        "version": "v2.1"
+        "version": "v2.1",
+        "datos_compartidos": "Datos transaccionales, montos, identificación cliente",
+        "nivel_riesgo": "Medio"
     }'::jsonb,
     '{
         "nivel": "Alta",
         "certificaciones": ["PCI-DSS", "ISO 27001"],
         "puntuacion": 95
     }'::jsonb,
-    'Datos transaccionales, montos, identificación cliente',
-    'Medio',
     'activo',
     NOW()
 );
@@ -54,11 +54,10 @@ INSERT INTO proveedores (
     tenant_id,
     nombre,
     categoria_proveedor,
-    pais,
+    paises_transferencia,
+    transferencias_internacionales,
     dpa_info,
     evaluacion_seguridad,
-    datos_compartidos,
-    nivel_riesgo,
     estado,
     created_at
 ) VALUES (
@@ -66,19 +65,20 @@ INSERT INTO proveedores (
     'techstart_spa',
     'MailChimp LLC',
     'Marketing Digital',
-    'Estados Unidos',
+    '{"Estados Unidos"}'::TEXT[],
+    true,
     '{
         "firmado": true,
         "fecha_firma": "2024-03-22",
-        "transferencia_internacional": true
+        "transferencia_internacional": true,
+        "datos_compartidos": "Email, nombre, preferencias marketing",
+        "nivel_riesgo": "Medio-Alto"
     }'::jsonb,
     '{
         "nivel": "Media",
         "certificaciones": ["SOC 2"],
         "puntuacion": 78
     }'::jsonb,
-    'Email, nombre, preferencias marketing',
-    'Medio-Alto',
     'activo',
     NOW()
 );
@@ -89,11 +89,10 @@ INSERT INTO proveedores (
     tenant_id,
     nombre,
     categoria_proveedor,
-    pais,
+    paises_transferencia,
+    transferencias_internacionales,
     dpa_info,
     evaluacion_seguridad,
-    datos_compartidos,
-    nivel_riesgo,
     estado,
     created_at
 ) VALUES (
@@ -101,19 +100,20 @@ INSERT INTO proveedores (
     'techstart_spa',
     'Google LLC',
     'Analytics y Métricas',
-    'Estados Unidos',
+    '{"Estados Unidos"}'::TEXT[],
+    true,
     '{
         "firmado": true,
         "fecha_firma": "2024-02-10",
-        "transferencia_internacional": true
+        "transferencia_internacional": true,
+        "datos_compartidos": "Métricas de uso, datos de navegación anonimizados",
+        "nivel_riesgo": "Bajo"
     }'::jsonb,
     '{
         "nivel": "Alta",
         "certificaciones": ["ISO 27001", "SOC 2/3"],
         "puntuacion": 88
     }'::jsonb,
-    'Métricas de uso, datos de navegación anonimizados',
-    'Bajo',
     'activo',
     NOW()
 );
