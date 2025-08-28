@@ -7,12 +7,25 @@ console.log('🚀 Iniciando cliente Supabase REAL para producción');
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-// Validación de variables de entorno
+// Validación ESTRICTA de variables de entorno para PRODUCCIÓN
 if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ FALTAN VARIABLES DE ENTORNO:');
+  console.error('🚨 CONFIGURACIÓN CRÍTICA FALTANTE:');
   console.error('   REACT_APP_SUPABASE_URL:', supabaseUrl ? '✅' : '❌ FALTA');
   console.error('   REACT_APP_SUPABASE_ANON_KEY:', supabaseKey ? '✅' : '❌ FALTA');
-  throw new Error('Variables de entorno de Supabase no configuradas. Ver INSTRUCCIONES_PRODUCCION.md');
+  console.error('🚨 SISTEMA NO PUEDE OPERAR SIN ESTAS VARIABLES');
+  throw new Error('CRÍTICO: Variables de entorno de Supabase no configuradas. Sistema no puede funcionar.');
+}
+
+// Validación adicional de formato de URL
+if (!supabaseUrl.includes('supabase.co')) {
+  console.error('🚨 URL DE SUPABASE INVÁLIDA:', supabaseUrl);
+  throw new Error('CRÍTICO: URL de Supabase no tiene formato válido');
+}
+
+// Validación de key format
+if (!supabaseKey.startsWith('eyJ')) {
+  console.error('🚨 API KEY DE SUPABASE INVÁLIDA');
+  throw new Error('CRÍTICO: API Key de Supabase no tiene formato JWT válido');
 }
 
 console.log('🚀 Configurando Supabase:', {

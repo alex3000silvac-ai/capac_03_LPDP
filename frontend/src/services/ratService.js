@@ -1,14 +1,31 @@
 /**
  * Servicio para gestión de RATs
- * Integración entre RAT Producción y Consolidado RAT
+ * VERSIÓN PRODUCCIÓN: Integración completa con Supabase
  */
 
-// Simulación de almacenamiento local (en producción sería backend)
-// IMPORTANTE: Cada clave incluye tenant_id para aislamiento multi-tenant
+// Importar cliente Supabase para operaciones de base de datos
+import { supabase } from '../config/supabaseClient';
 const getStorageKey = (baseKey, tenantId = 'default') => `${baseKey}_${tenantId}`;
 const RAT_STORAGE_KEY = 'lpdp_rats_completed';
 const RAT_PROCESSES_KEY = 'lpdp_rat_processes';
 const INDUSTRY_CONFIG_KEY = 'lpdp_industry_configs';
+
+// Función para validar RAT según Ley 21.719 - MOVIDA AL INICIO
+const validateRAT = (ratData) => {
+  const requiredFields = [
+    ratData.responsable?.nombre,
+    ratData.responsable?.email,
+    ratData.responsable?.telefono,
+    ratData.finalidades?.descripcion,
+    ratData.finalidades?.baseLegal,
+    ratData.categorias?.titulares?.length > 0,
+    ratData.fuente?.tipo,
+    ratData.conservacion?.periodo,
+    ratData.seguridad?.descripcionGeneral
+  ];
+  
+  return requiredFields.every(field => field);
+};
 
 // Función para obtener tenant_id actual desde el contexto
 const getCurrentTenantId = () => {
@@ -28,52 +45,201 @@ const getCurrentTenantId = () => {
 
 export const ratService = {
   
-  // Guardar RAT completado
-  saveCompletedRAT: (ratData, industryName = 'General', processKey = null, tenantId = null) => {
-    const effectiveTenantId = tenantId || getCurrentTenantId();
-    const rats = ratService.getCompletedRATs(effectiveTenantId);
-    
-    const newRAT = {
-      id: `rat_${Date.now()}`,
-      empresa: ratData.responsable?.nombre || 'Sin nombre',
-      industria: industryName,
-      proceso: processKey,
-      fechaCreacion: new Date().toISOString(),
-      fechaModificacion: new Date().toISOString(),
-      estado: 'Completado',
-      progreso: 100,
-      responsable: ratData.responsable,
-      finalidades: ratData.finalidades,
-      categorias: ratData.categorias,
-      transferencias: ratData.transferencias,
-      fuente: ratData.fuente,
-      conservacion: ratData.conservacion,
-      seguridad: ratData.seguridad,
-      automatizadas: ratData.automatizadas,
-      metadata: {
-        version: '1.0',
-        cumpleLey21719: true,
-        camposObligatoriosCompletos: ratService.validateRAT(ratData),
-        usuario: ratData.metadata?.usuario || 'sistema'
+  // Guardar RAT completado en Supabase (PRODUCCIÓN)
+  saveCompletedRAT: async (ratData, industryName = 'General', processKey = null, tenantId = null) => {
+    try {
+      console.log('🚀 Guardando RAT en Supabase (PRODUCCIÓN):', ratData);
+      
+      // Obtener usuario actual
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Usuario no autenticado');
       }
-    };
-    
-    rats.push(newRAT);
-    localStorage.setItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId), JSON.stringify(rats));
-    
-    console.log('✅ RAT guardado en Consolidado:', newRAT);
-    return newRAT;
+
+      // Preparar datos para Supabase
+      const newRAT = {
+        titulo: `${industryName} - ${processKey || 'Proceso General'}`,
+        descripcion: ratData.finalidades?.descripcion || 'RAT generado desde sistema de producción',
+        area: ratData.responsable?.area || industryName,
+        responsable_tratamiento: JSON.stringify(ratData.responsable || {}),
+        categorias_datos: JSON.stringify(ratData.categorias || {}),
+        finalidades: JSON.stringify(ratData.finalidades || {}),
+        base_licita: ratData.finalidades?.baseLegal || 'No especificada',
+        destinatarios: JSON.stringify(ratData.transferencias?.destinatarios || []),
+        transferencias: JSON.stringify(ratData.transferencias || {}),
+        retencion: JSON.stringify(ratData.conservacion || {}),
+        medidas_seguridad: JSON.stringify(ratData.seguridad || {}),
+        tenant_id: getCurrentTenantId() || 'default',
+        user_id: user.id,
+        estado: 'Completado',
+        metadatos: JSON.stringify({
+          version: '1.0',
+          industria: industryName,
+          proceso: processKey,
+          cumpleLey21719: true,
+          camposObligatoriosCompletos: validateRAT(ratData),
+          usuario: user.email,
+          timestamp: new Date().toISOString()
+        })
+      };
+
+      // Guardar en Supabase
+      const { data, error } = await supabase
+        .from('rats')
+        .insert([newRAT])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error guardando RAT en Supabase:', error);
+        
+        // FALLBACK: Guardar en localStorage si falla Supabase
+        console.warn('🔄 Usando fallback localStorage por error en Supabase');
+        const localRAT = {
+          id: `rat_${Date.now()}`,
+          empresa: ratData.responsable?.nombre || 'Sin nombre',
+          industria: industryName,
+          proceso: processKey,
+          fechaCreacion: new Date().toISOString(),
+          fechaModificacion: new Date().toISOString(),
+          estado: 'Completado',
+          progreso: 100,
+          ...ratData,
+          metadata: {
+            version: '1.0',
+            cumpleLey21719: true,
+            camposObligatoriosCompletos: validateRAT(ratData),
+            usuario: user.email || 'sistema',
+            error_supabase: error.message
+          }
+        };
+        
+        const effectiveTenantId = tenantId || getCurrentTenantId();
+        const rats = ratService.getCompletedRATs(effectiveTenantId);
+        rats.push(localRAT);
+        localStorage.setItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId), JSON.stringify(rats));
+        
+        throw error; // Re-throw para notificar el error
+      }
+
+      console.log('✅ RAT guardado exitosamente en Supabase:', data);
+      
+      // TAMBIÉN guardar en localStorage como respaldo y para compatibilidad
+      const localRAT = {
+        id: data.id,
+        empresa: ratData.responsable?.nombre || 'Sin nombre',
+        industria: industryName,
+        proceso: processKey,
+        fechaCreacion: data.fecha_creacion,
+        fechaModificacion: data.fecha_actualizacion,
+        estado: 'Completado',
+        progreso: 100,
+        ...ratData,
+        metadata: {
+          version: '1.0',
+          cumpleLey21719: true,
+          camposObligatoriosCompletos: validateRAT(ratData),
+          usuario: user.email,
+          supabase_id: data.id
+        }
+      };
+      
+      const effectiveTenantId = tenantId || getCurrentTenantId();
+      const rats = ratService.getCompletedRATs(effectiveTenantId);
+      rats.push(localRAT);
+      localStorage.setItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId), JSON.stringify(rats));
+
+      return data;
+    } catch (error) {
+      console.error('❌ Error crítico en saveCompletedRAT:', error);
+      throw error;
+    }
   },
   
-  // Obtener todos los RATs completados
-  getCompletedRATs: (tenantId = null) => {
+  // Obtener todos los RATs completados desde Supabase (PRODUCCIÓN)
+  getCompletedRATs: async (tenantId = null, useLocalFallback = true) => {
     try {
+      console.log('🚀 Cargando RATs desde Supabase (PRODUCCIÓN)');
+      
+      // Obtener usuario actual
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.warn('👤 Usuario no autenticado, usando datos locales');
+        if (useLocalFallback) {
+          const effectiveTenantId = tenantId || getCurrentTenantId();
+          const stored = localStorage.getItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId));
+          return stored ? JSON.parse(stored) : [];
+        }
+        return [];
+      }
+
+      // Cargar RATs desde Supabase
+      const { data, error } = await supabase
+        .from('rats')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('fecha_creacion', { ascending: false });
+
+      if (error) {
+        console.error('❌ Error cargando RATs desde Supabase:', error);
+        
+        // FALLBACK: Usar datos locales si falla Supabase
+        if (useLocalFallback) {
+          console.warn('🔄 Usando fallback localStorage por error en Supabase');
+          const effectiveTenantId = tenantId || getCurrentTenantId();
+          const stored = localStorage.getItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId));
+          return stored ? JSON.parse(stored) : [];
+        }
+        throw error;
+      }
+
+      console.log(`✅ ${data.length} RATs cargados desde Supabase`);
+      
+      // Convertir formato Supabase a formato esperado por la UI
+      const formattedRATs = data.map(rat => ({
+        id: rat.id,
+        empresa: rat.tenant_id,
+        industria: rat.metadatos ? JSON.parse(rat.metadatos).industria : rat.area,
+        proceso: rat.metadatos ? JSON.parse(rat.metadatos).proceso : 'General',
+        fechaCreacion: rat.fecha_creacion,
+        fechaModificacion: rat.fecha_actualizacion,
+        estado: rat.estado,
+        progreso: 100,
+        titulo: rat.titulo,
+        descripcion: rat.descripcion,
+        area: rat.area,
+        responsable: rat.responsable_tratamiento ? JSON.parse(rat.responsable_tratamiento) : {},
+        finalidades: rat.finalidades ? JSON.parse(rat.finalidades) : {},
+        categorias: rat.categorias_datos ? JSON.parse(rat.categorias_datos) : {},
+        transferencias: rat.transferencias ? JSON.parse(rat.transferencias) : {},
+        conservacion: rat.retencion ? JSON.parse(rat.retencion) : {},
+        seguridad: rat.medidas_seguridad ? JSON.parse(rat.medidas_seguridad) : {},
+        metadata: {
+          version: '1.0',
+          cumpleLey21719: true,
+          supabase_id: rat.id,
+          usuario: user.email,
+          ...(rat.metadatos ? JSON.parse(rat.metadatos) : {})
+        }
+      }));
+
+      // TAMBIÉN mantener copia local como respaldo
       const effectiveTenantId = tenantId || getCurrentTenantId();
-      const stored = localStorage.getItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId));
-      return stored ? JSON.parse(stored) : [];
+      localStorage.setItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId), JSON.stringify(formattedRATs));
+
+      return formattedRATs;
     } catch (error) {
-      console.error('Error al cargar RATs:', error);
-      return [];
+      console.error('❌ Error crítico en getCompletedRATs:', error);
+      
+      // ÚLTIMO FALLBACK: Datos locales
+      if (useLocalFallback) {
+        console.warn('🔄 Último fallback: usando datos locales');
+        const effectiveTenantId = tenantId || getCurrentTenantId();
+        const stored = localStorage.getItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId));
+        return stored ? JSON.parse(stored) : [];
+      }
+      
+      throw error;
     }
   },
   

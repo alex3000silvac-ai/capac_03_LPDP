@@ -120,7 +120,7 @@ function Dashboard() {
           >
             <CardContent sx={{ p: 4 }}>
               <Box display="flex" alignItems="center" mb={3}>
-                <Avatar sx={{ bgcolor: 'success.main', width: 64, height: 64 }}>
+                <Avatar sx={{ bgcolor: 'secondary.main', width: 64, height: 64 }}>
                   <RocketLaunchIcon sx={{ fontSize: '2rem' }} />
                 </Avatar>
                 <Box ml={3}>

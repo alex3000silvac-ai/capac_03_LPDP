@@ -723,50 +723,82 @@ const RATProduccion = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  // Exportar RAT
-  const exportRAT = () => {
-    const ratComplete = {
-      ...ratData,
-      metadata: {
-        empresa: currentTenant?.company_name,
-        usuario: user?.email,
-        fechaCreacion: new Date().toISOString(),
-        version: '1.0'
+  // Exportar RAT - VERSIÓN PRODUCCIÓN con guardado en Supabase
+  const exportRAT = async () => {
+    try {
+      setLoading(true);
+      
+      const ratComplete = {
+        ...ratData,
+        metadata: {
+          empresa: currentTenant?.company_name,
+          usuario: user?.email,
+          fechaCreacion: new Date().toISOString(),
+          version: '1.0'
+        }
+      };
+
+      // Marcar proceso como completado y CERTIFICADO en el servicio
+      if (selectedIndustry && selectedProcess) {
+        // Guardar en el servicio de procesos completados
+        ratService.markProcessCompleted(selectedIndustry, selectedProcess, ratComplete);
+        
+        // CRÍTICO: Cambiar estado a CERTIFICADO (ya no se puede eliminar)
+        ratService.setRATState(selectedIndustry, selectedProcess, ratService.RAT_STATES.CERTIFIED);
+        
+        // ⭐ GUARDADO CRÍTICO EN SUPABASE ⭐
+        console.log('🚀 Iniciando guardado en Supabase...');
+        const industryName = INDUSTRY_TEMPLATES[selectedIndustry]?.nombre || 'General';
+        const processName = INDUSTRY_TEMPLATES[selectedIndustry]?.procesos[selectedProcess]?.nombre || selectedProcess;
+        
+        try {
+          const supabaseResult = await ratService.saveCompletedRAT(ratComplete, industryName, processName);
+          console.log('✅ RAT guardado exitosamente en Supabase:', supabaseResult);
+          
+          setSnackbar({
+            open: true,
+            message: '✅ RAT guardado exitosamente en base de datos',
+            severity: 'success'
+          });
+        } catch (supabaseError) {
+          console.error('❌ Error guardando en Supabase:', supabaseError);
+          setSnackbar({
+            open: true,
+            message: `⚠️ RAT guardado localmente (Error BD: ${supabaseError.message})`,
+            severity: 'warning'
+          });
+        }
+        
+        // Actualizar progreso de industria
+        const updatedProgress = ratService.getIndustryProgress(
+          selectedIndustry, 
+          Object.keys(INDUSTRY_TEMPLATES[selectedIndustry]?.procesos || {}).length
+        );
+        setIndustryProgress(updatedProgress);
       }
-    };
 
-    // Marcar proceso como completado y CERTIFICADO en el servicio
-    if (selectedIndustry && selectedProcess) {
-      // Guardar en el servicio de procesos completados
-      ratService.markProcessCompleted(selectedIndustry, selectedProcess, ratComplete);
-      
-      // CRÍTICO: Cambiar estado a CERTIFICADO (ya no se puede eliminar)
-      ratService.setRATState(selectedIndustry, selectedProcess, ratService.RAT_STATES.CERTIFIED);
-      
-      // También guardar en el consolidado RAT
-      const industryName = INDUSTRY_TEMPLATES[selectedIndustry]?.nombre || 'General';
-      const processName = INDUSTRY_TEMPLATES[selectedIndustry]?.procesos[selectedProcess]?.nombre || selectedProcess;
-      
-      ratService.saveCompletedRAT(ratComplete, industryName, processName);
-      
-      // Actualizar progreso de industria
-      const updatedProgress = ratService.getIndustryProgress(
-        selectedIndustry, 
-        Object.keys(INDUSTRY_TEMPLATES[selectedIndustry]?.procesos || {}).length
-      );
-      setIndustryProgress(updatedProgress);
-    }
-
-    switch (exportFormat) {
-      case 'json':
-        downloadJSON(ratComplete);
-        break;
-      case 'pdf':
-        generatePDF(ratComplete);
-        break;
-      case 'excel':
-        generateExcel(ratComplete);
-        break;
+      // Proceder con la exportación del archivo
+      switch (exportFormat) {
+        case 'json':
+          downloadJSON(ratComplete);
+          break;
+        case 'pdf':
+          generatePDF(ratComplete);
+          break;
+        case 'excel':
+          generateExcel(ratComplete);
+          break;
+      }
+    } catch (error) {
+      console.error('❌ Error crítico en exportRAT:', error);
+      setSnackbar({
+        open: true,
+        message: `❌ Error exportando RAT: ${error.message}`,
+        severity: 'error'
+      });
+      return; // Salir si hay error
+    } finally {
+      setLoading(false);
     }
 
     setSnackbar({

@@ -1,7 +1,7 @@
 // 🚀 TENANTCONTEXT MODO ONLINE - PRODUCCIÓN SUPABASE
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { ratService } from '../services/ratService';
+import ratService from '../services/ratService';
 import { supabase } from '../config/supabaseClient';
 
 console.log('🚀 Iniciando TenantContext en modo PRODUCCIÓN SUPABASE');
@@ -33,10 +33,13 @@ export const TenantProvider = ({ children }) => {
       console.log('🚀 Cargando organizaciones desde Supabase para user:', user.id);
       setLoading(true);
       
+      // SEGURIDAD: Query con validación explícita de usuario autenticado
       const { data, error } = await supabase
         .from('organizaciones')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('active', true) // Solo organizaciones activas
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error('🚀 Error cargando organizaciones:', error);
@@ -68,19 +71,25 @@ export const TenantProvider = ({ children }) => {
   };
   
   const createDefaultOrganization = async () => {
-    if (!user) return null;
+    if (!user?.id) {
+      console.error('🚨 SEGURIDAD: No se puede crear organización sin usuario válido');
+      return null;
+    }
     
+    // SEGURIDAD: Generar ID único con timestamp para evitar colisiones
+    const uniqueId = `org_${user.id}_${Date.now()}`;
     const defaultOrg = {
-      id: `org_${user.id}`,
+      id: uniqueId,
       company_name: `Organización de ${user.email}`,
       display_name: `Organización de ${user.email}`,
       industry: 'General',
       size: 'Pequeña',
       country: 'Chile',
-      user_id: user.id,
+      user_id: user.id, // CRÍTICO: Siempre vincular al usuario actual
       created_at: new Date().toISOString(),
       is_demo: false,
-      online_mode: true
+      online_mode: true,
+      active: true // SEGURIDAD: Marcado como activo por defecto
     };
     
     try {

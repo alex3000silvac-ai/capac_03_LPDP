@@ -142,7 +142,7 @@ const ProcesoCompleto = () => {
   const getIconByType = (tipo) => {
     switch(tipo) {
       case 'RAT': return <RATIcon color="primary" />;
-      case 'EIPD': return <EIPDIcon color="success" />;
+      case 'EIPD': return <EIPDIcon sx={{ color: '#5f6368' }} />;
       case 'DPA': return <DPAIcon color="info" />;
       case 'DPIA': return <DPIAIcon color="warning" />;
       default: return <CheckIcon />;
@@ -152,9 +152,16 @@ const ProcesoCompleto = () => {
   return (
     <Box sx={{ maxWidth: 1400, mx: 'auto', p: 3 }}>
       {/* Header */}
-      <Alert severity="success" sx={{ mb: 4 }}>
+      <Alert 
+        sx={{ 
+          mb: 4,
+          backgroundColor: '#f8f9fa',
+          border: '1px solid #5f6368',
+          color: '#2c3e50'
+        }}
+      >
         <Typography variant="h5" fontWeight={700} gutterBottom>
-          ✅ TODOS LOS DOCUMENTOS COMPLETADOS
+          TODOS LOS DOCUMENTOS COMPLETADOS
         </Typography>
         <Typography variant="body1">
           El RAT-EJEMPLO-COMPLETO y todos sus documentos derivados están al 100%. El proceso puede cerrarse oficialmente.
@@ -177,8 +184,9 @@ const ProcesoCompleto = () => {
                     borderColor: '#5f6368',
                     borderRadius: 2,
                     mb: 1,
-                    bgcolor: 'success.light',
-                    color: 'success.contrastText'
+                    bgcolor: '#f8f9fa',
+                    color: '#2c3e50',
+                    border: '1px solid #5f6368'
                   }}>
                     <ListItemIcon>
                       {getIconByType(doc.tipo)}
@@ -189,7 +197,7 @@ const ProcesoCompleto = () => {
                           <Typography variant="subtitle1" fontWeight={600}>
                             {doc.tipo}: {doc.nombre}
                           </Typography>
-                          <CheckIcon color="success" />
+                          <CheckIcon sx={{ color: '#5f6368' }} />
                         </Box>
                       }
                       secondary={
@@ -197,7 +205,7 @@ const ProcesoCompleto = () => {
                           <LinearProgress 
                             variant="determinate" 
                             value={100}
-                            color="success"
+                            sx={{ color: '#2c3e50' }}
                             sx={{ my: 1, height: 6 }}
                           />
                           <Typography variant="caption">
@@ -259,7 +267,7 @@ const ProcesoCompleto = () => {
                     startIcon={<CompleteIcon />}
                     sx={{ 
                       bgcolor: '#5f6368',
-                      '&:hover': { bgcolor: 'success.dark' },
+                      '&:hover': { bgcolor: '#34495e' },
                       fontSize: '1.1rem',
                       py: 2
                     }}
@@ -270,7 +278,12 @@ const ProcesoCompleto = () => {
               )}
 
               {procesoCerrado && (
-                <Alert severity="success" sx={{ mt: 3 }}>
+                <Alert sx={{ 
+                  mt: 3,
+                  backgroundColor: '#f8f9fa',
+                  border: '1px solid #5f6368',
+                  color: '#2c3e50'
+                }}>
                   <Typography variant="h6" fontWeight={700}>
                     PROCESO OFICIALMENTE CERRADO
                   </Typography>
@@ -337,7 +350,12 @@ const ProcesoCompleto = () => {
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ mt: 3 }}>
-          <Alert severity="success" sx={{ mb: 3 }}>
+          <Alert sx={{ 
+            mb: 3,
+            backgroundColor: '#f8f9fa',
+            border: '1px solid #5f6368',
+            color: '#2c3e50'
+          }}>
             <Typography variant="h6" fontWeight={700}>
               RAT-EJEMPLO-COMPLETO: Sistema de Scoring Crediticio
             </Typography>
@@ -349,7 +367,14 @@ const ProcesoCompleto = () => {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="subtitle2">Estado Final:</Typography>
-              <Chip label="COMPLETO Y CERTIFICADO" color="success" />
+              <Chip 
+                label="COMPLETO Y CERTIFICADO" 
+                sx={{ 
+                  bgcolor: '#2c3e50',
+                  color: 'white',
+                  fontWeight: 600
+                }}
+              />
             </Grid>
             <Grid item xs={6}>
               <Typography variant="subtitle2">Documentos Generados:</Typography>
@@ -406,7 +431,15 @@ const ProcesoCompleto = () => {
           <Button onClick={() => setShowCompletionDialog(false)} variant="outlined">
             Cerrar
           </Button>
-          <Button variant="contained" color="success">
+          <Button 
+            variant="contained" 
+            sx={{
+              background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #34495e 0%, #2c3e50 100%)'
+              }
+            }}
+          >
             Descargar Certificado
           </Button>
         </DialogActions>

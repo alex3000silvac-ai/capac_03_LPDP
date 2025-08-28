@@ -44,9 +44,9 @@ export const COLORS = {
   // Estados semánticos
   semantic: {
     success: {
-      main: '#4caf50',
-      light: '#81c784',
-      dark: '#388e3c'
+      main: '#334155',
+      light: '#475569',
+      dark: '#1e293b'
     },
     warning: {
       main: '#ff9800',
@@ -59,9 +59,9 @@ export const COLORS = {
       dark: '#d32f2f'
     },
     info: {
-      main: '#2196f3',
-      light: '#64b5f6',
-      dark: '#1976d2'
+      main: '#64748b',
+      light: '#94a3b8',
+      dark: '#475569'
     }
   }
 };

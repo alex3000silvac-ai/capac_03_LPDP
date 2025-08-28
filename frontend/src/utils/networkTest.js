@@ -10,7 +10,7 @@ export const testSupabaseConnectivity = async (timeoutMs = 2000) => {
       reject(new Error('TIMEOUT: Supabase no responde en tiempo esperado'));
     }, timeoutMs);
 
-    fetch('https://symkjkbejxexgrydmvqs.supabase.co/rest/v1/', { 
+    fetch('${process.env.REACT_APP_SUPABASE_URL || 'https://symkjkbejxexgrydmvqs.supabase.co'}/rest/v1/', { 
       method: 'HEAD',
       cache: 'no-cache'
     })
@@ -59,7 +59,7 @@ export const testSupabaseConnectivityImage = async () => {
     };
 
     // Intentar cargar favicon de Supabase
-    img.src = 'https://symkjkbejxexgrydmvqs.supabase.co/favicon.ico?' + Date.now();
+    img.src = '${process.env.REACT_APP_SUPABASE_URL || 'https://symkjkbejxexgrydmvqs.supabase.co'}/favicon.ico?' + Date.now();
   });
 };
 

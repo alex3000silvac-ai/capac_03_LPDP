@@ -9,8 +9,9 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #5f6368 100%);
+            background: linear-gradient(135deg, #1e293b 0%, #334155 25%, #475569 50%, #64748b 75%, #94a3b8 100%);
             overflow: hidden;
+            color: #1e293b;
         }
         
         .presentation-container {
@@ -26,12 +27,13 @@
             display: none;
             width: 90%;
             max-width: 1000px;
-            background: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border-radius: 15px;
             padding: 60px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             text-align: center;
             animation: slideIn 0.6s ease-out;
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
         
         .slide.active {
@@ -44,10 +46,14 @@
         }
         
         h1 {
-            color: #2c3e50;
+            color: #1e293b;
             font-size: 3rem;
             margin-bottom: 30px;
             font-weight: 700;
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
@@ -106,7 +112,7 @@
         }
         
         .nav-btn {
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             color: white;
             border: none;
             padding: 14px 28px;
@@ -115,13 +121,13 @@
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(52, 73, 94, 0.3);
+            box-shadow: 0 4px 15px rgba(30, 41, 59, 0.3);
         }
         
         .nav-btn:hover {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            background: linear-gradient(135deg, #334155 0%, #475569 100%);
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(52, 73, 94, 0.4);
+            box-shadow: 0 6px 20px rgba(30, 41, 59, 0.4);
         }
         
         .nav-btn:disabled {
@@ -135,12 +141,14 @@
             position: fixed;
             top: 30px;
             right: 30px;
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             color: white;
             padding: 12px 24px;
             border-radius: 25px;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(30, 41, 59, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .play-btn {
@@ -413,15 +421,51 @@
             
             document.getElementById('current-slide').textContent = currentSlide + 1;
             
-            // Leer el texto del slide actual
+            // Leer el texto del slide actual con voz mejorada
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const text = slides[currentSlide].innerText;
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'es-ES';
-                utterance.rate = 0.8;
-                utterance.pitch = 1;
-                window.speechSynthesis.speak(utterance);
+                
+                // Esperar un poco para que las voces se carguen
+                setTimeout(() => {
+                    const text = slides[currentSlide].innerText;
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    
+                    // Configurar voz más natural
+                    const voices = window.speechSynthesis.getVoices();
+                    
+                    // Buscar voces en español más naturales
+                    let selectedVoice = voices.find(voice => 
+                        voice.lang.includes('es') && 
+                        (voice.name.includes('Jorge') || voice.name.includes('Diego') || 
+                         voice.name.includes('Premium') || voice.name.includes('Enhanced'))
+                    ) || voices.find(voice => voice.lang.includes('es-MX')) 
+                      || voices.find(voice => voice.lang.includes('es-AR'))
+                      || voices.find(voice => voice.lang.includes('es-ES'));
+                    
+                    if (selectedVoice) {
+                        utterance.voice = selectedVoice;
+                    }
+                    
+                    // Configuración para voz menos mecánica
+                    utterance.lang = 'es-MX'; // Español mexicano suena menos robótico
+                    utterance.rate = 0.85; // Velocidad natural
+                    utterance.pitch = 0.95; // Tono ligeramente más bajo
+                    utterance.volume = 0.9;
+                    
+                    // Pausas naturales
+                    const naturalText = text
+                        .replace(/\./g, '. ')
+                        .replace(/,/g, ', ')
+                        .replace(/:/g, ': ')
+                        .replace(/;/g, '; ')
+                        .replace(/\n/g, '. ')
+                        .replace(/(Ley\s21\.719)/g, 'Ley veintiuno punto setecientos diecinueve')
+                        .replace(/LPDP/g, 'L P D P');
+                    
+                    utterance.text = naturalText;
+                    
+                    window.speechSynthesis.speak(utterance);
+                }, 100);
             }
         }
         

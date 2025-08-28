@@ -1243,14 +1243,14 @@ const GlosarioLPDP = () => {
   const categorias = {
     all: { nombre: 'Todos', icon: <Book /> },
     fundamental: { nombre: 'Fundamentales', icon: <Star />, color: '#f44336' },
-    actores: { nombre: 'Actores', icon: <Group />, color: '#2196f3' },
+    actores: { nombre: 'Actores', icon: <Group />, color: '#64748b' },
     operaciones: { nombre: 'Operaciones', icon: <Settings />, color: '#6c757d' },
     derechos: { nombre: 'Derechos ARCO+', icon: <Security />, color: '#ff9800' },
     principios: { nombre: 'Principios', icon: <Policy />, color: '#9c27b0' },
     cumplimiento: { nombre: 'Cumplimiento', icon: <Assignment />, color: '#495057' },
     seguridad: { nombre: 'Seguridad', icon: <Lock />, color: '#795548' },
     bases_licitud: { nombre: 'Bases Licitud', icon: <Gavel />, color: '#607d8b' },
-    herramientas: { nombre: 'Herramientas', icon: <Build />, color: '#e91e63' },
+    herramientas: { nombre: 'Herramientas', icon: <Build />, color: '#64748b' },
     especial: { nombre: 'Protección Especial', icon: <ChildCare />, color: '#ff5722' },
     institucional: { nombre: 'Institucional', icon: <AccountBalance />, color: '#3f51b5' },
     gobernanza: { nombre: 'Gobernanza', icon: <Architecture />, color: '#8bc34a' }
