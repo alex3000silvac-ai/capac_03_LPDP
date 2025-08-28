@@ -354,6 +354,8 @@ Firmado digitalmente el ${new Date().toLocaleDateString('es-CL')}
 
   // Función para descargar plantillas DPA según tipo
   const handleDownloadDPATemplate = (tipo) => {
+    try {
+      console.log('📥 Descargando plantilla DPA:', tipo);
     const plantillasDPA = {
       cloud: {
         nombre: 'DPA_Servicios_Cloud_LPDP.docx',
@@ -459,17 +461,28 @@ CLAUSULAS PARA CONSULTORES:
       }
     };
 
-    const plantilla = plantillasDPA[tipo];
-    if (plantilla) {
-      const blob = new Blob([plantilla.contenido], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = plantilla.nombre;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const plantilla = plantillasDPA[tipo];
+      if (plantilla) {
+        const blob = new Blob([plantilla.contenido], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = plantilla.nombre;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        // Mostrar mensaje de éxito
+        console.log('✅ Plantilla descargada:', plantilla.nombre);
+        alert(`Plantilla ${plantilla.nombre} descargada correctamente`);
+      } else {
+        console.error('❌ Plantilla no encontrada:', tipo);
+        alert('Error: Plantilla no encontrada');
+      }
+    } catch (error) {
+      console.error('❌ Error descargando plantilla:', error);
+      alert('Error al descargar la plantilla. Por favor, verifica los permisos del navegador.');
     }
   };
 
