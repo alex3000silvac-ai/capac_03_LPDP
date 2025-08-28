@@ -161,11 +161,9 @@ const ConsolidadoRAT = () => {
 
           allRATs = localRATs;
           console.log('📊 ConsolidadoRAT - Usando localStorage:', localRATs.length, 'RATs');
-        console.log('📱 ConsolidadoRAT - localStorage data:', localRATs.length);
-        console.log('📦 ConsolidadoRAT - Total RATs:', allRATs.length);
-
-      } catch (localError) {
-        console.log('❌ Error localStorage:', localError);
+        } catch (localError) {
+          console.log('❌ Error localStorage:', localError);
+        }
       }
 
       setRats(allRATs);
