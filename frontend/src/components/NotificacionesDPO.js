@@ -87,14 +87,10 @@ const NotificacionesDPO = () => {
       
       console.log('Cargando datos reales para usuario:', user.id);
 
-      // 1. Cargar actividades DPO pendientes
+      // 1. Cargar actividades DPO pendientes - SIN JOINS por ahora
       const { data: actividadesData, error: actividadesError } = await supabase
         .from('actividades_dpo')
-        .select(`
-          *,
-          mapeo_datos_rat!inner(id, nombre_actividad, area_responsable, descripcion),
-          organizaciones!inner(company_name)
-        `)
+        .select('*')
         .eq('asignado_a', user.id)
         .order('fecha_creacion', { ascending: false });
 
@@ -103,13 +99,10 @@ const NotificacionesDPO = () => {
         throw actividadesError;
       }
 
-      // 2. Cargar documentos asociados
+      // 2. Cargar documentos asociados - SIN JOINS por ahora
       const { data: documentosData, error: documentosError } = await supabase
         .from('documentos_asociados')
-        .select(`
-          *,
-          mapeo_datos_rat!inner(nombre_actividad, area_responsable)
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .order('fecha_asociacion', { ascending: false });
 
@@ -118,18 +111,18 @@ const NotificacionesDPO = () => {
         // No throw - documentos son opcionales
       }
 
-      // 3. Convertir actividades a notificaciones
+      // 3. Convertir actividades a notificaciones - SIN REFERENCIAS EXTERNAS
       const notificacionesReales = (actividadesData || []).map(actividad => ({
         id: `NOTIF-${actividad.id}`,
         tipo: determinarTipoNotificacion(actividad.prioridad),
         titulo: `${getIconoActividad(actividad.tipo_actividad)} ${actividad.descripcion}`,
-        descripcion: `${actividad.mapeo_datos_rat.nombre_actividad} - ${actividad.organizaciones.company_name}`,
+        descripcion: `RAT ${actividad.rat_id || 'Sin especificar'} - Actividad DPO`,
         fechaCreacion: new Date(actividad.fecha_creacion),
         vencimiento: calcularDiasVencimiento(actividad.fecha_vencimiento),
         documentoId: actividad.metadatos?.documento_id || `${actividad.tipo_actividad}-${actividad.id}`,
-        ratOrigen: actividad.mapeo_datos_rat.nombre_actividad,
+        ratOrigen: `RAT-${actividad.rat_id || 'UNKNOWN'}`,
         progreso: 0,
-        area: actividad.mapeo_datos_rat.area_responsable?.toLowerCase() || 'general',
+        area: 'general',
         actividad_id: actividad.id,
         rat_id: actividad.rat_id,
         prioridad_original: actividad.prioridad
