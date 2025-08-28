@@ -156,7 +156,7 @@ const ModuloEIPD = () => {
     
     // Metadatos
     created_by: user?.id || 'demo_user',
-    tenant_id: user?.organizacion_id || 'demo',
+    tenant_id: 'juridica_digital',
     fecha_creacion: new Date().toISOString(),
     fecha_actualizacion: new Date().toISOString(),
     historial_cambios: []

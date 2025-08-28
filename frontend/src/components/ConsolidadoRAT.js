@@ -114,7 +114,7 @@ const ConsolidadoRAT = () => {
   }, [rats, filters]);
 
   const getCurrentTenant = () => {
-    return user?.tenant_id || user?.organizacion_id || 'demo';
+    return 'juridica_digital';
   };
 
   const cargarRATs = async () => {

@@ -135,7 +135,7 @@ const GestionProveedores = () => {
     },
     estado: 'activo', // 'activo', 'suspendido', 'terminado'
     created_by: user?.id || 'demo_user',
-    tenant_id: user?.organizacion_id || 'demo',
+    tenant_id: 'juridica_digital',
     fecha_creacion: new Date().toISOString(),
     fecha_actualizacion: new Date().toISOString()
   });
@@ -191,7 +191,7 @@ const GestionProveedores = () => {
                 certificaciones: ['ISO 27001', 'SOC 2', 'PCI DSS']
               },
               estado: 'activo',
-              tenant_id: user?.tenant_id || user?.organizacion_id || 'demo'
+              tenant_id: 'juridica_digital'
             },
             {
               id: 'prov_002', 
@@ -213,7 +213,7 @@ const GestionProveedores = () => {
                 nivel_riesgo: 'medio'
               },
               estado: 'activo',
-              tenant_id: user?.tenant_id || user?.organizacion_id || 'demo'
+              tenant_id: 'juridica_digital'
             }
           ];
           setProveedores(proveedoresDemo);
@@ -303,7 +303,7 @@ const GestionProveedores = () => {
         nombre: '',
         razon_social: '',
         rut: '',
-        tenant_id: user?.tenant_id || user?.organizacion_id || 'demo'
+        tenant_id: 'juridica_digital'
       });
       
     } catch (error) {

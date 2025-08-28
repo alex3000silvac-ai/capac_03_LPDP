@@ -334,7 +334,7 @@ class APIService {
   }
 
   getCurrentTenant() {
-    return localStorage.getItem('tenant_id') || 'tenant-demo';
+    return 'juridica_digital';
   }
 
   // Simulador de llamadas a API (para desarrollo)
