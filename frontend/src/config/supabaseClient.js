@@ -4,8 +4,16 @@ import { createClient } from '@supabase/supabase-js';
 console.log('🚀 Iniciando cliente Supabase REAL para producción');
 
 // Configuración de Supabase desde variables de entorno
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://xvnfpkxbsmfhqcyvjwmz.supabase.co';
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2bmZwa3hic21maHFjeXZqd216Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU0NzY1NzUsImV4cCI6MjA1MTA1MjU3NX0.Kqwfyvy5AYGiILyXJWjvL5RqLLlJDr5jb3mSs4yNmNQ';
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+
+// Validación de variables de entorno
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ FALTAN VARIABLES DE ENTORNO:');
+  console.error('   REACT_APP_SUPABASE_URL:', supabaseUrl ? '✅' : '❌ FALTA');
+  console.error('   REACT_APP_SUPABASE_ANON_KEY:', supabaseKey ? '✅' : '❌ FALTA');
+  throw new Error('Variables de entorno de Supabase no configuradas. Ver INSTRUCCIONES_PRODUCCION.md');
+}
 
 console.log('🚀 Configurando Supabase:', {
   url: supabaseUrl,
