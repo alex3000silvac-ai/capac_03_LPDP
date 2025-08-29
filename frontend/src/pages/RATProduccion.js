@@ -756,11 +756,25 @@ const RATProduccion = () => {
           const supabaseResult = await ratService.saveCompletedRAT(ratComplete, industryName, processName);
           console.log('✅ RAT guardado exitosamente en Supabase:', supabaseResult);
           
+          // Guardar el ID del RAT recién creado
+          const savedRatId = supabaseResult?.id || `rat_${Date.now()}`;
+          
+          // Mostrar notificación con opciones
           setSnackbar({
             open: true,
             message: '✅ RAT guardado exitosamente en base de datos',
-            severity: 'success'
+            severity: 'success',
+            ratId: savedRatId,
+            showActions: true
           });
+          
+          // Opción de redirección automática después de 3 segundos
+          setTimeout(() => {
+            if (window.confirm('¿Desea ver el RAT que acaba de guardar?')) {
+              window.location.href = `/consolidado-rat?highlight=${savedRatId}`;
+            }
+          }, 2000);
+          
         } catch (supabaseError) {
           console.error('❌ Error guardando en Supabase:', supabaseError);
           setSnackbar({
@@ -2947,18 +2961,56 @@ const RATProduccion = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar */}
+      {/* Snackbar mejorado con acciones */}
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        autoHideDuration={snackbar.showActions ? 15000 : 6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert 
           onClose={() => setSnackbar({ ...snackbar, open: false })} 
           severity={snackbar.severity}
+          sx={{ minWidth: 400 }}
+          action={
+            snackbar.showActions && snackbar.ratId ? (
+              <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                <Button 
+                  color="inherit" 
+                  size="small"
+                  variant="outlined"
+                  onClick={() => {
+                    window.location.href = `/consolidado-rat?highlight=${snackbar.ratId}`;
+                  }}
+                  startIcon={<Visibility />}
+                >
+                  Ver RAT
+                </Button>
+                <Button 
+                  color="inherit" 
+                  size="small"
+                  variant="outlined"
+                  onClick={() => {
+                    window.location.href = `/evaluacion-impacto?rat=${snackbar.ratId}`;
+                  }}
+                  startIcon={<Assessment />}
+                >
+                  Crear EIPD
+                </Button>
+              </Box>
+            ) : null
+          }
         >
-          {snackbar.message}
+          <Box>
+            <Typography variant="subtitle2" fontWeight="bold">
+              {snackbar.message}
+            </Typography>
+            {snackbar.showActions && (
+              <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
+                📋 RAT guardado con ID: {snackbar.ratId}
+              </Typography>
+            )}
+          </Box>
         </Alert>
       </Snackbar>
     </Container>

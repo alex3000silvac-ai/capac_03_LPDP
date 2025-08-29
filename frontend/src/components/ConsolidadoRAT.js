@@ -86,6 +86,7 @@ const ConsolidadoRAT = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedRAT, setSelectedRAT] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [highlightedRatId, setHighlightedRatId] = useState(null);
   const [filters, setFilters] = useState({
     area: 'all',
     riesgo: 'all',
@@ -106,6 +107,23 @@ const ConsolidadoRAT = () => {
 
   useEffect(() => {
     cargarRATs();
+    
+    // Detectar si hay un RAT para resaltar desde la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightId = urlParams.get('highlight');
+    if (highlightId) {
+      setHighlightedRatId(highlightId);
+      console.log('📍 RAT a resaltar:', highlightId);
+      
+      // Auto-abrir el RAT si está resaltado
+      setTimeout(() => {
+        const ratToHighlight = rats.find(r => r.id === highlightId);
+        if (ratToHighlight) {
+          setSelectedRAT(ratToHighlight);
+          setShowDetails(true);
+        }
+      }, 1000);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -661,6 +679,30 @@ FASE 5 - GOVERNANCE:
         </Typography>
       </Box>
 
+      {/* Mensaje de RAT recién creado */}
+      {highlightedRatId && (
+        <Alert 
+          severity="success" 
+          sx={{ mb: 3 }}
+          action={
+            <Button 
+              color="inherit" 
+              size="small"
+              onClick={() => setHighlightedRatId(null)}
+            >
+              Cerrar
+            </Button>
+          }
+        >
+          <Typography variant="subtitle1" fontWeight="bold">
+            ✅ RAT guardado exitosamente
+          </Typography>
+          <Typography variant="body2">
+            El RAT con ID {highlightedRatId} ha sido guardado correctamente y está resaltado en la tabla.
+          </Typography>
+        </Alert>
+      )}
+
       {/* Diagrama de Procesos LPDP */}
       <Paper sx={{ p: 3, mb: 4, background: 'linear-gradient(135deg, #495057 0%, #6c757d 100%)' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, color: 'white' }}>
@@ -931,7 +973,23 @@ FASE 5 - GOVERNANCE:
                 </TableHead>
                 <TableBody>
                   {filteredRats.map((rat) => (
-                    <TableRow key={rat.id}>
+                    <TableRow 
+                      key={rat.id}
+                      sx={{
+                        backgroundColor: highlightedRatId === rat.id ? '#ffeb3b30' : 'inherit',
+                        animation: highlightedRatId === rat.id ? 'pulse 2s infinite' : 'none',
+                        cursor: 'pointer',
+                        '&:hover': { backgroundColor: '#f5f5f5' },
+                        '@keyframes pulse': {
+                          '0%': { backgroundColor: '#ffeb3b30' },
+                          '50%': { backgroundColor: '#ffeb3b60' },
+                          '100%': { backgroundColor: '#ffeb3b30' }
+                        }
+                      }}
+                      onClick={() => {
+                        setSelectedRAT(rat);
+                        setShowDetails(true);
+                      }}>
                       <TableCell>{rat.id?.substring(0, 8)}...</TableCell>
                       <TableCell>
                         <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
