@@ -39,6 +39,7 @@ import ProcesoCompletoPage from './pages/ProcesoCompleto';
 import GestionAsociaciones from './pages/GestionAsociaciones';
 import DPIAAlgoritmos from './pages/DPIAAlgoritmos';
 import ConsultaPreviaAgencia from './components/ConsultaPreviaAgencia';
+import RATSystemProfessional from './components/RATSystemProfessional';
 
 // Tema oscuro profesional - SIN HARDCODEO
 const theme = createTheme({
@@ -274,7 +275,14 @@ const AppContent = () => {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard-dpo" replace />} />
+        <Route path="/" element={<Navigate to="/rat-system" replace />} />
+        
+        {/* Sistema RAT Profesional - Nueva Interfaz Principal */}
+        <Route path="/rat-system" element={
+          <ProtectedRoute>
+            <RATSystemProfessional />
+          </ProtectedRoute>
+        } />
         
         {/* Dashboard Principal del DPO */}
         <Route path="/dashboard-dpo" element={
@@ -424,7 +432,7 @@ const AppContent = () => {
         />
         
         {/* Ruta por defecto */}
-        <Route path="*" element={<Navigate to="/dashboard-dpo" replace />} />
+        <Route path="*" element={<Navigate to="/rat-system" replace />} />
       </Routes>
     </Layout>
   );

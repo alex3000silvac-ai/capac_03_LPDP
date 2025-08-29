@@ -47,54 +47,40 @@ import {
 const drawerWidth = 280;
 
 const menuItems = [
-  // DASHBOARD PRINCIPAL
+  // RAT - REGISTRO DE ACTIVIDADES DE TRATAMIENTO
   {
-    text: '🛡️ Dashboard DPO',
-    icon: <SchoolIcon />,
-    path: '/dashboard-dpo',
-    description: 'Centro de Control - Notificaciones y Tareas',
-    section: 'principal',
+    text: 'SISTEMA RAT',
+    icon: <RocketLaunch />,
+    path: '/rat-system',
+    description: 'Crear y gestionar registros de tratamiento',
+    section: 'rat',
     order: 1,
     isNew: true
   },
-  
-  // CAPACITACIÓN Y APRENDIZAJE
   {
-    text: 'Módulo Cero',
-    icon: <SchoolIcon />,
-    path: '/modulo-cero',
-    description: 'Fundamentos de la Ley 21.719 (7 minutos)',
-    section: 'capacitacion',
+    text: 'Consolidado RAT',
+    icon: <Assessment />,
+    path: '/consolidado-rat',
+    description: 'Vista ejecutiva de todos los RATs',
+    section: 'rat',
     order: 2
-  },
-  
-  // HERRAMIENTAS DE PRODUCCIÓN
-  {
-    text: 'RAT Producción',
-    icon: <RocketLaunch />,
-    path: '/rat-produccion',
-    description: 'Generador RAT completo por industria',
-    chip: 'NUEVO',
-    section: 'herramientas',
-    order: 3,
-    isNew: true
   },
   {
     text: 'Evaluación de Impacto',
     icon: <Security />,
     path: '/evaluacion-impacto',
     description: 'EIPD para tratamientos de alto riesgo',
-    section: 'herramientas',
+    section: 'rat',
     order: 3
   },
   
-  // GESTIÓN Y CONTROL
+  // DPO - DATA PROTECTION OFFICER
   {
-    text: 'Consolidado RAT',
-    icon: <Assessment />,
-    path: '/consolidado-rat',
-    description: 'Vista ejecutiva de todos los RATs',
-    section: 'gestion',
+    text: 'Dashboard DPO',
+    icon: <SchoolIcon />,
+    path: '/dashboard-dpo',
+    description: 'Centro de control y notificaciones',
+    section: 'dpo',
     order: 4
   },
   {
@@ -102,40 +88,34 @@ const menuItems = [
     icon: <Business />,
     path: '/gestion-proveedores',
     description: 'Contratos DPA y encargados del tratamiento',
-    section: 'gestion',
+    section: 'dpo',
     order: 5
   },
   {
-    text: '🔗 Gestión Asociaciones',
+    text: 'Gestión Asociaciones',
     icon: <Business />,
     path: '/gestion-asociaciones',
     description: 'Asociar documentos existentes a RATs',
-    chip: 'NUEVO',
-    section: 'gestion',
-    order: 6,
-    isNew: true
+    section: 'dpo',
+    order: 6
   },
   
-  // RECURSOS
+  // GUÍA LEGAL
   {
     text: 'Glosario LPDP',
     icon: <Book />,
     path: '/glosario',
     description: 'Diccionario de términos técnicos',
-    section: 'recursos',
-    order: 8
+    section: 'legal',
+    order: 7
   },
-  
-  // PROCESO COMPLETO
   {
-    text: '🏁 Proceso Completo',
-    icon: <Book />,
-    path: '/proceso-completo',
-    description: 'Ver RAT completamente cerrado',
-    chip: 'FINAL',
-    section: 'recursos',
-    order: 9,
-    isNew: true
+    text: 'Módulo Fundamentos',
+    icon: <SchoolIcon />,
+    path: '/modulo-cero',
+    description: 'Fundamentos de la Ley 21.719',
+    section: 'legal',
+    order: 8
   },
   
 ];
@@ -208,11 +188,9 @@ function Layout({ children }) {
         {menuItems.map((item, index) => {
           const showSectionHeader = index === 0 || item.section !== menuItems[index - 1]?.section;
           const sectionTitles = {
-            'principal': '📊 PANEL PRINCIPAL',
-            'capacitacion': '🎓 CAPACITACIÓN',
-            'herramientas': '🔧 HERRAMIENTAS RAT',
-            'gestion': '📈 GESTIÓN',
-            'recursos': '📚 RECURSOS',
+            'rat': '📋 RAT - REGISTRO DE TRATAMIENTOS',
+            'dpo': '🛡️ DPO - GESTIÓN DE DATOS',
+            'legal': '⚖️ GUÍA LEGAL Y RECURSOS',
           };
           
           return (
