@@ -10,8 +10,31 @@ const ratIntelligenceEngine = {
   // CREAR ACTIVIDADES DPO AUTOMÁTICAMENTE EN SUPABASE
   async createDPOActivities(alerts, ratId, tenantId) {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      console.log('📋 Iniciando creación de actividades DPO:', {
+        alertas: alerts?.length,
+        ratId,
+        tenantId
+      });
+      
+      // Intentar obtener usuario, pero continuar con datos por defecto si no hay
+      let user = null;
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        user = authUser;
+      } catch (authError) {
+        console.warn('⚠️ No hay usuario autenticado, usando datos por defecto');
+      }
+      
+      // Usar datos por defecto si no hay usuario
+      const effectiveUser = user || {
+        id: 'system-dpo-' + Date.now(),
+        email: 'dpo@juridica-digital.cl'
+      };
+      
+      if (!alerts || alerts.length === 0) {
+        console.log('ℹ️ No hay alertas para crear actividades DPO');
+        return { success: true, data: [], message: 'No hay alertas pendientes' };
+      }
 
       const activities = alerts.map(alert => ({
         rat_id: parseInt(ratId) || null,
@@ -21,7 +44,7 @@ const ratIntelligenceEngine = {
         prioridad: alert.urgencia === 'critica' ? 'alta' : alert.urgencia === 'alta' ? 'alta' : 'media',
         fecha_creacion: new Date().toISOString(),
         fecha_vencimiento: new Date(Date.now() + (alert.plazo_dias || 15) * 24 * 60 * 60 * 1000).toISOString(),
-        asignado_a: user.id,
+        asignado_a: effectiveUser.id,
         organizacion_id: 1, // Default organization
         metadatos: {
           documento_id: `${alert.documento_requerido}-${Date.now()}`,
@@ -32,6 +55,8 @@ const ratIntelligenceEngine = {
         }
       }));
 
+      console.log('📝 Intentando insertar actividades:', activities);
+      
       const { data, error } = await supabase
         .from('actividades_dpo')
         .insert(activities)
@@ -39,11 +64,30 @@ const ratIntelligenceEngine = {
 
       if (error) {
         console.error('❌ Error creando actividades DPO:', error);
-        return { success: false, error };
+        console.error('❌ Detalles del error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        
+        // Intentar guardar localmente como fallback
+        const localActivities = activities.map(act => ({
+          ...act,
+          id: `local_${Date.now()}_${Math.random()}`,
+          saved_locally: true
+        }));
+        
+        localStorage.setItem(`pending_dpo_activities_${ratId}`, JSON.stringify(localActivities));
+        console.log('💾 Actividades guardadas localmente como fallback');
+        
+        return { success: false, error, fallback: 'local', data: localActivities };
       }
 
-      console.log('✅ Actividades DPO creadas automáticamente:', data.length);
-      return { success: true, data };
+      console.log('✅ Actividades DPO creadas exitosamente:', data?.length || 0);
+      console.log('✅ IDs de actividades creadas:', data?.map(a => a.id));
+      
+      return { success: true, data, count: data?.length || 0 };
 
     } catch (error) {
       console.error('❌ Error en createDPOActivities:', error);

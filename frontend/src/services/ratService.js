@@ -141,21 +141,51 @@ export const ratService = {
 
       console.log('✅ RAT guardado exitosamente en Supabase:', data);
       
-      // GENERAR AUTOMÁTICAMENTE ACTIVIDADES DPO
+      // GENERAR AUTOMÁTICAMENTE ACTIVIDADES DPO Y ENTREGABLES
       try {
+        console.log('🔍 Iniciando evaluación de compliance para RAT:', data.id);
         const ratIntelligenceEngine = (await import('./ratIntelligenceEngine')).default;
         const evaluation = await ratIntelligenceEngine.evaluateRATActivity(ratData);
         
+        console.log('📊 Resultado de evaluación:', {
+          alertas: evaluation.compliance_alerts?.length || 0,
+          documentosRequeridos: evaluation.required_documents?.length || 0,
+          nivelRiesgo: evaluation.risk_level,
+          requiereConsultaPrevia: evaluation.requiere_consulta_previa
+        });
+        
+        // Crear actividades DPO si hay alertas
         if (evaluation.compliance_alerts && evaluation.compliance_alerts.length > 0) {
           console.log('🚀 Creando actividades DPO automáticamente...');
-          await ratIntelligenceEngine.createDPOActivities(
+          const dpoResult = await ratIntelligenceEngine.createDPOActivities(
             evaluation.compliance_alerts, 
             data.id, 
             getCurrentTenantId()
           );
+          
+          if (dpoResult.success) {
+            console.log(`✅ ${dpoResult.count} actividades DPO creadas exitosamente`);
+          } else {
+            console.error('⚠️ Error creando actividades DPO:', dpoResult.error);
+            if (dpoResult.fallback === 'local') {
+              console.log('💾 Actividades guardadas localmente para sincronización posterior');
+            }
+          }
+        } else {
+          console.log('ℹ️ No se requieren actividades DPO para este RAT');
         }
+        
+        // Log de documentos requeridos
+        if (evaluation.required_documents?.length > 0) {
+          console.log('📄 Documentos requeridos para este RAT:');
+          evaluation.required_documents.forEach(doc => {
+            console.log(`  - ${doc.tipo}: ${doc.motivo} (${doc.urgencia}, ${doc.plazo_dias} días)`);
+          });
+        }
+        
       } catch (evalError) {
         console.error('⚠️ Error generando actividades DPO:', evalError);
+        console.error('Stack trace:', evalError.stack);
       }
       
       // TAMBIÉN guardar en localStorage como respaldo y para compatibilidad
@@ -413,6 +443,81 @@ export const ratService = {
     URL.revokeObjectURL(url);
     
     return exportData;
+  },
+
+  // Verificar entregables de un RAT
+  verifyRATDeliverables: async (ratId) => {
+    try {
+      console.log('🔍 Verificando entregables del RAT:', ratId);
+      
+      // 1. Obtener el RAT
+      const rats = await ratService.getCompletedRATs();
+      const rat = rats.find(r => r.id === ratId);
+      
+      if (!rat) {
+        console.error('❌ RAT no encontrado:', ratId);
+        return { success: false, error: 'RAT no encontrado' };
+      }
+      
+      // 2. Evaluar compliance
+      const ratIntelligenceEngine = (await import('./ratIntelligenceEngine')).default;
+      const evaluation = await ratIntelligenceEngine.evaluateRATActivity(rat);
+      
+      // 3. Verificar actividades DPO creadas
+      let actividadesDPO = [];
+      try {
+        const { data: activities } = await supabase
+          .from('actividades_dpo')
+          .select('*')
+          .eq('rat_id', ratId);
+        
+        actividadesDPO = activities || [];
+      } catch (error) {
+        console.error('Error obteniendo actividades DPO:', error);
+      }
+      
+      // 4. Verificar actividades locales pendientes
+      const localActivities = localStorage.getItem(`pending_dpo_activities_${ratId}`);
+      const pendingLocal = localActivities ? JSON.parse(localActivities) : [];
+      
+      // 5. Compilar resumen
+      const resumen = {
+        ratId,
+        ratNombre: rat.nombre_actividad || rat.titulo,
+        compliance: {
+          nivelRiesgo: evaluation.risk_level,
+          alertasCriticas: evaluation.compliance_alerts?.filter(a => a.tipo === 'critico').length || 0,
+          alertasUrgentes: evaluation.compliance_alerts?.filter(a => a.tipo === 'urgente').length || 0,
+          totalAlertas: evaluation.compliance_alerts?.length || 0
+        },
+        documentosRequeridos: {
+          total: evaluation.required_documents?.length || 0,
+          tipos: evaluation.required_documents?.map(d => d.tipo) || [],
+          detalles: evaluation.required_documents || []
+        },
+        actividadesDPO: {
+          creadas: actividadesDPO.length,
+          pendientesLocal: pendingLocal.length,
+          total: actividadesDPO.length + pendingLocal.length,
+          detalles: actividadesDPO
+        },
+        estado: {
+          completo: evaluation.compliance_alerts?.length === 0,
+          tieneEIPD: evaluation.required_documents?.some(d => d.tipo === 'EIPD'),
+          tieneDPIA: evaluation.required_documents?.some(d => d.tipo === 'DPIA'),
+          tieneDPA: evaluation.required_documents?.some(d => d.tipo === 'DPA'),
+          tieneConsultaPrevia: evaluation.requiere_consulta_previa
+        }
+      };
+      
+      console.log('📊 Resumen de entregables del RAT:', resumen);
+      
+      return { success: true, data: resumen };
+      
+    } catch (error) {
+      console.error('❌ Error verificando entregables:', error);
+      return { success: false, error: error.message };
+    }
   },
 
   // === GESTIÓN DE CONFIGURACIONES DE INDUSTRIA ===
