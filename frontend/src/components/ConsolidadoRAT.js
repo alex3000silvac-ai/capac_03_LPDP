@@ -679,7 +679,7 @@ FASE 5 - GOVERNANCE:
         </Typography>
       </Box>
 
-      {/* Mensaje de RAT recién creado */}
+      {/* Mensaje de RAT recién creado con estado */}
       {highlightedRatId && (
         <Alert 
           severity="success" 
@@ -700,6 +700,62 @@ FASE 5 - GOVERNANCE:
           <Typography variant="body2">
             El RAT con ID {highlightedRatId} ha sido guardado correctamente y está resaltado en la tabla.
           </Typography>
+          
+          {/* Estado del RAT si está disponible */}
+          {(() => {
+            const highlightedRat = rats.find(r => r.id === highlightedRatId);
+            if (highlightedRat) {
+              const tieneEIPD = highlightedRat.requiere_eipd || highlightedRat.categorias_sensibles;
+              const tieneDPIA = highlightedRat.requiere_dpia;
+              const tieneDPA = highlightedRat.transferencias_internacionales?.existe;
+              
+              if (tieneEIPD || tieneDPIA || tieneDPA) {
+                return (
+                  <Box sx={{ mt: 2, p: 1, bgcolor: 'rgba(255,152,0,0.1)', borderRadius: 1 }}>
+                    <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
+                      📋 Estado de Compliance:
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {tieneEIPD && (
+                        <Chip 
+                          label="EIPD Requerida" 
+                          color="warning" 
+                          size="small"
+                          onClick={() => window.location.href = `/evaluacion-impacto?rat=${highlightedRatId}`}
+                        />
+                      )}
+                      {tieneDPIA && (
+                        <Chip 
+                          label="DPIA Requerida" 
+                          color="warning" 
+                          size="small"
+                          onClick={() => window.location.href = `/dpia-algoritmos?rat=${highlightedRatId}`}
+                        />
+                      )}
+                      {tieneDPA && (
+                        <Chip 
+                          label="DPA Requerido" 
+                          color="info" 
+                          size="small"
+                          onClick={() => window.location.href = `/gestion-proveedores?rat=${highlightedRatId}`}
+                        />
+                      )}
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                      Haga clic en los chips para completar los documentos pendientes.
+                    </Typography>
+                  </Box>
+                );
+              } else {
+                return (
+                  <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
+                    ✅ RAT completamente conforme - No requiere documentos adicionales
+                  </Typography>
+                );
+              }
+            }
+            return null;
+          })()}
         </Alert>
       )}
 
@@ -1027,11 +1083,41 @@ FASE 5 - GOVERNANCE:
                         )}
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          label={rat.estado || 'borrador'}
-                          color={rat.estado === 'aprobado' ? 'success' : 'default'}
-                          size="small"
-                        />
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                          <Chip
+                            label={rat.estado || 'completado'}
+                            color={rat.estado === 'aprobado' ? 'success' : 'primary'}
+                            size="small"
+                          />
+                          {/* Indicadores de compliance */}
+                          {(rat.requiere_eipd || rat.categorias_sensibles) && (
+                            <Chip
+                              label="EIPD Pendiente"
+                              color="warning"
+                              size="small"
+                              variant="outlined"
+                              sx={{ fontSize: '0.7rem' }}
+                            />
+                          )}
+                          {rat.requiere_dpia && (
+                            <Chip
+                              label="DPIA Pendiente"
+                              color="warning"
+                              size="small"
+                              variant="outlined"
+                              sx={{ fontSize: '0.7rem' }}
+                            />
+                          )}
+                          {rat.transferencias_internacionales?.existe && (
+                            <Chip
+                              label="DPA Requerido"
+                              color="info"
+                              size="small"
+                              variant="outlined"
+                              sx={{ fontSize: '0.7rem' }}
+                            />
+                          )}
+                        </Box>
                       </TableCell>
                       <TableCell>
                         <Tooltip title="Ver detalles">

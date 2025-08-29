@@ -759,13 +759,38 @@ const RATProduccion = () => {
           // Guardar el ID del RAT recién creado
           const savedRatId = supabaseResult?.id || `rat_${Date.now()}`;
           
-          // Mostrar notificación con opciones
+          // ANALIZAR ESTADO DE COMPLIANCE DEL RAT
+          const ratIntelligenceEngine = (await import('../services/ratIntelligenceEngine')).default;
+          const complianceAnalysis = await ratIntelligenceEngine.evaluateRATActivity(ratComplete);
+          
+          // Determinar estado del RAT basado en el análisis
+          const tieneAlertasCriticas = complianceAnalysis.compliance_alerts?.some(a => a.tipo === 'critico');
+          const tieneAlertasUrgentes = complianceAnalysis.compliance_alerts?.some(a => a.tipo === 'urgente');
+          const totalDocumentosPendientes = complianceAnalysis.required_documents?.length || 0;
+          const requiereEIPD = complianceAnalysis.required_documents?.some(d => d.tipo === 'EIPD');
+          const requiereDPIA = complianceAnalysis.required_documents?.some(d => d.tipo === 'DPIA');
+          const requiereDPA = complianceAnalysis.required_documents?.some(d => d.tipo === 'DPA');
+          
+          // Crear resumen de estado
+          const estadoCompliance = {
+            nivel: tieneAlertasCriticas ? 'critico' : tieneAlertasUrgentes ? 'urgente' : totalDocumentosPendientes > 0 ? 'pendiente' : 'completo',
+            alertasCriticas: complianceAnalysis.compliance_alerts?.filter(a => a.tipo === 'critico').length || 0,
+            alertasUrgentes: complianceAnalysis.compliance_alerts?.filter(a => a.tipo === 'urgente').length || 0,
+            documentosPendientes: totalDocumentosPendientes,
+            requiereEIPD,
+            requiereDPIA,
+            requiereDPA,
+            riesgo: complianceAnalysis.risk_level
+          };
+          
+          // Mostrar notificación con estado de compliance
           setSnackbar({
             open: true,
             message: '✅ RAT guardado exitosamente en base de datos',
             severity: 'success',
             ratId: savedRatId,
-            showActions: true
+            showActions: true,
+            complianceStatus: estadoCompliance
           });
           
           // Opción de redirección automática después de 3 segundos
@@ -3006,9 +3031,69 @@ const RATProduccion = () => {
               {snackbar.message}
             </Typography>
             {snackbar.showActions && (
-              <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                📋 RAT guardado con ID: {snackbar.ratId}
-              </Typography>
+              <>
+                <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
+                  📋 RAT guardado con ID: {snackbar.ratId}
+                </Typography>
+                
+                {/* Estado de Compliance del RAT */}
+                {snackbar.complianceStatus && (
+                  <Box sx={{ mt: 2, p: 1.5, bgcolor: 'rgba(0,0,0,0.05)', borderRadius: 1 }}>
+                    <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
+                      Estado de Compliance:
+                    </Typography>
+                    
+                    {/* Nivel de riesgo general */}
+                    <Chip
+                      label={`Riesgo: ${snackbar.complianceStatus.riesgo}`}
+                      color={
+                        snackbar.complianceStatus.nivel === 'critico' ? 'error' :
+                        snackbar.complianceStatus.nivel === 'urgente' ? 'warning' :
+                        snackbar.complianceStatus.nivel === 'pendiente' ? 'info' : 'success'
+                      }
+                      size="small"
+                      sx={{ mb: 1, mr: 1 }}
+                    />
+                    
+                    {/* Documentos pendientes */}
+                    {snackbar.complianceStatus.documentosPendientes > 0 && (
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="caption" color="text.secondary">
+                          📄 Documentos pendientes: {snackbar.complianceStatus.documentosPendientes}
+                        </Typography>
+                        
+                        <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
+                          {snackbar.complianceStatus.requiereEIPD && (
+                            <Chip label="EIPD Requerida" color="warning" size="small" />
+                          )}
+                          {snackbar.complianceStatus.requiereDPIA && (
+                            <Chip label="DPIA Requerida" color="warning" size="small" />
+                          )}
+                          {snackbar.complianceStatus.requiereDPA && (
+                            <Chip label="DPA Requerido" color="info" size="small" />
+                          )}
+                        </Box>
+                      </Box>
+                    )}
+                    
+                    {/* Alertas */}
+                    {(snackbar.complianceStatus.alertasCriticas > 0 || snackbar.complianceStatus.alertasUrgentes > 0) && (
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="caption" color="error">
+                          ⚠️ Alertas: {snackbar.complianceStatus.alertasCriticas} críticas, {snackbar.complianceStatus.alertasUrgentes} urgentes
+                        </Typography>
+                      </Box>
+                    )}
+                    
+                    {/* Estado completamente conforme */}
+                    {snackbar.complianceStatus.nivel === 'completo' && (
+                      <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
+                        ✅ RAT completamente conforme - No requiere acciones adicionales
+                      </Typography>
+                    )}
+                  </Box>
+                )}
+              </>
             )}
           </Box>
         </Alert>
