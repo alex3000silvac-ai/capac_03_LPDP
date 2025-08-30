@@ -147,9 +147,14 @@ const EmpresaDataManager = ({ onDataUpdate, existingData = {} }) => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Paper sx={{ p: 4 }}>
+      <Paper sx={{ 
+        p: 4, 
+        bgcolor: '#0d1117',
+        color: '#ffffff',
+        border: '1px solid rgba(79, 195, 247, 0.2)'
+      }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: '#4fc3f7' }}>
             DATOS COMUNES DE LA EMPRESA
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>

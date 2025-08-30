@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box, CircularProgress } from '@mui/material';
-import { COLORS, rgba } from './theme/colors';
+import darkTheme from './theme/darkTheme';
 
 // Estilos responsive
 import './styles/responsive.css';
@@ -13,7 +13,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { TenantProvider, useTenant } from './contexts/TenantContext';
 
 // Componentes
-import Layout from './components/Layout';
+import LayoutSimple from './components/LayoutSimple';
 import Login from './components/auth/Login';
 import ModuloCapacitacion from './pages/ModuloCapacitacion';
 import PracticaSandbox from './pages/PracticaSandbox';
@@ -41,19 +41,41 @@ import DPIAAlgoritmos from './pages/DPIAAlgoritmos';
 import ConsultaPreviaAgencia from './components/ConsultaPreviaAgencia';
 import RATSystemProfessional from './components/RATSystemProfessional';
 
-// Tema oscuro profesional - SIN HARDCODEO
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: COLORS.primary,
-    secondary: COLORS.secondary,
-    background: COLORS.background,
-    text: COLORS.text,
-    success: COLORS.semantic.success,
-    warning: COLORS.semantic.warning,
-    error: COLORS.semantic.error,
-    info: COLORS.semantic.info,
-    divider: COLORS.divider,
+// Usar tema importado - AZUL OSCURO PROFESIONAL
+const theme = createTheme(darkTheme);
+
+/*    mode: 'dark',
+    primary: {
+      main: '#4fc3f7',
+      light: '#80d8ff',
+      dark: '#0093c4',
+    },
+    secondary: {
+      main: '#29b6f6',
+      light: '#73e8ff',
+      dark: '#0086c3',
+    },
+    background: {
+      default: '#1a2332', // Azul oscuro de fondo
+      paper: '#0d1117', // Azul más oscuro para tarjetas
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: '#b0bec5',
+    },
+    success: {
+      main: '#4caf50',
+    },
+    warning: {
+      main: '#ff9800',
+    },
+    error: {
+      main: '#f44336',
+    },
+    info: {
+      main: '#2196f3',
+    },
+    divider: 'rgba(255, 255, 255, 0.12)',
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
@@ -92,22 +114,22 @@ const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: COLORS.background.default,
-          color: COLORS.text.primary,
-          scrollbarColor: `${COLORS.border.strong} ${COLORS.background.paper}`,
+          backgroundColor: '#1a2332',
+          color: '#ffffff',
+          scrollbarColor: 'rgba(79, 195, 247, 0.3) #0d1117',
           '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
             width: '8px',
             height: '8px',
           },
           '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
             borderRadius: '4px',
-            backgroundColor: COLORS.border.strong,
+            backgroundColor: 'rgba(79, 195, 247, 0.3)',
             '&:hover': {
-              backgroundColor: COLORS.border.medium,
+              backgroundColor: 'rgba(79, 195, 247, 0.5)',
             },
           },
           '&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track': {
-            backgroundColor: COLORS.background.paper,
+            backgroundColor: '#0d1117',
           },
         },
       },
@@ -115,27 +137,27 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: COLORS.background.paper,
-          borderBottom: `1px solid ${COLORS.divider}`,
+          backgroundColor: '#0d1117',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: COLORS.background.paper,
+          backgroundColor: '#0d1117',
           borderRadius: '12px',
-          border: `1px solid ${COLORS.divider}`,
+          border: '1px solid rgba(255, 255, 255, 0.12)',
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: COLORS.background.paper,
+          backgroundColor: '#0d1117',
           borderRadius: '12px',
-          border: `1px solid ${COLORS.divider}`,
-          boxShadow: `0 4px 20px ${rgba(COLORS.background.default, 0.5)}`,
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 4px 20px rgba(26, 35, 50, 0.5)',
         },
       },
     },
@@ -147,9 +169,9 @@ const theme = createTheme({
           fontWeight: 600,
         },
         contained: {
-          boxShadow: `0 2px 10px ${rgba(COLORS.primary.main, 0.3)}`,
+          boxShadow: '0 2px 10px rgba(79, 195, 247, 0.3)',
           '&:hover': {
-            boxShadow: `0 4px 20px ${rgba(COLORS.primary.main, 0.4)}`,
+            boxShadow: '0 4px 20px rgba(79, 195, 247, 0.4)',
           },
         },
       },
@@ -158,15 +180,15 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            backgroundColor: COLORS.background.surface,
+            backgroundColor: '#1a2332',
             '& fieldset': {
-              borderColor: COLORS.border.light,
+              borderColor: 'rgba(79, 195, 247, 0.2)',
             },
             '&:hover fieldset': {
-              borderColor: COLORS.border.strong,
+              borderColor: 'rgba(79, 195, 247, 0.4)',
             },
             '&.Mui-focused fieldset': {
-              borderColor: COLORS.primary.main,
+              borderColor: '#4fc3f7',
             },
           },
         },
@@ -175,21 +197,21 @@ const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          backgroundColor: COLORS.background.surface,
-          color: COLORS.text.primary,
-          border: `1px solid ${COLORS.border.light}`,
+          backgroundColor: '#1a2332',
+          color: '#ffffff',
+          border: '1px solid rgba(79, 195, 247, 0.2)',
         },
       },
     },
     MuiLinearProgress: {
       styleOverrides: {
         root: {
-          backgroundColor: COLORS.divider,
+          backgroundColor: 'rgba(255, 255, 255, 0.12)',
         },
       },
     },
   },
-});
+}); */
 
 // Componente de carga
 const LoadingScreen = () => (
@@ -273,7 +295,7 @@ const AppContent = () => {
 
   // Usuario autenticado y tenant seleccionado
   return (
-    <Layout>
+    <LayoutSimple>
       <Routes>
         <Route path="/" element={<Navigate to="/rat-system" replace />} />
         
@@ -467,27 +489,27 @@ const TenantSelector = () => {
             onClick={() => handleTenantSelect(tenant)}
             style={{
               padding: '16px',
-              border: `2px solid ${COLORS.primary.main}`,
+              border: '2px solid #4fc3f7',
               borderRadius: '12px',
-              background: COLORS.background.paper,
-              color: COLORS.text.primary,
+              background: '#0d1117',
+              color: '#ffffff',
               cursor: 'pointer',
               fontSize: '16px',
               fontWeight: 'bold',
               transition: 'all 0.3s ease',
-              boxShadow: `0 4px 15px ${rgba(COLORS.background.default, 0.3)}`
+              boxShadow: '0 4px 15px rgba(26, 35, 50, 0.3)'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = COLORS.background.surface;
-              e.target.style.borderColor = COLORS.primary.light;
+              e.target.style.background = '#1a2332';
+              e.target.style.borderColor = '#80d8ff';
               e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = `0 6px 25px ${rgba(COLORS.primary.main, 0.4)}`;
+              e.target.style.boxShadow = '0 6px 25px rgba(79, 195, 247, 0.4)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = COLORS.background.paper;
-              e.target.style.borderColor = COLORS.primary.main;
+              e.target.style.background = '#0d1117';
+              e.target.style.borderColor = '#4fc3f7';
               e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = `0 4px 15px ${rgba(COLORS.background.default, 0.3)}`;
+              e.target.style.boxShadow = '0 4px 15px rgba(26, 35, 50, 0.3)';
             }}
           >
             {tenant.company_name}

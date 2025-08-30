@@ -44,31 +44,32 @@ import ratService from '../services/ratService';
 import ratIntelligenceEngine from '../services/ratIntelligenceEngine';
 import EmpresaDataManager from './EmpresaDataManager';
 
-// Tema profesional con colores oscuros clásicos
+// Tema profesional con azul oscuro - SIN FONDOS BLANCOS
 const professionalTheme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#2C3E50', // Azul oscuro profesional
+      main: '#4fc3f7', // Azul claro para contraste
     },
     secondary: {
-      main: '#34495E', // Gris azulado
+      main: '#29b6f6', // Azul secundario
     },
     background: {
-      default: '#ECF0F1', // Gris claro
-      paper: '#FFFFFF',
+      default: '#1a2332', // Azul oscuro de fondo
+      paper: '#0d1117', // Azul más oscuro para tarjetas
     },
     text: {
-      primary: '#2C3E50',
-      secondary: '#5D6D7E',
+      primary: '#ffffff',
+      secondary: '#b0bec5',
     },
     error: {
-      main: '#E74C3C', // Rojo formal
+      main: '#f44336',
     },
     success: {
-      main: '#27AE60', // Verde formal
+      main: '#4caf50',
     },
     warning: {
-      main: '#F39C12', // Amarillo formal
+      main: '#ff9800',
     },
   },
   typography: {
@@ -350,12 +351,12 @@ const RATSystemProfessional = () => {
               <Grid container spacing={3} sx={{ mb: 4 }}>
                 {/* Tarjeta principal - Crear RAT */}
                 <Grid item xs={12} md={8}>
-                  <Card sx={{ bgcolor: 'primary.main', color: 'white', height: '100%' }}>
+                  <Card sx={{ bgcolor: '#2C3E50', color: '#ffffff', height: '100%', border: '1px solid rgba(79, 195, 247, 0.2)' }}>
                     <CardContent sx={{ textAlign: 'center', py: 5 }}>
                       <Typography variant="h5" gutterBottom>
                         INICIAR REGISTRO DE TRATAMIENTO
                       </Typography>
-                      <Divider sx={{ bgcolor: 'white', my: 2, mx: 'auto', width: '50%' }} />
+                      <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', my: 2, mx: 'auto', width: '50%' }} />
                       <Typography variant="body1" paragraph>
                         Fundamento: Art. 16 Ley 21.719
                       </Typography>
@@ -367,10 +368,11 @@ const RATSystemProfessional = () => {
                         size="large"
                         sx={{ 
                           mt: 2,
-                          bgcolor: 'white',
-                          color: 'primary.main',
+                          bgcolor: 'primary.main',
+                          color: '#0d1117',
+                          fontWeight: 700,
                           '&:hover': {
-                            bgcolor: 'grey.100',
+                            bgcolor: 'primary.light',
                           }
                         }}
                         onClick={iniciarNuevoRAT}
@@ -383,12 +385,12 @@ const RATSystemProfessional = () => {
 
                 {/* Tarjeta secundaria - Gestión de empresa */}
                 <Grid item xs={12} md={4}>
-                  <Card sx={{ bgcolor: 'secondary.main', color: 'white', height: '100%' }}>
+                  <Card sx={{ bgcolor: '#34495E', color: '#ffffff', height: '100%', border: '1px solid rgba(79, 195, 247, 0.2)' }}>
                     <CardContent sx={{ textAlign: 'center', py: 5 }}>
                       <Typography variant="h6" gutterBottom>
                         DATOS COMUNES
                       </Typography>
-                      <Divider sx={{ bgcolor: 'white', my: 2, mx: 'auto', width: '70%' }} />
+                      <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', my: 2, mx: 'auto', width: '70%' }} />
                       <Typography variant="body2" paragraph>
                         Simplifica la creación de RATs
                       </Typography>
@@ -400,10 +402,11 @@ const RATSystemProfessional = () => {
                         size="medium"
                         sx={{ 
                           mt: 2,
-                          bgcolor: 'white',
-                          color: 'secondary.main',
+                          bgcolor: 'secondary.main',
+                          color: '#0d1117',
+                          fontWeight: 700,
                           '&:hover': {
-                            bgcolor: 'grey.100',
+                            bgcolor: 'secondary.light',
                           }
                         }}
                         onClick={mostrarGestionEmpresa}
