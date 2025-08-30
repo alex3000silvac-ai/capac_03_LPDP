@@ -10,7 +10,7 @@ const ratIntelligenceEngine = {
   // CREAR ACTIVIDADES DPO AUTOMÁTICAMENTE EN SUPABASE
   async createDPOActivities(alerts, ratId, tenantId) {
     try {
-      console.log('📋 Iniciando creación de actividades DPO:', {
+      console.log('Iniciando creación de actividades DPO:', {
         alertas: alerts?.length,
         ratId,
         tenantId
@@ -22,7 +22,7 @@ const ratIntelligenceEngine = {
         const { data: { user: authUser } } = await supabase.auth.getUser();
         user = authUser;
       } catch (authError) {
-        console.warn('⚠️ No hay usuario autenticado, usando datos por defecto');
+        console.warn('No hay usuario autenticado, usando datos por defecto');
       }
       
       // Usar datos por defecto si no hay usuario
@@ -32,7 +32,7 @@ const ratIntelligenceEngine = {
       };
       
       if (!alerts || alerts.length === 0) {
-        console.log('ℹ️ No hay alertas para crear actividades DPO');
+        console.log('No hay alertas para crear actividades DPO');
         return { success: true, data: [], message: 'No hay alertas pendientes' };
       }
 
@@ -55,7 +55,7 @@ const ratIntelligenceEngine = {
         }
       }));
 
-      console.log('📝 Intentando insertar actividades:', activities);
+      console.log('Intentando insertar actividades:', activities);
       
       const { data, error } = await supabase
         .from('actividades_dpo')
@@ -63,8 +63,8 @@ const ratIntelligenceEngine = {
         .select();
 
       if (error) {
-        console.error('❌ Error creando actividades DPO:', error);
-        console.error('❌ Detalles del error:', {
+        console.error('Error creando actividades DPO:', error);
+        console.error('Detalles del error:', {
           message: error.message,
           details: error.details,
           hint: error.hint,
@@ -79,25 +79,25 @@ const ratIntelligenceEngine = {
         }));
         
         localStorage.setItem(`pending_dpo_activities_${ratId}`, JSON.stringify(localActivities));
-        console.log('💾 Actividades guardadas localmente como fallback');
+        console.log('Actividades guardadas localmente como fallback');
         
         return { success: false, error, fallback: 'local', data: localActivities };
       }
 
-      console.log('✅ Actividades DPO creadas exitosamente:', data?.length || 0);
-      console.log('✅ IDs de actividades creadas:', data?.map(a => a.id));
+      console.log('Actividades DPO creadas exitosamente:', data?.length || 0);
+      console.log('IDs de actividades creadas:', data?.map(a => a.id));
       
       return { success: true, data, count: data?.length || 0 };
 
     } catch (error) {
-      console.error('❌ Error en createDPOActivities:', error);
+      console.error('Error en createDPOActivities:', error);
       return { success: false, error: error.message };
     }
   },
 
   evaluateRATActivity: async (ratData) => {
     const area = ratData.area || this.detectArea(ratData);
-    console.log(`🔍 ANÁLISIS COMPLETO RAT - Área: ${area}`, ratData);
+    console.log(`ANÁLISIS COMPLETO RAT - Área: ${area}`, ratData);
     
     const alerts = [];
     const requiredDocuments = [];
@@ -112,7 +112,7 @@ const ratIntelligenceEngine = {
       const emoji = this.getSectorEmoji(area);
       alerts.push({
         tipo: 'urgente',
-        titulo: `${emoji} EIPD REQUERIDA - Datos Sensibles ${sectorName}`,
+        titulo: `EIPD REQUERIDA - Datos Sensibles ${sectorName}`,
         descripcion: `Detectados: ${datosSensiblesDetectados.join(', ')}. Evaluación obligatoria según Ley 21.719`,
         documento_requerido: 'EIPD',
         fundamento_legal: 'Art. 25 Ley 21.719 - Tratamiento de categorías especiales',
@@ -133,7 +133,7 @@ const ratIntelligenceEngine = {
       const emoji = this.getSectorEmoji(area);
       alerts.push({
         tipo: 'urgente', 
-        titulo: `${emoji} DPIA REQUERIDA - Decisiones Automatizadas ${sectorName}`,
+        titulo: `DPIA REQUERIDA - Decisiones Automatizadas ${sectorName}`,
         descripcion: `Sistema detectó algoritmos que toman decisiones en sector ${sectorName}. DPIA obligatoria.`,
         documento_requerido: 'DPIA',
         fundamento_legal: 'Art. 13 Ley 21.719 - Decisiones automatizadas',
@@ -159,7 +159,7 @@ const ratIntelligenceEngine = {
         const emoji = this.getSectorEmoji(area);
         alerts.push({
           tipo: 'advertencia',
-          titulo: `${emoji} DPA REQUERIDO - Transferencias Internacionales`,
+          titulo: `DPA REQUERIDO - Transferencias Internacionales`,
           descripcion: `Transferencias a: ${proveedoresInternacionales.map(p => p.nombre).join(', ')}`,
           documento_requerido: 'DPA',
           fundamento_legal: 'Art. 27-29 Ley 21.719 - Transferencias internacionales',
@@ -181,7 +181,7 @@ const ratIntelligenceEngine = {
     if (factoresRiesgo.length >= 2) {
       alerts.push({
         tipo: 'critico',
-        titulo: '🚨 CONSULTA PREVIA OBLIGATORIA - Alto Riesgo',
+        titulo: 'CONSULTA PREVIA OBLIGATORIA - Alto Riesgo',
         descripcion: `Alto riesgo detectado en ${this.getSectorDisplayName(area)}. Requiere consulta previa obligatoria.`,
         documento_requerido: 'CONSULTA_PREVIA',
         fundamento_legal: 'Art. 26 Ley 21.719 - Consulta previa',
@@ -232,7 +232,7 @@ const ratIntelligenceEngine = {
       fundamento_legal: alert.fundamento_legal
     }));
     
-    console.log('✅ ANÁLISIS EXHAUSTIVO COMPLETADO:', {
+    console.log('ANÁLISIS EXHAUSTIVO COMPLETADO:', {
       area: area,
       alerts: alerts.length,
       requiredDocuments: requiredDocuments.length,
@@ -395,7 +395,7 @@ const ratIntelligenceEngine = {
         if (checks.tienePacientes && !ratData.consentimiento_explicito) {
           alerts.push({
             tipo: 'advertencia',
-            titulo: '🏥 CONSENTIMIENTO MÉDICO REQUERIDO',
+            titulo: 'CONSENTIMIENTO MÉDICO REQUERIDO',
             descripcion: 'Datos de pacientes requieren consentimiento explícito e informado',
             documento_requerido: 'CONSENTIMIENTO_MEDICO',
             fundamento_legal: 'Art. 25 Ley 21.719 - Datos de salud',
@@ -414,7 +414,7 @@ const ratIntelligenceEngine = {
         if (checks.tieneMenores) {
           alerts.push({
             tipo: 'urgente',
-            titulo: '🎓 AUTORIZACIÓN PARENTAL REQUERIDA',
+            titulo: 'AUTORIZACIÓN PARENTAL REQUERIDA',
             descripcion: 'Tratamiento de datos de menores requiere autorización de padres/tutores',
             documento_requerido: 'AUTORIZACION_PARENTAL',
             fundamento_legal: 'Art. 12 Ley 21.719 - Datos de menores',
@@ -433,7 +433,7 @@ const ratIntelligenceEngine = {
         if (checks.evaluaCredito) {
           alerts.push({
             tipo: 'urgente',
-            titulo: '🏦 POLÍTICAS DE SCORING REQUERIDAS',
+            titulo: 'POLÍTICAS DE SCORING REQUERIDAS',
             descripcion: 'Evaluación crediticia requiere políticas transparentes y explicables',
             documento_requerido: 'POLITICAS_SCORING',
             fundamento_legal: 'Art. 13 Ley 21.719 - Decisiones automatizadas',
@@ -452,7 +452,7 @@ const ratIntelligenceEngine = {
         if (checks.tieneDatosPublicos) {
           alerts.push({
             tipo: 'info',
-            titulo: '🏛️ TRANSPARENCIA OBLIGATORIA',
+            titulo: 'TRANSPARENCIA OBLIGATORIA',
             descripcion: 'Sector público requiere máxima transparencia en el tratamiento',
             documento_requerido: 'POLITICAS_TRANSPARENCIA',
             fundamento_legal: 'Ley de Transparencia + Ley 21.719',
@@ -480,7 +480,7 @@ const ratIntelligenceEngine = {
     if (cantidad > 100000) {
       alerts.push({
         tipo: 'critico',
-        titulo: '📊 TRATAMIENTO MASIVO DETECTADO',
+        titulo: 'TRATAMIENTO MASIVO DETECTADO',
         descripcion: `${cantidad.toLocaleString()} titulares. Requiere medidas especiales de protección`,
         documento_requerido: 'MEDIDAS_MASIVAS',
         fundamento_legal: 'Art. 25 Ley 21.719 - Tratamientos masivos',
@@ -495,7 +495,7 @@ const ratIntelligenceEngine = {
     } else if (cantidad > 10000) {
       alerts.push({
         tipo: 'advertencia',
-        titulo: '📈 VOLUMEN SIGNIFICATIVO',
+        titulo: 'VOLUMEN SIGNIFICATIVO',
         descripcion: `${cantidad.toLocaleString()} titulares. Considerar medidas adicionales`,
         documento_requerido: 'EVALUACION_VOLUMEN',
         fundamento_legal: 'Buenas prácticas Ley 21.719',
@@ -519,7 +519,7 @@ const ratIntelligenceEngine = {
     if (!ratData.base_licitud || ratData.base_licitud === '') {
       alerts.push({
         tipo: 'critico',
-        titulo: '⚖️ BASE DE LICITUD FALTANTE',
+        titulo: 'BASE DE LICITUD FALTANTE',
         descripcion: 'No se ha especificado la base legal para el tratamiento',
         documento_requerido: 'ANALISIS_LICITUD',
         fundamento_legal: 'Art. 6 Ley 21.719 - Licitud del tratamiento',
@@ -543,7 +543,7 @@ const ratIntelligenceEngine = {
     if (!ratData.tiempo_retencion || ratData.tiempo_retencion === 'indefinido') {
       alerts.push({
         tipo: 'advertencia',
-        titulo: '🗓️ POLÍTICA DE RETENCIÓN REQUERIDA',
+        titulo: 'POLÍTICA DE RETENCIÓN REQUERIDA',
         descripcion: 'Debe definirse tiempo específico de retención de datos',
         documento_requerido: 'POLITICA_RETENCION',
         fundamento_legal: 'Art. 5 Ley 21.719 - Minimización de datos',
@@ -627,20 +627,8 @@ const ratIntelligenceEngine = {
   },
   
   getSectorEmoji(area) {
-    const emojis = {
-      'salud': '🏥',
-      'financiero': '🏦',
-      'retail': '🛒',
-      'educacion': '🎓',
-      'gobierno': '🏛️',
-      'tecnologia': '💻',
-      'rrhh': '👥',
-      'seguros': '🛡️',
-      'inmobiliario': '🏠',
-      'transporte': '🚛',
-      'general': '📋'
-    };
-    return emojis[area] || '📋';
+    // Función mantenida para compatibilidad pero sin emojis
+    return '';
   },
   
   isInternationalProvider(nombre) {
@@ -652,7 +640,7 @@ const ratIntelligenceEngine = {
   
   // Método para simular notificación en tiempo real
   notificarDPO: async (notificaciones) => {
-    console.log('🔔 ENVIANDO NOTIFICACIONES AL DPO:', notificaciones);
+    console.log('ENVIANDO NOTIFICACIONES AL DPO:', notificaciones);
     
     // En producción real, aquí se enviarían:
     // - Email al DPO

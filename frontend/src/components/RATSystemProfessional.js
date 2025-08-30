@@ -1,9 +1,3 @@
-/**
- * SISTEMA PROFESIONAL DE REGISTRO DE ACTIVIDADES DE TRATAMIENTO
- * Interfaz jurídica formal para cumplimiento Ley 21.719
- * Sin elementos informales - Solo fundamentos legales
- */
-
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -44,72 +38,192 @@ import ratService from '../services/ratService';
 import ratIntelligenceEngine from '../services/ratIntelligenceEngine';
 import EmpresaDataManager from './EmpresaDataManager';
 
-// Tema profesional con azul oscuro - SIN FONDOS BLANCOS
 const professionalTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#4fc3f7', // Azul claro para contraste
+      main: '#4f46e5',
+      light: '#6366f1',
+      dark: '#3730a3',
     },
     secondary: {
-      main: '#29b6f6', // Azul secundario
+      main: '#6b7280',
+      light: '#9ca3af',
+      dark: '#374151',
     },
     background: {
-      default: '#1a2332', // Azul oscuro de fondo
-      paper: '#0d1117', // Azul más oscuro para tarjetas
+      default: '#111827',
+      paper: '#1f2937',
     },
     text: {
-      primary: '#ffffff',
-      secondary: '#b0bec5',
+      primary: '#f9fafb',
+      secondary: '#d1d5db',
     },
     error: {
-      main: '#f44336',
+      main: '#ef4444',
     },
     success: {
-      main: '#4caf50',
+      main: '#10b981',
     },
     warning: {
-      main: '#ff9800',
+      main: '#f59e0b',
     },
+    divider: '#374151',
   },
   typography: {
-    fontFamily: '"Georgia", "Times New Roman", serif',
+    fontFamily: '"Inter", system-ui, -apple-system, sans-serif',
     h4: {
       fontWeight: 700,
-      fontSize: '1.75rem',
+      fontSize: '1.875rem',
+      color: '#f9fafb',
     },
     h5: {
       fontWeight: 600,
       fontSize: '1.5rem',
+      color: '#f9fafb',
     },
     h6: {
       fontWeight: 600,
       fontSize: '1.25rem',
+      color: '#f9fafb',
     },
     body1: {
-      fontSize: '14px',
+      fontSize: '0.875rem',
+      color: '#d1d5db',
     },
     caption: {
-      fontSize: '12px',
-      fontStyle: 'italic',
+      fontSize: '0.75rem',
+      color: '#9ca3af',
     },
   },
   components: {
     MuiButton: {
       styleOverrides: {
-        root: {
-          textTransform: 'uppercase',
-          fontWeight: 600,
-          borderRadius: 0,
-          padding: '10px 24px',
+        contained: {
+          backgroundColor: '#4f46e5',
+          color: '#ffffff',
+          fontWeight: 700,
+          borderRadius: '0.5rem',
+          textTransform: 'none',
+          '&:hover': {
+            backgroundColor: '#3730a3',
+          },
+        },
+        outlined: {
+          borderColor: '#374151',
+          color: '#d1d5db',
+          '&:hover': {
+            backgroundColor: 'rgba(79, 70, 229, 0.08)',
+            borderColor: '#4f46e5',
+            color: '#f9fafb',
+          },
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: 0,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          backgroundColor: '#1f2937',
+          borderRadius: '0.5rem',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #374151',
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiInputBase-root': {
+            backgroundColor: '#374151',
+            borderRadius: '0.5rem',
+            color: '#f9fafb',
+          },
+          '& .MuiInputLabel-root': {
+            color: '#9ca3af',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+          },
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#4b5563',
+          },
+          '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#6b7280',
+          },
+          '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#4f46e5',
+            borderWidth: '2px',
+          },
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1f2937',
+          borderRadius: '0.5rem',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #374151',
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#374151',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          backgroundColor: '#374151',
+          color: '#f9fafb',
+          fontSize: '0.75rem',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          padding: '0.75rem 1.5rem',
+          borderBottom: '1px solid #4b5563',
+        },
+        body: {
+          borderColor: '#374151',
+          padding: '1rem 1.5rem',
+          fontSize: '0.875rem',
+          color: '#d1d5db',
+        },
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1f2937',
+          borderBottom: '1px solid #374151',
+          '&:hover': {
+            backgroundColor: '#374151',
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        colorDefault: {
+          backgroundColor: '#374151',
+          color: '#d1d5db',
+        },
+        colorPrimary: {
+          backgroundColor: 'rgba(79, 70, 229, 0.2)',
+          color: '#a78bfa',
+        },
+        colorSuccess: {
+          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          color: '#34d399',
+        },
+        colorWarning: {
+          backgroundColor: 'rgba(245, 158, 11, 0.2)',
+          color: '#fbbf24',
+        },
+        colorError: {
+          backgroundColor: 'rgba(239, 68, 68, 0.2)',
+          color: '#f87171',
         },
       },
     },
@@ -117,7 +231,6 @@ const professionalTheme = createTheme({
 });
 
 const RATSystemProfessional = () => {
-  // Estados del sistema
   const [currentStep, setCurrentStep] = useState(0);
   const [autoAdvanceTimer, setAutoAdvanceTimer] = useState(null);
   const [rats, setRats] = useState([]);
@@ -125,9 +238,7 @@ const RATSystemProfessional = () => {
   const [isCreatingRAT, setIsCreatingRAT] = useState(false);
   const [showEmpresaManager, setShowEmpresaManager] = useState(false);
   
-  // Datos del RAT en construcción
   const [ratData, setRatData] = useState({
-    // Paso 1: Identificación
     responsable: {
       razonSocial: '',
       rut: '',
@@ -351,7 +462,7 @@ const RATSystemProfessional = () => {
               <Grid container spacing={3} sx={{ mb: 4 }}>
                 {/* Tarjeta principal - Crear RAT */}
                 <Grid item xs={12} md={8}>
-                  <Card sx={{ bgcolor: '#2C3E50', color: '#ffffff', height: '100%', border: '1px solid rgba(79, 195, 247, 0.2)' }}>
+                  <Card sx={{ height: '100%' }}>
                     <CardContent sx={{ textAlign: 'center', py: 5 }}>
                       <Typography variant="h5" gutterBottom>
                         INICIAR REGISTRO DE TRATAMIENTO
@@ -368,12 +479,7 @@ const RATSystemProfessional = () => {
                         size="large"
                         sx={{ 
                           mt: 2,
-                          bgcolor: 'primary.main',
-                          color: '#0d1117',
-                          fontWeight: 700,
-                          '&:hover': {
-                            bgcolor: 'primary.light',
-                          }
+                          fontWeight: 700
                         }}
                         onClick={iniciarNuevoRAT}
                       >
@@ -385,7 +491,7 @@ const RATSystemProfessional = () => {
 
                 {/* Tarjeta secundaria - Gestión de empresa */}
                 <Grid item xs={12} md={4}>
-                  <Card sx={{ bgcolor: '#34495E', color: '#ffffff', height: '100%', border: '1px solid rgba(79, 195, 247, 0.2)' }}>
+                  <Card sx={{ height: '100%' }}>
                     <CardContent sx={{ textAlign: 'center', py: 5 }}>
                       <Typography variant="h6" gutterBottom>
                         DATOS COMUNES
@@ -402,12 +508,7 @@ const RATSystemProfessional = () => {
                         size="medium"
                         sx={{ 
                           mt: 2,
-                          bgcolor: 'secondary.main',
-                          color: '#0d1117',
-                          fontWeight: 700,
-                          '&:hover': {
-                            bgcolor: 'secondary.light',
-                          }
+                          fontWeight: 700
                         }}
                         onClick={mostrarGestionEmpresa}
                       >
@@ -432,12 +533,12 @@ const RATSystemProfessional = () => {
                 <TableContainer component={Paper}>
                   <Table>
                     <TableHead>
-                      <TableRow sx={{ bgcolor: 'primary.main' }}>
-                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>ID</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>ACTIVIDAD</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>BASE LEGAL</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>RIESGO</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>ESTADO</TableCell>
+                      <TableRow>
+                        <TableCell>ID</TableCell>
+                        <TableCell>ACTIVIDAD</TableCell>
+                        <TableCell>BASE LEGAL</TableCell>
+                        <TableCell>RIESGO</TableCell>
+                        <TableCell>ESTADO</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -450,11 +551,8 @@ const RATSystemProfessional = () => {
                             <Chip 
                               label={rat.nivel_riesgo || 'MEDIO'} 
                               size="small"
-                              sx={{ 
-                                bgcolor: rat.nivel_riesgo === 'ALTO' ? 'error.main' : 
-                                        rat.nivel_riesgo === 'MEDIO' ? 'warning.main' : 'success.main',
-                                color: 'white'
-                              }}
+                              color={rat.nivel_riesgo === 'ALTO' ? 'error' : 
+                                     rat.nivel_riesgo === 'MEDIO' ? 'warning' : 'success'}
                             />
                           </TableCell>
                           <TableCell>
@@ -999,7 +1097,7 @@ const PasoRevision = ({ ratData, guardarRAT }) => {
         RESUMEN DEL REGISTRO:
       </Typography>
       
-      <Paper sx={{ p: 3, mb: 3, bgcolor: 'grey.50' }}>
+      <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <Typography variant="body2" color="text.secondary">Responsable:</Typography>

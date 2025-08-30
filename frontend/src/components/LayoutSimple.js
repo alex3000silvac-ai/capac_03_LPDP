@@ -1,9 +1,3 @@
-/**
- * LAYOUT SIMPLE SIN PANEL LATERAL
- * Diseño minimalista con navegación superior únicamente
- * Fondo azul oscuro profesional
- */
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -51,7 +45,6 @@ function LayoutSimple({ children }) {
     navigate('/login');
   };
 
-  // Navegación simplificada - solo 3 opciones principales
   const menuOptions = [
     { 
       label: 'SISTEMA RAT', 
@@ -75,26 +68,25 @@ function LayoutSimple({ children }) {
       display: 'flex', 
       flexDirection: 'column',
       minHeight: '100vh',
-      bgcolor: '#1a2332', // Azul oscuro profesional
+      bgcolor: '#111827',
     }}>
-      {/* Barra superior minimalista */}
       <AppBar 
         position="fixed" 
         sx={{
-          bgcolor: '#0d1117', // Azul más oscuro para la barra
-          boxShadow: 'none',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          bgcolor: '#1f2937',
+          color: '#f9fafb',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+          borderBottom: '1px solid #374151',
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          {/* Logo y título */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Typography 
               variant="h6" 
               sx={{ 
                 fontWeight: 700,
-                color: '#ffffff',
-                letterSpacing: '1px',
+                color: '#f9fafb',
+                letterSpacing: '0.025em',
                 cursor: 'pointer',
               }}
               onClick={() => navigate('/rat-system')}
@@ -103,7 +95,6 @@ function LayoutSimple({ children }) {
             </Typography>
           </Box>
 
-          {/* Navegación central */}
           <Box sx={{ display: 'flex', gap: 2 }}>
             {menuOptions.map((option) => (
               <Button
@@ -111,12 +102,15 @@ function LayoutSimple({ children }) {
                 startIcon={option.icon}
                 onClick={() => handleNavigation(option.path)}
                 sx={{
-                  color: location.pathname === option.path ? '#4fc3f7' : '#ffffff',
+                  color: location.pathname === option.path ? '#a78bfa' : '#9ca3af',
                   fontWeight: location.pathname === option.path ? 700 : 500,
                   '&:hover': {
-                    bgcolor: 'rgba(79, 195, 247, 0.08)',
-                    color: '#4fc3f7',
+                    bgcolor: 'rgba(79, 70, 229, 0.08)',
+                    color: '#f9fafb',
                   },
+                  borderRadius: '0.5rem',
+                  px: 2,
+                  py: 1,
                 }}
               >
                 {option.label}
@@ -124,7 +118,6 @@ function LayoutSimple({ children }) {
             ))}
           </Box>
 
-          {/* Menú de usuario */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <IconButton
               onClick={handleMenu}
@@ -132,7 +125,8 @@ function LayoutSimple({ children }) {
             >
               <Avatar 
                 sx={{ 
-                  bgcolor: '#2C3E50',
+                  bgcolor: '#4f46e5',
+                  color: '#ffffff',
                   width: 36,
                   height: 36,
                   fontSize: '1rem',
@@ -147,25 +141,28 @@ function LayoutSimple({ children }) {
               onClose={handleClose}
               PaperProps={{
                 sx: {
-                  bgcolor: '#0d1117',
-                  color: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  bgcolor: '#1f2937',
+                  color: '#f9fafb',
+                  border: '1px solid #374151',
+                  borderRadius: '0.5rem',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                   '& .MuiMenuItem-root': {
+                    color: '#d1d5db',
                     '&:hover': {
-                      bgcolor: 'rgba(79, 195, 247, 0.08)',
+                      bgcolor: '#374151',
                     },
                   },
                 },
               }}
             >
               <MenuItem disabled>
-                <Typography variant="caption">
+                <Typography variant="caption" sx={{ color: '#9ca3af' }}>
                   Sistema Profesional LPDP
                 </Typography>
               </MenuItem>
-              <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)' }} />
+              <Divider sx={{ bgcolor: '#374151' }} />
               <MenuItem onClick={handleLogout}>
-                <LogoutIcon sx={{ mr: 1, fontSize: 18 }} />
+                <LogoutIcon sx={{ mr: 1, fontSize: 18, color: '#9ca3af' }} />
                 Cerrar Sesión
               </MenuItem>
             </Menu>
@@ -173,15 +170,14 @@ function LayoutSimple({ children }) {
         </Toolbar>
       </AppBar>
 
-      {/* Contenido principal */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          pt: 8, // Espacio para la AppBar
+          pt: 8,
           px: 3,
           py: 3,
-          bgcolor: '#1a2332', // Fondo azul oscuro
+          bgcolor: '#111827',
         }}
       >
         {children}

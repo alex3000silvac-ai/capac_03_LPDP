@@ -100,7 +100,11 @@
       "Bash(rg:*)",
       "Bash(for i in {1..5})",
       "Bash(done)",
-      "Bash(git revert:*)"
+      "Bash(git revert:*)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=2048\" timeout 300 npm run build)",
+      "Bash(PORT=3002 timeout 60s npm start)",
+      "Bash(PORT=3003 timeout 60s npm start)",
+      "Bash(GENERATE_SOURCEMAP=false NODE_OPTIONS=\"--max-old-space-size=4096\" npm run build)"
     ],
     "deny": [],
     "additionalDirectories": [
