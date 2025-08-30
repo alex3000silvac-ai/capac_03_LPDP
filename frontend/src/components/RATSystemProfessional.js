@@ -42,6 +42,7 @@ import {
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ratService from '../services/ratService';
 import ratIntelligenceEngine from '../services/ratIntelligenceEngine';
+import EmpresaDataManager from './EmpresaDataManager';
 
 // Tema profesional con colores oscuros clásicos
 const professionalTheme = createTheme({
@@ -121,6 +122,7 @@ const RATSystemProfessional = () => {
   const [rats, setRats] = useState([]);
   const [showRATList, setShowRATList] = useState(true);
   const [isCreatingRAT, setIsCreatingRAT] = useState(false);
+  const [showEmpresaManager, setShowEmpresaManager] = useState(false);
   
   // Datos del RAT en construcción
   const [ratData, setRatData] = useState({
@@ -160,10 +162,32 @@ const RATSystemProfessional = () => {
     'Revisión y Confirmación',
   ];
 
-  // Cargar RATs existentes
+  // Cargar RATs existentes y datos comunes de empresa
   useEffect(() => {
     cargarRATs();
+    cargarDatosComunes();
   }, []);
+
+  const cargarDatosComunes = () => {
+    const datosComunes = localStorage.getItem('empresaDataCommon');
+    if (datosComunes) {
+      const empresaData = JSON.parse(datosComunes);
+      // Pre-llenar datos del responsable con datos de la empresa
+      setRatData(prev => ({
+        ...prev,
+        responsable: {
+          razonSocial: empresaData.razonSocial || prev.responsable.razonSocial,
+          rut: empresaData.rut || prev.responsable.rut,
+          direccion: empresaData.direccion || prev.responsable.direccion,
+          nombre: empresaData.dpo?.nombre || prev.responsable.nombre,
+          email: empresaData.dpo?.email || prev.responsable.email,
+          telefono: empresaData.dpo?.telefono || prev.responsable.telefono,
+        },
+        plataformasTecnologicas: empresaData.plataformasTecnologicas || [],
+        politicasRetencion: empresaData.politicasRetencion || {}
+      }));
+    }
+  };
 
   const cargarRATs = async () => {
     try {
@@ -222,7 +246,20 @@ const RATSystemProfessional = () => {
   const iniciarNuevoRAT = () => {
     setIsCreatingRAT(true);
     setShowRATList(false);
+    setShowEmpresaManager(false);
     setCurrentStep(0);
+  };
+
+  const mostrarGestionEmpresa = () => {
+    setShowEmpresaManager(true);
+    setShowRATList(false);
+    setIsCreatingRAT(false);
+  };
+
+  const volverAInicio = () => {
+    setShowEmpresaManager(false);
+    setShowRATList(true);
+    setIsCreatingRAT(false);
   };
 
   const guardarRAT = async () => {
@@ -241,8 +278,7 @@ const RATSystemProfessional = () => {
       await cargarRATs();
       
       // Volver a vista principal
-      setIsCreatingRAT(false);
-      setShowRATList(true);
+      volverAInicio();
       setCurrentStep(0);
       setRatData({
         responsable: {
@@ -270,6 +306,31 @@ const RATSystemProfessional = () => {
     }
   };
 
+  // Renderizar gestor de datos de empresa
+  if (showEmpresaManager) {
+    return (
+      <ThemeProvider theme={professionalTheme}>
+        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 4 }}>
+          <Container maxWidth="lg">
+            <Paper sx={{ p: 2, mb: 3 }}>
+              <Button 
+                variant="outlined" 
+                onClick={volverAInicio}
+                sx={{ mb: 2 }}
+              >
+                ← Volver al Sistema RAT
+              </Button>
+            </Paper>
+            <EmpresaDataManager 
+              onDataUpdate={cargarDatosComunes}
+              existingData={ratData}
+            />
+          </Container>
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
   // Renderizar pantalla principal
   if (!isCreatingRAT && showRATList) {
     return (
@@ -286,35 +347,73 @@ const RATSystemProfessional = () => {
               
               <Divider sx={{ my: 3 }} />
               
-              <Card sx={{ mb: 4, bgcolor: 'primary.main', color: 'white' }}>
-                <CardContent sx={{ textAlign: 'center', py: 5 }}>
-                  <Typography variant="h5" gutterBottom>
-                    INICIAR REGISTRO DE TRATAMIENTO
-                  </Typography>
-                  <Divider sx={{ bgcolor: 'white', my: 2, mx: 'auto', width: '50%' }} />
-                  <Typography variant="body1" paragraph>
-                    Fundamento: Art. 16 Ley 21.719
-                  </Typography>
-                  <Typography variant="caption" display="block" paragraph>
-                    "Obligación del responsable de mantener un registro de actividades de tratamiento"
-                  </Typography>
-                  <Button 
-                    variant="contained" 
-                    size="large"
-                    sx={{ 
-                      mt: 2,
-                      bgcolor: 'white',
-                      color: 'primary.main',
-                      '&:hover': {
-                        bgcolor: 'grey.100',
-                      }
-                    }}
-                    onClick={iniciarNuevoRAT}
-                  >
-                    COMENZAR REGISTRO
-                  </Button>
-                </CardContent>
-              </Card>
+              <Grid container spacing={3} sx={{ mb: 4 }}>
+                {/* Tarjeta principal - Crear RAT */}
+                <Grid item xs={12} md={8}>
+                  <Card sx={{ bgcolor: 'primary.main', color: 'white', height: '100%' }}>
+                    <CardContent sx={{ textAlign: 'center', py: 5 }}>
+                      <Typography variant="h5" gutterBottom>
+                        INICIAR REGISTRO DE TRATAMIENTO
+                      </Typography>
+                      <Divider sx={{ bgcolor: 'white', my: 2, mx: 'auto', width: '50%' }} />
+                      <Typography variant="body1" paragraph>
+                        Fundamento: Art. 16 Ley 21.719
+                      </Typography>
+                      <Typography variant="caption" display="block" paragraph>
+                        "Obligación del responsable de mantener un registro de actividades de tratamiento"
+                      </Typography>
+                      <Button 
+                        variant="contained" 
+                        size="large"
+                        sx={{ 
+                          mt: 2,
+                          bgcolor: 'white',
+                          color: 'primary.main',
+                          '&:hover': {
+                            bgcolor: 'grey.100',
+                          }
+                        }}
+                        onClick={iniciarNuevoRAT}
+                      >
+                        COMENZAR REGISTRO
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* Tarjeta secundaria - Gestión de empresa */}
+                <Grid item xs={12} md={4}>
+                  <Card sx={{ bgcolor: 'secondary.main', color: 'white', height: '100%' }}>
+                    <CardContent sx={{ textAlign: 'center', py: 5 }}>
+                      <Typography variant="h6" gutterBottom>
+                        DATOS COMUNES
+                      </Typography>
+                      <Divider sx={{ bgcolor: 'white', my: 2, mx: 'auto', width: '70%' }} />
+                      <Typography variant="body2" paragraph>
+                        Simplifica la creación de RATs
+                      </Typography>
+                      <Typography variant="caption" display="block" paragraph>
+                        DPO, plataformas, políticas de retención
+                      </Typography>
+                      <Button 
+                        variant="contained" 
+                        size="medium"
+                        sx={{ 
+                          mt: 2,
+                          bgcolor: 'white',
+                          color: 'secondary.main',
+                          '&:hover': {
+                            bgcolor: 'grey.100',
+                          }
+                        }}
+                        onClick={mostrarGestionEmpresa}
+                      >
+                        GESTIONAR
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
               
               <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body1">
