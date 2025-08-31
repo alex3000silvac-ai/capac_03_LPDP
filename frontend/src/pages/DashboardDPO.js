@@ -1,26 +1,121 @@
-/**
- * DASHBOARD PRINCIPAL DEL DPO
- * Centro de control para todas las notificaciones y tareas del DPO
- */
-
 import React from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Container, Typography, Paper, Grid, Card, CardContent, Chip, Alert } from '@mui/material';
+import {
+  Dashboard as DashboardIcon,
+  Warning as WarningIcon,
+  CheckCircle as CheckIcon,
+  AssignmentLate as TaskIcon,
+  Shield as ShieldIcon,
+  Notifications as NotificationIcon
+} from '@mui/icons-material';
 import NotificacionesDPO from '../components/NotificacionesDPO';
+import PageLayout from '../components/PageLayout';
 
 const DashboardDPO = () => {
-  return (
-    <Box>
-      <Paper sx={{ p: 3, mb: 3, bgcolor: 'primary.main', color: 'white' }}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Centro de Control DPO - Sistema LPDP Chile
-        </Typography>
-        <Typography variant="h6">
-          Monitoreo en tiempo real de cumplimiento Ley 21.719
-        </Typography>
-      </Paper>
+  const stats = [
+    {
+      titulo: 'RATs Activos',
+      valor: '12',
+      icono: <DashboardIcon sx={{ fontSize: 32, color: '#60a5fa' }} />,
+      cambio: '+3 este mes',
+      color: 'primary'
+    },
+    {
+      titulo: 'EIPD Pendientes',
+      valor: '4',
+      icono: <WarningIcon sx={{ fontSize: 32, color: '#f59e0b' }} />,
+      cambio: 'Requieren atención',
+      color: 'warning'
+    },
+    {
+      titulo: 'Cumplimiento',
+      valor: '87%',
+      icono: <CheckIcon sx={{ fontSize: 32, color: '#10b981' }} />,
+      cambio: '+5% vs mes anterior',
+      color: 'success'
+    },
+    {
+      titulo: 'Tareas Pendientes',
+      valor: '8',
+      icono: <TaskIcon sx={{ fontSize: 32, color: '#ef4444' }} />,
+      cambio: '3 urgentes',
+      color: 'error'
+    }
+  ];
 
-      <NotificacionesDPO />
-    </Box>
+  return (
+    <PageLayout
+      title="Centro de Control DPO"
+      subtitle="Monitoreo en tiempo real de cumplimiento Ley 21.719"
+      showPaper={false}
+    >
+      <Grid container spacing={3}>
+        {stats.map((stat, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <Card
+              sx={{
+                bgcolor: '#1f2937',
+                border: '1px solid #374151',
+                borderRadius: '0.75rem',
+                height: '100%',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  borderColor: '#4f46e5',
+                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)'
+                }
+              }}
+            >
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  {stat.icono}
+                  <Chip
+                    label={stat.cambio}
+                    size="small"
+                    color={stat.color}
+                    sx={{ fontSize: '0.7rem' }}
+                  />
+                </Box>
+                <Typography variant="h4" sx={{ color: '#f9fafb', fontWeight: 700, mb: 1 }}>
+                  {stat.valor}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#9ca3af' }}>
+                  {stat.titulo}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Paper
+        sx={{
+          mt: 4,
+          p: 3,
+          bgcolor: '#1f2937',
+          border: '1px solid #374151',
+          borderRadius: '0.75rem'
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <NotificationIcon sx={{ color: '#60a5fa', mr: 2 }} />
+          <Typography variant="h5" sx={{ color: '#f9fafb', fontWeight: 600 }}>
+            Notificaciones y Alertas
+          </Typography>
+        </Box>
+        
+        <Alert severity="info" sx={{ mb: 3, bgcolor: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa' }}>
+          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+            Art. 47 Ley 21.719 - Funciones del DPO
+          </Typography>
+          <Typography variant="caption" display="block">
+            Supervisar el cumplimiento normativo y servir de punto de contacto con la Agencia
+          </Typography>
+        </Alert>
+
+        <NotificacionesDPO />
+      </Paper>
+    </PageLayout>
   );
 };
 

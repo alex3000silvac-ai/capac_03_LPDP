@@ -37,6 +37,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ratService from '../services/ratService';
 import ratIntelligenceEngine from '../services/ratIntelligenceEngine';
 import EmpresaDataManager from './EmpresaDataManager';
+import PageLayout from './PageLayout';
 
 const professionalTheme = createTheme({
   palette: {
@@ -492,17 +493,11 @@ const RATSystemProfessional = () => {
   if (!isCreatingRAT && showRATList) {
     return (
       <ThemeProvider theme={professionalTheme}>
-        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 4 }}>
-          <Container maxWidth="lg">
-            <Paper sx={{ p: 4 }}>
-              <Typography variant="h4" component="h1" gutterBottom>
-                SISTEMA DE CUMPLIMIENTO LEY 21.719
-              </Typography>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                Registro de Actividades de Tratamiento
-              </Typography>
-              
-              <Divider sx={{ my: 3 }} />
+        <PageLayout
+          title="Sistema de Cumplimiento RAT"
+          subtitle="Registro de Actividades de Tratamiento - Ley 21.719"
+          maxWidth="xl"
+        >
               
               <Grid container spacing={3} sx={{ mb: 4 }}>
                 {/* Tarjeta principal - Crear RAT */}
@@ -674,9 +669,7 @@ const RATSystemProfessional = () => {
                   </Typography>
                 </Box>
               )}
-            </Paper>
-          </Container>
-        </Box>
+        </PageLayout>
       </ThemeProvider>
     );
   }
@@ -684,20 +677,17 @@ const RATSystemProfessional = () => {
   // Renderizar formulario de creación RAT
   return (
     <ThemeProvider theme={professionalTheme}>
-      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 4 }}>
-        <Container maxWidth="lg">
-          <Paper sx={{ p: 4 }}>
+      <PageLayout
+        title="Crear Nuevo RAT"
+        subtitle={`Paso ${currentStep + 1} de ${steps.length} - ${steps[currentStep]}`}
+        maxWidth="lg"
+      >
             {/* Header con progreso */}
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h5" gutterBottom>
-                PASO {currentStep + 1} DE {steps.length} - {steps[currentStep].toUpperCase()}
-              </Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={(currentStep + 1) / steps.length * 100}
-                sx={{ height: 8, mt: 2 }}
-              />
-            </Box>
+            <LinearProgress 
+              variant="determinate" 
+              value={(currentStep + 1) / steps.length * 100}
+              sx={{ height: 8, mb: 4, borderRadius: 1 }}
+            />
 
             {/* Contenido del paso actual */}
             <Box sx={{ minHeight: 400 }}>
@@ -729,9 +719,7 @@ const RATSystemProfessional = () => {
                 </Button>
               )}
             </Box>
-          </Paper>
-        </Container>
-      </Box>
+      </PageLayout>
     </ThemeProvider>
   );
 };
