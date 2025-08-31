@@ -19,6 +19,7 @@ import {
   Button,
   Badge,
 } from '@mui/material';
+import PageLayout from '../components/PageLayout';
 import {
   Search,
   Book,
@@ -82,41 +83,48 @@ const GlosarioLPDP = () => {
   const [expandedTerm, setExpandedTerm] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Términos del glosario basados en el manual y la Ley 21.719
+  // Términos del glosario extendido basados en glosario.txt y la Ley 21.719
   const terminos = {
     datos_personales: {
-      termino: 'Datos Personales',
-      definicion: 'Cualquier información relativa a una persona natural identificada o identificable.',
-      articulo: 'Art. 2, lit. f',
+      termino: 'Dato Personal',
+      definicion: 'Cualquier información vinculada o referida a una persona natural identificada o identificable. Una persona es "identificable" cuando su identidad puede determinarse, directa o indirectamente, mediante elementos como el nombre, el número de cédula de identidad, o factores propios de su identidad física, fisiológica, genética, psíquica, económica, cultural o social.',
+      articulo: 'Art. 2, num. 3, Ley 21.719',
       categoria: 'fundamental',
       icono: <Group />,
+      ampliacion: 'Esta definición representa una expansión significativa respecto a la Ley N° 19.628. Al incluir explícitamente identificadores genéticos, biométricos, culturales y sociales, la normativa se adapta a las nuevas formas de recolección de datos en el entorno digital.',
       ejemplos: [
         'Nombre y apellidos',
         'RUT',
-        'Dirección',
-        'Email',
-        'Teléfono',
-        'Fotografía'
+        'Dirección física y electrónica',
+        'Geolocalización de dispositivo móvil',
+        'Identificador de publicidad en línea',
+        'Inferencias sobre hábitos de consumo',
+        'Datos biométricos',
+        'Información genética'
       ],
       importante: true,
       nota_chile: 'En Chile incluye cualquier dato que permita identificar directa o indirectamente a una persona.'
     },
     datos_sensibles: {
-      termino: 'Datos Sensibles',
-      definicion: 'Datos personales que revelan origen étnico o racial, convicciones religiosas, filosóficas o morales, afiliación sindical, información referente a la salud o vida sexual, datos genéticos, datos biométricos, o datos relativos a la orientación sexual o identidad de género.',
-      articulo: 'Art. 2, lit. g',
+      termino: 'Dato Personal Sensible',
+      definicion: 'Categoría especial de dato personal cuyo tratamiento puede generar un riesgo significativo para los derechos y libertades del titular, o dar origen a discriminación. La ley enumera taxativamente qué se considera dato sensible, incluyendo información que revele el origen racial o étnico, la afiliación política o sindical, las convicciones ideológicas o religiosas, la situación socioeconómica, la salud, el perfil biológico o genético, los datos biométricos, y la vida u orientación sexual.',
+      articulo: 'Art. 11, Ley 21.719',
       categoria: 'fundamental',
       icono: <Lock />,
+      ampliacion: 'El tratamiento de datos sensibles está sujeto a un régimen de protección reforzado. La regla general es que solo pueden ser tratados con el consentimiento explícito y por escrito (o medio equivalente) del titular. Las excepciones a esta regla son muy acotadas, como la salvaguarda de la vida del titular o el cumplimiento de una obligación legal.',
       ejemplos: [
-        'Historial médico',
-        'Huella dactilar',
-        'Afiliación política',
-        'Creencias religiosas',
-        'Orientación sexual'
+        'Origen racial o étnico',
+        'Afiliación política o sindical',
+        'Convicciones religiosas o ideológicas',
+        'Situación socioeconómica (NOVEDAD CHILE)',
+        'Información de salud',
+        'Datos biométricos (huella, rostro)',
+        'Información genética',
+        'Orientación sexual o identidad de género'
       ],
       importante: true,
-      alerta: 'NOVEDAD CHILENA: La "situación socioeconómica" es considerada dato sensible',
-      nota_chile: 'A diferencia de Europa, en Chile la situación socioeconómica (ingresos, score crediticio, patrimonio) es dato sensible.'
+      alerta: 'PROTECCIÓN REFORZADA: Requiere consentimiento explícito',
+      nota_chile: 'Chile incluye "situación socioeconómica" como dato sensible, concepto único que no existe en el GDPR europeo.'
     },
     situacion_socioeconomica: {
       termino: 'Situación Socioeconómica',
@@ -137,18 +145,22 @@ const GlosarioLPDP = () => {
       nota_chile: 'Esta es una innovación crucial de la ley chilena. Datos comúnmente manejados por RRHH o áreas financieras ahora requieren máxima protección.'
     },
     titular_datos: {
-      termino: 'Titular de Datos',
-      definicion: 'Persona natural a quien se refieren los datos personales.',
-      articulo: 'Art. 2, lit. o',
+      termino: 'Titular de los Datos',
+      definicion: 'Persona natural a quien se refieren los datos personales que son objeto de tratamiento. La ley se estructura en torno a la protección de sus derechos y al otorgamiento de un control efectivo sobre su información personal.',
+      articulo: 'Art. 12, Ley 21.719',
       categoria: 'actores',
       icono: <Person />,
-      ejemplos: [
-        'Empleados',
-        'Clientes',
-        'Proveedores personas naturales',
-        'Postulantes a empleo',
-        'Usuarios de servicios'
-      ]
+      ampliacion: 'El titular es el protagonista y beneficiario final de la ley. A diferencia del marco anterior, donde su capacidad de acción era limitada, la Ley 21.719 lo empodera con un catálogo de derechos robustos y un mecanismo administrativo (la APDP) para hacerlos valer de forma expedita y gratuita.',
+      derechos: [
+        'Acceso: confirmar tratamiento y obtener copia',
+        'Rectificación: corregir datos inexactos',
+        'Supresión: eliminación cuando no sean necesarios',
+        'Oposición: limitar usos no deseados',
+        'Portabilidad: recibir datos en formato interoperable',
+        'Bloqueo: suspensión temporal del tratamiento',
+        'Oposición a decisiones automatizadas'
+      ],
+      nota_chile: 'Los derechos se ejercen gratuitamente ante el responsable y, en caso de negativa, ante la APDP sin necesidad de abogado ni costos judiciales.'
     },
     responsable_datos: {
       termino: 'Responsable de Datos',
@@ -180,52 +192,118 @@ const GlosarioLPDP = () => {
     },
     tratamiento: {
       termino: 'Tratamiento de Datos',
-      definicion: 'Cualquier operación o conjunto de operaciones realizadas sobre datos personales, sea por medios automatizados o no.',
-      articulo: 'Art. 2, lit. p',
+      definicion: 'Cualquier operación o conjunto de operaciones, automatizadas o no, aplicadas a datos personales. El concepto abarca todo el ciclo de vida del dato, incluyendo su recolección, registro, organización, estructuración, conservación, uso, análisis, comunicación, transferencia, modificación, extracción, consulta, difusión o supresión.',
+      articulo: 'Art. 12, Ley 21.719',
       categoria: 'operaciones',
       icono: <Settings />,
+      ampliacion: 'La amplitud de esta definición es deliberada y busca evitar lagunas legales. Desde el momento en que una organización recibe un currículum, registra un cliente en una base de datos, envía un correo de marketing, o simplemente almacena información en un servidor, está realizando un "tratamiento de datos".',
       ejemplos: [
-        'Recolección',
-        'Registro',
-        'Almacenamiento',
-        'Modificación',
-        'Consulta',
-        'Comunicación',
-        'Transferencia',
-        'Eliminación'
+        'Recolección de formularios web',
+        'Registro en bases de datos',
+        'Organización y estructuración',
+        'Conservación y almacenamiento',
+        'Uso y análisis',
+        'Comunicación a terceros',
+        'Transferencia nacional/internacional',
+        'Supresión y eliminación'
       ]
     },
     consentimiento: {
       termino: 'Consentimiento',
-      definicion: 'Manifestación de voluntad libre, informada, específica e inequívoca mediante la cual el titular autoriza el tratamiento de sus datos.',
-      articulo: 'Art. 12',
+      definicion: 'Manifestación de voluntad libre, específica, informada e inequívoca mediante la cual el titular de los datos acepta el tratamiento de su información personal para uno o varios fines determinados. La ley exige que el responsable del tratamiento sea capaz de probar que obtuvo este consentimiento.',
+      articulo: 'Art. 2, Ley 21.719',
       categoria: 'bases_licitud',
       icono: <CheckCircle />,
+      ampliacion: 'Este es uno de los cambios más disruptivos para las prácticas empresariales. Se abandonan las cláusulas de consentimiento tácito o ambiguo, a menudo ocultas en extensos términos y condiciones. Ahora, el consentimiento debe ser una acción afirmativa y clara por parte del usuario.',
       requisitos: [
-        'Libre: Sin coerción',
-        'Informado: Con conocimiento de finalidades',
-        'Específico: Para fines determinados',
-        'Inequívoco: Acción afirmativa clara'
+        'Libre: Sin coerción o dependencia de servicios',
+        'Específico: Para finalidades concretas y determinadas',
+        'Informado: Con conocimiento completo del tratamiento',
+        'Inequívoco: Acción afirmativa clara (no omisiones)',
+        'Demostrable: Capacidad de probar su obtención',
+        'Revocable: Posibilidad de retiro en cualquier momento'
       ],
-      nota_chile: 'Para datos sensibles debe ser EXPRESO y por escrito o medio equivalente.'
+      nota_chile: 'Existe presunción legal de que el consentimiento NO ha sido otorgado libremente si su obtención se enmarca en un contrato de adhesión donde el tratamiento no es necesario para la ejecución del mismo.'
+    },
+    fuentes_licitud: {
+      termino: 'Fuentes de Licitud (Bases Legales)',
+      definicion: 'Bases jurídicas que legitiman el tratamiento de datos personales. Si bien el consentimiento es la regla general, la ley reconoce otras causales que permiten el tratamiento sin necesidad de la autorización del titular. Entre estas se encuentran: la ejecución de un contrato en el que el titular es parte, el cumplimiento de una obligación legal, la protección de los intereses vitales del titular, o la satisfacción de un interés legítimo del responsable o de un tercero.',
+      articulo: 'Art. 2, Ley 21.719',
+      categoria: 'bases_licitud',
+      icono: <Gavel />,
+      ampliacion: 'La inclusión de diversas fuentes de licitud otorga flexibilidad a las organizaciones, reconociendo que no todo tratamiento puede depender del consentimiento. Sin embargo, esto también impone una nueva carga: por cada actividad de tratamiento, la organización debe realizar un análisis legal para identificar, justificar y documentar cuál es la base de licitud aplicable.',
+      tipos: [
+        'Consentimiento del titular',
+        'Ejecución de contrato',
+        'Cumplimiento de obligación legal',
+        'Protección de intereses vitales',
+        'Interés legítimo (requiere ponderación)',
+        'Ejercicio de función pública'
+      ],
+      nota_chile: 'La base de "interés legítimo" es la más compleja, ya que requiere un ejercicio de ponderación entre los intereses de la empresa y los derechos del individuo, cuyo resultado debe estar debidamente documentado para poder ser defendido ante la APDP.'
+    },
+    ambito_territorial: {
+      termino: 'Ámbito de Aplicación Territorial',
+      definicion: 'La Ley 21.719 posee un alcance extraterritorial. Sus disposiciones se aplican no solo a los responsables o encargados de tratamiento establecidos en Chile, sino también a aquellos que, sin estar en el país, realizan operaciones de tratamiento destinadas a ofrecer bienes o servicios a titulares que se encuentren en Chile, o que monitorean el comportamiento de dichas personas.',
+      articulo: 'Art. 3, Ley 21.719',
+      categoria: 'fundamental',
+      icono: <Public />,
+      ampliacion: 'La adopción de un criterio de aplicación extraterritorial, similar al del GDPR, es una decisión estratégica de gran calado. Con esto, la legislación chilena se asegura de que las grandes plataformas tecnológicas y empresas multinacionales que operan en el mercado chileno queden sujetas a sus normas, independientemente de la ubicación de sus sedes o servidores.',
+      ejemplos: [
+        'Plataformas de redes sociales globales',
+        'Servicios de streaming internacional',
+        'Comercio electrónico transfronterizo',
+        'Servicios de publicidad digital',
+        'Aplicaciones móviles con usuarios chilenos'
+      ],
+      nota_chile: 'Permite que Chile regule a empresas extranjeras que procesen datos de residentes chilenos, creando un entorno jurídico predecible y facilitando el reconocimiento como país con "nivel adecuado" de protección ante la UE.'
     },
     dpo: {
-      termino: 'Delegado de Protección de Datos (DPO)',
-      definicion: 'Persona designada por el responsable para supervisar el cumplimiento de la normativa de protección de datos.',
-      articulo: 'Art. 23',
-      categoria: 'gobernanza',
-      icono: <Security />,
+      termino: 'Delegado de Protección de Datos (DPD/DPO)',
+      definicion: 'Profesional con conocimientos especializados en la normativa y práctica de protección de datos, cuya función es supervisar internamente el cumplimiento de la ley, asesorar a la organización, y actuar como punto de contacto con la APDP y con los titulares de los datos.',
+      articulo: 'Art. 6, Ley 21.719',
+      categoria: 'actores',
+      icono: <VerifiedUser />,
+      ampliacion: 'Aunque su designación no es obligatoria para todas las organizaciones, es un requisito para aquellas que implementen un Modelo de Prevención de Infracciones y es altamente recomendable para las que realizan tratamientos de datos a gran escala o de alto riesgo. La creación de esta figura profesionaliza la gestión de la privacidad dentro de las empresas.',
       obligatorio_cuando: [
-        'Organismos públicos (siempre)',
-        'Tratamiento a gran escala de datos sensibles',
-        'Observación sistemática a gran escala'
+        'Organismos públicos (siempre obligatorio)',
+        'Organizaciones con Modelo de Prevención de Infracciones',
+        'Tratamiento masivo de datos sensibles',
+        'Vigilancia sistemática de zonas públicas',
+        'Tratamientos de alto riesgo a gran escala'
       ],
       funciones: [
-        'Asesorar en cumplimiento',
-        'Supervisar políticas',
-        'Ser punto de contacto con autoridad',
-        'Capacitar al personal'
-      ]
+        'Asesorar sobre obligaciones legales',
+        'Supervisar políticas internas de protección',
+        'Ser punto de contacto con la APDP',
+        'Capacitar y sensibilizar al personal',
+        'Supervisar evaluaciones de impacto (EIPD)',
+        'Atender consultas de titulares de datos'
+      ],
+      nota_chile: 'El DPO establece un canal de comunicación formal y experto con la autoridad, lo que se espera agilice los procesos de fiscalización y consulta.'
+    },
+    apdp: {
+      termino: 'Agencia de Protección de Datos Personales (APDP)',
+      definicion: 'Nuevo organismo público, autónomo, de carácter técnico y descentralizado, con personalidad jurídica y patrimonio propio, creado por la ley para velar por el cumplimiento de la normativa de protección de datos. Se relaciona con el Presidente de la República a través del Ministerio de Economía, Fomento y Turismo.',
+      articulo: 'Art. 8 y 10, Ley 21.719',
+      categoria: 'institucional',
+      icono: <AccountBalance />,
+      ampliacion: 'La APDP es la piedra angular del nuevo modelo de protección de datos en Chile. Su existencia y sus facultades transforman la protección de datos de un concepto teórico a una realidad fiscalizable y exigible. La efectividad de la ley dependerá en gran medida de la capacidad técnica, la independencia y los recursos con que cuente la Agencia.',
+      estructura: [
+        'Consejo Directivo (3 consejeros)',
+        'Designación presidencial con acuerdo del Senado',
+        'Carácter técnico y especializado',
+        'Autonomía administrativa y presupuestaria'
+      ],
+      facultades: [
+        'Potestad normativa: dictar instrucciones generales obligatorias',
+        'Potestad fiscalizadora: auditorías e investigaciones',
+        'Resolución de reclamos de titulares',
+        'Potestad sancionadora: multas y medidas correctivas',
+        'Certificación de Modelos de Prevención',
+        'Determinación de niveles de protección adecuados'
+      ],
+      nota_chile: 'Representa el cambio más trascendental: de un sistema reactivo y judicializado a uno proactivo y administrativo especializado.'
     },
     rat: {
       termino: 'Registro de Actividades de Tratamiento (RAT)',
@@ -1256,34 +1334,57 @@ const GlosarioLPDP = () => {
     },
     
     responsable_tratamiento: {
-      termino: 'Responsable del Tratamiento',
-      definicion: 'Persona natural o jurídica, pública o privada, que toma las decisiones sobre los fines y medios del tratamiento de datos personales.',
-      articulo: 'Art. 2, lit. r',
-      categoria: 'sujetos',
+      termino: 'Responsable del Tratamiento (Data Controller)',
+      definicion: 'Persona natural o jurídica, pública o privada, que, de forma individual o junto con otros, toma las decisiones sobre los fines y los medios del tratamiento de los datos personales.',
+      articulo: 'Art. 2, Ley 21.719',
+      categoria: 'actores',
       icono: <Business />,
       importante: true,
+      ampliacion: 'El responsable es la figura central en términos de obligaciones y rendición de cuentas. Es quien debe garantizar el cumplimiento de todos los principios de la ley, implementar las medidas de seguridad, gestionar las solicitudes de los titulares y responder ante la APDP por cualquier infracción.',
+      obligaciones: [
+        'Garantizar cumplimiento de principios legales',
+        'Implementar medidas de seguridad adecuadas',
+        'Gestionar solicitudes de titulares (20 días hábiles)',
+        'Mantener Registro de Actividades de Tratamiento',
+        'Notificar brechas de seguridad a APDP',
+        'Realizar evaluaciones de impacto cuando corresponda',
+        'Responder ante la APDP por infracciones'
+      ],
       ejemplos: [
         'Empresas que recopilan datos de clientes',
-        'Instituciones públicas',
-        'Organizaciones sin fines de lucro',
-        'Profesionales independientes'
+        'Instituciones públicas que procesan datos ciudadanos',
+        'Organizaciones sin fines de lucro con donantes',
+        'Profesionales independientes con clientes',
+        'Plataformas digitales con usuarios chilenos'
       ],
-      nota_chile: 'Su responsabilidad es indelegable, incluso si externaliza el procesamiento a terceros.'
+      nota_chile: 'Su responsabilidad es indelegable, incluso si externaliza el procesamiento de los datos a un tercero (encargado del tratamiento).'
     },
     
     encargado_tratamiento: {
-      termino: 'Encargado del Tratamiento',
-      definicion: 'Persona que trata datos personales por cuenta y en nombre del responsable, siguiendo sus instrucciones. También conocido como mandatario o procesador de datos.',
-      articulo: 'Art. 2, lit. h',
-      categoria: 'sujetos',
+      termino: 'Encargado del Tratamiento (Data Processor)',
+      definicion: 'Persona natural o jurídica que trata datos personales por cuenta y en nombre del responsable del tratamiento, siguiendo sus instrucciones. La ley formaliza la relación entre el responsable y el encargado, exigiendo la existencia de un contrato o acto jurídico vinculante que regule sus obligaciones.',
+      articulo: 'Art. 2, Ley 21.719',
+      categoria: 'actores',
       icono: <Engineering />,
-      ejemplos: [
-        'Proveedores de servicios cloud',
-        'Empresas de marketing digital',
-        'Procesadores de nómina externos',
-        'Consultoras de análisis de datos'
+      ampliacion: 'Este contrato debe estipular, entre otros aspectos, que el encargado solo actuará según las instrucciones del responsable, implementará medidas de seguridad adecuadas y colaborará en el cumplimiento de las obligaciones legales. Esto convierte la gestión de proveedores y la debida diligencia contractual en un componente crítico de cualquier programa de cumplimiento.',
+      obligaciones_contractuales: [
+        'Actuar solo según instrucciones del responsable',
+        'Implementar medidas de seguridad apropiadas',
+        'No subcontratar sin autorización escrita',
+        'Asistir al responsable en respuesta a derechos',
+        'Notificar brechas de seguridad sin demora',
+        'Devolver o eliminar datos al término del contrato',
+        'Facilitar auditorías e inspecciones'
       ],
-      nota_chile: 'Requiere contrato formal que regule sus obligaciones con el responsable.'
+      ejemplos: [
+        'Proveedores de servicios cloud (AWS, Google Cloud)',
+        'Empresas de marketing digital y CRM',
+        'Procesadores de nómina y RRHH externos',
+        'Consultoras de análisis de datos',
+        'Servicios de atención al cliente tercerizados',
+        'Empresas de destrucción segura de documentos'
+      ],
+      nota_chile: 'La formalización contractual es obligatoria y convierte la gestión de proveedores en un elemento crítico del cumplimiento normativo.'
     },
     
     delegado_proteccion_datos: {
@@ -1298,35 +1399,57 @@ const GlosarioLPDP = () => {
     
     principio_licitud: {
       termino: 'Principio de Licitud, Lealtad y Transparencia',
-      definicion: 'Todo tratamiento debe ser lícito (con base legal), leal (sin engaño) y transparente (informando claramente al titular).',
-      articulo: 'Art. 12',
+      definicion: 'Este principio exige que todo tratamiento de datos sea lícito, es decir, que se fundamente en una de las bases legales establecidas en la ley. Debe ser leal, lo que implica que no puede realizarse de manera engañosa o fraudulenta. Y debe ser transparente, lo que obliga al responsable a informar al titular de manera clara, sencilla y accesible sobre las características del tratamiento.',
+      articulo: 'Art. 2, Ley 21.719',
       categoria: 'principios',
       icono: <Gavel />,
       importante: true,
-      nota_chile: 'Fundamento de todo tratamiento legítimo de datos en Chile.'
+      ampliacion: 'Es el principio fundamental que rige todo el sistema. La licitud requiere identificar y documentar la base legal aplicable. La lealtad prohíbe prácticas engañosas como recopilar datos bajo un pretexto falso. La transparencia obliga a comunicar de forma comprensible todos los aspectos relevantes del tratamiento.',
+      componentes: [
+        'Licitud: Base legal válida identificada y documentada',
+        'Lealtad: Ausencia de engaño o fraude en la recolección',
+        'Transparencia: Información clara y accesible al titular'
+      ],
+      nota_chile: 'Fundamento de todo tratamiento legítimo de datos en Chile. Su violación constituye infracción grave.'
     },
     
     principio_finalidad: {
       termino: 'Principio de Finalidad',
-      definicion: 'Los datos deben recolectarse para fines específicos, explícitos y legítimos, no pudiendo tratarse posteriormente para fines incompatibles.',
-      articulo: 'Art. 13',
+      definicion: 'Los datos personales deben ser recolectados para fines específicos, explícitos y legítimos, informados al titular al momento de la recolección. No pueden ser tratados posteriormente para fines incompatibles con aquellos para los cuales fueron recogidos inicialmente.',
+      articulo: 'Art. 2, Ley 21.719',
       categoria: 'principios',
       icono: <MyLocation />,
+      ampliacion: 'Este principio obliga a las organizaciones a definir con precisión el "para qué" de cada recolección de datos antes de iniciarla. Cualquier uso posterior debe ser compatible con la finalidad original, o requerirá una nueva base de licitud y comunicación al titular.',
       ejemplos: [
-        'Datos de contacto para envío de productos',
-        'Información médica para tratamiento de salud',
-        'Datos laborales para gestión de nómina'
+        'Datos de contacto para envío de productos adquiridos',
+        'Información médica exclusivamente para tratamiento de salud',
+        'Datos laborales para gestión de nómina y relación contractual',
+        'Email para newsletter (no para ofertas comerciales sin consentimiento)',
+        'RUT para facturación (no para marketing sin autorización)'
+      ],
+      incompatibles: [
+        'Usar datos de compra para publicidad sin consentimiento',
+        'Compartir información laboral con terceros sin base legal',
+        'Analizar comportamiento para fines no informados'
       ]
     },
     
     principio_minimizacion: {
-      termino: 'Principio de Minimización',
-      definicion: 'El tratamiento debe ser adecuado, pertinente y limitado a lo estrictamente necesario. No recolectar más datos de los requeridos.',
-      articulo: 'Art. 14',
+      termino: 'Principio de Proporcionalidad y Minimización de Datos',
+      definicion: 'El tratamiento de datos debe ser adecuado, pertinente y limitado a lo estrictamente necesario para cumplir con la finalidad informada. Esto implica que no se deben recolectar más datos de los necesarios (minimización). Asimismo, los datos deben conservarse solo durante el tiempo indispensable para cumplir dichos fines, tras lo cual deben ser suprimidos o anonimizados.',
+      articulo: 'Art. 6, Ley 21.719',
       categoria: 'principios',
       icono: <Remove />,
       importante: true,
-      nota_chile: 'Obliga a justificar cada dato solicitado en formularios y procesos.'
+      ampliacion: 'Este principio obliga a las organizaciones a cuestionar cada campo de sus formularios y cada dato que almacenan. Debe existir una justificación clara y documentada de por qué cada dato es necesario para la finalidad declarada.',
+      aplicacion_practica: [
+        'Revisar formularios para eliminar campos innecesarios',
+        'Establecer períodos de retención para cada tipo de dato',
+        'Implementar procesos automatizados de eliminación',
+        'Documentar la justificación de cada dato recolectado',
+        'Anonimizar datos históricos para análisis estadísticos'
+      ],
+      nota_chile: 'Obliga a justificar cada dato solicitado en formularios y procesos. Su violación es infracción grave ante la APDP.'
     },
     
     principio_calidad: {
@@ -1362,12 +1485,23 @@ const GlosarioLPDP = () => {
     
     principio_responsabilidad_proactiva: {
       termino: 'Principio de Responsabilidad Proactiva (Accountability)',
-      definicion: 'No solo cumplir con la ley, sino ser capaz de demostrar dicho cumplimiento ante la APDP mediante documentación y evidencias.',
-      articulo: 'Art. 18',
+      definicion: 'Establece que el responsable del tratamiento no solo debe cumplir con todos los principios y obligaciones de la ley, sino que también debe ser capaz de demostrar dicho cumplimiento ante la APDP y los titulares. Representa un cambio fundamental en la filosofía de la regulación: ya no es suficiente "cumplir", sino que es necesario "demostrar que se cumple".',
+      articulo: 'Art. 6, Ley 21.719',
       categoria: 'principios',
       icono: <Assignment />,
       importante: true,
-      nota_chile: 'Cambio fundamental: ya no basta cumplir, hay que demostrar que se cumple.'
+      ampliacion: 'Este principio obliga a las organizaciones a adoptar un enfoque proactivo y documentado de la privacidad. Aunque el texto legal lo define de forma "minimalista", la estructura general de la normativa sugiere que la interpretación se inclinará hacia el concepto amplio de "accountability" del GDPR, implicando un sistema de gobernanza completo.',
+      herramientas_demostracion: [
+        'Registro de Actividades de Tratamiento (RAT) actualizado',
+        'Políticas internas de protección de datos documentadas',
+        'Procedimientos de respuesta a derechos de titulares',
+        'Evaluaciones de Impacto en Protección de Datos (EIPD)',
+        'Contratos con encargados de tratamiento',
+        'Registros de capacitación del personal',
+        'Auditorías periódicas de cumplimiento',
+        'Planes de respuesta a brechas de seguridad'
+      ],
+      nota_chile: 'Las organizaciones prudentes deberían prepararse para el estándar más exigente de accountability, ya que es el que probablemente prevalecerá en la práctica fiscalizadora de la APDP.'
     },
     
     derecho_portabilidad: {
@@ -1407,25 +1541,102 @@ const GlosarioLPDP = () => {
     },
     
     eipd: {
-      termino: 'Evaluación de Impacto (EIPD/DPIA)',
-      definicion: 'Análisis preventivo y sistemático de riesgos que un tratamiento podría generar para los derechos de los titulares. Obligatoria para tratamientos de alto riesgo.',
-      articulo: 'Art. 22',
-      categoria: 'compliance',
+      termino: 'Evaluación de Impacto en la Protección de Datos (EIPD/DPIA)',
+      definicion: 'Análisis preventivo y sistemático de los riesgos que un nuevo proyecto, sistema o tecnología podría generar para la protección de los datos personales. Su realización es obligatoria antes de iniciar tratamientos que, por su naturaleza, alcance o fines, puedan entrañar un alto riesgo para los derechos y libertades de los titulares.',
+      articulo: 'Art. 11, Ley 21.719',
+      categoria: 'herramientas',
       icono: <Assessment />,
       importante: true,
-      ejemplos: [
+      ampliacion: 'La EIPD obliga a las organizaciones a incorporar la privacidad desde las etapas iniciales de cualquier proyecto ("privacidad desde el diseño"). No se trata de un simple chequeo, sino de un proceso profundo que debe identificar los riesgos, evaluar su probabilidad e impacto, y proponer medidas concretas para mitigarlos.',
+      obligatoria_cuando: [
         'Tratamiento masivo de datos sensibles',
-        'Vigilancia sistemática de espacios públicos',
-        'Uso de IA para decisiones críticas'
+        'Vigilancia sistemática de zonas de acceso público',
+        'Uso de nuevas tecnologías (IA, biometría, IoT)',
+        'Toma de decisiones automatizadas con efectos legales',
+        'Tratamiento de datos de menores a gran escala',
+        'Combinación o cruce masivo de bases de datos'
       ],
-      nota_chile: 'Herramienta fundamental de privacidad desde el diseño. Su omisión es infracción grave.'
+      debe_contener: [
+        'Descripción sistemática del tratamiento proyectado',
+        'Evaluación de la necesidad y proporcionalidad',
+        'Identificación y análisis de riesgos para los titulares',
+        'Medidas previstas para hacer frente a los riesgos',
+        'Consulta al DPO si existe',
+        'Cronograma de revisión y actualización'
+      ],
+      nota_chile: 'Es fundamental para demostrar diligencia y responsabilidad proactiva. Su omisión en los casos obligatorios constituye una infracción grave ante la APDP.'
     },
     
     registro_actividades_tratamiento: {
       termino: 'Registro de Actividades de Tratamiento (RAT)',
+      definicion: 'Inventario interno y detallado de todas las actividades de tratamiento de datos personales que realiza una organización bajo su responsabilidad. Este registro, que debe mantenerse actualizado y a disposición de la APDP, debe contener información como los fines del tratamiento, las categorías de datos y de titulares, los destinatarios, las transferencias internacionales, los plazos de conservación y una descripción de las medidas de seguridad implementadas.',
+      articulo: 'Art. 17, Ley 21.719',
+      categoria: 'herramientas',
+      icono: <TableChart />,
+      importante: true,
+      ampliacion: 'El RAT es la columna vertebral de la gobernanza de datos y la principal herramienta para demostrar el cumplimiento. Funciona como un "mapa" de todos los flujos de datos personales de la organización, permitiendo una visión clara y centralizada de sus prácticas. Para la APDP, será el primer documento a solicitar en una fiscalización.',
+      elementos_obligatorios: [
+        'Nombre y datos de contacto del responsable',
+        'Finalidades del tratamiento',
+        'Categorías de interesados y de datos personales',
+        'Categorías de destinatarios (internos y externos)',
+        'Transferencias internacionales de datos',
+        'Plazos previstos para la supresión',
+        'Descripción general de medidas de seguridad'
+      ],
+      nota_chile: 'Su elaboración exige un esfuerzo significativo de levantamiento y documentación de procesos en toda la empresa. Es el principal documento que solicitará la APDP en fiscalizaciones.'
+    },
+    brecha_seguridad: {
+      termino: 'Notificación de Brechas de Seguridad',
+      definicion: 'Obligación que tiene el responsable del tratamiento de comunicar a la APDP, sin dilación indebida, cualquier vulneración de la seguridad que afecte a los datos personales. Adicionalmente, si la brecha puede generar un alto riesgo para los derechos de los titulares, también deberá ser comunicada a las personas afectadas en un lenguaje claro y sencillo.',
+      articulo: 'Art. 11, Ley 21.719',
+      categoria: 'seguridad',
+      icono: <Warning />,
+      importante: true,
+      ampliacion: 'Esta obligación impone una cultura de transparencia forzosa frente a los incidentes de seguridad, terminando con la práctica de ocultar o minimizar las brechas. La notificación debe ser oportuna y detallada, describiendo la naturaleza del incidente, los datos comprometidos y las medidas adoptadas.',
+      plazos: [
+        'A la APDP: 72 horas desde que se tuvo conocimiento',
+        'A los titulares: Sin dilación indebida si hay alto riesgo',
+        'Documentación interna: Inmediata para evidenciar respuesta'
+      ],
+      debe_incluir: [
+        'Naturaleza de la violación de seguridad',
+        'Categorías y número aproximado de interesados afectados',
+        'Consecuencias probables de la violación',
+        'Medidas adoptadas o propuestas para remediar la violación',
+        'Medidas para mitigar los posibles efectos negativos'
+      ],
+      nota_chile: 'El incumplimiento de esta obligación es infracción grave, incentivando a las empresas a invertir en ciberseguridad y tener planes de respuesta bien definidos.'
+    },
+    transferencia_internacional: {
+      termino: 'Transferencia Internacional de Datos',
+      definicion: 'Envío de datos personales fuera del territorio chileno. La ley establece que estas transferencias solo son lícitas si se realizan a países u organizaciones que ofrezcan un nivel de protección de datos "adecuado", según lo determine la APDP. En ausencia de una decisión de adecuación, la transferencia puede realizarse si se ofrecen garantías suficientes.',
+      articulo: 'Art. 9, Ley 21.719',
+      categoria: 'operaciones',
+      icono: <Public />,
+      importante: true,
+      ampliacion: 'Esta regulación es crucial para las empresas que operan a nivel global o utilizan servicios de proveedores internacionales. Garantiza que la protección de los datos "viaje" con ellos y no se diluya al cruzar las fronteras.',
+      mecanismos_permitidos: [
+        'Decisión de adecuación emitida por la APDP',
+        'Cláusulas contractuales tipo aprobadas',
+        'Códigos de conducta con garantías vinculantes',
+        'Certificaciones con garantías vinculantes',
+        'Normas corporativas vinculantes (BCR)'
+      ],
+      casos_especiales: [
+        'Consentimiento explícito del titular',
+        'Cumplimiento de contrato con el titular',
+        'Cumplimiento de obligación legal',
+        'Protección de intereses vitales',
+        'Interés público o ejercicio de autoridad pública'
+      ],
+      nota_chile: 'Implica mapear flujos de datos internacionales y asegurar que cada transferencia esté amparada por un mecanismo legal válido, a menudo requiriendo renegociación de contratos con proveedores extranjeros.'
+    },
+    registro_actividades_tratamiento_old: {
+      termino: 'Registro de Actividades de Tratamiento (RAT) - Version Original',
       definicion: 'Inventario detallado de todas las actividades de tratamiento de datos que realiza una organización. Debe mantenerse actualizado y disponible para la APDP.',
       articulo: 'Art. 21',
-      categoria: 'compliance',
+      categoria: 'herramientas',
       icono: <TableChart />,
       importante: true,
       nota_chile: 'Columna vertebral de la gobernanza de datos. Primer documento que solicitará la APDP en fiscalizaciones.'
@@ -1648,6 +1859,14 @@ const GlosarioLPDP = () => {
       return false;
     }
     
+    // Filtros especiales
+    if (selectedCategory === 'criticos') {
+      return matchSearch && termino.importante;
+    }
+    if (selectedCategory === 'novedades_chile') {
+      return matchSearch && termino.nota_chile;
+    }
+    
     const matchCategory = selectedCategory === 'all' || termino.categoria === selectedCategory;
     return matchSearch && matchCategory;
   });
@@ -1661,6 +1880,7 @@ const GlosarioLPDP = () => {
   };
 
   return (
+    <PageLayout>
     <Box sx={{ p: 3 }}>
       {/* Header */}
       <Card sx={{ mb: 3, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
@@ -1720,8 +1940,40 @@ const GlosarioLPDP = () => {
         </Grid>
       </Grid>
 
-      {/* Categorías */}
+      {/* Filtros por Tipo de Término */}
       <Paper sx={{ p: 2, mb: 3 }}>
+        <Typography variant="subtitle2" gutterBottom fontWeight={600}>
+          Filtros Especializados:
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+          <Chip
+            label={`Términos Totales (${Object.keys(terminos).length})`}
+            icon={<Book />}
+            onClick={() => setSelectedCategory('all')}
+            color={selectedCategory === 'all' ? 'primary' : 'default'}
+            variant={selectedCategory === 'all' ? 'filled' : 'outlined'}
+          />
+          <Chip
+            label={`Términos Críticos (${Object.values(terminos).filter(t => t.importante).length})`}
+            icon={<Warning />}
+            onClick={() => {
+              const criticKeys = Object.entries(terminos)
+                .filter(([key, termino]) => termino.importante)
+                .map(([key]) => key);
+              setSelectedCategory('criticos');
+            }}
+            color={selectedCategory === 'criticos' ? 'error' : 'default'}
+            variant={selectedCategory === 'criticos' ? 'filled' : 'outlined'}
+          />
+          <Chip
+            label={`Novedades Chile (${Object.values(terminos).filter(t => t.nota_chile).length})`}
+            icon={<NewReleases />}
+            onClick={() => setSelectedCategory('novedades_chile')}
+            color={selectedCategory === 'novedades_chile' ? 'secondary' : 'default'}
+            variant={selectedCategory === 'novedades_chile' ? 'filled' : 'outlined'}
+          />
+        </Box>
+        
         <Typography variant="subtitle2" gutterBottom fontWeight={600}>
           Filtrar por categoría:
         </Typography>
@@ -2318,6 +2570,7 @@ const GlosarioLPDP = () => {
         </CardContent>
       </Card>
     </Box>
+    </PageLayout>
   );
 };
 
