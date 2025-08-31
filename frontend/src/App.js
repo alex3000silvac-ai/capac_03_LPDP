@@ -38,6 +38,7 @@ import DPIAAlgoritmos from './pages/DPIAAlgoritmos';
 import ConsultaPreviaAgencia from './components/ConsultaPreviaAgencia';
 import RATSystemProfessional from './components/RATSystemProfessional';
 import PaletaColores from './pages/PaletaColores';
+import SistemaPrincipal from './pages/SistemaPrincipal';
 
 const theme = createTheme(darkTheme);
 
@@ -117,7 +118,9 @@ const AppContent = () => {
   return (
     <LayoutSimple>
       <Routes>
-        <Route path="/" element={<Navigate to="/paleta-colores" replace />} />
+        <Route path="/" element={<Navigate to="/sistema-principal" replace />} />
+        
+        <Route path="/sistema-principal" element={<SistemaPrincipal />} />
         
         <Route path="/paleta-colores" element={<PaletaColores />} />
         
@@ -267,7 +270,7 @@ const AppContent = () => {
           } 
         />
         
-        <Route path="*" element={<Navigate to="/rat-system" replace />} />
+        <Route path="*" element={<Navigate to="/sistema-principal" replace />} />
       </Routes>
     </LayoutSimple>
   );

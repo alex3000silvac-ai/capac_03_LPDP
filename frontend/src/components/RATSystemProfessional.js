@@ -232,7 +232,6 @@ const professionalTheme = createTheme({
 
 const RATSystemProfessional = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [autoAdvanceTimer, setAutoAdvanceTimer] = useState(null);
   const [rats, setRats] = useState([]);
   const [showRATList, setShowRATList] = useState(true);
   const [isCreatingRAT, setIsCreatingRAT] = useState(false);
@@ -310,19 +309,6 @@ const RATSystemProfessional = () => {
     }
   };
 
-  // Auto-avance cuando se completan campos requeridos
-  useEffect(() => {
-    if (isCreatingRAT && checkStepComplete(currentStep)) {
-      const timer = setTimeout(() => {
-        handleNext();
-      }, 3000);
-      setAutoAdvanceTimer(timer);
-      
-      return () => {
-        if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
-      };
-    }
-  }, [ratData, currentStep, isCreatingRAT]);
 
   const checkStepComplete = (step) => {
     switch (step) {
@@ -376,20 +362,79 @@ const RATSystemProfessional = () => {
 
   const guardarRAT = async () => {
     try {
-      // Preparar datos para guardar
+      const ratId = `RAT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const empresaData = JSON.parse(localStorage.getItem('empresaDataCommon') || '{}');
+      
       const ratCompleto = {
-        ...ratData,
-        fechaCreacion: new Date().toISOString(),
-        estado: 'completado',
+        id: ratId,
+        responsable: {
+          ...ratData.responsable,
+          area: empresaData.area || 'Protección de Datos',
+        },
+        finalidades: {
+          descripcion: ratData.finalidad,
+          baseLegal: ratData.baseLegal,
+          argumentoJuridico: ratData.argumentoJuridico,
+        },
+        categorias: {
+          titulares: ['Clientes', 'Empleados', 'Proveedores'],
+          datos: ratData.categorias,
+        },
+        fuente: {
+          tipo: 'Recopilación directa',
+          descripcion: 'Datos obtenidos directamente del titular',
+        },
+        conservacion: {
+          periodo: ratData.plazoConservacion || '5 años según normativa tributaria',
+          fundamento: 'Art. 17 Código Tributario',
+        },
+        seguridad: {
+          descripcionGeneral: 'Medidas técnicas y organizativas según Art. 14 Ley 21.719',
+          tecnicas: ['Cifrado AES-256', 'Control de acceso', 'Respaldos diarios'],
+          organizativas: ['Políticas de seguridad', 'Capacitación personal', 'Auditorías periódicas'],
+        },
+        transferencias: {
+          destinatarios: ratData.destinatarios,
+          internacionales: ratData.transferenciasInternacionales,
+          paises: ratData.transferenciasInternacionales ? ['Estados Unidos', 'Unión Europea'] : [],
+        },
+        metadata: {
+          fechaCreacion: new Date().toISOString(),
+          version: '2.0',
+          cumplimientoLey21719: true,
+          requiereEIPD: ratData.categorias.sensibles.length > 0,
+          requiereDPIA: ratData.categorias.sensibles.length > 2,
+          requiereConsultaAgencia: ratData.categorias.sensibles.includes('datos_salud'),
+        },
+        estado: 'CREATION',
+        nivel_riesgo: ratData.categorias.sensibles.length > 0 ? 'ALTO' : 'MEDIO',
       };
       
-      // Guardar en base de datos
-      await ratService.saveCompletedRAT(ratCompleto, 'General', 'Manual');
+      console.log('📦 Guardando RAT con estructura completa:', ratCompleto);
+      const resultado = await ratService.saveCompletedRAT(ratCompleto, 'Sistema', 'Manual');
       
-      // Recargar lista
-      await cargarRATs();
+      if (resultado && resultado.id) {
+        console.log('✅ RAT guardado exitosamente con ID:', resultado.id);
+        
+        if (ratCompleto.metadata.requiereEIPD) {
+          const notificacionDPO = {
+            tipo: 'EIPD_REQUERIDO',
+            ratId: resultado.id,
+            mensaje: `RAT ${ratId} requiere Evaluación de Impacto (datos sensibles detectados)`,
+            fecha: new Date().toISOString(),
+            fundamento: 'Art. 19 Ley 21.719',
+          };
+          localStorage.setItem(`notificacion_dpo_${ratId}`, JSON.stringify(notificacionDPO));
+          console.log('🔔 Notificación DPO creada:', notificacionDPO);
+        }
+        
+        const verification = await ratService.getCompletedRATs();
+        console.log('🔍 Verificación de persistencia - Total RATs:', verification.length);
+        
+        setRats(verification);
+        alert(`✅ RAT ${ratId} guardado exitosamente en Supabase`);
+      }
       
-      // Volver a vista principal
       volverAInicio();
       setCurrentStep(0);
       setRatData({
@@ -530,47 +575,104 @@ const RATSystemProfessional = () => {
               </Box>
               
               {rats.length > 0 && (
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>ACTIVIDAD</TableCell>
-                        <TableCell>BASE LEGAL</TableCell>
-                        <TableCell>RIESGO</TableCell>
-                        <TableCell>ESTADO</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rats.slice(0, 5).map((rat) => (
-                        <TableRow key={rat.id}>
-                          <TableCell>{rat.id?.substring(0, 8)}</TableCell>
-                          <TableCell>{rat.nombre_actividad || rat.finalidad}</TableCell>
-                          <TableCell>{rat.baseLegal || 'Art. 9 L21719'}</TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={rat.nivel_riesgo || 'MEDIO'} 
-                              size="small"
-                              color={rat.nivel_riesgo === 'ALTO' ? 'error' : 
-                                     rat.nivel_riesgo === 'MEDIO' ? 'warning' : 'success'}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            {rat.requiere_eipd && (
-                              <Chip label="EIPD" size="small" sx={{ mr: 0.5 }} />
-                            )}
-                            {rat.requiere_dpia && (
-                              <Chip label="DPIA" size="small" sx={{ mr: 0.5 }} />
-                            )}
-                            {!rat.requiere_eipd && !rat.requiere_dpia && (
-                              <Chip label="COMPLETO" size="small" color="success" />
-                            )}
-                          </TableCell>
+                <Box>
+                  <Alert severity="success" sx={{ mb: 2 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                      📦 RATs guardados en Supabase: {rats.length} registros
+                    </Typography>
+                  </Alert>
+                  <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+                    <Table stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>ID RAT</TableCell>
+                          <TableCell>RESPONSABLE</TableCell>
+                          <TableCell>FINALIDAD</TableCell>
+                          <TableCell>BASE LEGAL</TableCell>
+                          <TableCell>DATOS SENSIBLES</TableCell>
+                          <TableCell>RIESGO</TableCell>
+                          <TableCell>ACCIONES REQUERIDAS</TableCell>
+                          <TableCell>FECHA</TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                      </TableHead>
+                      <TableBody>
+                        {rats.map((rat) => {
+                          const tieneSensibles = rat.metadata?.requiereEIPD || rat.requiere_eipd;
+                          const fecha = rat.created_at || rat.fechaCreacion;
+                          return (
+                            <TableRow key={rat.id} hover>
+                              <TableCell>
+                                <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>
+                                  {rat.id?.substring(0, 12)}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  {rat.responsable_proceso || rat.responsable?.nombre || 'Sin especificar'}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  {rat.email_responsable || rat.responsable?.email || ''}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2" sx={{ maxWidth: 200 }}>
+                                  {rat.finalidad_principal || rat.finalidades?.descripcion || rat.finalidad || 'No especificada'}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Chip 
+                                  label={rat.base_legal || rat.baseLegal || 'Art. 13 L21.719'} 
+                                  size="small"
+                                  variant="outlined"
+                                  color="primary"
+                                />
+                              </TableCell>
+                              <TableCell align="center">
+                                {tieneSensibles ? (
+                                  <Chip label="SÍ" size="small" color="error" />
+                                ) : (
+                                  <Chip label="NO" size="small" color="success" />
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Chip 
+                                  label={rat.nivel_riesgo || 'MEDIO'} 
+                                  size="small"
+                                  color={rat.nivel_riesgo === 'ALTO' ? 'error' : 
+                                         rat.nivel_riesgo === 'MEDIO' ? 'warning' : 'success'}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                                  {(rat.metadata?.requiereEIPD || rat.requiere_eipd) && (
+                                    <Chip label="EIPD" size="small" color="error" />
+                                  )}
+                                  {(rat.metadata?.requiereDPIA || rat.requiere_dpia) && (
+                                    <Chip label="DPIA" size="small" color="warning" />
+                                  )}
+                                  {(rat.metadata?.requiereConsultaAgencia) && (
+                                    <Chip label="CONSULTA" size="small" color="info" />
+                                  )}
+                                  {!tieneSensibles && (
+                                    <Chip label="COMPLETO" size="small" color="success" />
+                                  )}
+                                </Box>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="caption">
+                                  {fecha ? new Date(fecha).toLocaleDateString('es-CL') : 'Sin fecha'}
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+                    * Todos los registros están almacenados en Supabase con respaldo automático
+                  </Typography>
+                </Box>
               )}
             </Paper>
           </Container>
@@ -607,12 +709,6 @@ const RATSystemProfessional = () => {
               {currentStep === 5 && <PasoRevision ratData={ratData} guardarRAT={guardarRAT} />}
             </Box>
 
-            {/* Auto-avance indicator */}
-            {checkStepComplete(currentStep) && currentStep < 5 && (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
-                [Campos completados: auto-avance en 3 segundos...]
-              </Typography>
-            )}
 
             {/* Botones de navegación */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
@@ -641,97 +737,183 @@ const RATSystemProfessional = () => {
 };
 
 // Componentes para cada paso
-const PasoIdentificacion = ({ ratData, setRatData }) => (
-  <Box>
-    <Typography variant="h6" gutterBottom>
-      RESPONSABLE DEL TRATAMIENTO
-    </Typography>
+const PasoIdentificacion = ({ ratData, setRatData }) => {
+  const [rutError, setRutError] = React.useState('');
+  const [duplicateAlert, setDuplicateAlert] = React.useState(false);
+  
+  const validarRUT = (rut) => {
+    const rutLimpio = rut.replace(/[.-]/g, '');
+    if (rutLimpio.length < 8) return false;
+    const cuerpo = rutLimpio.slice(0, -1);
+    const dv = rutLimpio.slice(-1).toUpperCase();
+    let suma = 0;
+    let multiplo = 2;
+    for (let i = cuerpo.length - 1; i >= 0; i--) {
+      suma += parseInt(cuerpo[i]) * multiplo;
+      multiplo = multiplo === 7 ? 2 : multiplo + 1;
+    }
+    const dvEsperado = 11 - (suma % 11);
+    const dvCalculado = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'K' : dvEsperado.toString();
+    return dv === dvCalculado;
+  };
+  
+  const handleRUTChange = async (e) => {
+    const rut = e.target.value;
+    setRatData({
+      ...ratData,
+      responsable: { ...ratData.responsable, rut: rut }
+    });
+    
+    if (rut.length > 8) {
+      if (!validarRUT(rut)) {
+        setRutError('RUT inválido. Verifique el formato (ej: 12.345.678-9)');
+      } else {
+        setRutError('');
+        const ratsExistentes = await ratService.getCompletedRATs();
+        const duplicado = ratsExistentes.find(r => 
+          r.responsable?.rut === rut || r.responsable_rut === rut
+        );
+        if (duplicado) {
+          setDuplicateAlert(true);
+        } else {
+          setDuplicateAlert(false);
+        }
+      }
+    }
+  };
+  
+  return (
+    <Box>
+      <Alert severity="info" sx={{ mb: 3 }}>
+        <Typography variant="caption" sx={{ fontWeight: 600 }}>
+          📖 Fundamento Legal: Art. 3 letra f) y Art. 15 Ley 21.719
+        </Typography>
+        <Typography variant="caption" display="block">
+          El responsable determina los fines y medios del tratamiento. Debe identificarse claramente.
+        </Typography>
+      </Alert>
+      
+      {duplicateAlert && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          ⚠️ Ya existe un RAT registrado para este RUT. Verifique si desea actualizar el existente.
+        </Alert>
+      )}
+      
+      <Typography variant="h6" gutterBottom>
+        <Box component="span" sx={{ color: '#60a5fa', mr: 1 }}>🏢</Box>
+        DATOS DEL RESPONSABLE DEL TRATAMIENTO
+      </Typography>
+      
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        Complete los datos de la organización responsable del tratamiento de datos personales
+      </Typography>
     <Grid container spacing={3}>
       <Grid item xs={12} md={4}>
         <TextField
           fullWidth
-          label="Razón Social"
+          label="Razón Social *"
           value={ratData.responsable.razonSocial}
           onChange={(e) => setRatData({
             ...ratData,
             responsable: { ...ratData.responsable, razonSocial: e.target.value }
           })}
+          helperText="Nombre legal completo de la empresa"
+          required
         />
       </Grid>
       <Grid item xs={12} md={4}>
         <TextField
           fullWidth
-          label="RUT"
+          label="RUT Empresa *"
           value={ratData.responsable.rut}
-          onChange={(e) => setRatData({
-            ...ratData,
-            responsable: { ...ratData.responsable, rut: e.target.value }
-          })}
+          onChange={handleRUTChange}
+          error={!!rutError}
+          helperText={rutError || "Formato: 12.345.678-9"}
+          required
         />
       </Grid>
       <Grid item xs={12} md={4}>
         <TextField
           fullWidth
-          label="Dirección"
+          label="Dirección Comercial *"
           value={ratData.responsable.direccion}
           onChange={(e) => setRatData({
             ...ratData,
             responsable: { ...ratData.responsable, direccion: e.target.value }
           })}
+          helperText="Dirección física de la oficina principal"
+          required
         />
       </Grid>
     </Grid>
 
     <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-      ENCARGADO DE PROTECCIÓN DE DATOS
+      <Box component="span" sx={{ color: '#fbbf24', mr: 1 }}>👤</Box>
+      DELEGADO DE PROTECCIÓN DE DATOS (DPO)
+    </Typography>
+    <Alert severity="info" sx={{ mb: 2 }}>
+      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+        📖 Art. 47 Ley 21.719 - Designación del DPO
+      </Typography>
+      <Typography variant="caption" display="block">
+        Obligatorio cuando se traten datos sensibles a gran escala o de manera sistemática
+      </Typography>
+    </Alert>
+    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+      Persona encargada de supervisar el cumplimiento de la protección de datos en la organización
     </Typography>
     <Grid container spacing={3}>
       <Grid item xs={12} md={4}>
         <TextField
           fullWidth
-          label="Nombre"
+          label="Nombre Completo DPO *"
           value={ratData.responsable.nombre}
           onChange={(e) => setRatData({
             ...ratData,
             responsable: { ...ratData.responsable, nombre: e.target.value }
           })}
+          helperText="Nombre y apellidos del DPO designado"
+          required
         />
       </Grid>
       <Grid item xs={12} md={4}>
         <TextField
           fullWidth
-          label="Email"
+          label="Email de Contacto DPO *"
           type="email"
           value={ratData.responsable.email}
           onChange={(e) => setRatData({
             ...ratData,
             responsable: { ...ratData.responsable, email: e.target.value }
           })}
+          helperText="Email oficial para consultas de privacidad"
+          required
         />
       </Grid>
       <Grid item xs={12} md={4}>
         <TextField
           fullWidth
-          label="Teléfono"
+          label="Teléfono DPO *"
           value={ratData.responsable.telefono}
           onChange={(e) => setRatData({
             ...ratData,
             responsable: { ...ratData.responsable, telefono: e.target.value }
           })}
+          helperText="Teléfono directo del DPO"
+          required
         />
       </Grid>
     </Grid>
 
-    <Alert severity="info" sx={{ mt: 3 }}>
-      <Typography variant="body2" fontWeight="bold">
-        Base Legal: Art. 19 Ley 21.719
+    <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+      <Typography variant="caption" color="text.secondary">
+        💡 Tip: Los datos ingresados aquí se usarán como base para todos los RATs futuros.
+        Asegúrese de que la información esté actualizada y sea correcta.
       </Typography>
-      <Typography variant="caption">
-        "El responsable debe designar un encargado de protección de datos cuando corresponda"
-      </Typography>
-    </Alert>
+    </Box>
   </Box>
-);
+  );
+};
 
 const PasoCategorias = ({ ratData, setRatData }) => {
   const handleIdentificacion = (event) => {
@@ -852,16 +1034,22 @@ const PasoBaseLegal = ({ ratData, setRatData }) => {
     
     switch(value) {
       case 'consentimiento':
-        argumento = 'Art. 4 Ley 19.628 - Autorización expresa del titular';
+        argumento = 'Art. 12 Ley 21.719 - Consentimiento libre, previo, informado y específico del titular de los datos';
         break;
       case 'contrato':
-        argumento = 'Art. 9 literal b) Ley 21.719 - Necesario para la ejecución de un contrato';
+        argumento = 'Art. 13.1.b Ley 21.719 - Necesario para la ejecución de un contrato en que el titular es parte';
         break;
       case 'obligacion_legal':
-        argumento = 'Art. 9 literal c) Ley 21.719 - Cumplimiento de obligación legal';
+        argumento = 'Art. 13.1.c Ley 21.719 - Necesario para cumplir una obligación legal del responsable';
+        break;
+      case 'interes_vital':
+        argumento = 'Art. 13.1.d Ley 21.719 - Necesario para proteger intereses vitales del titular';
+        break;
+      case 'mision_publica':
+        argumento = 'Art. 13.1.e Ley 21.719 - Cumplimiento de misión realizada en interés público';
         break;
       case 'interes_legitimo':
-        argumento = 'Art. 9 literal f) Ley 21.719 - Interés legítimo del responsable';
+        argumento = 'Art. 13.1.f Ley 21.719 - Interés legítimo del responsable o tercero';
         break;
       default:
         argumento = '';
@@ -876,6 +1064,14 @@ const PasoBaseLegal = ({ ratData, setRatData }) => {
 
   return (
     <Box>
+      <Alert severity="info" sx={{ mb: 3 }}>
+        <Typography variant="caption" sx={{ fontWeight: 600 }}>
+          Fundamento Legal: Art. 9 y Art. 13 Ley 21.719
+        </Typography>
+        <Typography variant="caption" display="block">
+          El tratamiento debe tener una base jurídica que lo legitime según la normativa vigente
+        </Typography>
+      </Alert>
       <Typography variant="h6" gutterBottom>
         SELECCIONE LA BASE LEGAL APLICABLE:
       </Typography>
