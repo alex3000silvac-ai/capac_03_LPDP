@@ -1,17 +1,21 @@
 import React from 'react';
-import { Box, Container, Typography, Paper, Grid, Card, CardContent, Chip, Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Box, Container, Typography, Paper, Grid, Card, CardContent, Chip, Alert, Button } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
   Warning as WarningIcon,
   CheckCircle as CheckIcon,
   AssignmentLate as TaskIcon,
   Shield as ShieldIcon,
-  Notifications as NotificationIcon
+  Notifications as NotificationIcon,
+  List as QueueIcon,
+  Analytics as MetricsIcon
 } from '@mui/icons-material';
 import NotificacionesDPO from '../components/NotificacionesDPO';
 import PageLayout from '../components/PageLayout';
 
 const DashboardDPO = () => {
+  const navigate = useNavigate();
   const stats = [
     {
       titulo: 'RATs Activos',
@@ -114,6 +118,54 @@ const DashboardDPO = () => {
         </Alert>
 
         <NotificacionesDPO />
+        
+        <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<QueueIcon />}
+            onClick={() => navigate('/dpo-approval')}
+            sx={{
+              bgcolor: '#f59e0b',
+              '&:hover': { bgcolor: '#d97706' },
+              px: 4,
+              py: 1.5
+            }}
+          >
+            Cola de Aprobación
+          </Button>
+          
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<MetricsIcon />}
+            onClick={() => navigate('/compliance-metrics')}
+            sx={{
+              bgcolor: '#8b5cf6',
+              '&:hover': { bgcolor: '#7c3aed' },
+              px: 4,
+              py: 1.5
+            }}
+          >
+            Métricas Compliance
+          </Button>
+          
+          <Button
+            variant="outlined"
+            size="large"
+            startIcon={<DashboardIcon />}
+            onClick={() => navigate('/rat-list')}
+            sx={{
+              borderColor: '#4f46e5',
+              color: '#4f46e5',
+              '&:hover': { bgcolor: 'rgba(79, 70, 229, 0.1)' },
+              px: 4,
+              py: 1.5
+            }}
+          >
+            Ver Todos los RATs
+          </Button>
+        </Box>
       </Paper>
     </PageLayout>
   );

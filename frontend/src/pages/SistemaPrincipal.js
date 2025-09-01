@@ -20,6 +20,13 @@ import {
   Dashboard as DPOIcon,
   Shield as DPIAIcon,
   Business as ProveedoresIcon,
+  List as RATListIcon,
+  Notifications as ApprovalIcon,
+  Analytics as MetricsIcon,
+  AdminPanelSettings as AdminIcon,
+  Assignment as WorkflowIcon,
+  Gavel as ContractIcon,
+  Notifications as NotificationIcon,
   Factory as ManufacturingIcon,
   LocalHospital as HealthIcon,
   AccountBalance as FinanceIcon,
@@ -111,6 +118,27 @@ const SistemaPrincipal = () => {
       descripcion: 'Genera y gestiona tu RAT según normativa vigente'
     },
     {
+      titulo: 'Gestión de RATs Existentes',
+      subtitulo: 'Control y Edición',
+      icono: <RATListIcon sx={{ fontSize: 48, color: '#4f46e5' }} />,
+      ruta: '/rat-list',
+      descripcion: 'Ver, editar y gestionar RATs creados'
+    },
+    {
+      titulo: 'Cola de Aprobación DPO',
+      subtitulo: 'Certificación RATs',
+      icono: <ApprovalIcon sx={{ fontSize: 48, color: '#f59e0b' }} />,
+      ruta: '/dpo-approval',
+      descripcion: 'RATs pendientes de certificación DPO'
+    },
+    {
+      titulo: 'Métricas de Compliance',
+      subtitulo: 'Analytics y KPIs',
+      icono: <MetricsIcon sx={{ fontSize: 48, color: '#8b5cf6' }} />,
+      ruta: '/compliance-metrics',
+      descripcion: 'Dashboard ejecutivo con métricas de cumplimiento'
+    },
+    {
       titulo: 'Módulo DPO',
       subtitulo: 'Art. 47 Ley 21.719',
       icono: <DPOIcon sx={{ fontSize: 48, color: '#fbbf24' }} />,
@@ -121,15 +149,43 @@ const SistemaPrincipal = () => {
       titulo: 'Módulo DPIA/PIA',
       subtitulo: 'Art. 19 Ley 21.719',
       icono: <DPIAIcon sx={{ fontSize: 48, color: '#34d399' }} />,
-      ruta: '/evaluacion-impacto',
+      ruta: '/eipd-creator',
       descripcion: 'Evaluación de Impacto en Protección de Datos'
     },
     {
       titulo: 'Módulo Proveedores',
       subtitulo: 'Art. 25 Ley 21.719',
       icono: <ProveedoresIcon sx={{ fontSize: 48, color: '#a78bfa' }} />,
-      ruta: '/gestion-proveedores',
+      ruta: '/provider-manager',
       descripcion: 'Gestión de encargados del tratamiento'
+    },
+    {
+      titulo: 'Panel Administrativo',
+      subtitulo: 'Gestión Holdings',
+      icono: <AdminIcon sx={{ fontSize: 48, color: '#ef4444' }} />,
+      ruta: '/admin-dashboard',
+      descripcion: 'Administración holdings y empresas subsidiarias'
+    },
+    {
+      titulo: 'Workflow RATs',
+      subtitulo: 'Estados y Colaboración',
+      icono: <WorkflowIcon sx={{ fontSize: 48, color: '#8b5cf6' }} />,
+      ruta: '/rat-workflow',
+      descripcion: 'Gestión de estados y asignaciones RATs'
+    },
+    {
+      titulo: 'Generador DPA',
+      subtitulo: 'Contratos Automáticos',
+      icono: <ContractIcon sx={{ fontSize: 48, color: '#fbbf24' }} />,
+      ruta: '/dpa-generator',
+      descripcion: 'Generación automática contratos DPA'
+    },
+    {
+      titulo: 'Centro Notificaciones',
+      subtitulo: 'Alertas y Vencimientos',
+      icono: <NotificationIcon sx={{ fontSize: 48, color: '#60a5fa' }} />,
+      ruta: '/notifications',
+      descripcion: 'Gestión de alertas y notificaciones sistema'
     }
   ];
 

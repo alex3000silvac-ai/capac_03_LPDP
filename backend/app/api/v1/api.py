@@ -53,6 +53,15 @@ try:
 except ImportError:
     EMPRESAS_MT_OK = False
 
+# IMPORTAR ENDPOINTS SISTEMA LPDP COMPLETO
+try:
+    from app.api.v1.endpoints import rats, eipds, providers, notifications, audit, admin
+    LPDP_SYSTEM_OK = True
+    logger.info("✅ Sistema LPDP completo cargado - RATs, EIPDs, Providers, Notifications, Audit, Admin")
+except ImportError as e:
+    logger.error(f"❌ Error cargando sistema LPDP: {e}")
+    LPDP_SYSTEM_OK = False
+
 api_router = APIRouter()
 
 # RUTAS BÁSICAS (SIEMPRE INCLUIR)
@@ -83,6 +92,16 @@ if MAPEO_DATOS_OK:
 if EMPRESAS_MT_OK:
     api_router.include_router(empresas_multitenant.router, prefix="/empresas-mt", tags=["empresas-multitenant"])
     logger.info("✅ Empresas multi-tenant habilitado")
+
+# RUTAS SISTEMA LPDP COMPLETO
+if LPDP_SYSTEM_OK:
+    api_router.include_router(rats.router, prefix="/rats", tags=["rats"])
+    api_router.include_router(eipds.router, prefix="/eipds", tags=["eipds"])
+    api_router.include_router(providers.router, prefix="/providers", tags=["providers"])
+    api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+    api_router.include_router(audit.router, prefix="/audit", tags=["audit"])
+    api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
+    logger.info("🎯 SISTEMA LPDP COMPLETO HABILITADO - Todos los módulos operativos")
 
 # COMENTADO: Rutas de módulos funcionales - Causan errores de import
 # api_router.include_router(consentimientos.router, prefix="/consentimientos", tags=["consentimientos"])

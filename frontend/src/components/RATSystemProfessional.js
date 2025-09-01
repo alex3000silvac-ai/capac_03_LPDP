@@ -54,7 +54,9 @@ import {
   HealthAndSafety as HealthIcon,
   Warning as WarningIcon,
   CheckCircle as CheckIcon,
-  AccountBalance
+  AccountBalance,
+  Assignment as RATIcon,
+  School
 } from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ratService from '../services/ratService';

@@ -27,7 +27,6 @@ import ConceptosBasicos from './pages/ConceptosBasicos';
 import ModuloCero from './pages/ModuloCero';
 import ConsolidadoRAT from './components/ConsolidadoRAT';
 import RutaCapacitacionLPDP from './pages/RutaCapacitacionLPDP';
-import PlanesLPDP from './pages/PlanesLPDP';
 import ModuloEIPD from './components/ModuloEIPD';
 import GestionProveedores from './components/GestionProveedores';
 import RATProduccion from './pages/RATProduccion';
@@ -38,6 +37,23 @@ import GestionAsociaciones from './pages/GestionAsociaciones';
 import DPIAAlgoritmos from './pages/DPIAAlgoritmos';
 import ConsultaPreviaAgencia from './components/ConsultaPreviaAgencia';
 import RATSystemProfessional from './components/RATSystemProfessional';
+import RATListPage from './components/RATListPage';
+import RATEditPage from './components/RATEditPage';
+import DPOApprovalQueue from './components/DPOApprovalQueue';
+import ComplianceMetrics from './components/ComplianceMetrics';
+import EIPDCreator from './components/EIPDCreator';
+import ProviderManager from './components/ProviderManager';
+import AdminDashboard from './components/AdminDashboard';
+import RATSearchFilter from './components/RATSearchFilter';
+import DataSubjectRights from './components/DataSubjectRights';
+import LegalUpdatesMonitor from './components/LegalUpdatesMonitor';
+import RATWorkflowManager from './components/RATWorkflowManager';
+import DPAGenerator from './components/DPAGenerator';
+import NotificationCenter from './components/NotificationCenter';
+import EIPDTemplates from './components/EIPDTemplates';
+import CalendarView from './components/CalendarView';
+import ImmutableAuditLog from './components/ImmutableAuditLog';
+import DiagnosticCenter from './components/DiagnosticCenter';
 import PaletaColores from './pages/PaletaColores';
 import SistemaPrincipal from './pages/SistemaPrincipal';
 
@@ -128,6 +144,114 @@ const AppContent = () => {
         <Route path="/rat-system" element={
           <ProtectedRoute>
             <RATSystemProfessional />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/rat-list" element={
+          <ProtectedRoute>
+            <RATListPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/rat-edit/:ratId" element={
+          <ProtectedRoute>
+            <RATEditPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/dpo-approval" element={
+          <ProtectedRoute requiredPermissions={["dpo.view"]}>
+            <DPOApprovalQueue />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/compliance-metrics" element={
+          <ProtectedRoute requiredPermissions={["dpo.view"]}>
+            <ComplianceMetrics />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/eipd-creator" element={
+          <ProtectedRoute>
+            <EIPDCreator />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/eipd-creator/:ratId" element={
+          <ProtectedRoute>
+            <EIPDCreator />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/provider-manager" element={
+          <ProtectedRoute>
+            <ProviderManager />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/admin-dashboard" element={
+          <ProtectedRoute requiredPermissions={["admin.view"]}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/rat-workflow" element={
+          <ProtectedRoute requiredPermissions={["rat.workflow"]}>
+            <RATWorkflowManager />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/dpa-generator" element={
+          <ProtectedRoute requiredPermissions={["dpa.generate"]}>
+            <DPAGenerator />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/notifications" element={
+          <ProtectedRoute>
+            <NotificationCenter />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/eipd-templates" element={
+          <ProtectedRoute>
+            <EIPDTemplates />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/calendar" element={
+          <ProtectedRoute>
+            <CalendarView />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/audit-log" element={
+          <ProtectedRoute requiredPermissions={["audit.view"]}>
+            <ImmutableAuditLog />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/diagnostic" element={
+          <ProtectedRoute requiredPermissions={["admin.view"]}>
+            <DiagnosticCenter />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/rat-search" element={
+          <ProtectedRoute>
+            <RATSearchFilter />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/data-subject-rights" element={
+          <ProtectedRoute>
+            <DataSubjectRights />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/legal-updates" element={
+          <ProtectedRoute requiredPermissions={["dpo.view"]}>
+            <LegalUpdatesMonitor />
           </ProtectedRoute>
         } />
         

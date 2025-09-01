@@ -73,6 +73,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import proveedoresService from '../services/proveedoresService';
+import { supabase } from '../config/supabaseClient';
 
 const GestionProveedores = () => {
   const { user } = useAuth();
