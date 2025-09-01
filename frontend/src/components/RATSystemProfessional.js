@@ -264,8 +264,8 @@ const RATSystemProfessional = () => {
     },
     // Paso 2: Categorías de datos
     categorias: {
-      identificacion: [],
-      sensibles: [],
+      identificacion: [], // ARRAY para evitar error .includes
+      sensibles: [], // ARRAY para evitar error .includes
     },
     // Paso 3: Base de licitud
     baseLegal: '',
@@ -325,21 +325,31 @@ const RATSystemProfessional = () => {
 
 
   const checkStepComplete = (step) => {
-    switch (step) {
-      case 0: // Identificación
-        return ratData.responsable.razonSocial && 
-               ratData.responsable.rut && 
-               ratData.responsable.email;
-      case 1: // Categorías
-        return ratData.categorias.identificacion.length > 0;
-      case 2: // Base legal
-        return ratData.baseLegal !== '';
-      case 3: // Finalidad
-        return ratData.finalidad && ratData.plazoConservacion;
-      case 4: // Transferencias
-        return true; // Opcional
-      default:
-        return false;
+    try {
+      switch (step) {
+        case 0: // Identificación
+          return ratData.responsable.razonSocial && 
+                 ratData.responsable.rut && 
+                 ratData.responsable.email &&
+                 ratData.responsable.nombre &&
+                 ratData.responsable.telefono;
+        case 1: // Categorías
+          return Array.isArray(ratData.categorias.identificacion) && 
+                 ratData.categorias.identificacion.length > 0;
+        case 2: // Base legal
+          return ratData.baseLegal !== '' && ratData.argumentoJuridico !== '';
+        case 3: // Finalidad
+          return ratData.finalidad && 
+                 ratData.finalidad.length >= 20 && 
+                 ratData.plazoConservacion;
+        case 4: // Transferencias
+          return true; // Opcional
+        default:
+          return false;
+      }
+    } catch (error) {
+      console.error('🚨 Error validando paso:', step, error);
+      return false;
     }
   };
 
@@ -373,28 +383,16 @@ const RATSystemProfessional = () => {
         telefono: '',
       },
       categorias: {
-        identificacion: false,
-        laboral: false,
-        academico: false,
-        economico: false,
-        salud: false,
-        biometrico: false,
-        judicial: false,
-        comunicaciones: false,
-        navegacion: false,
-        localizacion: false,
-        sensibles: []
+        identificacion: [], // CORREGIDO: Array vacío
+        sensibles: [] // CORREGIDO: Array vacío
       },
       baseLegal: '',
-      finalidades: {
-        descripcion: '',
-        periodo: ''
-      },
-      transferencias: {
-        internos: [],
-        terceros: [],
-        internacionales: []
-      }
+      argumentoJuridico: '',
+      finalidad: '',
+      plazoConservacion: '',
+      destinatarios: [],
+      transferenciasInternacionales: false,
+      documentosRequeridos: []
     });
   };
 
@@ -429,8 +427,8 @@ const RATSystemProfessional = () => {
             telefono: ratToEdit.responsable?.telefono || '',
           },
           categorias: {
-            identificacion: [],
-            sensibles: ratToEdit.categorias?.datos?.sensibles || [],
+            identificacion: ratToEdit.categorias?.identificacion || [], // ARRAY
+            sensibles: ratToEdit.categorias?.sensibles || ratToEdit.categorias?.datos?.sensibles || [], // ARRAY
           },
           baseLegal: ratToEdit.finalidades?.baseLegal || ratToEdit.base_legal || '',
           argumentoJuridico: ratToEdit.finalidades?.argumentoJuridico || '',
@@ -614,8 +612,8 @@ const RATSystemProfessional = () => {
           telefono: '',
         },
         categorias: {
-          identificacion: [],
-          sensibles: [],
+          identificacion: [], // ARRAY vacío
+          sensibles: [], // ARRAY vacío
         },
         baseLegal: '',
         argumentoJuridico: '',
@@ -1143,36 +1141,81 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
 
 const PasoCategorias = ({ ratData, setRatData }) => {
   const handleIdentificacion = (event) => {
-    const value = event.target.value;
-    const current = ratData.categorias.identificacion;
-    if (event.target.checked) {
-      setRatData({
-        ...ratData,
-        categorias: { ...ratData.categorias, identificacion: [...current, value] }
-      });
-    } else {
-      setRatData({
-        ...ratData,
-        categorias: { ...ratData.categorias, identificacion: current.filter(v => v !== value) }
-      });
+    try {
+      const value = event.target.value;
+      const current = Array.isArray(ratData.categorias.identificacion) ? 
+        ratData.categorias.identificacion : [];
+      
+      if (event.target.checked) {
+        setRatData({
+          ...ratData,
+          categorias: { 
+            ...ratData.categorias, 
+            identificacion: [...current, value] 
+          }
+        });
+        console.log('✅ Categoría agregada:', value);
+      } else {
+        setRatData({
+          ...ratData,
+          categorias: { 
+            ...ratData.categorias, 
+            identificacion: current.filter(v => v !== value) 
+          }
+        });
+        console.log('❌ Categoría removida:', value);
+      }
+    } catch (error) {
+      console.error('🚨 Error en handleIdentificacion:', error);
     }
   };
 
   const handleSensibles = (event) => {
-    const value = event.target.value;
-    const current = ratData.categorias.sensibles;
-    if (event.target.checked) {
-      setRatData({
-        ...ratData,
-        categorias: { ...ratData.categorias, sensibles: [...current, value] }
-      });
-    } else {
-      setRatData({
-        ...ratData,
-        categorias: { ...ratData.categorias, sensibles: current.filter(v => v !== value) }
-      });
+    try {
+      const value = event.target.value;
+      const current = Array.isArray(ratData.categorias.sensibles) ? 
+        ratData.categorias.sensibles : [];
+      
+      if (event.target.checked) {
+        setRatData({
+          ...ratData,
+          categorias: { 
+            ...ratData.categorias, 
+            sensibles: [...current, value] 
+          }
+        });
+        console.log('🚨 Dato sensible agregado - Trigger EIPD:', value);
+      } else {
+        setRatData({
+          ...ratData,
+          categorias: { 
+            ...ratData.categorias, 
+            sensibles: current.filter(v => v !== value) 
+          }
+        });
+        console.log('✅ Dato sensible removido:', value);
+      }
+    } catch (error) {
+      console.error('🚨 Error en handleSensibles:', error);
     }
   };
+
+  // VERIFICAR QUE ARRAYS ESTÉN INICIALIZADOS
+  React.useEffect(() => {
+    if (!Array.isArray(ratData.categorias.identificacion) || 
+        !Array.isArray(ratData.categorias.sensibles)) {
+      console.log('🔧 Corrigiendo inicialización de categorías...');
+      setRatData(prevData => ({
+        ...prevData,
+        categorias: {
+          identificacion: Array.isArray(prevData.categorias.identificacion) ? 
+            prevData.categorias.identificacion : [],
+          sensibles: Array.isArray(prevData.categorias.sensibles) ? 
+            prevData.categorias.sensibles : []
+        }
+      }));
+    }
+  }, [ratData.categorias, setRatData]);
 
   return (
     <Box>
@@ -1494,9 +1537,10 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         </Alert>
       )}
 
-      {(ratData.categorias.identificacion.includes('fotografia') || 
-        ratData.categorias.identificacion.includes('grabacion_video') ||
-        ratData.categorias.identificacion.includes('imagen_vigilancia')) && (
+      {(Array.isArray(ratData.categorias.identificacion) && 
+        (ratData.categorias.identificacion.includes('fotografia') || 
+         ratData.categorias.identificacion.includes('grabacion_video') ||
+         ratData.categorias.identificacion.includes('imagen_vigilancia'))) && (
         <Alert severity="warning" sx={{ mt: 2 }}>
           <Typography variant="body2" fontWeight="bold">
             ⚠️ IMÁGENES/VIDEOS DETECTADOS - Requiere medidas especiales
@@ -1513,7 +1557,8 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         </Alert>
       )}
 
-      {ratData.categorias.identificacion.includes('geolocalizacion') && (
+      {(Array.isArray(ratData.categorias.identificacion) && 
+        ratData.categorias.identificacion.includes('geolocalizacion')) && (
         <Alert severity="error" sx={{ mt: 2 }}>
           <Typography variant="body2" fontWeight="bold">
             🚨 GEOLOCALIZACIÓN DETECTADA - Múltiples obligaciones legales
@@ -1533,8 +1578,9 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         </Alert>
       )}
 
-      {(ratData.categorias.identificacion.includes('scoring_financiero') ||
-        ratData.categorias.identificacion.includes('comportamiento_online')) && (
+      {(Array.isArray(ratData.categorias.identificacion) && 
+        (ratData.categorias.identificacion.includes('scoring_financiero') ||
+         ratData.categorias.identificacion.includes('comportamiento_online'))) && (
         <Alert severity="info" sx={{ mt: 2 }}>
           <Typography variant="body2" fontWeight="bold">
             🤖 ALGORITMOS/SCORING DETECTADO - DPIA automática
@@ -1551,7 +1597,8 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         </Alert>
       )}
 
-      {ratData.categorias.identificacion.includes('licencias_medicas') && (
+      {(Array.isArray(ratData.categorias.identificacion) && 
+        ratData.categorias.identificacion.includes('licencias_medicas')) && (
         <Alert severity="error" sx={{ mt: 2 }}>
           <Typography variant="body2" fontWeight="bold">
             🏥 DATOS DE SALUD EN CONTEXTO LABORAL
