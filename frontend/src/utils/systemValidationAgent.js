@@ -1,12 +1,25 @@
 /**
  * 🤖 SYSTEM VALIDATION AGENT - IA DE VALIDACIÓN Y AUTO-CORRECCIÓN
  * 
- * Este agente IA:
- * 1. Lee especificación técnica desde .md
- * 2. Valida campos HTML contra especificación
- * 3. Detecta problemas automáticamente  
- * 4. Auto-corrige inconsistencias
- * 5. Garantiza compliance total sistema
+ * MISIÓN CRÍTICA DEL AGENTE:
+ * =============================
+ * Este agente IA supervisa 24/7 que el sistema LPDP funcione perfectamente según Ley 21.719.
+ * 
+ * INSTRUCCIONES OPERATIVAS:
+ * 1. VALIDAR que todos los campos obligatorios estén presentes
+ * 2. DETECTAR automáticamente triggers DPIA/PIA/EIPD
+ * 3. CORREGIR errores de validación en tiempo real
+ * 4. ASEGURAR que NO se bloquee el flujo RAT
+ * 5. NOTIFICAR al DPO cuando se requiera acción humana
+ * 6. PERSISTIR todo en Supabase (NUNCA localStorage)
+ * 7. GARANTIZAR 100% compliance con Ley 21.719
+ * 
+ * REGLAS CRÍTICAS:
+ * - Si detecta datos sensibles → Genera EIPD automática (NO bloquea)
+ * - Si detecta imágenes/videos → Valida consentimiento expreso
+ * - Si detecta geolocalización → Requiere DPIA obligatoria
+ * - Si detecta biométricos → Activar protección reforzada
+ * - TODO debe incluir artículo legal específico
  */
 
 import { supabase } from '../config/supabaseClient';
@@ -41,55 +54,175 @@ class SystemValidationAgent {
   }
 
   /**
-   * 📋 ESPECIFICACIÓN EMBEBIDA COMO FALLBACK
+   * 📋 ESPECIFICACIÓN COMPLETA LEY 21.719
    */
   getEmbeddedSpecification() {
     return {
+      // PASO 1: RESPONSABLE DEL TRATAMIENTO
       required_fields: {
+        'responsable.razonSocial': {
+          type: 'text',
+          required: true,
+          minLength: 3,
+          article: 'Art. 3 f) Ley 21.719',
+          error_message: 'Razón social obligatoria - Art. 3 f) Ley 21.719'
+        },
+        'responsable.rut': {
+          type: 'text',
+          required: true,
+          pattern: '^\\d{1,2}\\.\\d{3}\\.\\d{3}-[\\dkK]$',
+          article: 'Art. 15 Ley 21.719',
+          error_message: 'RUT formato XX.XXX.XXX-X obligatorio'
+        },
         'responsable.nombre': {
           type: 'text',
           required: true,
           minLength: 2,
-          pattern: '^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$',
-          error_message: 'Nombre debe contener solo letras y espacios'
+          article: 'Art. 47 Ley 21.719',
+          error_message: 'DPO obligatorio - Art. 47 Ley 21.719'
         },
         'responsable.email': {
           type: 'email', 
           required: true,
           pattern: '^[^@]+@[^@]+\\.[^@]+$',
-          error_message: 'Email debe tener formato válido'
+          article: 'Art. 47 Ley 21.719',
+          error_message: 'Email DPO válido obligatorio'
         },
         'responsable.telefono': {
           type: 'tel',
           required: true,
           pattern: '^\\+56\\s9\\s\\d{4}\\s\\d{4}$',
+          article: 'Art. 47 Ley 21.719',
           error_message: 'Teléfono formato +56 9 XXXX XXXX'
         },
-        'finalidades.descripcion': {
+        // PASO 2: CATEGORÍAS DE DATOS
+        'categorias.identificacion': {
+          type: 'checkbox_array',
+          required: true,
+          minItems: 1,
+          article: 'Art. 2 f) Ley 21.719',
+          options: [
+            'nombre', 'rut', 'direccion', 'telefono', 'email', 'firma',
+            'fotografia', 'grabacion_video', 'grabacion_audio', 
+            'imagen_vigilancia', 'huella_digital', 'geolocalizacion',
+            'direccion_ip', 'cookies_identificacion', 'numero_cuenta',
+            'patente_vehiculo', 'ingresos_economicos', 'historial_crediticio',
+            'transacciones_bancarias', 'habitos_consumo', 'scoring_financiero',
+            'cargo_posicion', 'sueldo_remuneracion', 'evaluaciones_desempeno',
+            'historial_laboral', 'referencias_laborales', 'titulos_profesionales',
+            'certificaciones', 'historial_academico', 'capacitaciones'
+          ],
+          error_message: 'Debe seleccionar al menos una categoría de identificación'
+        },
+        'categorias.sensibles': {
+          type: 'checkbox_array',
+          required: false,
+          article: 'Art. 2 g) Ley 21.719',
+          options: [
+            'origen_racial', 'opiniones_politicas', 'convicciones_religiosas',
+            'afiliacion_sindical', 'vida_sexual', 'datos_salud', 
+            'datos_biometricos', 'antecedentes_penales', 'datos_geneticos',
+            'localizacion_permanente'
+          ],
+          triggers_eipd: true,
+          error_message: 'Datos sensibles requieren EIPD - Art. 19 Ley 21.719'
+        },
+        // PASO 3: BASE LEGAL
+        'baseLegal': {
+          type: 'select',
+          required: true,
+          article: 'Art. 9 y 13 Ley 21.719',
+          options: [
+            {value: 'consentimiento', article: 'Art. 12 Ley 21.719'},
+            {value: 'contrato', article: 'Art. 13.1.b Ley 21.719'},
+            {value: 'obligacion_legal', article: 'Art. 13.1.c Ley 21.719'},
+            {value: 'interes_vital', article: 'Art. 13.1.d Ley 21.719'},
+            {value: 'mision_publica', article: 'Art. 13.1.e Ley 21.719'},
+            {value: 'interes_legitimo', article: 'Art. 13.1.f Ley 21.719'}
+          ],
+          error_message: 'Base legal obligatoria - Art. 9 Ley 21.719'
+        },
+        // PASO 4: FINALIDAD
+        'finalidad': {
           type: 'textarea',
           required: true,
           minLength: 20,
           maxLength: 500,
-          error_message: 'Descripción debe tener entre 20-500 caracteres'
+          article: 'Art. 11 Ley 21.719',
+          error_message: 'Finalidad específica obligatoria (20-500 caracteres)'
         },
-        'finalidades.baseLegal': {
+        'plazoConservacion': {
           type: 'select',
           required: true,
-          options: ['consentimiento', 'contrato', 'obligacion_legal', 'interes_vital', 'interes_publico', 'interes_legitimo'],
-          error_message: 'Debe seleccionar una base legal válida'
+          article: 'Art. 11 Ley 21.719',
+          options: [
+            'relacion_contractual',
+            '5_anos',
+            '10_anos',
+            'indefinido_con_revision'
+          ],
+          error_message: 'Plazo conservación obligatorio - Art. 11 Ley 21.719'
         }
       },
+      // TRIGGERS AUTOMÁTICOS
+      eipd_triggers: [
+        // Art. 19 Ley 21.719 - Evaluación de Impacto obligatoria
+        'datos_salud', 'datos_biometricos', 'datos_geneticos',
+        'origen_racial', 'opiniones_politicas', 'convicciones_religiosas',
+        'afiliacion_sindical', 'vida_sexual', 'antecedentes_penales',
+        'localizacion_permanente', 'vigilancia_sistematica',
+        'evaluacion_personas', 'tratamiento_masivo', 'nuevas_tecnologias'
+      ],
       dpia_triggers: [
-        'biometrico', 'salud', 'origen_racial', 'opinion_politica', 
-        'creencia_religiosa', 'afiliacion_sindical', 'vida_sexual'
+        // Art. 20 Ley 21.719 - Evaluación previa algoritmos
+        'decision_automatizada', 'algoritmo', 'scoring', 
+        'inteligencia_artificial', 'machine_learning', 
+        'evaluacion_automatica', 'perfilado', 'prediccion_comportamiento'
       ],
       pia_triggers: [
-        'decision_automatizada', 'algoritmo', 'scoring', 'inteligencia_artificial',
-        'machine_learning', 'evaluacion_automatica'
+        // Art. 21 Ley 21.719 - Evaluación general de riesgos
+        'transferencia_internacional', 'cloud_computing',
+        'big_data', 'iot_devices', 'blockchain'
       ],
-      validation_frequency: 'on_change', // 'on_change' | 'periodic' | 'on_save'
-      auto_correction: true,
-      compliance_score_threshold: 85
+      consulta_agencia_triggers: [
+        // Art. 22 Ley 21.719 - Consulta previa obligatoria
+        'alto_riesgo_residual', 'sin_medidas_mitigacion',
+        'tecnologia_emergente', 'sin_precedentes'
+      ],
+      // VALIDACIONES ESPECIALES
+      special_validations: {
+        'fotografia': {
+          requires: 'consentimiento_expreso',
+          article: 'Art. 4° y 5° Ley 21.719',
+          alert: 'Imágenes requieren consentimiento expreso'
+        },
+        'grabacion_video': {
+          requires: 'informacion_previa',
+          article: 'Art. 4° y 5° Ley 21.719',
+          alert: 'Grabaciones requieren información previa'
+        },
+        'geolocalizacion': {
+          requires: 'dpia_automatica',
+          article: 'Art. 19 Ley 21.719',
+          alert: 'Geolocalización requiere DPIA automática'
+        },
+        'datos_biometricos': {
+          requires: 'proteccion_reforzada',
+          article: 'Art. 2 g) vii) Ley 21.719',
+          alert: 'Biométricos requieren protección reforzada'
+        }
+      },
+      // CONFIGURACIÓN DEL AGENTE
+      agent_config: {
+        validation_frequency: 'real_time',
+        auto_correction: true,
+        compliance_score_threshold: 85,
+        notification_dpo: true,
+        block_on_critical: false, // NUNCA bloquear flujo
+        auto_generate_documents: true,
+        persist_to_supabase: true,
+        never_use_localstorage: true
+      }
     };
   }
 
@@ -151,8 +284,12 @@ class SystemValidationAgent {
       incorrect_validations: [],
       compliance_violations: [],
       ui_inconsistencies: [],
-      security_gaps: []
+      security_gaps: [],
+      legal_requirements: [],
+      data_protection_gaps: []
     };
+
+    console.log('🤖 IA Agent: Iniciando validación completa Ley 21.719');
 
     // Verificar campos obligatorios
     for (const [fieldName, fieldSpec] of Object.entries(specification.required_fields)) {
@@ -398,7 +535,8 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
     if (!this.isActive) return;
 
     try {
-      console.log('🤖 Agent: Iniciando validación continua del sistema');
+      console.log('🤖 IA Agent: Iniciando supervisión 24/7 - Ley 21.719');
+      console.log('📋 Instrucciones: Validar TODO, corregir automáticamente, NUNCA bloquear');
       
       // 1. Cargar especificación actual
       const specification = await this.loadSpecification();
@@ -409,35 +547,144 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
       // 3. Detectar problemas
       const issues = await this.detectIssues(specification, currentState);
       
-      // 4. Auto-corregir si hay problemas
-      if (issues.missing_fields.length > 0 || issues.incorrect_validations.length > 0) {
-        console.log('🚨 Agent: Problemas detectados, iniciando auto-corrección');
+      // 4. VALIDACIÓN CRÍTICA: Nunca bloquear flujo RAT
+      if (this.detectsBlockingIssue(issues)) {
+        console.log('⚠️ IA Agent: Detectado intento de bloqueo - CORRIGIENDO');
+        await this.removeBlockingElements();
+      }
+      
+      // 5. Auto-corregir si hay problemas
+      if (issues.missing_fields.length > 0 || 
+          issues.incorrect_validations.length > 0 ||
+          issues.legal_requirements.length > 0) {
         
+        console.log('🔧 IA Agent: Auto-corrección en progreso...');
         const corrections = await this.autoCorrectIssues(issues);
         
-        // 5. Notificar a DPO si hay cambios críticos
+        // 6. Generar documentos automáticamente si se requieren
+        if (this.requiresDocuments(issues)) {
+          await this.generateRequiredDocuments(issues);
+        }
+        
+        // 7. Notificar a DPO si hay cambios críticos
         if (issues.compliance_violations.length > 0) {
           await this.notifyDPOCompliance(issues.compliance_violations);
         }
         
-        // 6. Log de actividad del agente
+        // 8. Log de actividad del agente
         await this.logAgentActivity({
           action: 'system_validation',
           issues_detected: issues,
           corrections_applied: corrections,
-          compliance_score: this.calculateComplianceScore(issues)
+          compliance_score: this.calculateComplianceScore(issues),
+          documents_generated: this.documentsGenerated || [],
+          dpo_notified: issues.compliance_violations.length > 0
         });
       }
       
+      console.log(`✅ IA Agent: Validación completa - Score: ${this.calculateComplianceScore(issues)}%`);
+      
       // Programar próxima validación
-      setTimeout(() => this.startContinuousValidation(), 300000); // Cada 5 minutos
+      setTimeout(() => this.startContinuousValidation(), 60000); // Cada minuto en producción
       
     } catch (error) {
-      console.error('🤖 Agent: Error en validación continua', error);
-      
-      // Retry con backoff exponencial
-      setTimeout(() => this.startContinuousValidation(), 600000); // 10 minutos en caso de error
+      console.error('🤖 IA Agent: Error en validación - reintentando', error);
+      setTimeout(() => this.startContinuousValidation(), 30000); // Retry en 30 segundos
     }
+  }
+
+  /**
+   * 🚫 DETECTAR SI HAY ELEMENTOS BLOQUEANTES
+   */
+  detectsBlockingIssue(issues) {
+    // Buscar cualquier cosa que pueda bloquear el flujo RAT
+    const blockingPatterns = [
+      'disabled buttons when EIPD required',
+      'form submission blocked',
+      'navigation prevented',
+      'modal blocking progress'
+    ];
+    
+    return issues.ui_inconsistencies.some(issue => 
+      blockingPatterns.some(pattern => issue.includes(pattern))
+    );
+  }
+
+  /**
+   * 🔓 REMOVER ELEMENTOS BLOQUEANTES
+   */
+  async removeBlockingElements() {
+    // Habilitar todos los botones deshabilitados incorrectamente
+    const buttons = document.querySelectorAll('button[disabled]');
+    buttons.forEach(btn => {
+      if (btn.textContent.includes('Siguiente') || 
+          btn.textContent.includes('Continuar') ||
+          btn.textContent.includes('Guardar')) {
+        btn.removeAttribute('disabled');
+        console.log('🔓 IA Agent: Botón desbloqueado:', btn.textContent);
+      }
+    });
+  }
+
+  /**
+   * 📄 VERIFICAR SI SE REQUIEREN DOCUMENTOS
+   */
+  requiresDocuments(issues) {
+    return issues.compliance_violations.some(violation => 
+      violation.type === 'DPIA_REQUIRED' || 
+      violation.type === 'PIA_REQUIRED' ||
+      violation.type === 'EIPD_REQUIRED'
+    );
+  }
+
+  /**
+   * 📝 GENERAR DOCUMENTOS REQUERIDOS
+   */
+  async generateRequiredDocuments(issues) {
+    this.documentsGenerated = [];
+    
+    for (const violation of issues.compliance_violations) {
+      if (violation.type === 'EIPD_REQUIRED') {
+        const doc = await this.generateEIPD(violation);
+        this.documentsGenerated.push(doc);
+        console.log('📄 IA Agent: EIPD generada automáticamente');
+      }
+      if (violation.type === 'DPIA_REQUIRED') {
+        const doc = await this.generateDPIA(violation);
+        this.documentsGenerated.push(doc);
+        console.log('📄 IA Agent: DPIA generada automáticamente');
+      }
+    }
+  }
+
+  /**
+   * 📋 GENERAR EIPD AUTOMÁTICA
+   */
+  async generateEIPD(violation) {
+    return {
+      type: 'EIPD',
+      ratId: violation.ratId,
+      generatedAt: new Date().toISOString(),
+      assignedTo: 'DPO',
+      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'pending_review',
+      legalBasis: violation.legal_basis || 'Art. 19 Ley 21.719'
+    };
+  }
+
+  /**
+   * 📋 GENERAR DPIA AUTOMÁTICA
+   */
+  async generateDPIA(violation) {
+    return {
+      type: 'DPIA',
+      ratId: violation.ratId,
+      generatedAt: new Date().toISOString(),
+      assignedTo: 'DPO',
+      deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'pending_review',
+      legalBasis: violation.legal_basis || 'Art. 20 Ley 21.719'
+    };
   }
 
   /**
