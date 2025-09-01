@@ -1176,8 +1176,21 @@ const PasoCategorias = ({ ratData, setRatData }) => {
 
   return (
     <Box>
+      <Alert severity="info" sx={{ mb: 3 }}>
+        <Typography variant="caption" sx={{ fontWeight: 600 }}>
+          📖 Fundamento Legal: Art. 2 letras f) y g) Ley 21.719
+        </Typography>
+        <Typography variant="caption" display="block">
+          Los datos personales se clasifican según su naturaleza. Cada categoría requiere medidas específicas de protección.
+          El responsable debe identificar correctamente qué datos trata para aplicar las salvaguardas apropiadas.
+        </Typography>
+      </Alert>
+      
       <Typography variant="h6" gutterBottom>
-        DATOS DE IDENTIFICACIÓN
+        📋 DATOS DE IDENTIFICACIÓN - Art. 2 f) Ley 21.719
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        "Información que permite identificar a una persona natural, directa o indirectamente"
       </Typography>
       <FormGroup row>
         <FormControlLabel
@@ -1186,66 +1199,233 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="rut" />}
-          label="RUT"
+          label="RUT o Cédula de Identidad"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="direccion" />}
-          label="Dirección"
+          label="Dirección domiciliaria"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="telefono" />}
-          label="Teléfono"
+          label="Número telefónico"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="email" />}
-          label="Email"
+          label="Correo electrónico"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="firma" />}
-          label="Firma"
+          label="Firma manuscrita"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="fotografia" />}
+          label="Fotografía o imagen"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="grabacion_video" />}
+          label="Grabación audiovisual"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="grabacion_audio" />}
+          label="Grabación de voz"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="imagen_vigilancia" />}
+          label="Imagen de cámaras vigilancia"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="huella_digital" />}
+          label="Huella dactilar"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="geolocalizacion" />}
+          label="Datos de geolocalización"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="direccion_ip" />}
+          label="Dirección IP"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="cookies_identificacion" />}
+          label="Cookies identificadoras"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="numero_cuenta" />}
+          label="Número de cuenta bancaria"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="patente_vehiculo" />}
+          label="Patente de vehículo"
         />
       </FormGroup>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-        DATOS SENSIBLES (Art. 2 letra g Ley 19.628)
+        🚨 DATOS SENSIBLES - Art. 2 letra g) Ley 21.719
+      </Typography>
+      <Typography variant="body2" color="error.main" sx={{ mb: 2, fontWeight: 600 }}>
+        "Categorías especiales de datos personales que revelan información íntima" - PROTECCIÓN REFORZADA OBLIGATORIA
       </Typography>
       <FormGroup row>
         <FormControlLabel
           control={<Checkbox onChange={handleSensibles} value="origen_racial" />}
-          label="Origen racial o étnico"
+          label="Origen racial o étnico - Art. 2 g) i)"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleSensibles} value="opiniones_politicas" />}
-          label="Opiniones políticas"
+          label="Opiniones políticas - Art. 2 g) ii)"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleSensibles} value="convicciones_religiosas" />}
-          label="Convicciones religiosas"
+          label="Convicciones religiosas - Art. 2 g) iii)"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleSensibles} value="afiliacion_sindical" />}
-          label="Afiliación sindical"
+          label="Afiliación sindical - Art. 2 g) iv)"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleSensibles} value="vida_sexual" />}
-          label="Vida sexual"
+          label="Vida sexual u orientación sexual - Art. 2 g) v)"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleSensibles} value="datos_salud" />}
-          label="Datos de salud"
+          label="Datos de salud física o mental - Art. 2 g) vi)"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleSensibles} value="datos_biometricos" />}
+          label="Datos biométricos únicos - Art. 2 g) vii)"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleSensibles} value="antecedentes_penales" />}
+          label="Antecedentes penales o infracciones - Art. 2 g) viii)"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleSensibles} value="datos_geneticos" />}
+          label="Datos genéticos - Art. 2 g) ix)"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleSensibles} value="localizacion_permanente" />}
+          label="Localización permanente - Art. 2 g) x)"
+        />
+      </FormGroup>
+
+      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+        📊 DATOS FINANCIEROS Y COMERCIALES - Art. 2 f) Ley 21.719
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Información económica y comercial que permite identificar patrones de conducta
+      </Typography>
+      <FormGroup row>
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="ingresos_economicos" />}
+          label="Ingresos económicos"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="historial_crediticio" />}
+          label="Historial crediticio"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="transacciones_bancarias" />}
+          label="Transacciones bancarias"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="habitos_consumo" />}
+          label="Hábitos de consumo"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="scoring_financiero" />}
+          label="Scoring financiero"
+        />
+      </FormGroup>
+
+      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+        💼 DATOS LABORALES - Art. 2 f) Ley 21.719
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Información derivada de la relación laboral o profesional
+      </Typography>
+      <FormGroup row>
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="cargo_posicion" />}
+          label="Cargo o posición"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="sueldo_remuneracion" />}
+          label="Sueldo o remuneración"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="evaluaciones_desempeno" />}
+          label="Evaluaciones de desempeño"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="historial_laboral" />}
+          label="Historial laboral"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="referencias_laborales" />}
+          label="Referencias laborales"
+        />
+      </FormGroup>
+
+      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+        🎓 DATOS ACADÉMICOS Y FORMATIVOS - Art. 2 f) Ley 21.719
+      </Typography>
+      <FormGroup row>
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="titulos_profesionales" />}
+          label="Títulos profesionales"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="certificaciones" />}
+          label="Certificaciones"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="historial_academico" />}
+          label="Historial académico"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="capacitaciones" />}
+          label="Capacitaciones"
         />
       </FormGroup>
 
       {ratData.categorias.sensibles.length > 0 && (
-        <Alert severity="warning" sx={{ mt: 3 }}>
+        <Alert severity="success" sx={{ mt: 3, bgcolor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
           <Typography variant="body2" fontWeight="bold">
-            ALERTA LEGAL - Datos sensibles seleccionados
+            ✅ SISTEMA PUEDE CONTINUAR - EIPD SE ASIGNARÁ AUTOMÁTICAMENTE
           </Typography>
           <Typography variant="caption">
-            Fundamento: Art. 25 Ley 21.719 - "Requiere Evaluación de Impacto (EIPD)"
+            Fundamento: Art. 19 Ley 21.719 - "Evaluación de Impacto cuando el tratamiento pueda entrañar alto riesgo"
           </Typography>
           <Typography variant="caption" display="block">
-            Se generará automáticamente al finalizar RAT
+            La EIPD se generará al completar RAT y se asignará al DPO para elaboración en 30 días
+          </Typography>
+        </Alert>
+      )}
+
+      {(ratData.categorias.identificacion.includes('fotografia') || 
+        ratData.categorias.identificacion.includes('grabacion_video') ||
+        ratData.categorias.identificacion.includes('imagen_no_autorizada') ||
+        ratData.categorias.identificacion.includes('imagen_vigilancia')) && (
+        <Alert severity="warning" sx={{ mt: 2 }}>
+          <Typography variant="body2" fontWeight="bold">
+            ⚠️ IMÁGENES/VIDEOS DETECTADOS - Art. 4° y 5° Ley 21.719
+          </Typography>
+          <Typography variant="caption">
+            Las imágenes son datos personales. Fotografías no autorizadas requieren consentimiento expreso.
+          </Typography>
+          <Typography variant="caption" display="block">
+            Grabaciones de vigilancia requieren información previa a los titulares.
+          </Typography>
+        </Alert>
+      )}
+
+      {ratData.categorias.identificacion.includes('geolocalizacion') && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          <Typography variant="body2" fontWeight="bold">
+            🚨 GEOLOCALIZACIÓN - Requiere DPIA automática
+          </Typography>
+          <Typography variant="caption">
+            Art. 19 Ley 21.719: Seguimiento sistemático requiere Evaluación de Impacto obligatoria
           </Typography>
         </Alert>
       )}
