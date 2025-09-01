@@ -613,6 +613,34 @@ export const ratService = {
       console.error('Error habilitando modo Supabase-únicamente');
       return { success: false, error: error.message };
     }
+  },
+
+  getRATById: async (ratId, tenantId = null, userId = null) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUser = user || { id: userId };
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUser.id);
+      
+      console.log('🔍 Buscando RAT por ID:', ratId, 'Tenant:', effectiveTenantId);
+      
+      const { data, error } = await supabase
+        .from('mapeo_datos_rat')
+        .select('*')
+        .eq('id', ratId)
+        .eq('tenant_id', effectiveTenantId)
+        .single();
+        
+      if (error) {
+        console.error('Error obteniendo RAT por ID:', error);
+        throw error;
+      }
+      
+      console.log('✅ RAT encontrado:', data.nombre_actividad);
+      return data;
+    } catch (error) {
+      console.error('Error en getRATById:', error);
+      throw error;
+    }
   }
 };
 

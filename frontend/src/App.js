@@ -17,6 +17,7 @@ import PracticaSandbox from './pages/PracticaSandbox';
 import MiProgreso from './pages/MiProgreso';
 import AdminPanel from './pages/AdminPanel';
 import UserManagement from './components/admin/UserManagement';
+import IAAgentStatusPage from './components/admin/IAAgentStatusPage';
 import Modulo3Inventario from './pages/Modulo3Inventario';
 import GlosarioLPDP from './pages/GlosarioLPDP';
 import SandboxCompleto from './pages/SandboxCompleto';
@@ -266,6 +267,15 @@ const AppContent = () => {
           element={
             <ProtectedRoute requiredPermissions={["users.manage"]}>
               <UserManagement />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/admin/ia-agent" 
+          element={
+            <ProtectedRoute requiredPermissions={["admin.view"]}>
+              <IAAgentStatusPage />
             </ProtectedRoute>
           } 
         />

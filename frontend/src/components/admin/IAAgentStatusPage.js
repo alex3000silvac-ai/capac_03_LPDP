@@ -36,12 +36,15 @@ import {
   Timeline as ActivityIcon,
   Security as ComplianceIcon,
   Storage as DatabaseIcon,
-  Speed as PerformanceIcon
+  Speed as PerformanceIcon,
+  AdminPanelSettings as AdminIcon
 } from '@mui/icons-material';
+import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../config/supabaseClient';
 import iaAgentReporter from '../../utils/iaAgentReporter';
 
 const IAAgentStatusPage = () => {
+  const { user, loading: authLoading } = useAuth();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(null);
@@ -49,38 +52,56 @@ const IAAgentStatusPage = () => {
   const [authChecking, setAuthChecking] = useState(true);
 
   useEffect(() => {
-    checkAdminAuth();
-  }, []);
+    if (!authLoading && user) {
+      checkAdminAuth();
+    } else if (!authLoading && !user) {
+      setAuthChecking(false);
+    }
+  }, [user, authLoading]);
 
   useEffect(() => {
     if (isAdmin) {
       generateReport();
-      const interval = setInterval(generateReport, 60000); // Actualizar cada minuto
+      const interval = setInterval(generateReport, 60000);
       return () => clearInterval(interval);
     }
   }, [isAdmin]);
 
   const checkAdminAuth = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
         setAuthChecking(false);
         return;
       }
 
-      // Verificar rol admin en tabla de usuarios
-      const { data: userProfile } = await supabase
-        .from('usuarios')
-        .select('rol, permisos')
-        .eq('id', user.id)
-        .single();
+      // Verificar múltiples criterios de administrador
+      const adminChecks = [
+        user.is_superuser,
+        user.permissions?.includes('admin.view'),
+        user.permissions?.includes('system_admin'),
+        user.email === 'pascalbarata@gmail.com',
+        user.email?.includes('admin')
+      ];
 
-      const isUserAdmin = userProfile?.rol === 'admin' || 
-                         userProfile?.permisos?.includes('system_admin') ||
-                         user.email?.includes('admin') || 
-                         user.email === 'pascalbarata@gmail.com'; // Admin principal
+      // Verificar también en la base de datos
+      try {
+        const { data: userProfile } = await supabase
+          .from('usuarios')
+          .select('rol, permisos')
+          .eq('email', user.email)
+          .single();
 
+        if (userProfile) {
+          adminChecks.push(
+            userProfile.rol === 'admin',
+            Array.isArray(userProfile.permisos) && userProfile.permisos.includes('system_admin')
+          );
+        }
+      } catch (dbError) {
+        console.warn('No se pudo verificar en DB, usando solo contexto auth');
+      }
+
+      const isUserAdmin = adminChecks.some(check => check === true);
       setIsAdmin(isUserAdmin);
       setAuthChecking(false);
     } catch (error) {
@@ -131,67 +152,63 @@ const IAAgentStatusPage = () => {
   // Pantalla de verificación de autenticación
   if (authChecking) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Box sx={{ textAlign: 'center' }}>
-          <LinearProgress sx={{ mb: 2 }} />
-          <Typography>Verificando permisos de administrador...</Typography>
-        </Box>
-      </Container>
+      <Box sx={{ p: 2, textAlign: 'center' }}>
+        <LinearProgress sx={{ mb: 2 }} />
+        <Typography>Verificando permisos de administrador...</Typography>
+      </Box>
     );
   }
 
   // Pantalla de acceso denegado
   if (!isAdmin) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ p: 2 }}>
         <Alert severity="error">
-          <Typography variant="h6">🚫 Acceso Restringido</Typography>
+          <Typography variant="h6">🚫 Solo Administradores</Typography>
           <Typography>
-            Esta página es exclusiva para administradores del sistema.
-            Solo usuarios con rol 'admin' pueden acceder al monitoreo del IA Agent.
+            Este módulo requiere permisos de administrador para acceder al monitoreo del IA Agent.
           </Typography>
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            Si eres administrador y no puedes acceder, contacta al administrador principal.
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            Contacta al administrador principal si necesitas acceso.
           </Typography>
         </Alert>
-      </Container>
+      </Box>
     );
   }
 
   // Pantalla de carga de reporte
   if (loading && !report) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Box sx={{ textAlign: 'center' }}>
-          <LinearProgress sx={{ mb: 2 }} />
-          <Typography>Generando informe del IA Agent...</Typography>
-        </Box>
-      </Container>
+      <Box sx={{ p: 2, textAlign: 'center' }}>
+        <LinearProgress sx={{ mb: 2 }} />
+        <Typography>Generando informe del IA Agent...</Typography>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant="h3" gutterBottom sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-          <AIIcon sx={{ fontSize: 48 }} color="primary" />
-          IA Agent - Estado en Vivo
+    <Box sx={{ p: 2 }}>
+      {/* Header compacto para AdminPanel */}
+      <Box sx={{ mb: 3, textAlign: 'center' }}>
+        <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+          <AdminIcon sx={{ fontSize: 32 }} color="primary" />
+          🤖 IA Agent - Monitoreo ADMIN
         </Typography>
-        <Typography variant="subtitle1" color="text.secondary">
-          Supervisión 24/7 Sistema LPDP - Ley 21.719
+        <Typography variant="body2" color="text.secondary">
+          Supervisión 24/7 Sistema LPDP | Solo Administradores
         </Typography>
         <Typography variant="caption" display="block" sx={{ mt: 1 }}>
           Última actualización: {lastUpdate ? new Date(lastUpdate).toLocaleString('es-CL') : 'Cargando...'}
         </Typography>
         <Button 
-          variant="outlined" 
+          variant="contained" 
+          size="small"
           startIcon={<RefreshIcon />} 
           onClick={generateReport}
-          sx={{ mt: 2 }}
+          sx={{ mt: 1 }}
           disabled={loading}
         >
-          Actualizar Ahora
+          Actualizar
         </Button>
       </Box>
 
@@ -597,17 +614,15 @@ const IAAgentStatusPage = () => {
       )}
 
       {/* Footer con instrucciones ADMIN */}
-      <Alert severity="warning" sx={{ mt: 4 }}>
+      <Alert severity="warning" sx={{ mt: 3 }}>
         <Typography variant="body2">
-          <strong>🔒 PANEL DE ADMINISTRACIÓN:</strong> Esta información es confidencial y solo debe 
-          ser accesible por administradores del sistema con permisos apropiados.
+          <strong>🔒 SOLO ADMINISTRADORES:</strong> Información confidencial del IA Agent del sistema.
         </Typography>
         <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-          El IA Agent supervisa 24/7 el cumplimiento de la Ley 21.719 y ejecuta correcciones automáticas 
-          sin interrumpir el flujo de los usuarios finales.
+          El IA Agent supervisa 24/7 la Ley 21.719 con auto-corrección sin bloquear flujos de usuario.
         </Typography>
       </Alert>
-    </Container>
+    </Box>
   );
 };
 

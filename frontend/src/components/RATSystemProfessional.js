@@ -545,12 +545,12 @@ const RATSystemProfessional = () => {
           fechaCreacion: new Date().toISOString(),
           version: '2.0',
           cumplimientoLey21719: true,
-          requiereEIPD: ratData.categorias.sensibles.length > 0,
-          requiereDPIA: ratData.categorias.sensibles.length > 2,
-          requiereConsultaAgencia: ratData.categorias.sensibles.includes('datos_salud'),
+          requiereEIPD: Array.isArray(ratData.categorias?.sensibles) && ratData.categorias.sensibles.length > 0,
+          requiereDPIA: Array.isArray(ratData.categorias?.sensibles) && ratData.categorias.sensibles.length > 2,
+          requiereConsultaAgencia: Array.isArray(ratData.categorias?.sensibles) && ratData.categorias.sensibles.includes('datos_salud'),
         },
         estado: 'CREATION',
-        nivel_riesgo: ratData.categorias.sensibles.length > 0 ? 'ALTO' : 'MEDIO',
+        nivel_riesgo: (Array.isArray(ratData.categorias?.sensibles) && ratData.categorias.sensibles.length > 0) ? 'ALTO' : 'MEDIO',
       };
       
       console.log(viewMode === 'edit' ? '📝 Actualizando RAT:' : '📦 Guardando RAT con estructura completa:', ratCompleto);

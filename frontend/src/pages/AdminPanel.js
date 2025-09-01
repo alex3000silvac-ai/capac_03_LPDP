@@ -93,6 +93,7 @@ import {
   CloudDownload,
   History,
   PolicyIcon,
+  SmartToy,
 } from '@mui/icons-material';
 import { 
   adminService, 
@@ -100,6 +101,7 @@ import {
   usuarioService,
   reporteService 
 } from '../services/api';
+import IAAgentStatusPage from '../components/admin/IAAgentStatusPage';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -1031,6 +1033,7 @@ const AdminPanel = () => {
           <Tab label="Dashboard" icon={<Assessment />} iconPosition="start" />
           <Tab label="Organizaciones" icon={<Business />} iconPosition="start" />
           <Tab label="Usuarios" icon={<People />} iconPosition="start" />
+          <Tab label="IA Agent" icon={<SmartToy />} iconPosition="start" />
           <Tab label="Configuración" icon={<Settings />} iconPosition="start" />
         </Tabs>
       </Paper>
@@ -1045,7 +1048,8 @@ const AdminPanel = () => {
           {activeTab === 0 && <Dashboard />}
           {activeTab === 1 && <OrganizacionesTab />}
           {activeTab === 2 && <UsuariosTab />}
-          {activeTab === 3 && <ConfiguracionTab />}
+          {activeTab === 3 && <IAAgentStatusPage />}
+          {activeTab === 4 && <ConfiguracionTab />}
         </>
       )}
 

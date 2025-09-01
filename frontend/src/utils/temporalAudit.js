@@ -237,8 +237,21 @@ class TemporalAudit {
     const sensitiveTypes = ['salud', 'biometrico', 'socioeconomica', 'racial', 'politica', 'religiosa'];
     
     try {
-      const oldList = JSON.parse(oldCategorias || '[]');
-      const newList = JSON.parse(newCategorias || '[]');
+      let oldList, newList;
+      
+      try {
+        oldList = JSON.parse(oldCategorias || '[]');
+      } catch (parseError) {
+        console.warn('Error parsing oldCategorias, usando array vacío');
+        oldList = [];
+      }
+      
+      try {
+        newList = JSON.parse(newCategorias || '[]');
+      } catch (parseError) {
+        console.warn('Error parsing newCategorias, usando array vacío');
+        newList = [];
+      }
       
       const oldSensitive = oldList.filter(cat => 
         sensitiveTypes.some(type => cat.toLowerCase().includes(type))
