@@ -12,6 +12,8 @@ import {
   MenuItem,
   Avatar,
   Divider,
+  Fab,
+  Tooltip,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -19,6 +21,12 @@ import {
   Gavel as GavelIcon,
   Dashboard as DashboardIcon,
   Assessment as AssessmentIcon,
+  Home as HomeIcon,
+  School as SchoolIcon,
+  AdminPanelSettings as AdminIcon,
+  Business as BusinessIcon,
+  ArrowBack as BackIcon,
+  ArrowForward as ForwardIcon,
 } from '@mui/icons-material';
 
 function LayoutSimple({ children }) {
@@ -47,6 +55,11 @@ function LayoutSimple({ children }) {
 
   const menuOptions = [
     { 
+      label: 'INICIO', 
+      path: '/sistema-principal',
+      icon: <HomeIcon />
+    },
+    { 
       label: 'SISTEMA RAT', 
       path: '/rat-system',
       icon: <AssessmentIcon />
@@ -57,9 +70,24 @@ function LayoutSimple({ children }) {
       icon: <DashboardIcon />
     },
     { 
+      label: 'CAPACITACIÓN', 
+      path: '/modulo-cero',
+      icon: <SchoolIcon />
+    },
+    { 
+      label: 'PROVEEDORES', 
+      path: '/gestion-proveedores',
+      icon: <BusinessIcon />
+    },
+    { 
       label: 'GUÍA LEGAL', 
       path: '/glosario',
       icon: <GavelIcon />
+    },
+    { 
+      label: 'ADMIN', 
+      path: '/admin',
+      icon: <AdminIcon />
     },
   ];
 
@@ -178,12 +206,107 @@ function LayoutSimple({ children }) {
           px: 3,
           py: 3,
           bgcolor: '#111827',
+          position: 'relative',
         }}
       >
         {children}
+        
+        {/* Botones de navegación flotantes */}
+        <NavigationButtons currentPath={location.pathname} navigate={navigate} />
       </Box>
     </Box>
   );
 }
+
+// Componente de botones de navegación flotantes
+const NavigationButtons = ({ currentPath, navigate }) => {
+  const routes = [
+    { path: '/sistema-principal', label: 'Inicio', icon: <HomeIcon /> },
+    { path: '/modulo-cero', label: 'Módulo 0', icon: <SchoolIcon /> },
+    { path: '/rat-system', label: 'RAT System', icon: <AssessmentIcon /> },
+    { path: '/dashboard-dpo', label: 'DPO Panel', icon: <DashboardIcon /> },
+    { path: '/gestion-proveedores', label: 'Proveedores', icon: <BusinessIcon /> },
+    { path: '/admin', label: 'Admin', icon: <AdminIcon /> },
+  ];
+
+  const currentIndex = routes.findIndex(route => route.path === currentPath);
+  const prevRoute = currentIndex > 0 ? routes[currentIndex - 1] : null;
+  const nextRoute = currentIndex < routes.length - 1 ? routes[currentIndex + 1] : null;
+
+  if (currentPath === '/login' || currentPath.includes('/select-')) {
+    return null; // No mostrar en páginas de login/setup
+  }
+
+  return (
+    <Box
+      sx={{
+        position: 'fixed',
+        bottom: 20,
+        right: 20,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1,
+        zIndex: 1000,
+      }}
+    >
+      {/* Botón Anterior */}
+      {prevRoute && (
+        <Tooltip title={`← ${prevRoute.label}`} placement="left">
+          <Fab
+            size="medium"
+            onClick={() => navigate(prevRoute.path)}
+            sx={{
+              bgcolor: '#374151',
+              color: '#f9fafb',
+              '&:hover': {
+                bgcolor: '#4b5563',
+              },
+            }}
+          >
+            <BackIcon />
+          </Fab>
+        </Tooltip>
+      )}
+
+      {/* Botón Siguiente */}
+      {nextRoute && (
+        <Tooltip title={`${nextRoute.label} →`} placement="left">
+          <Fab
+            size="medium"
+            onClick={() => navigate(nextRoute.path)}
+            sx={{
+              bgcolor: '#1e40af',
+              color: '#f9fafb',
+              '&:hover': {
+                bgcolor: '#1d4ed8',
+              },
+            }}
+          >
+            <ForwardIcon />
+          </Fab>
+        </Tooltip>
+      )}
+
+      {/* Botón Inicio siempre disponible */}
+      {currentPath !== '/sistema-principal' && (
+        <Tooltip title="🏠 Inicio" placement="left">
+          <Fab
+            size="small"
+            onClick={() => navigate('/sistema-principal')}
+            sx={{
+              bgcolor: '#059669',
+              color: '#f9fafb',
+              '&:hover': {
+                bgcolor: '#047857',
+              },
+            }}
+          >
+            <HomeIcon />
+          </Fab>
+        </Tooltip>
+      )}
+    </Box>
+  );
+};
 
 export default LayoutSimple;

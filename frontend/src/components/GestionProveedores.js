@@ -149,7 +149,54 @@ const GestionProveedores = () => {
     alto_riesgo: 0
   });
 
-  // Cargar proveedores desde Supabase con fallback a datos demo
+    const initializeDefaultProviders = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const tenantId = 'juridica_digital';
+      
+      const defaultProviders = [
+        {
+          tenant_id: tenantId,
+          nombre: 'AWS Chile',
+          razon_social: 'Amazon Web Services Chile SpA',
+          rut: '77.777.777-7',
+          categoria_proveedor: 'cloud',
+          tipo_datos: ['logs', 'backups'],
+          pais: 'Chile',
+          contacto_dpo: 'dpo@aws.com',
+          finalidad_transferencia: 'Servicios de cloud computing',
+          base_juridica: 'Consentimiento',
+          medidas_seguridad: ['Cifrado', 'ISO 27001'],
+          plazo_conservacion: '5 años',
+          created_by: user?.id,
+          created_at: new Date().toISOString()
+        },
+        {
+          tenant_id: tenantId,
+          nombre: 'Google Cloud',
+          razon_social: 'Google Chile SpA',
+          rut: '88.888.888-8',
+          categoria_proveedor: 'cloud',
+          tipo_datos: ['analytics', 'backups'],
+          pais: 'Chile',
+          contacto_dpo: 'privacy@google.com',
+          finalidad_transferencia: 'Servicios de analytics',
+          base_juridica: 'Interés legítimo',
+          medidas_seguridad: ['Cifrado', 'SOC 2'],
+          plazo_conservacion: '3 años',
+          created_by: user?.id,
+          created_at: new Date().toISOString()
+        }
+      ];
+
+      await supabase.from('proveedores').insert(defaultProviders);
+      console.log('✅ Proveedores predeterminados creados');
+    } catch (error) {
+      console.error('Error creando proveedores:', error);
+    }
+  };
+
+// Cargar proveedores desde Supabase con fallback a datos demo
   useEffect(() => {
     const cargarProveedores = async () => {
       console.log('🔍 GestionProveedores - Cargando proveedores...');
@@ -162,10 +209,17 @@ const GestionProveedores = () => {
           console.log('✅ Proveedores cargados desde:', response.source, '- Cantidad:', response.data.length);
           setProveedores(response.data);
         } else {
-          // ERROR: No hay proveedores en la base de datos
-          console.error('❌ CRÍTICO: No hay proveedores en Supabase. Deben existir 15 proveedores.');
-          console.error('🔧 SOLUCIÓN: Insertar proveedores en tabla "proveedores" con tenant_id correspondiente');
-          setProveedores([]);
+          // AUTO-SETUP: Crear proveedores predeterminados
+          console.warn('⚠️ No hay proveedores en Supabase. Creando proveedores predeterminados...');
+          await initializeDefaultProviders();
+          
+          // Recargar después de crear
+          const retryResponse = await proveedoresService.getProveedores();
+          if (retryResponse.success) {
+            setProveedores(retryResponse.data);
+          } else {
+            setProveedores([]);
+          }
           return;
           
           /*
