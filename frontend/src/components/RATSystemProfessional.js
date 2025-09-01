@@ -1312,7 +1312,7 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         📊 DATOS FINANCIEROS Y COMERCIALES - Art. 2 f) Ley 21.719
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Información económica y comercial que permite identificar patrones de conducta
+        Información económica y comercial - Principio de proporcionalidad Art. 5° Ley 21.719
       </Typography>
       <FormGroup row>
         <FormControlLabel
@@ -1321,7 +1321,7 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="historial_crediticio" />}
-          label="Historial crediticio"
+          label="Historial crediticio - Art. 2 f)"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="transacciones_bancarias" />}
@@ -1333,15 +1333,27 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="scoring_financiero" />}
-          label="Scoring financiero"
+          label="Scoring financiero → Trigger DPIA Art. 20"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="morosidad" />}
+          label="Información de morosidad"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="patrimonio" />}
+          label="Datos patrimoniales"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="seguros" />}
+          label="Pólizas de seguros"
         />
       </FormGroup>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-        💼 DATOS LABORALES - Art. 2 f) Ley 21.719
+        💼 DATOS LABORALES - Art. 2 f) y Art. 154 bis Código del Trabajo
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Información derivada de la relación laboral o profesional
+        Conservación: 5 años desde término relación laboral - Art. 11 Ley 21.719
       </Typography>
       <FormGroup row>
         <FormControlLabel
@@ -1354,7 +1366,7 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="evaluaciones_desempeno" />}
-          label="Evaluaciones de desempeño"
+          label="Evaluaciones desempeño → Posible DPIA Art. 20"
         />
         <FormControlLabel
           control={<Checkbox onChange={handleIdentificacion} value="historial_laboral" />}
@@ -1364,10 +1376,25 @@ const PasoCategorias = ({ ratData, setRatData }) => {
           control={<Checkbox onChange={handleIdentificacion} value="referencias_laborales" />}
           label="Referencias laborales"
         />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="amonestaciones" />}
+          label="Amonestaciones o sanciones"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="licencias_medicas" />}
+          label="Licencias médicas → Dato sensible Art. 2 g) vi)"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="prevision_social" />}
+          label="Datos previsión social (AFP, ISAPRE)"
+        />
       </FormGroup>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
         🎓 DATOS ACADÉMICOS Y FORMATIVOS - Art. 2 f) Ley 21.719
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Principio de calidad: Datos exactos y actualizados - Art. 6° Ley 21.719
       </Typography>
       <FormGroup row>
         <FormControlLabel
@@ -1386,6 +1413,68 @@ const PasoCategorias = ({ ratData, setRatData }) => {
           control={<Checkbox onChange={handleIdentificacion} value="capacitaciones" />}
           label="Capacitaciones"
         />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="calificaciones" />}
+          label="Calificaciones y notas"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="idiomas" />}
+          label="Competencias idiomáticas"
+        />
+      </FormGroup>
+
+      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+        📡 DATOS DE COMUNICACIONES - Art. 2 f) y Art. 19 N°4 Constitución
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Secreto e inviolabilidad de comunicaciones - Requiere consentimiento expreso Art. 12
+      </Typography>
+      <FormGroup row>
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="registros_llamadas" />}
+          label="Registros de llamadas"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="mensajeria" />}
+          label="Mensajes (SMS, WhatsApp, email)"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="metadata_comunicaciones" />}
+          label="Metadata de comunicaciones"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="contenido_comunicaciones" />}
+          label="Contenido comunicaciones → EIPD Art. 19"
+        />
+      </FormGroup>
+
+      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+        🌐 DATOS DE NAVEGACIÓN Y COOKIES - Art. 2 f) Ley 21.719
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Transparencia obligatoria - Art. 9° y Art. 15 Ley 21.719
+      </Typography>
+      <FormGroup row>
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="cookies_analiticas" />}
+          label="Cookies analíticas"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="cookies_publicidad" />}
+          label="Cookies publicitarias"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="historial_navegacion" />}
+          label="Historial de navegación"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="comportamiento_online" />}
+          label="Comportamiento online → Posible DPIA Art. 20"
+        />
+        <FormControlLabel
+          control={<Checkbox onChange={handleIdentificacion} value="dispositivos_id" />}
+          label="Identificadores de dispositivos"
+        />
       </FormGroup>
 
       {ratData.categorias.sensibles.length > 0 && (
@@ -1394,27 +1483,32 @@ const PasoCategorias = ({ ratData, setRatData }) => {
             ✅ SISTEMA PUEDE CONTINUAR - EIPD SE ASIGNARÁ AUTOMÁTICAMENTE
           </Typography>
           <Typography variant="caption">
-            Fundamento: Art. 19 Ley 21.719 - "Evaluación de Impacto cuando el tratamiento pueda entrañar alto riesgo"
+            Fundamento: Art. 19 Ley 21.719 - "Evaluación de Impacto en Protección de Datos Personales"
           </Typography>
           <Typography variant="caption" display="block">
-            La EIPD se generará al completar RAT y se asignará al DPO para elaboración en 30 días
+            Plazo DPO: 30 días para completar EIPD - Art. 48 funciones del DPO
+          </Typography>
+          <Typography variant="caption" display="block" color="error">
+            Sanción por no realizar: 5.001 a 20.000 UTM - Art. 34 quáter Ley 21.719
           </Typography>
         </Alert>
       )}
 
       {(ratData.categorias.identificacion.includes('fotografia') || 
         ratData.categorias.identificacion.includes('grabacion_video') ||
-        ratData.categorias.identificacion.includes('imagen_no_autorizada') ||
         ratData.categorias.identificacion.includes('imagen_vigilancia')) && (
         <Alert severity="warning" sx={{ mt: 2 }}>
           <Typography variant="body2" fontWeight="bold">
-            ⚠️ IMÁGENES/VIDEOS DETECTADOS - Art. 4° y 5° Ley 21.719
+            ⚠️ IMÁGENES/VIDEOS DETECTADOS - Requiere medidas especiales
           </Typography>
           <Typography variant="caption">
-            Las imágenes son datos personales. Fotografías no autorizadas requieren consentimiento expreso.
+            Base legal: Art. 2 f) dato personal + Art. 12 consentimiento expreso Ley 21.719
           </Typography>
           <Typography variant="caption" display="block">
-            Grabaciones de vigilancia requieren información previa a los titulares.
+            Videovigilancia: Art. 19 EIPD obligatoria para observación sistemática zonas públicas
+          </Typography>
+          <Typography variant="caption" display="block">
+            Obligación: Señalización visible + Política de retención Art. 11 Ley 21.719
           </Typography>
         </Alert>
       )}
@@ -1422,10 +1516,51 @@ const PasoCategorias = ({ ratData, setRatData }) => {
       {ratData.categorias.identificacion.includes('geolocalizacion') && (
         <Alert severity="error" sx={{ mt: 2 }}>
           <Typography variant="body2" fontWeight="bold">
-            🚨 GEOLOCALIZACIÓN - Requiere DPIA automática
+            🚨 GEOLOCALIZACIÓN DETECTADA - Múltiples obligaciones legales
           </Typography>
           <Typography variant="caption">
-            Art. 19 Ley 21.719: Seguimiento sistemático requiere Evaluación de Impacto obligatoria
+            1. EIPD obligatoria: Art. 19 Ley 21.719 - Observación sistemática
+          </Typography>
+          <Typography variant="caption" display="block">
+            2. Si es permanente: Dato sensible Art. 2 g) x) - Protección reforzada
+          </Typography>
+          <Typography variant="caption" display="block">
+            3. Consentimiento granular requerido - Art. 12 Ley 21.719
+          </Typography>
+          <Typography variant="caption" display="block" color="error">
+            4. Sanción: Hasta 20.000 UTM por tratamiento ilegal - Art. 34 quáter
+          </Typography>
+        </Alert>
+      )}
+
+      {(ratData.categorias.identificacion.includes('scoring_financiero') ||
+        ratData.categorias.identificacion.includes('comportamiento_online')) && (
+        <Alert severity="info" sx={{ mt: 2 }}>
+          <Typography variant="body2" fontWeight="bold">
+            🤖 ALGORITMOS/SCORING DETECTADO - DPIA automática
+          </Typography>
+          <Typography variant="caption">
+            Art. 20 Ley 21.719: Evaluación previa de algoritmos obligatoria
+          </Typography>
+          <Typography variant="caption" display="block">
+            Art. 28: Derecho a no ser objeto de decisiones automatizadas
+          </Typography>
+          <Typography variant="caption" display="block">
+            Obligación: Documentar lógica aplicada y permitir intervención humana
+          </Typography>
+        </Alert>
+      )}
+
+      {ratData.categorias.identificacion.includes('licencias_medicas') && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          <Typography variant="body2" fontWeight="bold">
+            🏥 DATOS DE SALUD EN CONTEXTO LABORAL
+          </Typography>
+          <Typography variant="caption">
+            Doble protección: Art. 2 g) vi) dato sensible + Art. 154 bis Código Trabajo
+          </Typography>
+          <Typography variant="caption" display="block">
+            EIPD obligatoria + Medidas seguridad reforzadas Art. 14 Ley 21.719
           </Typography>
         </Alert>
       )}
