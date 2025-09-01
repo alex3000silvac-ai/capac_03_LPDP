@@ -48,7 +48,7 @@ import {
   Save as SaveIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
-import { API_BASE_URL } from '../../config';
+import { supabase } from '../../config/supabaseClient';
 
 function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -106,8 +106,8 @@ function UserManagement() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const tenantId = localStorage.getItem('tenantId');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No autenticado');
       
       // Primero obtener el conteo total
       const countResponse = await fetch(
@@ -152,8 +152,8 @@ function UserManagement() {
 
   const loadRoles = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const tenantId = localStorage.getItem('tenantId');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No autenticado');
       
       const response = await fetch(
         `${API_BASE_URL}/api/v1/users/roles/`,
@@ -204,8 +204,8 @@ function UserManagement() {
         return;
       }
 
-      const token = localStorage.getItem('token');
-      const tenantId = localStorage.getItem('tenantId');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No autenticado');
       
       const userData = {
         username: newUser.username.trim(),
@@ -264,8 +264,8 @@ function UserManagement() {
         return;
       }
 
-      const token = localStorage.getItem('token');
-      const tenantId = localStorage.getItem('tenantId');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No autenticado');
       
       const userData = {
         email: editUser.email.trim(),
@@ -309,8 +309,8 @@ function UserManagement() {
 
   const handleResetPassword = async (user) => {
     try {
-      const token = localStorage.getItem('token');
-      const tenantId = localStorage.getItem('tenantId');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No autenticado');
       
       const response = await fetch(
         `${API_BASE_URL}/api/v1/users/${user.id}/reset-password`,
@@ -346,8 +346,8 @@ function UserManagement() {
 
   const handleDeleteUser = async (user) => {
     try {
-      const token = localStorage.getItem('token');
-      const tenantId = localStorage.getItem('tenantId');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No autenticado');
       
       const response = await fetch(
         `${API_BASE_URL}/api/v1/users/${user.id}`,

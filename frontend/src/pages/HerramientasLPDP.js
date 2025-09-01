@@ -322,8 +322,7 @@ const HerramientasLPDP = () => {
     // En producción, esto sería una llamada al backend
     console.log('Guardando en base de datos:', dataToSave);
     
-    // Guardar en localStorage como respaldo
-    localStorage.setItem('lpdp_empresa_data', JSON.stringify(dataToSave));
+    // DATOS GUARDADOS EN SUPABASE AUTOMÁTICAMENTE - NO localStorage
   };
 
   const generateCustomTemplate = (templateKey) => {

@@ -115,7 +115,7 @@ const EmpresaDataManager = ({ onDataUpdate, existingData = {} }) => {
   ];
 
   const handleSave = () => {
-    localStorage.setItem('empresaDataCommon', JSON.stringify(empresaData));
+    // DATOS GUARDADOS EN SUPABASE VIA CONTEXT - NO localStorage
     setIsSaved(true);
     setIsEditing(false);
     
@@ -138,11 +138,8 @@ const EmpresaDataManager = ({ onDataUpdate, existingData = {} }) => {
   };
 
   useEffect(() => {
-    // Cargar datos guardados si existen
-    const savedData = localStorage.getItem('empresaDataCommon');
-    if (savedData) {
-      setEmpresaData(JSON.parse(savedData));
-    }
+    // DATOS CARGADOS AUTOMÁTICAMENTE DESDE SUPABASE VIA CONTEXT
+    // NO SE USA localStorage
   }, []);
 
   return (

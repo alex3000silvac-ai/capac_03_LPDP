@@ -157,31 +157,8 @@ const ConsolidadoRAT = () => {
           console.log('📊 ConsolidadoRAT - Usando Supabase:', data.length, 'RATs');
         }
       } catch (supabaseError) {
-        console.log('⚠️ Supabase error, fallback a localStorage');
-      }
-
-      // 2. FALLBACK: Cargar de localStorage solo si Supabase vacío
-      if (!useSupabase) {
-        try {
-          const localKeys = Object.keys(localStorage).filter(key => 
-            key.startsWith(`rat_${tenantId}_`) || key.startsWith('rat_demo_')
-          );
-          
-          const localRATs = localKeys.map(key => {
-            const ratData = JSON.parse(localStorage.getItem(key));
-            return {
-              ...ratData,
-              id: ratData.id || key,
-              source: 'localStorage',
-              created_at: ratData.fecha_creacion || ratData.created_at
-            };
-          });
-
-          allRATs = localRATs;
-          console.log('📊 ConsolidadoRAT - Usando localStorage:', localRATs.length, 'RATs');
-        } catch (localError) {
-          console.log('❌ Error localStorage:', localError);
-        }
+        console.log('⚠️ Supabase error, retornando array vacío');
+        allRATs = [];
       }
 
       setRats(allRATs);

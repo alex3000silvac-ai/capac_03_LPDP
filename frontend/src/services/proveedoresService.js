@@ -4,39 +4,50 @@
 import supabase from '../config/supabaseClient';
 
 class ProveedoresService {
-  // Obtener tenant actual del usuario con lógica inteligente
-  getCurrentTenant() {
-    // Primero intentar obtener de TenantContext
-    const currentTenant = localStorage.getItem('lpdp_current_tenant');
-    if (currentTenant) {
-      try {
-        const tenant = JSON.parse(currentTenant);
-        // Si el tenant contiene 'juridica', normalizar a juridica_digital
-        if (tenant.id && tenant.id.includes('juridica')) {
-          return 'juridica_digital';
-        }
-        return tenant.id;
-      } catch (e) {
-        console.error('Error parsing tenant:', e);
+  // Obtener tenant actual del usuario desde Supabase
+  async getCurrentTenant() {
+    try {
+      // Obtener usuario actual de Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 'default';
+      
+      // Obtener tenant desde user_sessions
+      const { data, error } = await supabase
+        .from('user_sessions')
+        .select('tenant_id, tenant_data')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (data?.tenant_id) {
+        return data.tenant_id;
       }
+      
+      // Si no hay sesión, obtener primera organización del usuario
+      const { data: org } = await supabase
+        .from('organizaciones')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .single();
+      
+      return org?.id || 'default';
+    } catch (error) {
+      console.error('Error obteniendo tenant:', error);
+      return 'default';
     }
-    
-    // Si no hay tenant, usar juridica_digital por defecto
-    return 'juridica_digital';
   }
 
   // Obtener cliente Supabase con RLS para tenant
-  getSupabaseClient() {
-    const tenantId = this.getCurrentTenant();
+  async getSupabaseClient() {
+    const tenantId = await this.getCurrentTenant();
     // RLS automático filtrará por tenant_id
-    return supabase;
+    return { client: supabase, tenantId };
   }
 
   // CREAR PROVEEDOR
   async createProveedor(proveedorData) {
     try {
-      const tenantId = this.getCurrentTenant();
-      const client = this.getSupabaseClient();
+      const { client, tenantId } = await this.getSupabaseClient();
       
       const nuevoProveedor = {
         ...proveedorData,
@@ -54,13 +65,8 @@ class ProveedoresService {
 
       if (error) {
         console.error('❌ Error Supabase:', error);
-        // Fallback a localStorage
-        this.saveToLocalStorage(nuevoProveedor);
-        return { success: true, data: nuevoProveedor, source: 'localStorage' };
+        return { success: false, error: error.message };
       }
-
-      // 2. Backup en localStorage
-      this.saveToLocalStorage(data);
 
       console.log('✅ Proveedor creado:', data.id, 'Tenant:', tenantId);
       return { success: true, data, source: 'supabase' };
@@ -74,8 +80,7 @@ class ProveedoresService {
   // OBTENER TODOS LOS PROVEEDORES CON AUTO-DETECCIÓN DE TENANT
   async getProveedores() {
     try {
-      const tenantId = this.getCurrentTenant();
-      const client = this.getSupabaseClient();
+      const { client, tenantId } = await this.getSupabaseClient();
       
       console.log('🔍 Buscando proveedores para tenant:', tenantId);
 
@@ -136,10 +141,9 @@ class ProveedoresService {
         return { success: true, data, source: 'supabase' };
       }
 
-      // Fallback a localStorage
-      console.log('⚠️ Sin datos en Supabase, usando localStorage como fallback');
-      const localProveedores = this.getFromLocalStorage();
-      return { success: true, data: localProveedores, source: 'localStorage' };
+      // Si no hay datos, retornar array vacío
+      console.log('⚠️ Sin datos en Supabase');
+      return { success: true, data: [], source: 'supabase' };
 
     } catch (error) {
       console.error('❌ Error obteniendo proveedores:', error);
@@ -150,8 +154,7 @@ class ProveedoresService {
   // ACTUALIZAR PROVEEDOR
   async updateProveedor(proveedorId, updates) {
     try {
-      const tenantId = this.getCurrentTenant();
-      const client = this.getSupabaseClient();
+      const { client, tenantId } = await this.getSupabaseClient();
       
       const datosActualizados = {
         ...updates,
@@ -169,13 +172,8 @@ class ProveedoresService {
 
       if (error) {
         console.error('❌ Error actualizando en Supabase:', error);
-        // Fallback a localStorage
-        this.updateInLocalStorage(proveedorId, datosActualizados);
-        return { success: true, data: datosActualizados, source: 'localStorage' };
+        return { success: false, error: error.message };
       }
-
-      // 2. Actualizar localStorage
-      this.saveToLocalStorage(data);
 
       console.log('✅ Proveedor actualizado:', proveedorId);
       return { success: true, data, source: 'supabase' };
@@ -189,8 +187,7 @@ class ProveedoresService {
   // ELIMINAR PROVEEDOR
   async deleteProveedor(proveedorId) {
     try {
-      const tenantId = this.getCurrentTenant();
-      const client = this.getSupabaseClient();
+      const { client, tenantId } = await this.getSupabaseClient();
 
       // 1. Eliminar de Supabase
       const { error } = await client
@@ -201,10 +198,8 @@ class ProveedoresService {
 
       if (error) {
         console.error('❌ Error eliminando de Supabase:', error);
+        return { success: false, error: error.message };
       }
-
-      // 2. Eliminar de localStorage
-      this.deleteFromLocalStorage(proveedorId);
 
       console.log('✅ Proveedor eliminado:', proveedorId);
       return { success: true };
@@ -218,8 +213,7 @@ class ProveedoresService {
   // CREAR DPA (Data Processing Agreement)
   async createDPA(proveedorId, dpaData) {
     try {
-      const tenantId = this.getCurrentTenant();
-      const client = this.getSupabaseClient();
+      const { client, tenantId } = await this.getSupabaseClient();
       
       const nuevoDPA = {
         proveedor_id: proveedorId,
@@ -238,8 +232,7 @@ class ProveedoresService {
 
       if (dpaError) {
         console.error('❌ Error creando DPA:', dpaError);
-        this.saveDPAToLocalStorage(nuevoDPA);
-        return { success: true, data: nuevoDPA, source: 'localStorage' };
+        return { success: false, error: dpaError.message };
       }
 
       // 2. Actualizar proveedor con info del DPA
@@ -266,8 +259,7 @@ class ProveedoresService {
   // CREAR EVALUACIÓN DE SEGURIDAD
   async createEvaluacionSeguridad(proveedorId, evaluacionData) {
     try {
-      const tenantId = this.getCurrentTenant();
-      const client = this.getSupabaseClient();
+      const { client, tenantId } = await this.getSupabaseClient();
       
       const nuevaEvaluacion = {
         proveedor_id: proveedorId,
@@ -285,8 +277,7 @@ class ProveedoresService {
 
       if (error) {
         console.error('❌ Error creando evaluación:', error);
-        this.saveEvaluacionToLocalStorage(nuevaEvaluacion);
-        return { success: true, data: nuevaEvaluacion, source: 'localStorage' };
+        return { success: false, error: error.message };
       }
 
       // 2. Actualizar proveedor con resultado de evaluación
@@ -312,8 +303,7 @@ class ProveedoresService {
   // ASOCIAR PROVEEDOR A RAT
   async asociarProveedorRAT(proveedorId, ratId) {
     try {
-      const tenantId = this.getCurrentTenant();
-      const client = this.getSupabaseClient();
+      const { client, tenantId } = await this.getSupabaseClient();
       
       const asociacion = {
         proveedor_id: proveedorId,
@@ -331,8 +321,7 @@ class ProveedoresService {
 
       if (error) {
         console.error('❌ Error asociando proveedor a RAT:', error);
-        this.saveAsociacionToLocalStorage(asociacion);
-        return { success: true, data: asociacion, source: 'localStorage' };
+        return { success: false, error: error.message };
       }
 
       console.log('✅ Proveedor asociado a RAT:', proveedorId, '→', ratId);
@@ -420,64 +409,7 @@ class ProveedoresService {
     }
   }
 
-  // HELPERS LOCALSTORAGE
-  saveToLocalStorage(proveedor) {
-    const tenantId = this.getCurrentTenant();
-    const key = `proveedor_${tenantId}_${proveedor.id}`;
-    localStorage.setItem(key, JSON.stringify(proveedor));
-  }
-
-  getFromLocalStorage() {
-    const tenantId = this.getCurrentTenant();
-    const prefix = `proveedor_${tenantId}_`;
-    const proveedores = [];
-    
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith(prefix)) {
-        try {
-          const proveedor = JSON.parse(localStorage.getItem(key));
-          proveedores.push(proveedor);
-        } catch (e) {
-          console.error('Error parsing localStorage item:', key);
-        }
-      }
-    }
-    
-    return proveedores;
-  }
-
-  updateInLocalStorage(proveedorId, updates) {
-    const tenantId = this.getCurrentTenant();
-    const key = `proveedor_${tenantId}_${proveedorId}`;
-    const existing = JSON.parse(localStorage.getItem(key) || '{}');
-    const updated = { ...existing, ...updates };
-    localStorage.setItem(key, JSON.stringify(updated));
-  }
-
-  deleteFromLocalStorage(proveedorId) {
-    const tenantId = this.getCurrentTenant();
-    const key = `proveedor_${tenantId}_${proveedorId}`;
-    localStorage.removeItem(key);
-  }
-
-  saveDPAToLocalStorage(dpa) {
-    const tenantId = this.getCurrentTenant();
-    const key = `dpa_${tenantId}_${dpa.proveedor_id}_${Date.now()}`;
-    localStorage.setItem(key, JSON.stringify(dpa));
-  }
-
-  saveEvaluacionToLocalStorage(evaluacion) {
-    const tenantId = this.getCurrentTenant();
-    const key = `evaluacion_${tenantId}_${evaluacion.proveedor_id}_${Date.now()}`;
-    localStorage.setItem(key, JSON.stringify(evaluacion));
-  }
-
-  saveAsociacionToLocalStorage(asociacion) {
-    const tenantId = this.getCurrentTenant();
-    const key = `rat_proveedor_${tenantId}_${asociacion.rat_id}_${asociacion.proveedor_id}`;
-    localStorage.setItem(key, JSON.stringify(asociacion));
-  }
+  // MÉTODOS LOCALSTORAGE ELIMINADOS - SOLO USAMOS SUPABASE
 
   calcularNivelRiesgo(puntuacion) {
     if (puntuacion >= 71) return 'bajo';
@@ -488,7 +420,7 @@ class ProveedoresService {
   // ESTADÍSTICAS MULTI-TENANT
   async getEstadisticasTenant() {
     try {
-      const tenantId = this.getCurrentTenant();
+      const { tenantId } = await this.getSupabaseClient();
       const { data: proveedores } = await this.getProveedores();
       
       const stats = {
