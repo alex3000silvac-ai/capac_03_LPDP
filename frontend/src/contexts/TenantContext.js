@@ -76,10 +76,8 @@ export const TenantProvider = ({ children }) => {
       return null;
     }
     
-    // SEGURIDAD: Generar ID único con timestamp para evitar colisiones
-    const uniqueId = `org_${user.id}_${Date.now()}`;
+    // NO incluir ID - dejar que Supabase lo genere automáticamente (SERIAL)
     const defaultOrg = {
-      id: uniqueId,
       company_name: `Organización de ${user.email}`,
       display_name: `Organización de ${user.email}`,
       industry: 'General',
@@ -101,14 +99,15 @@ export const TenantProvider = ({ children }) => {
         
       if (error) {
         console.error('🚀 Error creando organización por defecto:', error);
-        return defaultOrg; // Devolver sin ID de Supabase
+        // Si hay error, devolver objeto temporal para uso local
+        return { ...defaultOrg, id: `temp_${Date.now()}` };
       }
       
       console.log('🚀 Organización por defecto creada:', data);
       return data;
     } catch (error) {
       console.error('🚀 Error creando organización por defecto:', error);
-      return defaultOrg;
+      return { ...defaultOrg, id: `temp_${Date.now()}` };
     }
   };
 
