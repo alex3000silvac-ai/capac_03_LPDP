@@ -1,4 +1,5 @@
 import axios from 'axios';
+import SecureStorage from '../utils/secureStorage';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
 
@@ -13,12 +14,12 @@ const api = axios.create({
 // Interceptor para agregar token de autenticación
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = SecureStorage.getSecureToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     // Agregar tenant_id si existe
-    const tenantId = localStorage.getItem('tenant_id');
+    const tenantId = SecureStorage.getItem('tenant_id');
     if (tenantId) {
       config.headers['X-Tenant-ID'] = tenantId;
     }
@@ -35,8 +36,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expirado o inválido
-      localStorage.removeItem('token');
-      localStorage.removeItem('tenant_id');
+      SecureStorage.removeSecureToken();
+      SecureStorage.removeItem('tenant_id');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -55,10 +56,10 @@ export const authService = {
     });
     
     if (response.data.access_token) {
-      localStorage.setItem('token', response.data.access_token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      SecureStorage.setSecureToken(response.data.access_token);
+      SecureStorage.setItem('user', response.data.user);
       if (response.data.tenant_id) {
-        localStorage.setItem('tenant_id', response.data.tenant_id);
+        SecureStorage.setItem('tenant_id', response.data.tenant_id);
       }
     }
     
@@ -66,14 +67,13 @@ export const authService = {
   },
   
   logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('tenant_id');
+    SecureStorage.removeSecureToken();
+    SecureStorage.removeItem('user');
+    SecureStorage.removeItem('tenant_id');
   },
   
   getCurrentUser: () => {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    return SecureStorage.getItem('user');
   },
   
   register: async (userData) => {

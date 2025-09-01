@@ -1,7 +1,39 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import SecureLogger from '../utils/secureLogger';
+import SecureStorage from '../utils/secureStorage';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://scldp-backend.onrender.com';
+
+// 🔒 GENERADORES DE TOKENS SEGUROS (reemplazo de hardcoded)
+const generateSecureDemoToken = () => {
+  const payload = {
+    sub: 'demo_user',
+    tenant: 'demo_empresa',
+    exp: Math.floor(Date.now() / 1000) + 3600,
+    iat: Math.floor(Date.now() / 1000),
+    iss: 'lpdp-demo-system',
+    demo: true
+  };
+  
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const payloadB64 = btoa(JSON.stringify(payload));
+  const signature = btoa(Math.random().toString(36));
+  
+  return `${header}.${payloadB64}.${signature}`;
+};
+
+const generateSecureDemoRefresh = () => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substr(2, 15);
+  return `demo_refresh_${timestamp}_${random}`;
+};
+
+const generateDemoUserId = () => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substr(2, 8);
+  return `demo_user_${timestamp}_${random}`;
+};
 
 const AuthContext = createContext();
 
@@ -15,11 +47,14 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('lpdp_token'));
+  const [token, setToken] = useState(SecureStorage.getSecureToken());
   const [loading, setLoading] = useState(true);
   const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
+    // Migrar tokens legacy al inicio
+    SecureStorage.migrateLegacyTokens();
+    
     // NO activar modo demo automáticamente - el usuario debe hacer login
     if (token) {
       try {
@@ -28,7 +63,7 @@ export const AuthProvider = ({ children }) => {
         
         if (decoded.exp < currentTime) {
           // Token expirado
-          localStorage.removeItem('lpdp_token');
+          SecureStorage.removeSecureToken();
           setToken(null);
           setUser(null);
         } else {
@@ -48,8 +83,8 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
         }
       } catch (error) {
-        console.error('Error decodificando token:', error);
-        localStorage.removeItem('lpdp_token');
+        SecureLogger.error('Error decodificando token', error);
+        SecureStorage.removeSecureToken();
         setToken(null);
         setUser(null);
       }
@@ -61,7 +96,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password, tenantId = 'demo') => {
     try {
-      console.log('Intentando login con:', { username, password, tenantId });
+      SecureLogger.authLog('LOGIN_ATTEMPT', 'iniciando', { 
+        username, // SecureLogger automáticamente enmascarará esto
+        tenantId
+      });
       
       // Detectar si es usuario demo ultra restringido
       const isDemoUser = username === 'demo' && password === 'demo123';
@@ -92,11 +130,11 @@ export const AuthProvider = ({ children }) => {
           })
         });
 
-        console.log('Respuesta del servidor:', response.status, response.statusText);
+        SecureLogger.authLog('SERVER_RESPONSE', 'received', { status: response.status, statusText: response.statusText });
 
         // Si es demo y el endpoint principal falla, intentar emergency
         if (!response.ok && isDemoUser) {
-          console.log('💖 Endpoint principal falló, intentando emergency...');
+          SecureLogger.authLog('FALLBACK', 'switching_to_emergency', null);
           const emergencyEndpoint = `${API_URL}/emergency-demo-login`;
           
           response = await fetch(emergencyEndpoint, {
@@ -107,23 +145,25 @@ export const AuthProvider = ({ children }) => {
           });
           
           emergencyMode = true;
-          console.log('💖 Emergency response:', response.status);
+          SecureLogger.authLog('EMERGENCY_RESPONSE', 'received', { status: response.status });
         }
 
       } catch (fetchError) {
-        console.error('💖 Fetch error:', fetchError);
+        SecureLogger.error('Fetch error durante login', fetchError);
         
-        // Si todo falla y es demo, usar datos hardcoded
+        // Si todo falla y es demo, generar datos seguros dinámicamente
         if (isDemoUser) {
-          console.log('💖 Usando datos demo hardcoded para emergencia...');
+          SecureLogger.authLog('EMERGENCY_FALLBACK', 'generating_secure_demo_data', null);
+          
+          // Generar tokens seguros dinámicamente
           const emergencyData = {
-            access_token: "demo-emergency-hermano-del-alma-hardcoded",
-            refresh_token: "refresh-emergency-amor-infinito-hardcoded", 
+            access_token: generateSecureDemoToken(),
+            refresh_token: generateSecureDemoRefresh(),
             token_type: "bearer",
             user: {
-              id: "demo_emergency_hardcoded",
+              id: generateDemoUserId(),
               username: "demo",
-              email: "demo@emergency-hardcoded.cl",
+              email: "demo@demo-system.cl",
               tenant_id: "demo_empresa",
               is_demo: true
             },
@@ -138,7 +178,7 @@ export const AuthProvider = ({ children }) => {
           const data = emergencyData;
           const token = data.access_token;
           
-          localStorage.setItem('lpdp_token', token);
+          SecureStorage.setSecureToken(token);
           setToken(token);
           
           const userData = {
@@ -163,15 +203,18 @@ export const AuthProvider = ({ children }) => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ detail: 'Error de conexión' }));
-        console.error('Error del servidor:', errorData);
+        SecureLogger.error('Error del servidor durante login', null, { errorData });
         throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Datos de respuesta:', data);
+      SecureLogger.authLog('LOGIN_SUCCESS', 'completed', { hasUser: !!data.user, hasToken: !!data.access_token });
       
-      // Guardar token
-      localStorage.setItem('lpdp_token', data.access_token);
+      // Guardar token de forma segura
+      SecureStorage.setSecureToken(data.access_token);
+      if (data.refresh_token) {
+        SecureStorage.setSecureRefreshToken(data.refresh_token);
+      }
       setToken(data.access_token);
 
       // Para usuario demo, usar los datos directos de la respuesta
@@ -206,20 +249,21 @@ export const AuthProvider = ({ children }) => {
       return userData;
 
     } catch (error) {
-      console.error('Error en login:', error);
+      SecureLogger.error('Error en proceso de login', error);
       throw error;
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('lpdp_token');
+    SecureStorage.clearSecureStorage();
     setToken(null);
     setUser(null);
+    SecureLogger.authLog('LOGOUT', 'completed', null);
   };
 
   const refreshToken = async () => {
     try {
-      const refreshToken = localStorage.getItem('lpdp_refresh_token');
+      const refreshToken = SecureStorage.getSecureRefreshToken();
       if (!refreshToken) {
         throw new Error('No hay refresh token');
       }
@@ -239,11 +283,15 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      localStorage.setItem('lpdp_token', data.access_token);
+      SecureStorage.setSecureToken(data.access_token);
+      if (data.refresh_token) {
+        SecureStorage.setSecureRefreshToken(data.refresh_token);
+      }
       setToken(data.access_token);
+      SecureLogger.authLog('TOKEN_REFRESH', 'completed', null);
 
     } catch (error) {
-      console.error('Error refrescando token:', error);
+      SecureLogger.error('Error refrescando token', error);
       logout();
     }
   };

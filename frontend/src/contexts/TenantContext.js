@@ -121,17 +121,15 @@ export const TenantProvider = ({ children }) => {
         const tenants = await loadAvailableTenants();
         
         if (tenants && tenants.length > 0) {
-          // Cargar tenant guardado o seleccionar el primero
-          const savedTenantData = localStorage.getItem('lpdp_current_tenant');
-          
+          // Cargar tenant guardado desde Supabase o seleccionar el primero
           let selectedTenant;
-          if (savedTenantData) {
-            try {
-              const savedTenant = JSON.parse(savedTenantData);
-              selectedTenant = tenants.find(t => t.id === savedTenant.id);
-            } catch (error) {
-              console.log('🚀 Error parseando tenant guardado');
+          try {
+            const savedTenant = await ratService.getCurrentTenant(user.id);
+            if (savedTenant) {
+              selectedTenant = tenants.find(t => t.id === savedTenant.id) || savedTenant;
             }
+          } catch (error) {
+            console.log('🚀 Error obteniendo tenant guardado desde Supabase');
           }
           
           if (!selectedTenant) {
@@ -139,11 +137,9 @@ export const TenantProvider = ({ children }) => {
           }
           
           setCurrentTenant(selectedTenant);
-          localStorage.setItem('tenant_id', selectedTenant.id);
-          localStorage.setItem('lpdp_current_tenant', JSON.stringify(selectedTenant));
           
-          // CRÍTICO: Notificar al ratService del tenant actual
-          ratService.setCurrentTenant(selectedTenant);
+          // CRÍTICO: Persistir en Supabase únicamente
+          await ratService.setCurrentTenant(selectedTenant, user.id);
           
           console.log('🚀 Tenant seleccionado automáticamente:', selectedTenant.company_name);
         }
@@ -153,27 +149,24 @@ export const TenantProvider = ({ children }) => {
     initializeTenants();
   }, [isAuthenticated, user]);
 
-  // Intentar restaurar tenant al inicializar
+  // Intentar restaurar tenant desde Supabase al inicializar
   useEffect(() => {
-    const restoreSavedTenant = () => {
-      const savedTenant = localStorage.getItem('lpdp_current_tenant');
-      
-      if (savedTenant && !isAuthenticated) {
+    const restoreSavedTenant = async () => {
+      if (!isAuthenticated && user?.id) {
         try {
-          const tenant = JSON.parse(savedTenant);
-          setCurrentTenant(tenant);
-          ratService.setCurrentTenant(tenant);
-          console.log('🚀 Tenant restaurado desde localStorage:', tenant.company_name);
+          const savedTenant = await ratService.getCurrentTenant(user.id);
+          if (savedTenant) {
+            setCurrentTenant(savedTenant);
+            console.log('🚀 Tenant restaurado desde Supabase:', savedTenant.company_name);
+          }
         } catch (error) {
-          console.log('🚀 Error parseando tenant guardado');
-          localStorage.removeItem('lpdp_current_tenant');
-          localStorage.removeItem('tenant_id');
+          console.log('🚀 Error obteniendo tenant guardado desde Supabase');
         }
       }
     };
     
     restoreSavedTenant();
-  }, []);
+  }, [user]);
 
   // loadAvailableTenants ya está definido arriba
 
@@ -181,13 +174,11 @@ export const TenantProvider = ({ children }) => {
     console.log('🚀 Seleccionando tenant online:', tenant.company_name);
     
     setCurrentTenant(tenant);
-    localStorage.setItem('tenant_id', tenant.id);
-    localStorage.setItem('lpdp_current_tenant', JSON.stringify(tenant));
     
-    // Notificar al ratService
-    ratService.setCurrentTenant(tenant);
+    // Persistir en Supabase únicamente
+    const result = await ratService.setCurrentTenant(tenant, user?.id);
     
-    return true;
+    return result.success;
   };
 
   const createTenant = async (tenantData) => {
@@ -252,10 +243,10 @@ export const TenantProvider = ({ children }) => {
       );
       setAvailableTenants(updatedTenants);
       
-      // Si es el tenant actual, actualizarlo
+      // Si es el tenant actual, actualizarlo en Supabase
       if (currentTenant?.id === tenantId) {
         setCurrentTenant(data);
-        localStorage.setItem('lpdp_current_tenant', JSON.stringify(data));
+        await ratService.setCurrentTenant(data, user?.id);
       }
       
       console.log('🚀 Organización actualizada exitosamente:', data);
@@ -289,16 +280,14 @@ export const TenantProvider = ({ children }) => {
         if (filteredTenants.length > 0) {
           const newTenant = filteredTenants[0];
           setCurrentTenant(newTenant);
-          localStorage.setItem('tenant_id', newTenant.id);
-          localStorage.setItem('lpdp_current_tenant', JSON.stringify(newTenant));
+          await ratService.setCurrentTenant(newTenant, user?.id);
         } else {
           // Si no quedan tenants, crear uno por defecto
           const defaultOrg = await createDefaultOrganization();
           if (defaultOrg) {
             setCurrentTenant(defaultOrg);
             setAvailableTenants([defaultOrg]);
-            localStorage.setItem('tenant_id', defaultOrg.id);
-            localStorage.setItem('lpdp_current_tenant', JSON.stringify(defaultOrg));
+            await ratService.setCurrentTenant(defaultOrg, user?.id);
           }
         }
       }
@@ -312,11 +301,21 @@ export const TenantProvider = ({ children }) => {
     }
   };
 
-  const clearTenant = () => {
+  const clearTenant = async () => {
     console.log('🚀 Limpiando tenant online');
     setCurrentTenant(null);
-    localStorage.removeItem('tenant_id');
-    localStorage.removeItem('lpdp_current_tenant');
+    
+    // Limpiar sesión en Supabase
+    if (user?.id) {
+      try {
+        await supabase
+          .from('user_sessions')
+          .update({ is_active: false })
+          .eq('user_id', user.id);
+      } catch (error) {
+        console.error('Error limpiando sesión:', error);
+      }
+    }
   };
 
   const value = {

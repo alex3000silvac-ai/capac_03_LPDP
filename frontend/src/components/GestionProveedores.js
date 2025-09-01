@@ -164,7 +164,7 @@ const GestionProveedores = () => {
         } else {
           // ERROR: No hay proveedores en la base de datos
           console.error('❌ CRÍTICO: No hay proveedores en Supabase. Deben existir 15 proveedores.');
-          console.error('🔧 SOLUCIÓN: Insertar proveedores en tabla "proveedores" con tenant_id="juridica_digital"');
+          console.error('🔧 SOLUCIÓN: Insertar proveedores en tabla "proveedores" con tenant_id correspondiente');
           setProveedores([]);
           return;
           

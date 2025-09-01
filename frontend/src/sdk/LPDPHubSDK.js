@@ -7,7 +7,7 @@
 class LPDPHubSDK {
   constructor(config = {}) {
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl || 'https://api.lpdphub.cl';
+    this.baseUrl = config.baseUrl || process.env.REACT_APP_LPDP_HUB_URL || 'https://api.lpdphub.cl';
     this.version = config.version || 'v1';
     this.timeout = config.timeout || 30000;
     this.retryAttempts = config.retryAttempts || 3;

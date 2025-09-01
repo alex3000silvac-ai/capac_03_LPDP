@@ -140,10 +140,7 @@ export const AuthProvider = ({ children }) => {
       console.error('🚀 Error logout:', error);
     }
     
-    // Limpiar completamente localStorage para pruebas de seguridad
-    localStorage.removeItem('supabase.auth.token');
-    localStorage.removeItem('tenant_id');
-    localStorage.clear(); // Para pruebas integrales
+    // Limpiar sesión en Supabase únicamente
     
     setToken(null);
     setUser(null);
@@ -153,10 +150,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshToken = async () => {
-    console.log('🚀 RefreshToken Supabase');
+    console.log('🚀 Renovando sesión');
     const { data, error } = await supabase.auth.refreshSession();
     if (error) {
-      console.error('🚀 Error refresh token:', error);
+      console.error('🚀 Error al renovar sesión');
       logout();
     } else {
       setToken(data.session?.access_token);

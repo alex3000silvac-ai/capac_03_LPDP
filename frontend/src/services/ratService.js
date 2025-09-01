@@ -1,16 +1,7 @@
-/**
- * Servicio para gestión de RATs
- * VERSIÓN PRODUCCIÓN: Integración completa con Supabase
- */
-
-// Importar cliente Supabase para operaciones de base de datos
 import { supabase } from '../config/supabaseClient';
-const getStorageKey = (baseKey, tenantId = 'default') => `${baseKey}_${tenantId}`;
-const RAT_STORAGE_KEY = 'lpdp_rats_completed';
-const RAT_PROCESSES_KEY = 'lpdp_rat_processes';
-const INDUSTRY_CONFIG_KEY = 'lpdp_industry_configs';
+import temporalAudit from '../utils/temporalAudit';
+import aiSupervisor from '../utils/aiSupervisor';
 
-// Función para validar RAT según Ley 21.719 - MOVIDA AL INICIO
 const validateRAT = (ratData) => {
   const requiredFields = [
     ratData.responsable?.nombre,
@@ -27,47 +18,53 @@ const validateRAT = (ratData) => {
   return requiredFields.every(field => field);
 };
 
-// Función para obtener tenant_id actual desde el contexto
-const getCurrentTenantId = () => {
-  // En producción esto vendría del contexto React
-  // Para desarrollo, intentamos obtenerlo del localStorage o usar default
+const getCurrentTenantId = async (userId = null) => {
   try {
-    const tenantData = localStorage.getItem('current_tenant');
-    if (tenantData) {
-      const tenant = JSON.parse(tenantData);
-      return tenant.id || 'default';
+    if (!userId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      userId = user?.id;
     }
+
+    if (userId) {
+      const { data: session, error } = await supabase
+        .from('user_sessions')
+        .select('tenant_id')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .single();
+
+      if (!error && session) {
+        return session.tenant_id;
+      }
+    }
+
+    const { data: defaultTenant, error } = await supabase
+      .from('tenants')
+      .select('id')
+      .limit(1)
+      .single();
+
+    return defaultTenant?.id || 'default';
   } catch (error) {
-    console.warn('No se pudo obtener tenant actual, usando default');
+    console.error('Error obteniendo tenant ID desde Supabase');
+    return 'default';
   }
-  return 'default';
 };
 
 export const ratService = {
   
-  // Guardar RAT completado en Supabase (PRODUCCIÓN)
   saveCompletedRAT: async (ratData, industryName = 'General', processKey = null, tenantId = null) => {
     try {
-      console.log('🚀 Guardando RAT en Supabase (PRODUCCIÓN):', ratData);
-      
-      // Intentar obtener usuario actual, usar datos por defecto si no está autenticado
-      let user = null;
-      try {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        user = authUser;
-      } catch (authError) {
-        console.warn('⚠️ No hay usuario autenticado, usando datos por defecto:', authError);
-      }
-      
-      // Usar datos por defecto si no hay usuario
+      const { data: { user } } = await supabase.auth.getUser();
       const effectiveUser = user || {
         id: 'system-user-' + Date.now(),
-        email: 'sistema@juridica-digital.cl'
+        email: process.env.REACT_APP_SYSTEM_EMAIL || 'sistema@empresa.cl'
       };
 
-      // Preparar datos para Supabase según esquema mapeo_datos_rat
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUser.id);
+      
       const newRAT = {
-        tenant_id: getCurrentTenantId() || 'juridica_digital',
+        tenant_id: effectiveTenantId,
         user_id: effectiveUser.id,
         created_by: effectiveUser.email,
         nombre_actividad: `${industryName} - ${processKey || 'Proceso General'}`,
@@ -100,7 +97,6 @@ export const ratService = {
         }
       };
 
-      // Guardar en Supabase en la tabla correcta
       const { data, error } = await supabase
         .from('mapeo_datos_rat')
         .insert([newRAT])
@@ -108,144 +104,56 @@ export const ratService = {
         .single();
 
       if (error) {
-        console.error('❌ Error guardando RAT en Supabase:', error);
+        await supabase
+          .from('system_alerts')
+          .insert({
+            alert_type: 'rat_save_failure',
+            severity: 'critical',
+            title: 'Error guardando RAT',
+            description: `No se pudo guardar RAT: ${error.message}`,
+            metadata: {
+              rat_data_hash: btoa(JSON.stringify(ratData)).slice(0, 50),
+              error_code: error.code,
+              user_id: effectiveUser.id,
+              tenant_id: effectiveTenantId
+            },
+            created_at: new Date().toISOString()
+          });
         
-        // FALLBACK: Guardar en localStorage si falla Supabase
-        console.warn('🔄 Usando fallback localStorage por error en Supabase');
-        const localRAT = {
-          id: `rat_${Date.now()}`,
-          empresa: ratData.responsable?.nombre || 'Sin nombre',
-          industria: industryName,
-          proceso: processKey,
-          fechaCreacion: new Date().toISOString(),
-          fechaModificacion: new Date().toISOString(),
-          estado: 'Completado',
-          progreso: 100,
-          ...ratData,
-          metadata: {
-            version: '1.0',
-            cumpleLey21719: true,
-            camposObligatoriosCompletos: validateRAT(ratData),
-            usuario: effectiveUser.email || 'sistema',
-            error_supabase: error.message
-          }
-        };
-        
-        const effectiveTenantId = tenantId || getCurrentTenantId();
-        const rats = await ratService.getCompletedRATs(effectiveTenantId);
-        rats.push(localRAT);
-        localStorage.setItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId), JSON.stringify(rats));
-        
-        throw error; // Re-throw para notificar el error
+        throw error;
       }
 
-      console.log('✅ RAT guardado exitosamente en Supabase:', data);
-      
-      // GENERAR AUTOMÁTICAMENTE ACTIVIDADES DPO Y ENTREGABLES
+      await temporalAudit.initializeRAT(data, effectiveUser.id, effectiveTenantId);
+      await aiSupervisor.superviseRATCreation(data, effectiveUser.id, effectiveTenantId);
+
       try {
-        console.log('🔍 Iniciando evaluación de compliance para RAT:', data.id);
         const ratIntelligenceEngine = (await import('./ratIntelligenceEngine')).default;
         const evaluation = await ratIntelligenceEngine.evaluateRATActivity(ratData);
         
-        console.log('📊 Resultado de evaluación:', {
-          alertas: evaluation.compliance_alerts?.length || 0,
-          documentosRequeridos: evaluation.required_documents?.length || 0,
-          nivelRiesgo: evaluation.risk_level,
-          requiereConsultaPrevia: evaluation.requiere_consulta_previa
-        });
-        
-        // Crear actividades DPO si hay alertas
         if (evaluation.compliance_alerts && evaluation.compliance_alerts.length > 0) {
-          console.log('🚀 Creando actividades DPO automáticamente...');
-          const dpoResult = await ratIntelligenceEngine.createDPOActivities(
+          await ratIntelligenceEngine.createDPOActivities(
             evaluation.compliance_alerts, 
             data.id, 
-            getCurrentTenantId()
+            effectiveTenantId
           );
-          
-          if (dpoResult.success) {
-            console.log(`✅ ${dpoResult.count} actividades DPO creadas exitosamente`);
-          } else {
-            console.error('⚠️ Error creando actividades DPO:', dpoResult.error);
-            if (dpoResult.fallback === 'local') {
-              console.log('💾 Actividades guardadas localmente para sincronización posterior');
-            }
-          }
-        } else {
-          console.log('ℹ️ No se requieren actividades DPO para este RAT');
         }
-        
-        // Log de documentos requeridos
-        if (evaluation.required_documents?.length > 0) {
-          console.log('📄 Documentos requeridos para este RAT:');
-          evaluation.required_documents.forEach(doc => {
-            console.log(`  - ${doc.tipo}: ${doc.motivo} (${doc.urgencia}, ${doc.plazo_dias} días)`);
-          });
-        }
-        
       } catch (evalError) {
-        console.error('⚠️ Error generando actividades DPO:', evalError);
-        console.error('Stack trace:', evalError.stack);
+        console.error('Error generando actividades DPO:', evalError);
       }
-      
-      // TAMBIÉN guardar en localStorage como respaldo y para compatibilidad
-      const localRAT = {
-        id: data.id,
-        empresa: ratData.responsable?.nombre || 'Sin nombre',
-        industria: industryName,
-        proceso: processKey,
-        fechaCreacion: data.fecha_creacion,
-        fechaModificacion: data.fecha_actualizacion,
-        estado: 'Completado',
-        progreso: 100,
-        ...ratData,
-        metadata: {
-          version: '1.0',
-          cumpleLey21719: true,
-          camposObligatoriosCompletos: validateRAT(ratData),
-          usuario: effectiveUser.email,
-          supabase_id: data.id
-        }
-      };
-      
-      const effectiveTenantId = tenantId || getCurrentTenantId();
-      const rats = await ratService.getCompletedRATs(effectiveTenantId);
-      rats.push(localRAT);
-      localStorage.setItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId), JSON.stringify(rats));
 
       return data;
     } catch (error) {
-      console.error('❌ Error crítico en saveCompletedRAT:', error);
+      console.error('Error crítico en saveCompletedRAT:', error);
       throw error;
     }
   },
   
-  // Obtener todos los RATs completados desde Supabase (PRODUCCIÓN)
-  getCompletedRATs: async (tenantId = null, useLocalFallback = true) => {
+  getCompletedRATs: async (tenantId = null, userId = null) => {
     try {
-      console.log('🚀 Cargando RATs desde Supabase (PRODUCCIÓN)');
-      
-      // Intentar obtener usuario actual, pero continuar si no hay autenticación
-      let user = null;
-      try {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        user = authUser;
-      } catch (authError) {
-        console.warn('⚠️ Error autenticación (continuando sin usuario):', authError);
-      }
-      
-      // Usar datos por defecto si no hay usuario
-      const effectiveUser = user || {
-        id: 'system-user-' + Date.now(),
-        email: 'sistema@juridica-digital.cl'
-      };
-      
-      if (!user) {
-        console.warn('👤 Usuario no autenticado, usando usuario por defecto para consulta');
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUser = user || { id: 'system-user-' + Date.now() };
+      const currentTenantId = tenantId || await getCurrentTenantId(effectiveUser.id);
 
-      // Cargar RATs desde Supabase usando tenant_id
-      const currentTenantId = getCurrentTenantId() || 'juridica_digital';
       const { data, error } = await supabase
         .from('mapeo_datos_rat')
         .select('*')
@@ -253,612 +161,458 @@ export const ratService = {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ Error cargando RATs desde Supabase:', error);
+        await supabase
+          .from('system_alerts')
+          .insert({
+            alert_type: 'rat_load_failure',
+            severity: 'high',
+            title: 'Error cargando RATs',
+            description: `No se pudieron cargar RATs: ${error.message}`,
+            metadata: {
+              tenant_id: currentTenantId,
+              error_code: error.code,
+              user_id: effectiveUser.id
+            },
+            created_at: new Date().toISOString()
+          });
         
-        // FALLBACK: Usar datos locales si falla Supabase
-        if (useLocalFallback) {
-          console.warn('🔄 Usando fallback localStorage por error en Supabase');
-          const effectiveTenantId = tenantId || getCurrentTenantId();
-          const stored = localStorage.getItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId));
-          return stored ? JSON.parse(stored) : [];
-        }
         throw error;
       }
 
-      console.log(`✅ ${data.length} RATs cargados desde Supabase`);
-      
-      // Convertir formato Supabase a formato esperado por la UI
       const formattedRATs = data.map(rat => ({
         id: rat.id,
         empresa: rat.tenant_id,
-        industria: rat.metadatos ? JSON.parse(rat.metadatos).industria : rat.area,
-        proceso: rat.metadatos ? JSON.parse(rat.metadatos).proceso : 'General',
-        fechaCreacion: rat.fecha_creacion,
-        fechaModificacion: rat.fecha_actualizacion,
+        industria: rat.metadata?.industria || rat.area_responsable,
+        proceso: rat.metadata?.proceso || 'General',
+        fechaCreacion: rat.created_at,
+        fechaModificacion: rat.updated_at,
         estado: rat.estado,
         progreso: 100,
-        titulo: rat.titulo,
+        titulo: rat.nombre_actividad,
         descripcion: rat.descripcion,
-        area: rat.area,
-        responsable: rat.responsable_tratamiento ? JSON.parse(rat.responsable_tratamiento) : {},
-        finalidades: rat.finalidades ? JSON.parse(rat.finalidades) : {},
-        categorias: rat.categorias_datos ? JSON.parse(rat.categorias_datos) : {},
-        transferencias: rat.transferencias ? JSON.parse(rat.transferencias) : {},
-        conservacion: rat.retencion ? JSON.parse(rat.retencion) : {},
-        seguridad: rat.medidas_seguridad ? JSON.parse(rat.medidas_seguridad) : {},
+        area: rat.area_responsable,
+        responsable: {
+          nombre: rat.responsable_proceso,
+          email: rat.email_responsable,
+          telefono: rat.telefono_responsable
+        },
+        finalidades: {
+          descripcion: rat.finalidad_principal,
+          baseLegal: rat.base_legal
+        },
+        categorias: rat.categorias_datos || {},
+        transferencias: rat.transferencias_internacionales || {},
+        conservacion: { periodo: rat.plazo_conservacion },
+        seguridad: {
+          tecnicas: rat.medidas_seguridad_tecnicas || [],
+          organizativas: rat.medidas_seguridad_organizativas || []
+        },
         metadata: {
           version: '1.0',
           cumpleLey21719: true,
           supabase_id: rat.id,
-          usuario: effectiveUser.email,
-          ...(rat.metadatos ? JSON.parse(rat.metadatos) : {})
+          usuario: rat.created_by,
+          ...rat.metadata
         }
       }));
 
-      // TAMBIÉN mantener copia local como respaldo
-      const effectiveTenantId = tenantId || getCurrentTenantId();
-      localStorage.setItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId), JSON.stringify(formattedRATs));
-
       return formattedRATs;
     } catch (error) {
-      console.error('❌ Error crítico en getCompletedRATs:', error);
-      
-      // ÚLTIMO FALLBACK: Datos locales
-      if (useLocalFallback) {
-        console.warn('🔄 Último fallback: usando datos locales');
-        const effectiveTenantId = tenantId || getCurrentTenantId();
-        const stored = localStorage.getItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId));
-        return stored ? JSON.parse(stored) : [];
-      }
-      
+      console.error('Error crítico en getCompletedRATs:', error);
       throw error;
     }
   },
-  
-  // Actualizar RAT existente
-  updateRAT: async (ratId, updatedData, tenantId = null) => {
-    const effectiveTenantId = tenantId || getCurrentTenantId();
-    const rats = await ratService.getCompletedRATs(effectiveTenantId);
-    const index = rats.findIndex(rat => rat.id === ratId);
-    
-    if (index !== -1) {
-      rats[index] = {
-        ...rats[index],
-        ...updatedData,
-        fechaModificacion: new Date().toISOString()
-      };
-      
-      localStorage.setItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId), JSON.stringify(rats));
-      return rats[index];
-    }
-    
-    return null;
-  },
-  
-  // Eliminar RAT
-  deleteRAT: async (ratId, tenantId = null) => {
-    const effectiveTenantId = tenantId || getCurrentTenantId();
-    const rats = await ratService.getCompletedRATs(effectiveTenantId);
-    const filteredRATs = rats.filter(rat => rat.id !== ratId);
-    
-    localStorage.setItem(getStorageKey(RAT_STORAGE_KEY, effectiveTenantId), JSON.stringify(filteredRATs));
-    return true;
-  },
-  
-  // Validar si RAT está completo según Ley 21.719
-  validateRAT: (ratData) => {
-    const requiredFields = [
-      ratData.responsable?.nombre,
-      ratData.responsable?.email,
-      ratData.responsable?.telefono,
-      ratData.finalidades?.descripcion,
-      ratData.finalidades?.baseLegal,
-      ratData.categorias?.titulares?.length > 0,
-      ratData.fuente?.tipo,
-      ratData.conservacion?.periodo,
-      ratData.seguridad?.descripcionGeneral
-    ];
-    
-    return requiredFields.every(field => field);
-  },
-  
-  // Obtener estadísticas de RATs
-  getStatistics: async (tenantId = null) => {
-    const effectiveTenantId = tenantId || getCurrentTenantId();
-    const rats = await ratService.getCompletedRATs(effectiveTenantId);
-    
-    return {
-      total: rats.length,
-      completados: rats.filter(rat => rat.estado === 'Completado').length,
-      enProceso: rats.filter(rat => rat.estado === 'En Proceso').length,
-      porIndustria: rats.reduce((acc, rat) => {
-        acc[rat.industria] = (acc[rat.industria] || 0) + 1;
-        return acc;
-      }, {}),
-      ultimaActualizacion: rats.length > 0 ? 
-        Math.max(...rats.map(rat => new Date(rat.fechaModificacion).getTime())) :
-        Date.now(),
-      cumplimiento: {
-        completos: rats.filter(rat => rat.metadata?.camposObligatoriosCompletos).length,
-        incompletos: rats.filter(rat => !rat.metadata?.camposObligatoriosCompletos).length
-      }
-    };
-  },
-  
-  // Guardar proceso de industria como definitivo
-  saveProcessAsDefinitive: (industryKey, processKey, processData) => {
-    const processes = ratService.getSavedProcesses();
-    const id = `${industryKey}_${processKey}_${Date.now()}`;
-    
-    const definitiveProcess = {
-      id,
-      industryKey,
-      processKey,
-      nombre: processData.nombre,
-      estado: 'definitivo',
-      fechaGuardado: new Date().toISOString(),
-      data: processData
-    };
-    
-    processes.push(definitiveProcess);
-    localStorage.setItem(RAT_PROCESSES_KEY, JSON.stringify(processes));
-    
-    return definitiveProcess;
-  },
-  
-  // Obtener procesos guardados como definitivos
-  getSavedProcesses: () => {
+
+  updateRAT: async (ratId, updatedData, tenantId = null, userId = null) => {
     try {
-      const stored = localStorage.getItem(RAT_PROCESSES_KEY);
-      return stored ? JSON.parse(stored) : [];
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUserId = userId || user?.id;
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUserId);
+
+      const { data: oldRAT, error: fetchError } = await supabase
+        .from('mapeo_datos_rat')
+        .select('*')
+        .eq('id', ratId)
+        .eq('tenant_id', effectiveTenantId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const { data, error } = await supabase
+        .from('mapeo_datos_rat')
+        .update({
+          ...updatedData,
+          updated_at: new Date().toISOString(),
+          updated_by: effectiveUserId
+        })
+        .eq('id', ratId)
+        .eq('tenant_id', effectiveTenantId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      await temporalAudit.trackRATChange(ratId, oldRAT, data, effectiveUserId, effectiveTenantId);
+      await aiSupervisor.superviseRATCreation(data, effectiveUserId, effectiveTenantId);
+
+      return data;
     } catch (error) {
-      console.error('Error al cargar procesos guardados:', error);
+      console.error('Error actualizando RAT');
+      throw error;
+    }
+  },
+
+  deleteRAT: async (ratId, tenantId = null, userId = null) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUserId = userId || user?.id;
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUserId);
+
+      const { data: ratData, error: fetchError } = await supabase
+        .from('mapeo_datos_rat')
+        .select('*')
+        .eq('id', ratId)
+        .eq('tenant_id', effectiveTenantId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const { error } = await supabase
+        .from('mapeo_datos_rat')
+        .delete()
+        .eq('id', ratId)
+        .eq('tenant_id', effectiveTenantId);
+
+      if (error) throw error;
+
+      await temporalAudit.trackRATChange(ratId, ratData, null, effectiveUserId, effectiveTenantId, {
+        reason: 'rat_deleted',
+        operation: 'delete'
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error eliminando RAT');
+      throw error;
+    }
+  },
+
+  validateRAT,
+
+  saveProcessAsDefinitive: async (processData, tenantId = null, userId = null) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUserId = userId || user?.id;
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUserId);
+
+      const definitiveProcess = {
+        tenant_id: effectiveTenantId,
+        process_key: processData.clave || `process_${Date.now()}`,
+        process_name: processData.nombre,
+        industry: processData.industria,
+        description: processData.descripcion,
+        process_data: processData,
+        created_by: effectiveUserId,
+        created_at: new Date().toISOString(),
+        status: 'definitivo'
+      };
+
+      const { data, error } = await supabase
+        .from('rat_processes')
+        .insert(definitiveProcess)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error guardando proceso definitivo');
+      throw error;
+    }
+  },
+
+  getSavedProcesses: async (tenantId = null, userId = null) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUserId = userId || user?.id;
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUserId);
+
+      const { data, error } = await supabase
+        .from('rat_processes')
+        .select('*')
+        .eq('tenant_id', effectiveTenantId)
+        .eq('status', 'definitivo')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data.map(process => process.process_data);
+    } catch (error) {
+      console.error('Error cargando procesos guardados');
       return [];
     }
   },
-  
-  // Exportar todos los RATs
-  exportAllRATs: async () => {
-    const rats = await ratService.getCompletedRATs();
-    const stats = await ratService.getStatistics();
-    
-    const exportData = {
-      fecha: new Date().toISOString(),
-      empresa: 'Sistema LPDP',
-      totalRATs: rats.length,
-      estadisticas: stats,
-      rats: rats
-    };
-    
-    // Crear archivo JSON para descarga
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: 'application/json'
-    });
-    
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Consolidado_RATs_${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    return exportData;
+
+  getIndustryConfig: async (industryKey, tenantId = null, userId = null) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUserId = userId || user?.id;
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUserId);
+
+      const { data: config, error } = await supabase
+        .from('industry_configurations')
+        .select('*')
+        .eq('tenant_id', effectiveTenantId)
+        .eq('industry_name', industryKey)
+        .single();
+
+      if (error && error.code === 'PGRST116') {
+        const defaultConfig = {
+          tenant_id: effectiveTenantId,
+          industry_name: industryKey,
+          configuration: {
+            ratsCompletados: [],
+            configuracionGuardada: {},
+            workInProgress: {},
+            lastModified: new Date().toISOString()
+          },
+          created_by: effectiveUserId,
+          created_at: new Date().toISOString()
+        };
+
+        const { data: newConfig, error: insertError } = await supabase
+          .from('industry_configurations')
+          .insert(defaultConfig)
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        return newConfig.configuration;
+      }
+
+      if (error) throw error;
+      return config.configuration;
+    } catch (error) {
+      console.error('Error obteniendo configuración de industria');
+      return {
+        ratsCompletados: [],
+        configuracionGuardada: {},
+        workInProgress: {}
+      };
+    }
   },
 
-  // Verificar entregables de un RAT
-  verifyRATDeliverables: async (ratId) => {
+  updateIndustryConfig: async (industryKey, updates, tenantId = null, userId = null) => {
     try {
-      console.log('🔍 Verificando entregables del RAT:', ratId);
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUserId = userId || user?.id;
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUserId);
+
+      const currentConfig = await ratService.getIndustryConfig(industryKey, effectiveTenantId, effectiveUserId);
       
-      // 1. Obtener el RAT
-      const rats = await ratService.getCompletedRATs();
-      const rat = rats.find(r => r.id === ratId);
-      
-      if (!rat) {
-        console.error('❌ RAT no encontrado:', ratId);
-        return { success: false, error: 'RAT no encontrado' };
-      }
-      
-      // 2. Evaluar compliance
-      const ratIntelligenceEngine = (await import('./ratIntelligenceEngine')).default;
-      const evaluation = await ratIntelligenceEngine.evaluateRATActivity(rat);
-      
-      // 3. Verificar actividades DPO creadas
-      let actividadesDPO = [];
-      try {
-        const { data: activities } = await supabase
-          .from('actividades_dpo')
-          .select('*')
-          .eq('rat_id', ratId);
-        
-        actividadesDPO = activities || [];
-      } catch (error) {
-        console.error('Error obteniendo actividades DPO:', error);
-      }
-      
-      // 4. Verificar actividades locales pendientes
-      const localActivities = localStorage.getItem(`pending_dpo_activities_${ratId}`);
-      const pendingLocal = localActivities ? JSON.parse(localActivities) : [];
-      
-      // 5. Compilar resumen
-      const resumen = {
-        ratId,
-        ratNombre: rat.nombre_actividad || rat.titulo,
-        compliance: {
-          nivelRiesgo: evaluation.risk_level,
-          alertasCriticas: evaluation.compliance_alerts?.filter(a => a.tipo === 'critico').length || 0,
-          alertasUrgentes: evaluation.compliance_alerts?.filter(a => a.tipo === 'urgente').length || 0,
-          totalAlertas: evaluation.compliance_alerts?.length || 0
-        },
-        documentosRequeridos: {
-          total: evaluation.required_documents?.length || 0,
-          tipos: evaluation.required_documents?.map(d => d.tipo) || [],
-          detalles: evaluation.required_documents || []
-        },
-        actividadesDPO: {
-          creadas: actividadesDPO.length,
-          pendientesLocal: pendingLocal.length,
-          total: actividadesDPO.length + pendingLocal.length,
-          detalles: actividadesDPO
-        },
-        estado: {
-          completo: evaluation.compliance_alerts?.length === 0,
-          tieneEIPD: evaluation.required_documents?.some(d => d.tipo === 'EIPD'),
-          tieneDPIA: evaluation.required_documents?.some(d => d.tipo === 'DPIA'),
-          tieneDPA: evaluation.required_documents?.some(d => d.tipo === 'DPA'),
-          tieneConsultaPrevia: evaluation.requiere_consulta_previa
-        }
+      const updatedConfig = {
+        ...currentConfig,
+        ...updates,
+        lastModified: new Date().toISOString()
       };
-      
-      console.log('📊 Resumen de entregables del RAT:', resumen);
-      
-      return { success: true, data: resumen };
-      
+
+      const { data, error } = await supabase
+        .from('industry_configurations')
+        .upsert({
+          tenant_id: effectiveTenantId,
+          industry_name: industryKey,
+          configuration: updatedConfig,
+          updated_by: effectiveUserId,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'tenant_id,industry_name' })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data.configuration;
     } catch (error) {
-      console.error('❌ Error verificando entregables:', error);
+      console.error('Error actualizando configuración de industria');
+      throw error;
+    }
+  },
+
+  setCurrentTenant: async (tenant, userId) => {
+    try {
+      await supabase
+        .from('user_sessions')
+        .upsert({
+          user_id: userId,
+          tenant_id: tenant.id,
+          session_start: new Date().toISOString(),
+          last_activity: new Date().toISOString(),
+          is_active: true,
+          tenant_data: tenant
+        }, { onConflict: 'user_id' });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error estableciendo tenant actual');
       return { success: false, error: error.message };
     }
   },
 
-  // === GESTIÓN DE CONFIGURACIONES DE INDUSTRIA ===
-  
-  // Obtener configuración de una industria específica
-  getIndustryConfig: (industryKey, tenantId = null) => {
+  getCurrentTenant: async (userId) => {
     try {
-      const effectiveTenantId = tenantId || getCurrentTenantId();
-      const configs = localStorage.getItem(getStorageKey(INDUSTRY_CONFIG_KEY, effectiveTenantId));
-      const parsedConfigs = configs ? JSON.parse(configs) : {};
-      
-      if (!parsedConfigs[industryKey]) {
-        // Crear configuración por defecto si no existe
-        parsedConfigs[industryKey] = {
-          activeProcesses: {}, // todos activos por defecto
-          completedProcesses: {},
-          workInProgress: {},
-          lastModified: new Date().toISOString()
-        };
-        localStorage.setItem(getStorageKey(INDUSTRY_CONFIG_KEY, effectiveTenantId), JSON.stringify(parsedConfigs));
-      }
-      
-      return parsedConfigs[industryKey];
+      const { data: session, error } = await supabase
+        .from('user_sessions')
+        .select(`
+          tenant_id,
+          tenant_data,
+          tenants(*)
+        `)
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .single();
+
+      if (error) throw error;
+      return session.tenants || session.tenant_data;
     } catch (error) {
-      console.error('Error al cargar configuración de industria:', error);
-      return {
-        activeProcesses: {},
-        completedProcesses: {},
-        workInProgress: {},
-        lastModified: new Date().toISOString()
-      };
-    }
-  },
-  
-  // Actualizar configuración de industria
-  updateIndustryConfig: (industryKey, updates, tenantId = null) => {
-    try {
-      const effectiveTenantId = tenantId || getCurrentTenantId();
-      const configs = localStorage.getItem(getStorageKey(INDUSTRY_CONFIG_KEY, effectiveTenantId));
-      const parsedConfigs = configs ? JSON.parse(configs) : {};
-      
-      parsedConfigs[industryKey] = {
-        ...parsedConfigs[industryKey],
-        ...updates,
-        lastModified: new Date().toISOString()
-      };
-      
-      localStorage.setItem(getStorageKey(INDUSTRY_CONFIG_KEY, effectiveTenantId), JSON.stringify(parsedConfigs));
-      return parsedConfigs[industryKey];
-    } catch (error) {
-      console.error('Error al actualizar configuración de industria:', error);
+      console.error('Error obteniendo tenant actual');
       return null;
     }
   },
-  
-  // Marcar/desmarcar proceso como activo
-  toggleProcessActive: (industryKey, processKey, isActive, tenantId = null) => {
-    const config = ratService.getIndustryConfig(industryKey, tenantId);
-    config.activeProcesses[processKey] = isActive;
-    return ratService.updateIndustryConfig(industryKey, config, tenantId);
-  },
-  
-  // Marcar proceso como completado
-  markProcessCompleted: (industryKey, processKey, ratData = null, tenantId = null) => {
-    const config = ratService.getIndustryConfig(industryKey, tenantId);
-    config.completedProcesses[processKey] = {
-      completed: true,
-      completedAt: new Date().toISOString(),
-      data: ratData
-    };
-    return ratService.updateIndustryConfig(industryKey, config, tenantId);
-  },
-  
-  // Guardar trabajo en progreso
-  saveWorkInProgress: (industryKey, processKey, ratData, tenantId = null) => {
-    const config = ratService.getIndustryConfig(industryKey, tenantId);
-    config.workInProgress[processKey] = {
-      data: ratData,
-      savedAt: new Date().toISOString(),
-      step: ratData.currentStep || 0
-    };
-    return ratService.updateIndustryConfig(industryKey, config, tenantId);
-  },
-  
-  // Obtener estadísticas de progreso de industria
-  getIndustryProgress: (industryKey, totalProcesses) => {
-    const config = ratService.getIndustryConfig(industryKey);
-    
-    // Si no hay configuración de procesos activos, todos están activos por defecto
-    const hasActiveConfig = Object.keys(config.activeProcesses).length > 0;
-    const activeCount = hasActiveConfig ? 
-      Object.values(config.activeProcesses).filter(Boolean).length : 
-      totalProcesses;
-    
-    const totalActive = activeCount;
-    const completedCount = Object.values(config.completedProcesses).filter(c => c.completed).length;
-    const inProgressCount = Object.keys(config.workInProgress).length;
-    
-    // Solo contar completados que están entre los procesos activos
-    const activeCompletedCount = hasActiveConfig ? 
-      Object.entries(config.completedProcesses)
-        .filter(([key, data]) => {
-          // Un proceso se considera activo si:
-          // 1. Está explícitamente marcado como true
-          // 2. No existe en activeProcesses (por defecto activo)
-          const isActive = config.activeProcesses.hasOwnProperty(key) ? 
-            config.activeProcesses[key] === true : 
-            true;
-          return data.completed && isActive;
-        })
-        .length :
-      completedCount;
-    
-    return {
-      total: totalActive,
-      completed: activeCompletedCount,
-      inProgress: inProgressCount,
-      pending: Math.max(0, totalActive - activeCompletedCount),
-      percentage: totalActive > 0 ? Math.round((activeCompletedCount / totalActive) * 100) : 0,
-      activeProcesses: config.activeProcesses,
-      completedProcesses: config.completedProcesses,
-      workInProgress: config.workInProgress,
-      hasActiveConfig: hasActiveConfig,
-      totalProcessesAvailable: totalProcesses
-    };
-  },
-  
-  // Verificar si un proceso está activo
-  isProcessActive: (industryKey, processKey, tenantId = null) => {
-    const config = ratService.getIndustryConfig(industryKey, tenantId);
-    // Si no está configurado, por defecto está activo
-    // Si está configurado, debe ser explícitamente true
-    if (config.activeProcesses.hasOwnProperty(processKey)) {
-      return config.activeProcesses[processKey] === true;
+
+  logAuditEvent: async (auditEntry, tenantId = null, userId = null) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUserId = userId || user?.id;
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUserId);
+
+      await supabase
+        .from('audit_logs')
+        .insert({
+          tenant_id: effectiveTenantId,
+          user_id: effectiveUserId,
+          operation_type: auditEntry.accion,
+          table_name: auditEntry.tabla,
+          record_id: auditEntry.recordId,
+          old_values: auditEntry.valoresAnteriores,
+          new_values: auditEntry.valoresNuevos,
+          description: auditEntry.descripcion,
+          timestamp: new Date().toISOString(),
+          metadata: auditEntry
+        });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error guardando log de auditoría');
+      return { success: false, error: error.message };
     }
-    // Si no existe en la configuración, por defecto está activo
-    return true;
-  },
-  
-  // Verificar si un proceso está completado
-  isProcessCompleted: (industryKey, processKey, tenantId = null) => {
-    const config = ratService.getIndustryConfig(industryKey, tenantId);
-    return config.completedProcesses[processKey]?.completed || false;
-  },
-  
-  // Obtener trabajo en progreso
-  getWorkInProgress: (industryKey, processKey, tenantId = null) => {
-    const config = ratService.getIndustryConfig(industryKey, tenantId);
-    return config.workInProgress[processKey]?.data || null;
   },
 
-  // === FUNCIONES MULTI-TENANT ADICIONALES ===
-  
-  // Establecer tenant actual (llamar desde TenantContext)
-  setCurrentTenant: (tenant) => {
-    localStorage.setItem('current_tenant', JSON.stringify(tenant));
-  },
-  
-  // === GESTIÓN DE ESTADOS RAT (CREACIÓN → GESTIÓN → CERTIFICADO) ===
-  
-  // Estados posibles de un proceso RAT
-  RAT_STATES: {
-    CREATION: 'CREATION',     // 📝 Recién creado, borrable por usuario
-    MANAGEMENT: 'MANAGEMENT', // ⚙️ En gestión/trabajo, borrable por usuario  
-    CERTIFIED: 'CERTIFIED'    // 🏆 Certificado, solo DPO puede borrar
-  },
-  
-  // Obtener estado actual de un proceso RAT
-  getRATState: (industryKey, processKey, tenantId = null) => {
-    const config = ratService.getIndustryConfig(industryKey, tenantId);
-    
-    // Verificar si existe información del proceso
-    if (!config.processStates) {
-      config.processStates = {};
-    }
-    
-    // Por defecto, procesos nuevos están en CREATION
-    return config.processStates[processKey] || ratService.RAT_STATES.CREATION;
-  },
-  
-  // Cambiar estado de un proceso RAT
-  setRATState: (industryKey, processKey, newState, tenantId = null) => {
-    const config = ratService.getIndustryConfig(industryKey, tenantId);
-    
-    if (!config.processStates) {
-      config.processStates = {};
-    }
-    
-    const oldState = config.processStates[processKey] || ratService.RAT_STATES.CREATION;
-    config.processStates[processKey] = newState;
-    
-    // Log de auditoría
-    const auditEntry = {
-      action: 'RAT_STATE_CHANGED',
-      processKey,
-      oldState,
-      newState,
-      timestamp: new Date().toISOString(),
-      tenantId: tenantId || getCurrentTenantId()
-    };
-    
-    ratService.saveAuditLog(auditEntry, tenantId);
-    return ratService.updateIndustryConfig(industryKey, config, tenantId);
-  },
-  
-  // Verificar si proceso puede ser eliminado por usuario actual
-  canDeleteProcess: (industryKey, processKey, userRole = 'USER', tenantId = null) => {
-    const state = ratService.getRATState(industryKey, processKey, tenantId);
-    
-    // Estados CREATION y MANAGEMENT: borrable por usuario
-    if (state === ratService.RAT_STATES.CREATION || state === ratService.RAT_STATES.MANAGEMENT) {
-      return { canDelete: true, reason: 'Proceso en estado borrable' };
-    }
-    
-    // Estado CERTIFIED: solo DPO puede borrar
-    if (state === ratService.RAT_STATES.CERTIFIED) {
-      if (userRole === 'DPO') {
-        return { canDelete: true, reason: 'DPO autorizado para procesos certificados' };
-      } else {
-        return { canDelete: false, reason: 'Proceso certificado - Solo DPO puede eliminarlo' };
-      }
-    }
-    
-    return { canDelete: false, reason: 'Estado no reconocido' };
-  },
-  
-  // Desactivar proceso con validaciones de seguridad
-  deactivateProcess: (industryKey, processKey, reason = '', tenantId = null) => {
-    const isStandard = ratService.isStandardProcess(industryKey, processKey);
-    const isCertified = ratService.isProcessCertified(industryKey, processKey, tenantId);
-    
-    // Registrar acción de auditoría
-    const auditEntry = {
-      action: 'PROCESS_DEACTIVATED',
-      processKey,
-      processType: isStandard ? 'STANDARD' : 'CUSTOM',
-      wasCertified: isCertified,
-      reason,
-      timestamp: new Date().toISOString(),
-      tenantId: tenantId || getCurrentTenantId()
-    };
-    
-    // Guardar en log de auditoría
-    ratService.saveAuditLog(auditEntry, tenantId);
-    
-    // Desactivar el proceso
-    return ratService.toggleProcessActive(industryKey, processKey, false, tenantId);
-  },
-  
-  // Eliminar proceso personalizado (solo custom_, nunca estándar)
-  deleteCustomProcess: (industryKey, processKey, reason = '', tenantId = null) => {
-    if (ratService.isStandardProcess(industryKey, processKey)) {
-      throw new Error('No se pueden eliminar procesos estándar, solo desactivar');
-    }
-    
-    const isCertified = ratService.isProcessCertified(industryKey, processKey, tenantId);
-    if (isCertified) {
-      throw new Error('No se puede eliminar un proceso certificado. Solo se puede desactivar según Ley 21.719');
-    }
-    
-    // Registrar acción de auditoría
-    const auditEntry = {
-      action: 'CUSTOM_PROCESS_DELETED',
-      processKey,
-      processType: 'CUSTOM',
-      reason,
-      timestamp: new Date().toISOString(),
-      tenantId: tenantId || getCurrentTenantId()
-    };
-    
-    ratService.saveAuditLog(auditEntry, tenantId);
-    
-    // Aquí iría la lógica para eliminar del template
-    // NOTA: En el template actual esto requiere manipular INDUSTRY_TEMPLATES
-    
-    return true;
-  },
-  
-  // Guardar log de auditoría para trazabilidad
-  saveAuditLog: (auditEntry, tenantId = null) => {
-    const effectiveTenantId = tenantId || getCurrentTenantId();
-    const AUDIT_LOG_KEY = 'lpdp_audit_log';
-    
+  getAuditLogs: async (filters = {}, tenantId = null, userId = null) => {
     try {
-      const logs = JSON.parse(localStorage.getItem(getStorageKey(AUDIT_LOG_KEY, effectiveTenantId)) || '[]');
-      logs.push(auditEntry);
-      localStorage.setItem(getStorageKey(AUDIT_LOG_KEY, effectiveTenantId), JSON.stringify(logs));
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUserId = userId || user?.id;
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUserId);
+
+      let query = supabase
+        .from('audit_logs')
+        .select('*')
+        .eq('tenant_id', effectiveTenantId)
+        .order('timestamp', { ascending: false });
+
+      if (filters.accion) {
+        query = query.eq('operation_type', filters.accion);
+      }
+      if (filters.tabla) {
+        query = query.eq('table_name', filters.tabla);
+      }
+      if (filters.fechaInicio) {
+        query = query.gte('timestamp', filters.fechaInicio);
+      }
+      if (filters.fechaFin) {
+        query = query.lte('timestamp', filters.fechaFin);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error guardando log de auditoría:', error);
-    }
-  },
-  
-  // Obtener historial de auditoría
-  getAuditLog: (tenantId = null, filters = {}) => {
-    const effectiveTenantId = tenantId || getCurrentTenantId();
-    const AUDIT_LOG_KEY = 'lpdp_audit_log';
-    
-    try {
-      const logs = JSON.parse(localStorage.getItem(getStorageKey(AUDIT_LOG_KEY, effectiveTenantId)) || '[]');
-      
-      // Aplicar filtros si existen
-      let filteredLogs = logs;
-      if (filters.action) {
-        filteredLogs = filteredLogs.filter(log => log.action === filters.action);
-      }
-      if (filters.processKey) {
-        filteredLogs = filteredLogs.filter(log => log.processKey === filters.processKey);
-      }
-      if (filters.startDate) {
-        filteredLogs = filteredLogs.filter(log => new Date(log.timestamp) >= new Date(filters.startDate));
-      }
-      
-      return filteredLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    } catch (error) {
-      console.error('Error obteniendo log de auditoría:', error);
+      console.error('Error obteniendo logs de auditoría');
       return [];
     }
   },
-  
-  // Obtener todos los tenants que tienen datos
-  getAllTenantIds: () => {
-    const keys = Object.keys(localStorage);
-    const tenantIds = new Set();
-    
-    [RAT_STORAGE_KEY, RAT_PROCESSES_KEY, INDUSTRY_CONFIG_KEY].forEach(baseKey => {
-      keys.forEach(key => {
-        if (key.startsWith(baseKey + '_')) {
-          const tenantId = key.substring(baseKey.length + 1);
-          tenantIds.add(tenantId);
-        }
-      });
-    });
-    
-    return Array.from(tenantIds);
+
+  getAllTenantIds: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tenants')
+        .select('id')
+        .eq('is_active', true);
+
+      if (error) throw error;
+      return data.map(tenant => tenant.id);
+    } catch (error) {
+      console.error('Error obteniendo tenant IDs');
+      return [];
+    }
   },
-  
-  // Limpiar datos de un tenant específico (para testing)
-  clearTenantData: (tenantId) => {
-    [RAT_STORAGE_KEY, RAT_PROCESSES_KEY, INDUSTRY_CONFIG_KEY].forEach(baseKey => {
-      localStorage.removeItem(getStorageKey(baseKey, tenantId));
-    });
+
+  clearTenantData: async (tenantId, userId) => {
+    try {
+      const tables = ['mapeo_datos_rat', 'rat_processes', 'industry_configurations', 'audit_logs'];
+      
+      for (const table of tables) {
+        await supabase
+          .from(table)
+          .delete()
+          .eq('tenant_id', tenantId);
+      }
+
+      await supabase
+        .from('system_alerts')
+        .insert({
+          alert_type: 'tenant_data_cleared',
+          severity: 'high',
+          title: 'Datos de tenant eliminados',
+          description: `Todos los datos del tenant ${tenantId} han sido eliminados`,
+          metadata: {
+            tenant_id: tenantId,
+            cleared_by: userId,
+            tables_cleared: tables
+          },
+          created_at: new Date().toISOString()
+        });
+
+      return { success: true, tables_cleared: tables.length };
+    } catch (error) {
+      console.error('Error limpiando datos de tenant');
+      return { success: false, error: error.message };
+    }
+  },
+
+  migrateFromLocalStorage: async (userId) => {
+    try {
+      const persistenceValidator = (await import('../utils/persistenceValidator')).default;
+      const tenantId = await getCurrentTenantId(userId);
+      
+      const migrationResult = await persistenceValidator.migrateLocalStorageToSupabase(tenantId, userId);
+      
+      if (migrationResult.success) {
+        await persistenceValidator.cleanupLocalStorage();
+      }
+
+      return migrationResult;
+    } catch (error) {
+      console.error('Error en migración');
+      return { success: false, error: error.message };
+    }
+  },
+
+  enableSupabaseOnlyMode: async (userId) => {
+    try {
+      const persistenceValidator = (await import('../utils/persistenceValidator')).default;
+      return await persistenceValidator.enableSupabaseOnlyMode(userId);
+    } catch (error) {
+      console.error('Error habilitando modo Supabase-únicamente');
+      return { success: false, error: error.message };
+    }
   }
 };
 

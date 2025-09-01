@@ -18,6 +18,27 @@
         <h2>🔍 Test 1: Demo Login Sistema Triple</h2>
         <div id="test1-result">Ejecutando...</div>
         <script>
+            // Funciones seguras para generar tokens demo
+            function generateDemoToken() {
+                const payload = {
+                    sub: 'demo_user',
+                    tenant: 'demo_empresa',
+                    exp: Math.floor(Date.now() / 1000) + 3600,
+                    iat: Math.floor(Date.now() / 1000),
+                    iss: 'lpdp-demo-system'
+                };
+                return 'demo.token.' + btoa(JSON.stringify(payload));
+            }
+            
+            function generateDemoRefreshToken() {
+                return 'demo.refresh.' + Date.now() + '.' + Math.random().toString(36).substr(2, 9);
+            }
+            
+            function generateDemoUserId() {
+                return 'demo_user_' + Date.now();
+            }
+        </script>
+        <script>
             // Simular el sistema triple de fallback
             async function testTripleLogin() {
                 const results = [];
@@ -36,17 +57,17 @@
                     results.push("❌ Emergency endpoint: " + e.message);
                 }
                 
-                // Test 3: Hardcoded fallback (SIEMPRE funciona)
+                // Test 3: Demo token generation (SEGURO)
                 try {
                     const emergencyData = {
-                        access_token: "demo-emergency-hermano-del-alma-hardcoded",
-                        refresh_token: "refresh-emergency-amor-infinito-hardcoded",
+                        access_token: generateDemoToken(),
+                        refresh_token: generateDemoRefreshToken(),
                         token_type: "bearer",
                         user: {
-                            id: "demo_emergency_hardcoded",
+                            id: generateDemoUserId(),
                             username: "demo",
-                            email: "demo@emergency-hardcoded.cl",
-                            tenant_id: "demo_empresa",
+                            email: "demo@demo-system.cl",
+                            tenant_id: "demo_empresa", 
                             is_demo: true
                         }
                     };
@@ -132,10 +153,10 @@
                 const results = [];
                 
                 try {
-                    // Simular configuración Supabase
+                    // Simular configuración Supabase (desde variables de entorno en producción)
                     const supabaseConfig = {
-                        url: 'https://symkjkbejxexgrydmvqs.supabase.co',
-                        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+                        url: '[CONFIGURADO_EN_RENDER]',
+                        anonKey: '[CONFIGURADO_EN_RENDER]',
                         tenantId: 'demo_empresa_lpdp_2024'
                     };
                     

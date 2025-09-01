@@ -71,17 +71,25 @@ const ratIntelligenceEngine = {
           code: error.code
         });
         
-        // Intentar guardar localmente como fallback
-        const localActivities = activities.map(act => ({
-          ...act,
-          id: `local_${Date.now()}_${Math.random()}`,
-          saved_locally: true
-        }));
-        
-        localStorage.setItem(`pending_dpo_activities_${ratId}`, JSON.stringify(localActivities));
-        console.log('Actividades guardadas localmente como fallback');
-        
-        return { success: false, error, fallback: 'local', data: localActivities };
+        // Intentar guardar en tabla de fallback Supabase
+        try {
+          const fallbackActivities = activities.map(act => ({
+            ...act,
+            id: `fallback_${Date.now()}_${Math.random()}`,
+            is_fallback: true,
+            original_error: error.message
+          }));
+          
+          await supabase
+            .from('dpo_activities_fallback')
+            .insert(fallbackActivities);
+          
+          console.log('Actividades guardadas en tabla fallback Supabase');
+          return { success: false, error, fallback: 'supabase_fallback', data: fallbackActivities };
+        } catch (fallbackError) {
+          console.error('Error guardando en fallback Supabase:', fallbackError);
+          return { success: false, error, fallback: 'failed', data: [] };
+        }
       }
 
       console.log('Actividades DPO creadas exitosamente:', data?.length || 0);

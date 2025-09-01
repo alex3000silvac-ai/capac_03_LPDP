@@ -1,8 +1,9 @@
 # 🔐 VARIABLES DE ENTORNO PARA RENDER
 
-## ⚠️ CONFIGURACIÓN CRÍTICA - SIN CLAVES HARDCODEADAS
+## ⚠️ CONFIGURACIÓN CRÍTICA - SEGURIDAD
 
-El sistema ahora requiere que configures las variables de entorno en Render Dashboard.
+El sistema requiere configuración de variables de entorno en Render Dashboard.
+**NUNCA** incluyas claves reales en archivos de código.
 
 ## 🎯 PASOS EN RENDER:
 
@@ -18,12 +19,17 @@ El sistema ahora requiere que configures las variables de entorno en Render Dash
 ### 📋 VARIABLES REQUERIDAS:
 
 ```
-REACT_APP_SUPABASE_URL=https://xvnfpkxbsmfhqcyvjwmz.supabase.co
+REACT_APP_SUPABASE_URL=[CONFIGURAR_EN_RENDER]
 ```
 
 ```
-REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2bmZwa3hic21maHFjeXZqd216Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU0NzY1NzUsImV4cCI6MjA1MTA1MjU3NX0.Kqwfyvy5AYGiILyXJWjvL5RqLLlJDr5jb3mSs4yNmNQ
+REACT_APP_SUPABASE_ANON_KEY=[CONFIGURAR_EN_RENDER]
 ```
+
+⚠️ **IMPORTANTE:** Obtén las claves reales desde:
+- Supabase Dashboard > Settings > API
+- NUNCA las incluyas en archivos de código
+- SIEMPRE configúralas directamente en Render
 
 4. **Click "Save Changes"**
 

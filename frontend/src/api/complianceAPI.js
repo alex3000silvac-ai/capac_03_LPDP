@@ -29,7 +29,7 @@ class ComplianceAPI {
     this.checkRateLimit(apiKey);
 
     try {
-      console.log('🔌 API: Evaluando RAT para partner:', this.getPartnerInfo(apiKey).name);
+      console.log('🔌 API: Evaluando RAT para partner');
       
       const evaluation = await ratIntelligenceEngine.evaluateRATActivity(ratData);
       

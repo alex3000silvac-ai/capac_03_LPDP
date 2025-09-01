@@ -104,7 +104,8 @@
       "Bash(NODE_OPTIONS=\"--max-old-space-size=2048\" timeout 300 npm run build)",
       "Bash(PORT=3002 timeout 60s npm start)",
       "Bash(PORT=3003 timeout 60s npm start)",
-      "Bash(GENERATE_SOURCEMAP=false NODE_OPTIONS=\"--max-old-space-size=4096\" npm run build)"
+      "Bash(GENERATE_SOURCEMAP=false NODE_OPTIONS=\"--max-old-space-size=4096\" npm run build)",
+      "Bash(./RENDER.exe services list)"
     ],
     "deny": [],
     "additionalDirectories": [

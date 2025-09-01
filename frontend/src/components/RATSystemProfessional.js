@@ -31,13 +31,23 @@ import {
   List,
   ListItem,
   ListItemText,
-  Chip
+  Chip,
+  IconButton
 } from '@mui/material';
+import {
+  Visibility as VisibilityIcon,
+  Edit as EditIcon,
+  ContentCopy as ContentCopyIcon,
+  Delete as DeleteIcon
+} from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ratService from '../services/ratService';
 import ratIntelligenceEngine from '../services/ratIntelligenceEngine';
 import EmpresaDataManager from './EmpresaDataManager';
 import PageLayout from './PageLayout';
+import { supabase } from '../config/supabaseClient';
+import { useTenant } from '../contexts/TenantContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const professionalTheme = createTheme({
   palette: {
@@ -232,11 +242,16 @@ const professionalTheme = createTheme({
 });
 
 const RATSystemProfessional = () => {
+  const { currentTenant } = useTenant();
+  const { user } = useAuth();
+  
   const [currentStep, setCurrentStep] = useState(0);
   const [rats, setRats] = useState([]);
   const [showRATList, setShowRATList] = useState(true);
   const [isCreatingRAT, setIsCreatingRAT] = useState(false);
   const [showEmpresaManager, setShowEmpresaManager] = useState(false);
+  const [editingRAT, setEditingRAT] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list', 'create', 'edit', 'view'
   
   const [ratData, setRatData] = useState({
     responsable: {
@@ -280,23 +295,21 @@ const RATSystemProfessional = () => {
     cargarDatosComunes();
   }, []);
 
-  const cargarDatosComunes = () => {
-    const datosComunes = localStorage.getItem('empresaDataCommon');
-    if (datosComunes) {
-      const empresaData = JSON.parse(datosComunes);
-      // Pre-llenar datos del responsable con datos de la empresa
+  const cargarDatosComunes = async () => {
+    if (currentTenant) {
+      // Pre-llenar datos del responsable con datos del tenant actual desde Supabase
       setRatData(prev => ({
         ...prev,
         responsable: {
-          razonSocial: empresaData.razonSocial || prev.responsable.razonSocial,
-          rut: empresaData.rut || prev.responsable.rut,
-          direccion: empresaData.direccion || prev.responsable.direccion,
-          nombre: empresaData.dpo?.nombre || prev.responsable.nombre,
-          email: empresaData.dpo?.email || prev.responsable.email,
-          telefono: empresaData.dpo?.telefono || prev.responsable.telefono,
+          razonSocial: currentTenant.company_name || prev.responsable.razonSocial,
+          rut: currentTenant.rut || prev.responsable.rut,
+          direccion: currentTenant.direccion || prev.responsable.direccion,
+          nombre: currentTenant.dpo?.nombre || prev.responsable.nombre,
+          email: currentTenant.dpo?.email || user?.email || prev.responsable.email,
+          telefono: currentTenant.dpo?.telefono || prev.responsable.telefono,
         },
-        plataformasTecnologicas: empresaData.plataformasTecnologicas || [],
-        politicasRetencion: empresaData.politicasRetencion || {}
+        plataformasTecnologicas: currentTenant.plataformasTecnologicas || [],
+        politicasRetencion: currentTenant.politicasRetencion || {}
       }));
     }
   };
@@ -343,10 +356,46 @@ const RATSystemProfessional = () => {
   };
 
   const iniciarNuevoRAT = () => {
+    setEditingRAT(null);
     setIsCreatingRAT(true);
     setShowRATList(false);
     setShowEmpresaManager(false);
+    setViewMode('create');
     setCurrentStep(0);
+    // Limpiar formulario
+    setRatData({
+      responsable: {
+        razonSocial: '',
+        rut: '',
+        direccion: '',
+        nombre: '',
+        email: '',
+        telefono: '',
+      },
+      categorias: {
+        identificacion: false,
+        laboral: false,
+        academico: false,
+        economico: false,
+        salud: false,
+        biometrico: false,
+        judicial: false,
+        comunicaciones: false,
+        navegacion: false,
+        localizacion: false,
+        sensibles: []
+      },
+      baseLegal: '',
+      finalidades: {
+        descripcion: '',
+        periodo: ''
+      },
+      transferencias: {
+        internos: [],
+        terceros: [],
+        internacionales: []
+      }
+    });
   };
 
   const mostrarGestionEmpresa = () => {
@@ -359,12 +408,107 @@ const RATSystemProfessional = () => {
     setShowEmpresaManager(false);
     setShowRATList(true);
     setIsCreatingRAT(false);
+    setEditingRAT(null);
+    setViewMode('list');
+    setCurrentStep(0);
+  };
+
+  const editarRAT = async (ratId) => {
+    try {
+      const ratToEdit = rats.find(rat => rat.id === ratId);
+      if (ratToEdit) {
+        setEditingRAT(ratId);
+        // Mapear datos del RAT guardado al formato esperado por el formulario
+        setRatData({
+          responsable: {
+            razonSocial: ratToEdit.responsable?.razonSocial || ratToEdit.responsable_proceso || '',
+            rut: ratToEdit.responsable?.rut || ratToEdit.responsable_rut || '',
+            direccion: ratToEdit.responsable?.direccion || '',
+            nombre: ratToEdit.responsable?.nombre || '',
+            email: ratToEdit.responsable?.email || ratToEdit.email_responsable || '',
+            telefono: ratToEdit.responsable?.telefono || '',
+          },
+          categorias: {
+            identificacion: [],
+            sensibles: ratToEdit.categorias?.datos?.sensibles || [],
+          },
+          baseLegal: ratToEdit.finalidades?.baseLegal || ratToEdit.base_legal || '',
+          argumentoJuridico: ratToEdit.finalidades?.argumentoJuridico || '',
+          finalidad: ratToEdit.finalidades?.descripcion || ratToEdit.finalidad_principal || ratToEdit.finalidad || '',
+          plazoConservacion: ratToEdit.conservacion?.periodo || '',
+          destinatarios: ratToEdit.transferencias?.destinatarios || [],
+          transferenciasInternacionales: ratToEdit.transferencias?.internacionales || false,
+          documentosRequeridos: [],
+        });
+        setIsCreatingRAT(true);
+        setShowRATList(false);
+        setViewMode('edit');
+        setCurrentStep(0);
+      }
+    } catch (error) {
+      console.error('Error cargando RAT para edición:', error);
+      alert('Error al cargar el RAT para edición');
+    }
+  };
+
+  const verRAT = async (ratId) => {
+    try {
+      const ratToView = rats.find(rat => rat.id === ratId);
+      if (ratToView) {
+        setEditingRAT(ratId);
+        setRatData(ratToView); // Para vista, usamos los datos tal como están
+        setViewMode('view');
+      }
+    } catch (error) {
+      console.error('Error cargando RAT para visualización:', error);
+      alert('Error al cargar el RAT');
+    }
+  };
+
+  const eliminarRAT = async (ratId) => {
+    if (window.confirm('¿Está seguro de eliminar este RAT? Esta acción no se puede deshacer.')) {
+      try {
+        await ratService.deleteRAT(ratId);
+        // Recargar lista
+        const ratsData = await ratService.getCompletedRATs();
+        setRats(ratsData);
+        alert('RAT eliminado exitosamente');
+      } catch (error) {
+        console.error('Error eliminando RAT:', error);
+        alert('Error al eliminar el RAT');
+      }
+    }
+  };
+
+  const duplicarRAT = async (ratId) => {
+    try {
+      const ratData = await ratService.getRATById(ratId);
+      if (ratData) {
+        // Limpiar datos específicos y crear copia
+        const nuevaData = {
+          ...ratData,
+          responsable: {
+            ...ratData.responsable,
+            nombre: ratData.responsable.nombre + ' (Copia)',
+          }
+        };
+        setRatData(nuevaData);
+        setEditingRAT(null);
+        setIsCreatingRAT(true);
+        setShowRATList(false);
+        setViewMode('create');
+        setCurrentStep(0);
+      }
+    } catch (error) {
+      console.error('Error duplicando RAT:', error);
+      alert('Error al duplicar el RAT');
+    }
   };
 
   const guardarRAT = async () => {
     try {
-      const ratId = `RAT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const empresaData = JSON.parse(localStorage.getItem('empresaDataCommon') || '{}');
+      const ratId = viewMode === 'edit' && editingRAT ? editingRAT : `RAT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const empresaData = currentTenant || {};
       
       const ratCompleto = {
         id: ratId,
@@ -411,11 +555,17 @@ const RATSystemProfessional = () => {
         nivel_riesgo: ratData.categorias.sensibles.length > 0 ? 'ALTO' : 'MEDIO',
       };
       
-      console.log('📦 Guardando RAT con estructura completa:', ratCompleto);
-      const resultado = await ratService.saveCompletedRAT(ratCompleto, 'Sistema', 'Manual');
+      console.log(viewMode === 'edit' ? '📝 Actualizando RAT:' : '📦 Guardando RAT con estructura completa:', ratCompleto);
+      
+      let resultado;
+      if (viewMode === 'edit') {
+        resultado = await ratService.updateRAT(editingRAT, ratCompleto);
+      } else {
+        resultado = await ratService.saveCompletedRAT(ratCompleto, 'Sistema', 'Manual');
+      }
       
       if (resultado && resultado.id) {
-        console.log('✅ RAT guardado exitosamente con ID:', resultado.id);
+        console.log(viewMode === 'edit' ? '✅ RAT actualizado exitosamente con ID:' : '✅ RAT guardado exitosamente con ID:', resultado.id);
         
         if (ratCompleto.metadata.requiereEIPD) {
           const notificacionDPO = {
@@ -425,7 +575,18 @@ const RATSystemProfessional = () => {
             fecha: new Date().toISOString(),
             fundamento: 'Art. 19 Ley 21.719',
           };
-          localStorage.setItem(`notificacion_dpo_${ratId}`, JSON.stringify(notificacionDPO));
+          await supabase
+            .from('dpo_notifications')
+            .insert({
+              rat_id: ratId,
+              tenant_id: currentTenant?.id,
+              user_id: user?.id,
+              tipo: 'evaluacion_impacto',
+              mensaje: notificacionDPO.mensaje,
+              fundamento: notificacionDPO.fundamento,
+              created_at: new Date().toISOString(),
+              status: 'pending'
+            });
           console.log('🔔 Notificación DPO creada:', notificacionDPO);
         }
         
@@ -433,10 +594,15 @@ const RATSystemProfessional = () => {
         console.log('🔍 Verificación de persistencia - Total RATs:', verification.length);
         
         setRats(verification);
-        alert(`✅ RAT ${ratId} guardado exitosamente en Supabase`);
+        alert(`✅ RAT ${ratId} ${viewMode === 'edit' ? 'actualizado' : 'guardado'} exitosamente en Supabase`);
       }
       
-      volverAInicio();
+      if (viewMode === 'edit') {
+        setViewMode('list');
+        setEditingRAT(null);
+      } else {
+        volverAInicio();
+      }
       setCurrentStep(0);
       setRatData({
         responsable: {
@@ -489,8 +655,32 @@ const RATSystemProfessional = () => {
     );
   }
 
+  // Renderizar vista de RAT individual (solo lectura)
+  if (viewMode === 'view') {
+    return (
+      <ThemeProvider theme={professionalTheme}>
+        <PageLayout
+          title="Ver RAT"
+          subtitle="Visualización de Registro de Actividades de Tratamiento"
+          maxWidth="lg"
+        >
+          <Paper sx={{ p: 2, mb: 3 }}>
+            <Button 
+              variant="outlined" 
+              onClick={() => setViewMode('list')}
+              sx={{ mb: 2 }}
+            >
+              ← Volver a la Lista
+            </Button>
+          </Paper>
+          <RATViewComponent ratData={ratData} />
+        </PageLayout>
+      </ThemeProvider>
+    );
+  }
+
   // Renderizar pantalla principal
-  if (!isCreatingRAT && showRATList) {
+  if (viewMode === 'list' || (!isCreatingRAT && showRATList)) {
     return (
       <ThemeProvider theme={professionalTheme}>
         <PageLayout
@@ -588,6 +778,7 @@ const RATSystemProfessional = () => {
                           <TableCell>RIESGO</TableCell>
                           <TableCell>ACCIONES REQUERIDAS</TableCell>
                           <TableCell>FECHA</TableCell>
+                          <TableCell>ACCIONES</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -658,6 +849,42 @@ const RATSystemProfessional = () => {
                                   {fecha ? new Date(fecha).toLocaleDateString('es-CL') : 'Sin fecha'}
                                 </Typography>
                               </TableCell>
+                              <TableCell>
+                                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                  <IconButton 
+                                    size="small" 
+                                    color="primary"
+                                    onClick={() => verRAT(rat.id)}
+                                    title="Ver RAT"
+                                  >
+                                    <VisibilityIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton 
+                                    size="small" 
+                                    color="secondary"
+                                    onClick={() => editarRAT(rat.id)}
+                                    title="Editar RAT"
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton 
+                                    size="small" 
+                                    color="info"
+                                    onClick={() => duplicarRAT(rat.id)}
+                                    title="Duplicar RAT"
+                                  >
+                                    <ContentCopyIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton 
+                                    size="small" 
+                                    color="error"
+                                    onClick={() => eliminarRAT(rat.id)}
+                                    title="Eliminar RAT"
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Box>
+                              </TableCell>
                             </TableRow>
                           );
                         })}
@@ -674,11 +901,11 @@ const RATSystemProfessional = () => {
     );
   }
 
-  // Renderizar formulario de creación RAT
+  // Renderizar formulario de creación/edición RAT
   return (
     <ThemeProvider theme={professionalTheme}>
       <PageLayout
-        title="Crear Nuevo RAT"
+        title={viewMode === 'edit' ? "Editar RAT" : "Crear Nuevo RAT"}
         subtitle={`Paso ${currentStep + 1} de ${steps.length} - ${steps[currentStep]}`}
         maxWidth="lg"
       >
@@ -702,13 +929,24 @@ const RATSystemProfessional = () => {
 
             {/* Botones de navegación */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                onClick={handleBack}
-                disabled={currentStep === 0}
-                variant="outlined"
-              >
-                Anterior
-              </Button>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {viewMode === 'edit' && (
+                  <Button
+                    onClick={() => setViewMode('list')}
+                    variant="outlined"
+                    color="secondary"
+                  >
+                    ← Volver a Lista
+                  </Button>
+                )}
+                <Button
+                  onClick={handleBack}
+                  disabled={currentStep === 0}
+                  variant="outlined"
+                >
+                  Anterior
+                </Button>
+              </Box>
               {currentStep < steps.length - 1 && (
                 <Button
                   onClick={handleNext}
@@ -1364,6 +1602,85 @@ const PasoRevision = ({ ratData, guardarRAT }) => {
           CONFIRMAR Y GENERAR DOCUMENTOS
         </Button>
       </Box>
+    </Box>
+  );
+};
+
+// Componente para visualizar RAT en modo solo lectura
+const RATViewComponent = ({ ratData }) => {
+  return (
+    <Box>
+      <Typography variant="h6" gutterBottom>
+        DETALLES DEL RAT
+      </Typography>
+      
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">ID RAT:</Typography>
+            <Typography variant="body1" fontWeight="bold">{ratData.id}</Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Fecha Creación:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.created_at ? new Date(ratData.created_at).toLocaleDateString('es-CL') : 'Sin fecha'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Responsable:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.responsable_proceso || ratData.responsable?.razonSocial || 'Sin especificar'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Email Responsable:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.email_responsable || ratData.responsable?.email || 'Sin especificar'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="body2" color="text.secondary">Finalidad:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.finalidad_principal || ratData.finalidad || 'No especificada'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Base Legal:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.base_legal || ratData.baseLegal || 'No especificada'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Nivel de Riesgo:</Typography>
+            <Chip 
+              label={ratData.nivel_riesgo || 'MEDIO'} 
+              size="small"
+              color={ratData.nivel_riesgo === 'ALTO' ? 'error' : 
+                     ratData.nivel_riesgo === 'MEDIO' ? 'warning' : 'success'}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="body2" color="text.secondary">Estado del RAT:</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+              {(ratData.metadata?.requiereEIPD || ratData.requiere_eipd) && (
+                <Chip label="Requiere EIPD" size="small" color="error" />
+              )}
+              {(ratData.metadata?.requiereDPIA || ratData.requiere_dpia) && (
+                <Chip label="Requiere DPIA" size="small" color="warning" />
+              )}
+              {(ratData.metadata?.requiereConsultaAgencia) && (
+                <Chip label="Requiere Consulta" size="small" color="info" />
+              )}
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      <Alert severity="info">
+        <Typography variant="body2">
+          Este RAT fue creado siguiendo los requisitos de la Ley 21.719 de Protección de Datos Personales de Chile.
+        </Typography>
+      </Alert>
     </Box>
   );
 };

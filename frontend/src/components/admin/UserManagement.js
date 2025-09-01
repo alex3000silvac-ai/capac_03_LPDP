@@ -337,7 +337,7 @@ function UserManagement() {
         );
       }
     } catch (error) {
-      console.error('Error resetting password:', error);
+      console.error('Error al resetear contraseña');
       showNotification('Error al resetear contraseña', 'error');
     } finally {
       setResetPasswordDialog({ open: false, user: null });

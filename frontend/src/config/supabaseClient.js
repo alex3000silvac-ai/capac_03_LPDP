@@ -57,9 +57,36 @@ export const supabaseWithTenant = (tenantId) => {
   return supabase;
 };
 
-// Función para obtener tenant actual
-export const getCurrentTenant = () => {
-  return localStorage.getItem('tenant_id') || 'default';
+// Función para obtener tenant actual desde Supabase únicamente
+export const getCurrentTenant = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user?.id) {
+      const { data: session, error } = await supabase
+        .from('user_sessions')
+        .select('tenant_id')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .single();
+
+      if (!error && session) {
+        return session.tenant_id;
+      }
+    }
+
+    // Fallback a tenant por defecto sin localStorage
+    const { data: defaultTenant, error } = await supabase
+      .from('tenants')
+      .select('id')
+      .limit(1)
+      .single();
+
+    return defaultTenant?.id || 'default';
+  } catch (error) {
+    console.error('Error obteniendo tenant desde Supabase');
+    return 'default';
+  }
 };
 
 // Función para verificar conectividad con Supabase

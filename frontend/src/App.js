@@ -106,7 +106,7 @@ const AppContent = () => {
     );
   }
 
-  if (!currentTenant && user?.tenant_id !== 'demo') {
+  if (!currentTenant && user?.tenant_id !== (process.env.REACT_APP_DEMO_TENANT_ID || 'demo')) {
     return (
       <Routes>
         <Route path="/select-tenant" element={<TenantSelector />} />
