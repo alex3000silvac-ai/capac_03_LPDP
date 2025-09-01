@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -7,17 +7,100 @@ import {
   Card,
   CardContent,
   Typography,
-  IconButton
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Alert,
+  Chip
 } from '@mui/material';
 import {
   Assessment as RATIcon,
   Dashboard as DPOIcon,
   Shield as DPIAIcon,
-  Business as ProveedoresIcon
+  Business as ProveedoresIcon,
+  Factory as ManufacturingIcon,
+  LocalHospital as HealthIcon,
+  AccountBalance as FinanceIcon,
+  Store as RetailIcon,
+  Build as TechIcon,
+  School as EducationIcon,
+  Restaurant as FoodIcon,
+  DirectionsCar as TransportIcon
 } from '@mui/icons-material';
 
 const SistemaPrincipal = () => {
   const navigate = useNavigate();
+  const [selectedIndustry, setSelectedIndustry] = useState('');
+  
+  // Configuración de industrias con regulaciones específicas
+  const industries = [
+    {
+      id: 'financiero',
+      name: 'Sector Financiero',
+      icon: <FinanceIcon />,
+      color: '#059669',
+      regulations: ['Ley 21.719', 'Ley 21.000 (CMF)', 'Basilea III', 'FATCA'],
+      specialRequirements: 'Regulación CMF - Datos financieros sensibles'
+    },
+    {
+      id: 'salud',
+      name: 'Sector Salud',
+      icon: <HealthIcon />,
+      color: '#dc2626',
+      regulations: ['Ley 21.719', 'Ley 20.584 (Derechos Pacientes)', 'Código Sanitario'],
+      specialRequirements: 'Datos de salud - Protección especial Art. 12 Ley 21.719'
+    },
+    {
+      id: 'educacion',
+      name: 'Sector Educación',
+      icon: <EducationIcon />,
+      color: '#7c3aed',
+      regulations: ['Ley 21.719', 'Ley 20.370 (LGE)', 'Protección Menores'],
+      specialRequirements: 'Datos de menores - Consentimiento parental requerido'
+    },
+    {
+      id: 'retail',
+      name: 'Comercio y Retail',
+      icon: <RetailIcon />,
+      color: '#ea580c',
+      regulations: ['Ley 21.719', 'Ley 19.496 (SERNAC)', 'Ley 20.009 (DICOM)'],
+      specialRequirements: 'Datos comerciales - Información crediticia'
+    },
+    {
+      id: 'tecnologia',
+      name: 'Tecnología',
+      icon: <TechIcon />,
+      color: '#0891b2',
+      regulations: ['Ley 21.719', 'Ciberseguridad', 'Transferencias Internacionales'],
+      specialRequirements: 'Datos en la nube - Transferencias internacionales'
+    },
+    {
+      id: 'manufactura',
+      name: 'Manufactura',
+      icon: <ManufacturingIcon />,
+      color: '#4f46e5',
+      regulations: ['Ley 21.719', 'Normativa Laboral', 'Medio Ambiente'],
+      specialRequirements: 'Datos laborales - Medicina del trabajo'
+    },
+    {
+      id: 'alimentos',
+      name: 'Alimentos y Bebidas',
+      icon: <FoodIcon />,
+      color: '#be185d',
+      regulations: ['Ley 21.719', 'Código Sanitario', 'Trazabilidad HACCP'],
+      specialRequirements: 'Trazabilidad alimentaria - Seguridad sanitaria'
+    },
+    {
+      id: 'transporte',
+      name: 'Transporte y Logística',
+      icon: <TransportIcon />,
+      color: '#9333ea',
+      regulations: ['Ley 21.719', 'Ley Tránsito', 'Normativa MTT'],
+      specialRequirements: 'Datos de ubicación - Seguimiento GPS'
+    }
+  ];
 
   const tarjetas = [
     {
@@ -78,11 +161,92 @@ const SistemaPrincipal = () => {
             variant="subtitle1"
             sx={{
               color: '#9ca3af',
-              fontSize: '0.875rem'
+              fontSize: '0.875rem',
+              mb: 3
             }}
           >
             Ley 21.719 de Protección de Datos Personales
           </Typography>
+          
+          {/* SELECTOR DE INDUSTRIAS */}
+          <Box sx={{ maxWidth: 400, mx: 'auto', mb: 4 }}>
+            <FormControl fullWidth>
+              <InputLabel 
+                id="industry-select-label"
+                sx={{ color: '#9ca3af' }}
+              >
+                Seleccione su Industria
+              </InputLabel>
+              <Select
+                labelId="industry-select-label"
+                value={selectedIndustry}
+                label="Seleccione su Industria"
+                onChange={(e) => setSelectedIndustry(e.target.value)}
+                sx={{
+                  bgcolor: '#374151',
+                  color: '#f9fafb',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#4b5563',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#6b7280',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#4f46e5',
+                  },
+                }}
+              >
+                <MenuItem value="">
+                  <em>Todas las Industrias</em>
+                </MenuItem>
+                {industries.map((industry) => (
+                  <MenuItem key={industry.id} value={industry.id}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {industry.icon}
+                      {industry.name}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          
+          {/* INFORMACIÓN DE LA INDUSTRIA SELECCIONADA */}
+          {selectedIndustry && (
+            <Alert 
+              severity="info" 
+              sx={{ 
+                maxWidth: 600, 
+                mx: 'auto', 
+                mb: 4,
+                bgcolor: 'rgba(79, 70, 229, 0.1)',
+                border: '1px solid rgba(79, 70, 229, 0.3)',
+                color: '#f9fafb'
+              }}
+            >
+              <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                🏢 {industries.find(i => i.id === selectedIndustry)?.name}
+              </Typography>
+              <Typography variant="caption" sx={{ mb: 1, display: 'block' }}>
+                {industries.find(i => i.id === selectedIndustry)?.specialRequirements}
+              </Typography>
+              <Box sx={{ mt: 1 }}>
+                {industries.find(i => i.id === selectedIndustry)?.regulations.map((reg, index) => (
+                  <Chip 
+                    key={index}
+                    label={reg}
+                    size="small"
+                    sx={{
+                      mr: 0.5,
+                      mb: 0.5,
+                      bgcolor: 'rgba(79, 70, 229, 0.2)',
+                      color: '#a78bfa'
+                    }}
+                  />
+                ))}
+              </Box>
+            </Alert>
+          )}
         </Box>
 
         <Grid container spacing={3} justifyContent="center">

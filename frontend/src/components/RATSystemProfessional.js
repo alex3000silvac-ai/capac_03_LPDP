@@ -32,13 +32,29 @@ import {
   ListItem,
   ListItemText,
   Chip,
-  IconButton
+  IconButton,
+  CardHeader,
+  Collapse,
+  Avatar
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
   Edit as EditIcon,
   ContentCopy as ContentCopyIcon,
-  Delete as DeleteIcon
+  Delete as DeleteIcon,
+  Person as PersonIcon,
+  Security as SecurityIcon,
+  AccountBalance as FinanceIcon,
+  Work as WorkIcon,
+  School as EducationIcon,
+  Phone as CommunicationIcon,
+  Language as WebIcon,
+  ExpandMore as ExpandMoreIcon,
+  Business as BusinessIcon,
+  HealthAndSafety as HealthIcon,
+  Warning as WarningIcon,
+  CheckCircle as CheckIcon,
+  AccountBalance
 } from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ratService from '../services/ratService';
@@ -595,13 +611,16 @@ const RATSystemProfessional = () => {
         alert(`✅ RAT ${ratId} ${viewMode === 'edit' ? 'actualizado' : 'guardado'} exitosamente en Supabase`);
       }
       
-      if (viewMode === 'edit') {
-        setViewMode('list');
-        setEditingRAT(null);
-      } else {
-        volverAInicio();
-      }
+      // CORREGIR PANTALLA NEGRA: Siempre volver a la lista
+      setViewMode('list');
+      setEditingRAT(null);
+      setIsCreatingRAT(false);
+      setShowRATList(true);
+      setShowEmpresaManager(false);
       setCurrentStep(0);
+      
+      // Recargar lista de RATs para mostrar el nuevo/actualizado
+      await cargarRATs();
       setRatData({
         responsable: {
           razonSocial: '',
@@ -687,19 +706,92 @@ const RATSystemProfessional = () => {
           maxWidth="xl"
         >
               
+              {/* DASHBOARD PROFESIONAL - ESTADÍSTICAS */}
               <Grid container spacing={3} sx={{ mb: 4 }}>
-                {/* Tarjeta principal - Crear RAT */}
-                <Grid item xs={12} md={8}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ textAlign: 'center', py: 5 }}>
-                      <Typography variant="h5" gutterBottom>
-                        INICIAR REGISTRO DE TRATAMIENTO
+                <Grid item xs={12} md={3}>
+                  <Card sx={{ 
+                    background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+                    height: '100%'
+                  }}>
+                    <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                      <Typography variant="h3" sx={{ color: '#fff', fontWeight: 'bold' }}>
+                        {rats.length}
                       </Typography>
-                      <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', my: 2, mx: 'auto', width: '50%' }} />
-                      <Typography variant="body1" paragraph>
+                      <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                        RATs Registrados
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                  <Card sx={{ 
+                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                    height: '100%'
+                  }}>
+                    <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                      <Typography variant="h3" sx={{ color: '#fff', fontWeight: 'bold' }}>
+                        {rats.filter(r => r.estado === 'completado').length}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                        Completos
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                  <Card sx={{ 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                    height: '100%'
+                  }}>
+                    <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                      <Typography variant="h3" sx={{ color: '#fff', fontWeight: 'bold' }}>
+                        {rats.filter(r => r.nivel_riesgo === 'ALTO').length}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                        Riesgo Alto
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                  <Card sx={{ 
+                    background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+                    height: '100%'
+                  }}>
+                    <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                      <Typography variant="h3" sx={{ color: '#fff', fontWeight: 'bold' }}>
+                        {rats.filter(r => Array.isArray(r.categorias?.sensibles) && r.categorias.sensibles.length > 0).length}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                        Con Datos Sensibles
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+              
+              {/* ACCIONES PRINCIPALES */}
+              <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid item xs={12} md={6}>
+                  <Card sx={{ 
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(55, 48, 163, 0.1) 100%)',
+                    border: '2px solid #4f46e5'
+                  }}>
+                    <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                      <Box sx={{ mb: 3 }}>
+                        <RATIcon sx={{ fontSize: 48, color: '#4f46e5' }} />
+                      </Box>
+                      <Typography variant="h5" gutterBottom sx={{ color: '#4f46e5', fontWeight: 'bold' }}>
+                        CREAR NUEVO RAT
+                      </Typography>
+                      <Typography variant="body1" paragraph sx={{ color: '#d1d5db' }}>
                         Fundamento: Art. 16 Ley 21.719
                       </Typography>
-                      <Typography variant="caption" display="block" paragraph>
+                      <Typography variant="caption" display="block" paragraph sx={{ color: '#9ca3af', fontStyle: 'italic' }}>
                         "Obligación del responsable de mantener un registro de actividades de tratamiento"
                       </Typography>
                       <Button 
@@ -707,7 +799,9 @@ const RATSystemProfessional = () => {
                         size="large"
                         sx={{ 
                           mt: 2,
-                          fontWeight: 700
+                          fontWeight: 700,
+                          px: 4,
+                          py: 1.5
                         }}
                         onClick={iniciarNuevoRAT}
                       >
@@ -717,26 +811,37 @@ const RATSystemProfessional = () => {
                   </Card>
                 </Grid>
 
-                {/* Tarjeta secundaria - Gestión de empresa */}
-                <Grid item xs={12} md={4}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ textAlign: 'center', py: 5 }}>
-                      <Typography variant="h6" gutterBottom>
-                        DATOS COMUNES
+                <Grid item xs={12} md={6}>
+                  <Card sx={{ 
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(4, 120, 87, 0.1) 100%)',
+                    border: '2px solid #059669'
+                  }}>
+                    <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                      <Box sx={{ mb: 3 }}>
+                        <BusinessIcon sx={{ fontSize: 48, color: '#059669' }} />
+                      </Box>
+                      <Typography variant="h5" gutterBottom sx={{ color: '#059669', fontWeight: 'bold' }}>
+                        DATOS EMPRESA
                       </Typography>
-                      <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', my: 2, mx: 'auto', width: '70%' }} />
-                      <Typography variant="body2" paragraph>
-                        Simplifica la creación de RATs
+                      <Typography variant="body1" paragraph sx={{ color: '#d1d5db' }}>
+                        Configuración centralizada
                       </Typography>
-                      <Typography variant="caption" display="block" paragraph>
-                        DPO, plataformas, políticas de retención
+                      <Typography variant="caption" display="block" paragraph sx={{ color: '#9ca3af', fontStyle: 'italic' }}>
+                        DPO, plataformas tecnológicas, políticas de retención
                       </Typography>
                       <Button 
                         variant="contained" 
-                        size="medium"
+                        size="large"
                         sx={{ 
                           mt: 2,
-                          fontWeight: 700
+                          fontWeight: 700,
+                          px: 4,
+                          py: 1.5,
+                          bgcolor: '#059669',
+                          '&:hover': {
+                            bgcolor: '#047857'
+                          }
                         }}
                         onClick={mostrarGestionEmpresa}
                       >
@@ -747,151 +852,182 @@ const RATSystemProfessional = () => {
                 </Grid>
               </Grid>
               
-              <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body1">
-                  Registros Existentes: {rats.length}
-                </Typography>
-                <Typography variant="body1">
-                  Pendientes: {rats.filter(r => r.estado !== 'completado').length} | 
-                  Completos: {rats.filter(r => r.estado === 'completado').length}
-                </Typography>
-              </Box>
               
-              {rats.length > 0 && (
+              {rats.length > 0 ? (
                 <Box>
-                  <Alert severity="success" sx={{ mb: 2 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                      📦 RATs guardados en Supabase: {rats.length} registros
-                    </Typography>
-                  </Alert>
-                  <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-                    <Table stickyHeader>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>ID RAT</TableCell>
-                          <TableCell>RESPONSABLE</TableCell>
-                          <TableCell>FINALIDAD</TableCell>
-                          <TableCell>BASE LEGAL</TableCell>
-                          <TableCell>DATOS SENSIBLES</TableCell>
-                          <TableCell>RIESGO</TableCell>
-                          <TableCell>ACCIONES REQUERIDAS</TableCell>
-                          <TableCell>FECHA</TableCell>
-                          <TableCell>ACCIONES</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {rats.map((rat) => {
-                          const tieneSensibles = rat.metadata?.requiereEIPD || rat.requiere_eipd;
-                          const fecha = rat.created_at || rat.fechaCreacion;
-                          return (
-                            <TableRow key={rat.id} hover>
-                              <TableCell>
-                                <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>
-                                  {rat.id?.substring(0, 12)}
+                  <Typography variant="h5" sx={{ mb: 3, color: '#f9fafb', fontWeight: 'bold' }}>
+                    📊 DASHBOARD DE RATs
+                  </Typography>
+                  
+                  {/* VISTA DE TARJETAS PROFESIONAL */}
+                  <Grid container spacing={3}>
+                    {rats.map((rat) => {
+                      const tieneSensibles = rat.metadata?.requiereEIPD || rat.requiere_eipd;
+                      const fecha = rat.created_at || rat.fechaCreacion;
+                      const nivelRiesgo = rat.nivel_riesgo || 'MEDIO';
+                      
+                      return (
+                        <Grid item xs={12} md={6} lg={4} key={rat.id}>
+                          <Card sx={{ 
+                            height: '100%',
+                            transition: 'all 0.3s ease',
+                            border: `1px solid ${
+                              nivelRiesgo === 'ALTO' ? '#dc2626' : 
+                              nivelRiesgo === 'MEDIO' ? '#ea580c' : '#059669'
+                            }`,
+                            '&:hover': {
+                              transform: 'translateY(-4px)',
+                              boxShadow: `0 12px 20px rgba(${
+                                nivelRiesgo === 'ALTO' ? '220, 38, 38' : 
+                                nivelRiesgo === 'MEDIO' ? '234, 88, 12' : '5, 150, 105'
+                              }, 0.3)`
+                            }
+                          }}>
+                            <CardHeader
+                              avatar={
+                                <Avatar sx={{ 
+                                  bgcolor: nivelRiesgo === 'ALTO' ? '#dc2626' : 
+                                           nivelRiesgo === 'MEDIO' ? '#ea580c' : '#059669',
+                                  color: '#fff'
+                                }}>
+                                  <BusinessIcon />
+                                </Avatar>
+                              }
+                              title={
+                                <Typography variant="h6" sx={{ 
+                                  fontWeight: 'bold', 
+                                  color: '#f9fafb',
+                                  fontSize: '0.9rem'
+                                }}>
+                                  {(rat.responsable_proceso || rat.responsable?.nombre || 'Sin especificar').substring(0, 25)}...
                                 </Typography>
-                              </TableCell>
-                              <TableCell>
-                                <Typography variant="body2">
-                                  {rat.responsable_proceso || rat.responsable?.nombre || 'Sin especificar'}
+                              }
+                              subheader={
+                                <Typography variant="caption" sx={{ color: '#9ca3af' }}>
+                                  ID: {String(rat.id || '').substring(0, 12)}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                  {rat.email_responsable || rat.responsable?.email || ''}
-                                </Typography>
-                              </TableCell>
-                              <TableCell>
-                                <Typography variant="body2" sx={{ maxWidth: 200 }}>
-                                  {rat.finalidad_principal || rat.finalidades?.descripcion || rat.finalidad || 'No especificada'}
-                                </Typography>
-                              </TableCell>
-                              <TableCell>
+                              }
+                              action={
                                 <Chip 
-                                  label={rat.base_legal || rat.baseLegal || 'Art. 13 L21.719'} 
+                                  label={nivelRiesgo} 
+                                  size="small"
+                                  sx={{
+                                    bgcolor: nivelRiesgo === 'ALTO' ? 'rgba(220, 38, 38, 0.2)' : 
+                                             nivelRiesgo === 'MEDIO' ? 'rgba(234, 88, 12, 0.2)' : 'rgba(5, 150, 105, 0.2)',
+                                    color: nivelRiesgo === 'ALTO' ? '#fca5a5' : 
+                                           nivelRiesgo === 'MEDIO' ? '#fdba74' : '#6ee7b7',
+                                    fontWeight: 'bold'
+                                  }}
+                                />
+                              }
+                            />
+                            <CardContent>
+                              <Typography variant="body2" sx={{ 
+                                color: '#d1d5db', 
+                                mb: 2,
+                                height: 40,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                              }}>
+                                {(rat.finalidad_principal || rat.finalidades?.descripcion || rat.finalidad || 'No especificada').substring(0, 80)}...
+                              </Typography>
+                              
+                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                                <Chip 
+                                  label={rat.base_legal || rat.baseLegal || 'Art. 13'} 
                                   size="small"
                                   variant="outlined"
-                                  color="primary"
+                                  sx={{ 
+                                    borderColor: '#4f46e5',
+                                    color: '#a78bfa',
+                                    fontSize: '0.7rem'
+                                  }}
                                 />
-                              </TableCell>
-                              <TableCell align="center">
-                                {tieneSensibles ? (
-                                  <Chip label="SÍ" size="small" color="error" />
-                                ) : (
-                                  <Chip label="NO" size="small" color="success" />
+                                {tieneSensibles && (
+                                  <Chip 
+                                    label="Datos Sensibles" 
+                                    size="small"
+                                    sx={{
+                                      bgcolor: 'rgba(220, 38, 38, 0.2)',
+                                      color: '#fca5a5',
+                                      fontSize: '0.7rem'
+                                    }}
+                                  />
                                 )}
-                              </TableCell>
-                              <TableCell>
-                                <Chip 
-                                  label={rat.nivel_riesgo || 'MEDIO'} 
-                                  size="small"
-                                  color={rat.nivel_riesgo === 'ALTO' ? 'error' : 
-                                         rat.nivel_riesgo === 'MEDIO' ? 'warning' : 'success'}
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                                  {(rat.metadata?.requiereEIPD || rat.requiere_eipd) && (
-                                    <Chip label="EIPD" size="small" color="error" />
-                                  )}
-                                  {(rat.metadata?.requiereDPIA || rat.requiere_dpia) && (
-                                    <Chip label="DPIA" size="small" color="warning" />
-                                  )}
-                                  {(rat.metadata?.requiereConsultaAgencia) && (
-                                    <Chip label="CONSULTA" size="small" color="info" />
-                                  )}
-                                  {!tieneSensibles && (
-                                    <Chip label="COMPLETO" size="small" color="success" />
-                                  )}
-                                </Box>
-                              </TableCell>
-                              <TableCell>
-                                <Typography variant="caption">
-                                  {fecha ? new Date(fecha).toLocaleDateString('es-CL') : 'Sin fecha'}
-                                </Typography>
-                              </TableCell>
-                              <TableCell>
-                                <Box sx={{ display: 'flex', gap: 0.5 }}>
-                                  <IconButton 
-                                    size="small" 
-                                    color="primary"
-                                    onClick={() => verRAT(rat.id)}
-                                    title="Ver RAT"
-                                  >
-                                    <VisibilityIcon fontSize="small" />
-                                  </IconButton>
-                                  <IconButton 
-                                    size="small" 
-                                    color="secondary"
-                                    onClick={() => editarRAT(rat.id)}
-                                    title="Editar RAT"
-                                  >
-                                    <EditIcon fontSize="small" />
-                                  </IconButton>
-                                  <IconButton 
-                                    size="small" 
-                                    color="info"
-                                    onClick={() => duplicarRAT(rat.id)}
-                                    title="Duplicar RAT"
-                                  >
-                                    <ContentCopyIcon fontSize="small" />
-                                  </IconButton>
-                                  <IconButton 
-                                    size="small" 
-                                    color="error"
-                                    onClick={() => eliminarRAT(rat.id)}
-                                    title="Eliminar RAT"
-                                  >
-                                    <DeleteIcon fontSize="small" />
-                                  </IconButton>
-                                </Box>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-                    * Todos los registros están almacenados en Supabase con respaldo automático
+                              </Box>
+                              
+                              <Typography variant="caption" sx={{ 
+                                color: '#6b7280',
+                                display: 'block',
+                                mb: 2
+                              }}>
+                                {fecha ? `Creado: ${new Date(fecha).toLocaleDateString('es-CL')}` : 'Sin fecha'}
+                              </Typography>
+                              
+                              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => verRAT(rat.id)}
+                                  sx={{ 
+                                    color: '#4f46e5',
+                                    '&:hover': { bgcolor: 'rgba(79, 70, 229, 0.1)' }
+                                  }}
+                                >
+                                  <VisibilityIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => editarRAT(rat.id)}
+                                  sx={{ 
+                                    color: '#059669',
+                                    '&:hover': { bgcolor: 'rgba(5, 150, 105, 0.1)' }
+                                  }}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => duplicarRAT(rat.id)}
+                                  sx={{ 
+                                    color: '#ea580c',
+                                    '&:hover': { bgcolor: 'rgba(234, 88, 12, 0.1)' }
+                                  }}
+                                >
+                                  <ContentCopyIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => eliminarRAT(rat.id)}
+                                  sx={{ 
+                                    color: '#dc2626',
+                                    '&:hover': { bgcolor: 'rgba(220, 38, 38, 0.1)' }
+                                  }}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                </Box>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 6 }}>
+                  <Typography variant="h6" sx={{ color: '#6b7280', mb: 2 }}>
+                    No hay RATs registrados
                   </Typography>
+                  <Typography variant="body2" sx={{ color: '#9ca3af' }}>
+                    Comience creando su primer Registro de Actividades de Tratamiento
+                  </Typography>
+                  <Button 
+                    variant="contained" 
+                    sx={{ mt: 3 }}
+                    onClick={iniciarNuevoRAT}
+                  >
+                    Crear Primer RAT
+                  </Button>
                 </Box>
               )}
         </PageLayout>
@@ -1140,6 +1276,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
 };
 
 const PasoCategorias = ({ ratData, setRatData }) => {
+  const [expandedCategory, setExpandedCategory] = React.useState('identificacion');
+  
   const handleIdentificacion = (event) => {
     try {
       const value = event.target.value;
@@ -1217,310 +1355,337 @@ const PasoCategorias = ({ ratData, setRatData }) => {
     }
   }, [ratData.categorias, setRatData]);
 
+  const categoriasConfig = [
+    {
+      id: 'identificacion',
+      title: 'DATOS DE IDENTIFICACIÓN',
+      subtitle: 'Art. 2 f) Ley 21.719',
+      description: 'Información que permite identificar a una persona natural, directa o indirectamente',
+      icon: <PersonIcon />,
+      color: '#60a5fa',
+      items: [
+        { value: 'nombre', label: 'Nombre y apellidos', risk: 'low' },
+        { value: 'rut', label: 'RUT o Cédula de Identidad', risk: 'medium' },
+        { value: 'direccion', label: 'Dirección domiciliaria', risk: 'medium' },
+        { value: 'telefono', label: 'Número telefónico', risk: 'medium' },
+        { value: 'email', label: 'Correo electrónico', risk: 'medium' },
+        { value: 'firma', label: 'Firma manuscrita', risk: 'medium' },
+        { value: 'fotografia', label: 'Fotografía o imagen', risk: 'high', warning: 'Requiere medidas especiales' },
+        { value: 'grabacion_video', label: 'Grabación audiovisual', risk: 'high', warning: 'EIPD obligatoria' },
+        { value: 'grabacion_audio', label: 'Grabación de voz', risk: 'medium' },
+        { value: 'imagen_vigilancia', label: 'Imagen de cámaras vigilancia', risk: 'high', warning: 'EIPD obligatoria' },
+        { value: 'huella_digital', label: 'Huella dactilar', risk: 'high' },
+        { value: 'geolocalizacion', label: 'Datos de geolocalización', risk: 'critical', warning: 'Múltiples obligaciones' },
+        { value: 'direccion_ip', label: 'Dirección IP', risk: 'medium' },
+        { value: 'cookies_identificacion', label: 'Cookies identificadoras', risk: 'medium' },
+        { value: 'numero_cuenta', label: 'Número de cuenta bancaria', risk: 'high' },
+        { value: 'patente_vehiculo', label: 'Patente de vehículo', risk: 'medium' }
+      ]
+    },
+    {
+      id: 'sensibles',
+      title: 'DATOS SENSIBLES',
+      subtitle: 'Art. 2 g) Ley 21.719',
+      description: 'Categorías especiales de datos personales que revelan información íntima - PROTECCIÓN REFORZADA',
+      icon: <SecurityIcon />,
+      color: '#ef4444',
+      items: [
+        { value: 'origen_racial', label: 'Origen racial o étnico', article: 'Art. 2 g) i)', risk: 'critical' },
+        { value: 'opiniones_politicas', label: 'Opiniones políticas', article: 'Art. 2 g) ii)', risk: 'critical' },
+        { value: 'convicciones_religiosas', label: 'Convicciones religiosas', article: 'Art. 2 g) iii)', risk: 'critical' },
+        { value: 'afiliacion_sindical', label: 'Afiliación sindical', article: 'Art. 2 g) iv)', risk: 'critical' },
+        { value: 'vida_sexual', label: 'Vida sexual u orientación sexual', article: 'Art. 2 g) v)', risk: 'critical' },
+        { value: 'datos_salud', label: 'Datos de salud física o mental', article: 'Art. 2 g) vi)', risk: 'critical' },
+        { value: 'datos_biometricos', label: 'Datos biométricos únicos', article: 'Art. 2 g) vii)', risk: 'critical' },
+        { value: 'antecedentes_penales', label: 'Antecedentes penales o infracciones', article: 'Art. 2 g) viii)', risk: 'critical' },
+        { value: 'datos_geneticos', label: 'Datos genéticos', article: 'Art. 2 g) ix)', risk: 'critical' },
+        { value: 'localizacion_permanente', label: 'Localización permanente', article: 'Art. 2 g) x)', risk: 'critical' }
+      ]
+    },
+    {
+      id: 'financieros',
+      title: 'DATOS FINANCIEROS Y COMERCIALES',
+      subtitle: 'Art. 2 f) y Art. 5° Ley 21.719',
+      description: 'Información económica y comercial - Principio de proporcionalidad',
+      icon: <FinanceIcon />,
+      color: '#10b981',
+      items: [
+        { value: 'ingresos_economicos', label: 'Ingresos económicos', risk: 'medium' },
+        { value: 'historial_crediticio', label: 'Historial crediticio', risk: 'high' },
+        { value: 'transacciones_bancarias', label: 'Transacciones bancarias', risk: 'high' },
+        { value: 'habitos_consumo', label: 'Hábitos de consumo', risk: 'medium' },
+        { value: 'scoring_financiero', label: 'Scoring financiero', risk: 'critical', warning: 'Trigger DPIA Art. 20' },
+        { value: 'morosidad', label: 'Información de morosidad', risk: 'high' },
+        { value: 'patrimonio', label: 'Datos patrimoniales', risk: 'high' },
+        { value: 'seguros', label: 'Pólizas de seguros', risk: 'medium' }
+      ]
+    },
+    {
+      id: 'laborales',
+      title: 'DATOS LABORALES',
+      subtitle: 'Art. 2 f) y Art. 154 bis Código del Trabajo',
+      description: 'Conservación: 5 años desde término relación laboral - Art. 11 Ley 21.719',
+      icon: <WorkIcon />,
+      color: '#f59e0b',
+      items: [
+        { value: 'cargo_posicion', label: 'Cargo o posición', risk: 'low' },
+        { value: 'sueldo_remuneracion', label: 'Sueldo o remuneración', risk: 'medium' },
+        { value: 'evaluaciones_desempeno', label: 'Evaluaciones desempeño', risk: 'high', warning: 'Posible DPIA Art. 20' },
+        { value: 'historial_laboral', label: 'Historial laboral', risk: 'medium' },
+        { value: 'referencias_laborales', label: 'Referencias laborales', risk: 'medium' },
+        { value: 'amonestaciones', label: 'Amonestaciones o sanciones', risk: 'high' },
+        { value: 'licencias_medicas', label: 'Licencias médicas', risk: 'critical', warning: 'Dato sensible Art. 2 g) vi)' },
+        { value: 'prevision_social', label: 'Datos previsión social (AFP, ISAPRE)', risk: 'medium' }
+      ]
+    },
+    {
+      id: 'academicos',
+      title: 'DATOS ACADÉMICOS Y FORMATIVOS',
+      subtitle: 'Art. 2 f) y Art. 6° Ley 21.719',
+      description: 'Principio de calidad: Datos exactos y actualizados',
+      icon: <EducationIcon />,
+      color: '#8b5cf6',
+      items: [
+        { value: 'titulos_profesionales', label: 'Títulos profesionales', risk: 'low' },
+        { value: 'certificaciones', label: 'Certificaciones', risk: 'low' },
+        { value: 'historial_academico', label: 'Historial académico', risk: 'medium' },
+        { value: 'capacitaciones', label: 'Capacitaciones', risk: 'low' },
+        { value: 'calificaciones', label: 'Calificaciones y notas', risk: 'medium' },
+        { value: 'idiomas', label: 'Competencias idiomáticas', risk: 'low' }
+      ]
+    },
+    {
+      id: 'comunicaciones',
+      title: 'DATOS DE COMUNICACIONES',
+      subtitle: 'Art. 2 f) y Art. 19 N°4 Constitución',
+      description: 'Secreto e inviolabilidad de comunicaciones - Requiere consentimiento expreso Art. 12',
+      icon: <CommunicationIcon />,
+      color: '#06b6d4',
+      items: [
+        { value: 'registros_llamadas', label: 'Registros de llamadas', risk: 'medium' },
+        { value: 'mensajeria', label: 'Mensajes (SMS, WhatsApp, email)', risk: 'medium' },
+        { value: 'metadata_comunicaciones', label: 'Metadata de comunicaciones', risk: 'high' },
+        { value: 'contenido_comunicaciones', label: 'Contenido comunicaciones', risk: 'critical', warning: 'EIPD Art. 19' }
+      ]
+    },
+    {
+      id: 'navegacion',
+      title: 'DATOS DE NAVEGACIÓN Y COOKIES',
+      subtitle: 'Art. 2 f), Art. 9° y Art. 15 Ley 21.719',
+      description: 'Transparencia obligatoria',
+      icon: <WebIcon />,
+      color: '#84cc16',
+      items: [
+        { value: 'cookies_analiticas', label: 'Cookies analíticas', risk: 'low' },
+        { value: 'cookies_publicidad', label: 'Cookies publicitarias', risk: 'medium' },
+        { value: 'historial_navegacion', label: 'Historial de navegación', risk: 'medium' },
+        { value: 'comportamiento_online', label: 'Comportamiento online', risk: 'high', warning: 'Posible DPIA Art. 20' },
+        { value: 'dispositivos_id', label: 'Identificadores de dispositivos', risk: 'medium' }
+      ]
+    }
+  ];
+
+  const getRiskColor = (risk) => {
+    switch(risk) {
+      case 'low': return '#10b981';
+      case 'medium': return '#f59e0b';
+      case 'high': return '#ef4444';
+      case 'critical': return '#7c2d12';
+      default: return '#6b7280';
+    }
+  };
+
+  const getRiskIcon = (risk) => {
+    switch(risk) {
+      case 'low': return <CheckIcon fontSize="small" />;
+      case 'medium': return <WarningIcon fontSize="small" />;
+      case 'high': return <WarningIcon fontSize="small" />;
+      case 'critical': return <SecurityIcon fontSize="small" />;
+      default: return null;
+    }
+  };
+
+  const getSelectedCount = (categoryId) => {
+    if (categoryId === 'sensibles') {
+      return Array.isArray(ratData.categorias.sensibles) ? ratData.categorias.sensibles.length : 0;
+    }
+    return Array.isArray(ratData.categorias.identificacion) ? 
+      ratData.categorias.identificacion.filter(item => 
+        categoriasConfig.find(cat => cat.id === categoryId)?.items.some(i => i.value === item)
+      ).length : 0;
+  };
+
   return (
-    <Box>
-      <Alert severity="info" sx={{ mb: 3 }}>
-        <Typography variant="caption" sx={{ fontWeight: 600 }}>
+    <Box sx={{ maxHeight: '80vh', overflowY: 'auto', pr: 1 }}>
+      <Alert severity="info" sx={{ mb: 3, position: 'sticky', top: 0, zIndex: 1 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
           📖 Fundamento Legal: Art. 2 letras f) y g) Ley 21.719
         </Typography>
         <Typography variant="caption" display="block">
           Los datos personales se clasifican según su naturaleza. Cada categoría requiere medidas específicas de protección.
-          El responsable debe identificar correctamente qué datos trata para aplicar las salvaguardas apropiadas.
         </Typography>
       </Alert>
-      
-      <Typography variant="h6" gutterBottom>
-        📋 DATOS DE IDENTIFICACIÓN - Art. 2 f) Ley 21.719
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        "Información que permite identificar a una persona natural, directa o indirectamente"
-      </Typography>
-      <FormGroup row>
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="nombre" />}
-          label="Nombre y apellidos"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="rut" />}
-          label="RUT o Cédula de Identidad"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="direccion" />}
-          label="Dirección domiciliaria"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="telefono" />}
-          label="Número telefónico"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="email" />}
-          label="Correo electrónico"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="firma" />}
-          label="Firma manuscrita"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="fotografia" />}
-          label="Fotografía o imagen"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="grabacion_video" />}
-          label="Grabación audiovisual"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="grabacion_audio" />}
-          label="Grabación de voz"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="imagen_vigilancia" />}
-          label="Imagen de cámaras vigilancia"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="huella_digital" />}
-          label="Huella dactilar"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="geolocalizacion" />}
-          label="Datos de geolocalización"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="direccion_ip" />}
-          label="Dirección IP"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="cookies_identificacion" />}
-          label="Cookies identificadoras"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="numero_cuenta" />}
-          label="Número de cuenta bancaria"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="patente_vehiculo" />}
-          label="Patente de vehículo"
-        />
-      </FormGroup>
 
-      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-        🚨 DATOS SENSIBLES - Art. 2 letra g) Ley 21.719
-      </Typography>
-      <Typography variant="body2" color="error.main" sx={{ mb: 2, fontWeight: 600 }}>
-        "Categorías especiales de datos personales que revelan información íntima" - PROTECCIÓN REFORZADA OBLIGATORIA
-      </Typography>
-      <FormGroup row>
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="origen_racial" />}
-          label="Origen racial o étnico - Art. 2 g) i)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="opiniones_politicas" />}
-          label="Opiniones políticas - Art. 2 g) ii)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="convicciones_religiosas" />}
-          label="Convicciones religiosas - Art. 2 g) iii)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="afiliacion_sindical" />}
-          label="Afiliación sindical - Art. 2 g) iv)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="vida_sexual" />}
-          label="Vida sexual u orientación sexual - Art. 2 g) v)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="datos_salud" />}
-          label="Datos de salud física o mental - Art. 2 g) vi)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="datos_biometricos" />}
-          label="Datos biométricos únicos - Art. 2 g) vii)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="antecedentes_penales" />}
-          label="Antecedentes penales o infracciones - Art. 2 g) viii)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="datos_geneticos" />}
-          label="Datos genéticos - Art. 2 g) ix)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleSensibles} value="localizacion_permanente" />}
-          label="Localización permanente - Art. 2 g) x)"
-        />
-      </FormGroup>
+      <Grid container spacing={2}>
+        {categoriasConfig.map((categoria) => {
+          const isExpanded = expandedCategory === categoria.id;
+          const selectedCount = getSelectedCount(categoria.id);
+          const isSelected = selectedCount > 0;
+          
+          return (
+            <Grid item xs={12} key={categoria.id}>
+              <Card 
+                sx={{ 
+                  border: isSelected ? `2px solid ${categoria.color}` : '1px solid #374151',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 25px rgba(0,0,0,0.2)'
+                  }
+                }}
+              >
+                <CardHeader
+                  avatar={
+                    <Avatar sx={{ bgcolor: categoria.color, color: '#fff' }}>
+                      {categoria.icon}
+                    </Avatar>
+                  }
+                  action={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {selectedCount > 0 && (
+                        <Chip
+                          label={`${selectedCount} seleccionados`}
+                          size="small"
+                          sx={{
+                            bgcolor: categoria.color,
+                            color: '#fff',
+                            fontWeight: 'bold'
+                          }}
+                        />
+                      )}
+                      <IconButton 
+                        onClick={() => setExpandedCategory(isExpanded ? null : categoria.id)}
+                        sx={{ 
+                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.3s ease'
+                        }}
+                      >
+                        <ExpandMoreIcon />
+                      </IconButton>
+                    </Box>
+                  }
+                  title={
+                    <Typography variant="h6" sx={{ color: categoria.color, fontWeight: 700 }}>
+                      {categoria.title}
+                    </Typography>
+                  }
+                  subheader={
+                    <Box>
+                      <Typography variant="caption" sx={{ color: '#9ca3af', fontWeight: 600 }}>
+                        {categoria.subtitle}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#d1d5db', mt: 0.5 }}>
+                        {categoria.description}
+                      </Typography>
+                    </Box>
+                  }
+                />
+                
+                <Collapse in={isExpanded} timeout={300}>
+                  <CardContent sx={{ pt: 0 }}>
+                    <Grid container spacing={1}>
+                      {categoria.items.map((item) => {
+                        const isChecked = categoria.id === 'sensibles' ?
+                          Array.isArray(ratData.categorias.sensibles) && ratData.categorias.sensibles.includes(item.value) :
+                          Array.isArray(ratData.categorias.identificacion) && ratData.categorias.identificacion.includes(item.value);
+                        
+                        return (
+                          <Grid item xs={12} sm={6} md={4} key={item.value}>
+                            <Paper 
+                              sx={{ 
+                                p: 1.5, 
+                                border: isChecked ? `2px solid ${categoria.color}` : '1px solid #374151',
+                                bgcolor: isChecked ? `${categoria.color}15` : 'transparent',
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                  bgcolor: `${categoria.color}10`,
+                                  borderColor: categoria.color
+                                }
+                              }}
+                            >
+                              <FormControlLabel
+                                control={
+                                  <Checkbox 
+                                    onChange={categoria.id === 'sensibles' ? handleSensibles : handleIdentificacion}
+                                    value={item.value}
+                                    checked={isChecked}
+                                    sx={{
+                                      color: categoria.color,
+                                      '&.Mui-checked': {
+                                        color: categoria.color
+                                      }
+                                    }}
+                                  />
+                                }
+                                label={
+                                  <Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                      {getRiskIcon(item.risk)}
+                                      <Typography 
+                                        variant="body2" 
+                                        sx={{ 
+                                          fontWeight: isChecked ? 600 : 400,
+                                          color: isChecked ? categoria.color : 'inherit'
+                                        }}
+                                      >
+                                        {item.label}
+                                      </Typography>
+                                    </Box>
+                                    
+                                    {item.article && (
+                                      <Typography variant="caption" sx={{ color: '#9ca3af', display: 'block' }}>
+                                        {item.article}
+                                      </Typography>
+                                    )}
+                                    
+                                    {item.warning && (
+                                      <Typography variant="caption" sx={{ color: '#ef4444', display: 'block', fontWeight: 600 }}>
+                                        ⚠️ {item.warning}
+                                      </Typography>
+                                    )}
+                                    
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                      <Box
+                                        sx={{
+                                          width: 8,
+                                          height: 8,
+                                          borderRadius: '50%',
+                                          bgcolor: getRiskColor(item.risk)
+                                        }}
+                                      />
+                                      <Typography variant="caption" sx={{ color: '#9ca3af', textTransform: 'uppercase', fontSize: '0.65rem' }}>
+                                        Riesgo: {item.risk}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+                                }
+                                sx={{ width: '100%', m: 0 }}
+                              />
+                            </Paper>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  </CardContent>
+                </Collapse>
+              </Card>
+            </Grid>
+          );
+        })}
+      </Grid>
 
-      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-        📊 DATOS FINANCIEROS Y COMERCIALES - Art. 2 f) Ley 21.719
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Información económica y comercial - Principio de proporcionalidad Art. 5° Ley 21.719
-      </Typography>
-      <FormGroup row>
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="ingresos_economicos" />}
-          label="Ingresos económicos"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="historial_crediticio" />}
-          label="Historial crediticio - Art. 2 f)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="transacciones_bancarias" />}
-          label="Transacciones bancarias"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="habitos_consumo" />}
-          label="Hábitos de consumo"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="scoring_financiero" />}
-          label="Scoring financiero → Trigger DPIA Art. 20"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="morosidad" />}
-          label="Información de morosidad"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="patrimonio" />}
-          label="Datos patrimoniales"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="seguros" />}
-          label="Pólizas de seguros"
-        />
-      </FormGroup>
-
-      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-        💼 DATOS LABORALES - Art. 2 f) y Art. 154 bis Código del Trabajo
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Conservación: 5 años desde término relación laboral - Art. 11 Ley 21.719
-      </Typography>
-      <FormGroup row>
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="cargo_posicion" />}
-          label="Cargo o posición"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="sueldo_remuneracion" />}
-          label="Sueldo o remuneración"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="evaluaciones_desempeno" />}
-          label="Evaluaciones desempeño → Posible DPIA Art. 20"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="historial_laboral" />}
-          label="Historial laboral"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="referencias_laborales" />}
-          label="Referencias laborales"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="amonestaciones" />}
-          label="Amonestaciones o sanciones"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="licencias_medicas" />}
-          label="Licencias médicas → Dato sensible Art. 2 g) vi)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="prevision_social" />}
-          label="Datos previsión social (AFP, ISAPRE)"
-        />
-      </FormGroup>
-
-      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-        🎓 DATOS ACADÉMICOS Y FORMATIVOS - Art. 2 f) Ley 21.719
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Principio de calidad: Datos exactos y actualizados - Art. 6° Ley 21.719
-      </Typography>
-      <FormGroup row>
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="titulos_profesionales" />}
-          label="Títulos profesionales"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="certificaciones" />}
-          label="Certificaciones"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="historial_academico" />}
-          label="Historial académico"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="capacitaciones" />}
-          label="Capacitaciones"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="calificaciones" />}
-          label="Calificaciones y notas"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="idiomas" />}
-          label="Competencias idiomáticas"
-        />
-      </FormGroup>
-
-      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-        📡 DATOS DE COMUNICACIONES - Art. 2 f) y Art. 19 N°4 Constitución
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Secreto e inviolabilidad de comunicaciones - Requiere consentimiento expreso Art. 12
-      </Typography>
-      <FormGroup row>
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="registros_llamadas" />}
-          label="Registros de llamadas"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="mensajeria" />}
-          label="Mensajes (SMS, WhatsApp, email)"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="metadata_comunicaciones" />}
-          label="Metadata de comunicaciones"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="contenido_comunicaciones" />}
-          label="Contenido comunicaciones → EIPD Art. 19"
-        />
-      </FormGroup>
-
-      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-        🌐 DATOS DE NAVEGACIÓN Y COOKIES - Art. 2 f) Ley 21.719
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Transparencia obligatoria - Art. 9° y Art. 15 Ley 21.719
-      </Typography>
-      <FormGroup row>
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="cookies_analiticas" />}
-          label="Cookies analíticas"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="cookies_publicidad" />}
-          label="Cookies publicitarias"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="historial_navegacion" />}
-          label="Historial de navegación"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="comportamiento_online" />}
-          label="Comportamiento online → Posible DPIA Art. 20"
-        />
-        <FormControlLabel
-          control={<Checkbox onChange={handleIdentificacion} value="dispositivos_id" />}
-          label="Identificadores de dispositivos"
-        />
-      </FormGroup>
-
-      {ratData.categorias.sensibles.length > 0 && (
+      {/* Alertas dinámicas basadas en las selecciones */}
+      {Array.isArray(ratData.categorias.sensibles) && ratData.categorias.sensibles.length > 0 && (
         <Alert severity="success" sx={{ mt: 3, bgcolor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
           <Typography variant="body2" fontWeight="bold">
             ✅ SISTEMA PUEDE CONTINUAR - EIPD SE ASIGNARÁ AUTOMÁTICAMENTE
@@ -1537,80 +1702,27 @@ const PasoCategorias = ({ ratData, setRatData }) => {
         </Alert>
       )}
 
-      {(Array.isArray(ratData.categorias.identificacion) && 
-        (ratData.categorias.identificacion.includes('fotografia') || 
-         ratData.categorias.identificacion.includes('grabacion_video') ||
-         ratData.categorias.identificacion.includes('imagen_vigilancia'))) && (
-        <Alert severity="warning" sx={{ mt: 2 }}>
-          <Typography variant="body2" fontWeight="bold">
-            ⚠️ IMÁGENES/VIDEOS DETECTADOS - Requiere medidas especiales
-          </Typography>
-          <Typography variant="caption">
-            Base legal: Art. 2 f) dato personal + Art. 12 consentimiento expreso Ley 21.719
-          </Typography>
-          <Typography variant="caption" display="block">
-            Videovigilancia: Art. 19 EIPD obligatoria para observación sistemática zonas públicas
-          </Typography>
-          <Typography variant="caption" display="block">
-            Obligación: Señalización visible + Política de retención Art. 11 Ley 21.719
-          </Typography>
-        </Alert>
-      )}
-
-      {(Array.isArray(ratData.categorias.identificacion) && 
-        ratData.categorias.identificacion.includes('geolocalizacion')) && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          <Typography variant="body2" fontWeight="bold">
-            🚨 GEOLOCALIZACIÓN DETECTADA - Múltiples obligaciones legales
-          </Typography>
-          <Typography variant="caption">
-            1. EIPD obligatoria: Art. 19 Ley 21.719 - Observación sistemática
-          </Typography>
-          <Typography variant="caption" display="block">
-            2. Si es permanente: Dato sensible Art. 2 g) x) - Protección reforzada
-          </Typography>
-          <Typography variant="caption" display="block">
-            3. Consentimiento granular requerido - Art. 12 Ley 21.719
-          </Typography>
-          <Typography variant="caption" display="block" color="error">
-            4. Sanción: Hasta 20.000 UTM por tratamiento ilegal - Art. 34 quáter
-          </Typography>
-        </Alert>
-      )}
-
-      {(Array.isArray(ratData.categorias.identificacion) && 
-        (ratData.categorias.identificacion.includes('scoring_financiero') ||
-         ratData.categorias.identificacion.includes('comportamiento_online'))) && (
-        <Alert severity="info" sx={{ mt: 2 }}>
-          <Typography variant="body2" fontWeight="bold">
-            🤖 ALGORITMOS/SCORING DETECTADO - DPIA automática
-          </Typography>
-          <Typography variant="caption">
-            Art. 20 Ley 21.719: Evaluación previa de algoritmos obligatoria
-          </Typography>
-          <Typography variant="caption" display="block">
-            Art. 28: Derecho a no ser objeto de decisiones automatizadas
-          </Typography>
-          <Typography variant="caption" display="block">
-            Obligación: Documentar lógica aplicada y permitir intervención humana
-          </Typography>
-        </Alert>
-      )}
-
-      {(Array.isArray(ratData.categorias.identificacion) && 
-        ratData.categorias.identificacion.includes('licencias_medicas')) && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          <Typography variant="body2" fontWeight="bold">
-            🏥 DATOS DE SALUD EN CONTEXTO LABORAL
-          </Typography>
-          <Typography variant="caption">
-            Doble protección: Art. 2 g) vi) dato sensible + Art. 154 bis Código Trabajo
-          </Typography>
-          <Typography variant="caption" display="block">
-            EIPD obligatoria + Medidas seguridad reforzadas Art. 14 Ley 21.719
-          </Typography>
-        </Alert>
-      )}
+      {/* Contador de selección al final */}
+      <Paper sx={{ p: 2, mt: 3, bgcolor: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(79, 70, 229, 0.3)' }}>
+        <Typography variant="body2" sx={{ fontWeight: 600, color: '#4f46e5' }}>
+          📊 Resumen de Selección:
+        </Typography>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          {categoriasConfig.map((categoria) => {
+            const count = getSelectedCount(categoria.id);
+            return count > 0 ? (
+              <Grid item xs={6} sm={4} md={3} key={categoria.id}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {categoria.icon}
+                  <Typography variant="caption">
+                    {categoria.title.split(' ')[1]}: {count}
+                  </Typography>
+                </Box>
+              </Grid>
+            ) : null;
+          })}
+        </Grid>
+      </Paper>
     </Box>
   );
 };
@@ -1622,22 +1734,40 @@ const PasoBaseLegal = ({ ratData, setRatData }) => {
     
     switch(value) {
       case 'consentimiento':
-        argumento = 'Art. 12 Ley 21.719 - Consentimiento libre, previo, informado y específico del titular de los datos';
+        argumento = 'Art. 12 Ley 21.719 - Consentimiento libre, previo, informado y específico del titular de los datos. Debe ser otorgado para finalidades específicas y puede ser revocado en cualquier momento.';
+        break;
+      case 'consentimiento_expreso':
+        argumento = 'Art. 12 inc. 2° Ley 21.719 - Consentimiento expreso requerido para datos sensibles. Debe manifestarse de forma inequívoca mediante declaración escrita o acto positivo.';
+        break;
+      case 'consentimiento_padres':
+        argumento = 'Art. 12 inc. 3° Ley 21.719 - Consentimiento de padres o representantes legales para menores de 14 años. Considera el interés superior del menor.';
         break;
       case 'contrato':
-        argumento = 'Art. 13.1.b Ley 21.719 - Necesario para la ejecución de un contrato en que el titular es parte';
+        argumento = 'Art. 13.1.b Ley 21.719 - Necesario para la ejecución de un contrato en que el titular es parte o para medidas precontractuales adoptadas a petición del titular.';
         break;
       case 'obligacion_legal':
-        argumento = 'Art. 13.1.c Ley 21.719 - Necesario para cumplir una obligación legal del responsable';
+        argumento = 'Art. 13.1.c Ley 21.719 - Necesario para cumplir una obligación legal aplicable al responsable del tratamiento según el ordenamiento jurídico chileno.';
         break;
       case 'interes_vital':
-        argumento = 'Art. 13.1.d Ley 21.719 - Necesario para proteger intereses vitales del titular';
+        argumento = 'Art. 13.1.d Ley 21.719 - Necesario para proteger intereses vitales del titular o de otra persona física cuando el titular no pueda dar su consentimiento.';
         break;
       case 'mision_publica':
-        argumento = 'Art. 13.1.e Ley 21.719 - Cumplimiento de misión realizada en interés público';
+        argumento = 'Art. 13.1.e Ley 21.719 - Necesario para el cumplimiento de una misión realizada en interés público o en ejercicio de poderes públicos conferidos al responsable.';
         break;
       case 'interes_legitimo':
-        argumento = 'Art. 13.1.f Ley 21.719 - Interés legítimo del responsable o tercero';
+        argumento = 'Art. 13.1.f Ley 21.719 - Necesario para satisfacer intereses legítimos perseguidos por el responsable o tercero, siempre que no prevalezcan los derechos del titular.';
+        break;
+      case 'investigacion_cientifica':
+        argumento = 'Art. 13 inc. 2° Ley 21.719 - Tratamiento para fines de investigación científica, histórica o estadística, con garantías apropiadas para los derechos del titular.';
+        break;
+      case 'interes_publico_salud':
+        argumento = 'Art. 13 inc. 3° Ley 21.719 - Tratamiento por razones de interés público en el ámbito de la salud pública, protección ante amenazas transfronterizas o estándares de calidad.';
+        break;
+      case 'medicina_laboral':
+        argumento = 'Art. 13 inc. 4° Ley 21.719 - Tratamiento necesario para medicina del trabajo, evaluación de capacidad laboral, diagnóstico médico o prestación de asistencia sanitaria.';
+        break;
+      case 'libertad_expresion':
+        argumento = 'Art. 13 inc. 5° Ley 21.719 - Tratamiento para el ejercicio del derecho a la libertad de expresión e información, incluido el tratamiento con fines periodísticos.';
         break;
       default:
         argumento = '';
@@ -1650,111 +1780,289 @@ const PasoBaseLegal = ({ ratData, setRatData }) => {
     });
   };
 
+  const basesLegales = [
+    {
+      value: 'consentimiento',
+      title: 'CONSENTIMIENTO GENERAL',
+      subtitle: 'Art. 12 Ley 21.719',
+      description: 'Autorización libre, previa, informada y específica del titular',
+      icon: <PersonIcon />,
+      color: '#10b981',
+      casos: ['Marketing directo', 'Finalidades no obligatorias', 'Tratamientos opcionales']
+    },
+    {
+      value: 'consentimiento_expreso',
+      title: 'CONSENTIMIENTO EXPRESO',
+      subtitle: 'Art. 12 inc. 2° Ley 21.719',
+      description: 'Requerido específicamente para datos sensibles',
+      icon: <SecurityIcon />,
+      color: '#ef4444',
+      casos: ['Datos de salud', 'Datos biométricos', 'Orientación sexual', 'Creencias religiosas']
+    },
+    {
+      value: 'consentimiento_padres',
+      title: 'CONSENTIMIENTO REPRESENTANTES',
+      subtitle: 'Art. 12 inc. 3° Ley 21.719',
+      description: 'Para menores de 14 años - Interés superior del menor',
+      icon: <PersonIcon />,
+      color: '#f59e0b',
+      casos: ['Datos de menores', 'Servicios educativos', 'Plataformas infantiles']
+    },
+    {
+      value: 'contrato',
+      title: 'EJECUCIÓN DE CONTRATO',
+      subtitle: 'Art. 13.1.b Ley 21.719',
+      description: 'Necesario para ejecutar contrato o medidas precontractuales',
+      icon: <BusinessIcon />,
+      color: '#3b82f6',
+      casos: ['Datos de clientes', 'Facturación', 'Entrega de servicios', 'Due diligence']
+    },
+    {
+      value: 'obligacion_legal',
+      title: 'OBLIGACIÓN LEGAL',
+      subtitle: 'Art. 13.1.c Ley 21.719',
+      description: 'Cumplimiento de obligación legal aplicable al responsable',
+      icon: <AccountBalance />,
+      color: '#6366f1',
+      casos: ['Obligaciones tributarias', 'Informes SII', 'Cumplimiento laboral', 'Prevención lavado']
+    },
+    {
+      value: 'interes_vital',
+      title: 'INTERÉS VITAL',
+      subtitle: 'Art. 13.1.d Ley 21.719',
+      description: 'Protección de intereses vitales del titular u otra persona',
+      icon: <HealthIcon />,
+      color: '#dc2626',
+      casos: ['Emergencias médicas', 'Situaciones de riesgo', 'Protección de menores']
+    },
+    {
+      value: 'mision_publica',
+      title: 'MISIÓN PÚBLICA',
+      subtitle: 'Art. 13.1.e Ley 21.719',
+      description: 'Cumplimiento de misión de interés público',
+      icon: <BusinessIcon />,
+      color: '#059669',
+      casos: ['Servicios públicos', 'Regulación sectorial', 'Funciones administrativas']
+    },
+    {
+      value: 'interes_legitimo',
+      title: 'INTERÉS LEGÍTIMO',
+      subtitle: 'Art. 13.1.f Ley 21.719',
+      description: 'Intereses legítimos que no prevalezcan sobre derechos del titular',
+      icon: <CheckIcon />,
+      color: '#7c3aed',
+      casos: ['Seguridad de la información', 'Prevención fraudes', 'Marketing legítimo']
+    },
+    {
+      value: 'investigacion_cientifica',
+      title: 'INVESTIGACIÓN CIENTÍFICA',
+      subtitle: 'Art. 13 inc. 2° Ley 21.719',
+      description: 'Investigación científica, histórica o estadística con garantías',
+      icon: <School />,
+      color: '#0891b2',
+      casos: ['Estudios académicos', 'Investigación médica', 'Estadísticas públicas']
+    },
+    {
+      value: 'interes_publico_salud',
+      title: 'INTERÉS PÚBLICO - SALUD',
+      subtitle: 'Art. 13 inc. 3° Ley 21.719',
+      description: 'Razones de interés público en salud pública',
+      icon: <HealthIcon />,
+      color: '#be185d',
+      casos: ['Vigilancia epidemiológica', 'Emergencias sanitarias', 'Farmacovigilancia']
+    },
+    {
+      value: 'medicina_laboral',
+      title: 'MEDICINA LABORAL',
+      subtitle: 'Art. 13 inc. 4° Ley 21.719',
+      description: 'Medicina del trabajo y evaluación de capacidad laboral',
+      icon: <WorkIcon />,
+      color: '#9333ea',
+      casos: ['Exámenes ocupacionales', 'Evaluación discapacidad', 'Medicina preventiva']
+    },
+    {
+      value: 'libertad_expresion',
+      title: 'LIBERTAD DE EXPRESIÓN',
+      subtitle: 'Art. 13 inc. 5° Ley 21.719',
+      description: 'Ejercicio del derecho a libertad de expresión e información',
+      icon: <CommunicationIcon />,
+      color: '#ea580c',
+      casos: ['Medios de comunicación', 'Periodismo', 'Expresión artística', 'Documentales']
+    },
+    {
+      value: 'seguridad_nacional',
+      title: 'SEGURIDAD NACIONAL',
+      subtitle: 'Art. 4 inc. 2° Ley 21.719',
+      description: 'Protección de la seguridad nacional y orden público',
+      icon: <SecurityIcon />,
+      color: '#7f1d1d',
+      casos: ['Fuerzas Armadas', 'Carabineros', 'PDI', 'Inteligencia']
+    },
+    {
+      value: 'archivos_historicos',
+      title: 'ARCHIVOS HISTÓRICOS',
+      subtitle: 'Art. 13 inc. 6° Ley 21.719',
+      description: 'Fines de archivo de interés público, investigación histórica',
+      icon: <EducationIcon />,
+      color: '#a16207',
+      casos: ['Archivo Nacional', 'Bibliotecas', 'Museos', 'Universidades']
+    },
+    {
+      value: 'prevencion_delitos',
+      title: 'PREVENCIÓN DE DELITOS',
+      subtitle: 'Art. 13 bis Ley 21.719',
+      description: 'Prevención, investigación y persecución de delitos',
+      icon: <SecurityIcon />,
+      color: '#831843',
+      casos: ['Policías', 'Ministerio Público', 'Tribunales', 'Gendarmería']
+    },
+    {
+      value: 'proteccion_menores',
+      title: 'PROTECCIÓN DE MENORES',
+      subtitle: 'Art. 12 inc. 3° Ley 21.719',
+      description: 'Protección del interés superior del menor',
+      icon: <PersonIcon />,
+      color: '#be123c',
+      casos: ['SENAME', 'Tribunales Familia', 'Colegios', 'Centros de Salud']
+    }
+  ];
+
   return (
-    <Box>
-      <Alert severity="info" sx={{ mb: 3 }}>
-        <Typography variant="caption" sx={{ fontWeight: 600 }}>
-          Fundamento Legal: Art. 9 y Art. 13 Ley 21.719
+    <Box sx={{ maxHeight: '80vh', overflowY: 'auto', pr: 1 }}>
+      <Alert severity="info" sx={{ mb: 3, position: 'sticky', top: 0, zIndex: 1 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          📚 FUNDAMENTOS LEGALES COMPLETOS - Ley 21.719 LPDP
         </Typography>
         <Typography variant="caption" display="block">
-          El tratamiento debe tener una base jurídica que lo legitime según la normativa vigente
+          Todo tratamiento debe tener una base jurídica que lo legitime. Sistema actualizado con TODAS las bases legales de la Ley 21.719.
+        </Typography>
+        <Typography variant="caption" display="block" sx={{ mt: 1, fontStyle: 'italic' }}>
+          ✅ {basesLegales.length} bases legales disponibles | Art. 12, 13 y concordantes
         </Typography>
       </Alert>
-      <Typography variant="h6" gutterBottom>
+      
+      <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
         SELECCIONE LA BASE LEGAL APLICABLE:
       </Typography>
       
       <RadioGroup value={ratData.baseLegal} onChange={handleChange}>
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <FormControlLabel
-            value="consentimiento"
-            control={<Radio />}
-            label={
-              <Box>
-                <Typography variant="body1" fontWeight="bold">
-                  CONSENTIMIENTO
-                </Typography>
-                <Typography variant="caption">
-                  Art. 4 Ley 19.628
-                </Typography>
-                <Typography variant="caption" display="block">
-                  "Autorización expresa del titular"
-                </Typography>
-              </Box>
-            }
-          />
-        </Paper>
-
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <FormControlLabel
-            value="contrato"
-            control={<Radio />}
-            label={
-              <Box>
-                <Typography variant="body1" fontWeight="bold">
-                  EJECUCIÓN DE CONTRATO
-                </Typography>
-                <Typography variant="caption">
-                  Art. 9 literal b) Ley 21.719
-                </Typography>
-                <Typography variant="caption" display="block">
-                  "Necesario para la ejecución de un contrato"
-                </Typography>
-              </Box>
-            }
-          />
-        </Paper>
-
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <FormControlLabel
-            value="obligacion_legal"
-            control={<Radio />}
-            label={
-              <Box>
-                <Typography variant="body1" fontWeight="bold">
-                  OBLIGACIÓN LEGAL
-                </Typography>
-                <Typography variant="caption">
-                  Art. 9 literal c) Ley 21.719
-                </Typography>
-                <Typography variant="caption" display="block">
-                  "Cumplimiento de obligación legal"
-                </Typography>
-              </Box>
-            }
-          />
-        </Paper>
-
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <FormControlLabel
-            value="interes_legitimo"
-            control={<Radio />}
-            label={
-              <Box>
-                <Typography variant="body1" fontWeight="bold">
-                  INTERÉS LEGÍTIMO
-                </Typography>
-                <Typography variant="caption">
-                  Art. 9 literal f) Ley 21.719
-                </Typography>
-                <Typography variant="caption" display="block">
-                  "Interés legítimo del responsable"
-                </Typography>
-              </Box>
-            }
-          />
-        </Paper>
+        <Grid container spacing={2}>
+          {basesLegales.map((base) => {
+            const isSelected = ratData.baseLegal === base.value;
+            
+            return (
+              <Grid item xs={12} md={6} key={base.value}>
+                <Paper 
+                  sx={{ 
+                    p: 0,
+                    border: isSelected ? `2px solid ${base.color}` : '1px solid #374151',
+                    bgcolor: isSelected ? `${base.color}15` : 'transparent',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+                      borderColor: base.color
+                    }
+                  }}
+                >
+                  <FormControlLabel
+                    value={base.value}
+                    control={
+                      <Radio 
+                        sx={{
+                          color: base.color,
+                          '&.Mui-checked': { color: base.color }
+                        }}
+                      />
+                    }
+                    label={
+                      <Box sx={{ width: '100%', py: 2, pr: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                          <Avatar sx={{ bgcolor: base.color, color: '#fff', width: 32, height: 32 }}>
+                            {base.icon}
+                          </Avatar>
+                          <Box>
+                            <Typography 
+                              variant="body1" 
+                              sx={{ 
+                                fontWeight: 700,
+                                color: isSelected ? base.color : 'inherit'
+                              }}
+                            >
+                              {base.title}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#9ca3af', fontWeight: 600 }}>
+                              {base.subtitle}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        <Typography variant="body2" sx={{ color: '#d1d5db', mb: 2 }}>
+                          {base.description}
+                        </Typography>
+                        
+                        <Box>
+                          <Typography variant="caption" sx={{ color: '#9ca3af', fontWeight: 600, mb: 1, display: 'block' }}>
+                            Casos de uso típicos:
+                          </Typography>
+                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                            {base.casos.map((caso, index) => (
+                              <Chip
+                                key={index}
+                                label={caso}
+                                size="small"
+                                variant="outlined"
+                                sx={{
+                                  borderColor: base.color,
+                                  color: base.color,
+                                  fontSize: '0.7rem'
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        </Box>
+                      </Box>
+                    }
+                    sx={{ width: '100%', m: 0, alignItems: 'flex-start' }}
+                  />
+                </Paper>
+              </Grid>
+            );
+          })}
+        </Grid>
       </RadioGroup>
 
       {ratData.argumentoJuridico && (
-        <Alert severity="info" sx={{ mt: 3 }}>
-          <Typography variant="body2">
-            Argumento jurídico generado automáticamente:
+        <Alert severity="success" sx={{ mt: 3, bgcolor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+            ✅ Argumento jurídico generado automáticamente:
           </Typography>
-          <Typography variant="caption">
+          <Typography variant="body2" sx={{ color: '#d1d5db' }}>
             {ratData.argumentoJuridico}
           </Typography>
         </Alert>
+      )}
+      
+      {ratData.baseLegal && (
+        <Paper sx={{ p: 2, mt: 3, bgcolor: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(79, 70, 229, 0.3)' }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: '#4f46e5', mb: 1 }}>
+            📋 Obligaciones adicionales para esta base legal:
+          </Typography>
+          {ratData.baseLegal.includes('consentimiento') && (
+            <Box>
+              <Typography variant="caption" display="block">• Documentar claramente el consentimiento otorgado</Typography>
+              <Typography variant="caption" display="block">• Facilitar mecanismo para retirar consentimiento</Typography>
+              <Typography variant="caption" display="block">• Informar sobre finalidades específicas</Typography>
+            </Box>
+          )}
+          {ratData.baseLegal === 'interes_legitimo' && (
+            <Box>
+              <Typography variant="caption" display="block">• Realizar test de balancing (intereses vs. derechos)</Typography>
+              <Typography variant="caption" display="block">• Documentar evaluación de impacto</Typography>
+              <Typography variant="caption" display="block">• Informar sobre derecho de oposición</Typography>
+            </Box>
+          )}
+        </Paper>
       )}
     </Box>
   );
@@ -1818,12 +2126,84 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
     <Typography variant="h6" gutterBottom>
       DESTINATARIOS INTERNOS:
     </Typography>
-    <FormGroup row sx={{ mb: 3 }}>
-      <FormControlLabel control={<Checkbox />} label="Departamento Contabilidad" />
-      <FormControlLabel control={<Checkbox />} label="Recursos Humanos" />
-      <FormControlLabel control={<Checkbox />} label="Gerencia" />
-      <FormControlLabel control={<Checkbox />} label="Auditoría Interna" />
-    </FormGroup>
+    <Alert severity="info" sx={{ mb: 2 }}>
+      <Typography variant="body2" fontWeight="bold">Art. 24-26 Ley 21.719</Typography>
+      <Typography variant="caption">Seleccione las áreas organizacionales que tendrán acceso a los datos</Typography>
+    </Alert>
+    
+    <Grid container spacing={2} sx={{ mb: 3 }}>
+      {/* Áreas Administrativas */}
+      <Grid item xs={12} md={6}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#4f46e5', mb: 1 }}>📋 ÁREAS ADMINISTRATIVAS</Typography>
+        <FormGroup>
+          <FormControlLabel control={<Checkbox />} label="Gerencia General" />
+          <FormControlLabel control={<Checkbox />} label="Subgerencia" />
+          <FormControlLabel control={<Checkbox />} label="Dirección Ejecutiva" />
+          <FormControlLabel control={<Checkbox />} label="Secretaría General" />
+          <FormControlLabel control={<Checkbox />} label="Administración" />
+        </FormGroup>
+      </Grid>
+      
+      {/* Áreas Financieras */}
+      <Grid item xs={12} md={6}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#059669', mb: 1 }}>💰 ÁREAS FINANCIERAS</Typography>
+        <FormGroup>
+          <FormControlLabel control={<Checkbox />} label="Contabilidad" />
+          <FormControlLabel control={<Checkbox />} label="Finanzas" />
+          <FormControlLabel control={<Checkbox />} label="Tesorería" />
+          <FormControlLabel control={<Checkbox />} label="Control de Gestión" />
+          <FormControlLabel control={<Checkbox />} label="Auditoría Interna" />
+        </FormGroup>
+      </Grid>
+      
+      {/* Áreas Operacionales */}
+      <Grid item xs={12} md={6}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#dc2626', mb: 1 }}>⚙️ ÁREAS OPERACIONALES</Typography>
+        <FormGroup>
+          <FormControlLabel control={<Checkbox />} label="Recursos Humanos" />
+          <FormControlLabel control={<Checkbox />} label="Operaciones" />
+          <FormControlLabel control={<Checkbox />} label="Producción" />
+          <FormControlLabel control={<Checkbox />} label="Logística" />
+          <FormControlLabel control={<Checkbox />} label="Compras" />
+        </FormGroup>
+      </Grid>
+      
+      {/* Áreas Técnicas */}
+      <Grid item xs={12} md={6}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#7c3aed', mb: 1 }}>🔧 ÁREAS TÉCNICAS</Typography>
+        <FormGroup>
+          <FormControlLabel control={<Checkbox />} label="Tecnología (TI)" />
+          <FormControlLabel control={<Checkbox />} label="Sistemas" />
+          <FormControlLabel control={<Checkbox />} label="Seguridad de la Información" />
+          <FormControlLabel control={<Checkbox />} label="Calidad" />
+          <FormControlLabel control={<Checkbox />} label="I+D+i" />
+        </FormGroup>
+      </Grid>
+      
+      {/* Áreas Comerciales */}
+      <Grid item xs={12} md={6}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#ea580c', mb: 1 }}>🎯 ÁREAS COMERCIALES</Typography>
+        <FormGroup>
+          <FormControlLabel control={<Checkbox />} label="Ventas" />
+          <FormControlLabel control={<Checkbox />} label="Marketing" />
+          <FormControlLabel control={<Checkbox />} label="Servicio al Cliente" />
+          <FormControlLabel control={<Checkbox />} label="Desarrollo de Negocios" />
+          <FormControlLabel control={<Checkbox />} label="CRM" />
+        </FormGroup>
+      </Grid>
+      
+      {/* Áreas Legales y Compliance */}
+      <Grid item xs={12} md={6}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#0891b2', mb: 1 }}>⚖️ ÁREAS LEGALES Y COMPLIANCE</Typography>
+        <FormGroup>
+          <FormControlLabel control={<Checkbox />} label="Legal" />
+          <FormControlLabel control={<Checkbox />} label="Compliance" />
+          <FormControlLabel control={<Checkbox />} label="Riesgos" />
+          <FormControlLabel control={<Checkbox />} label="DPO (Delegado Protección Datos)" />
+          <FormControlLabel control={<Checkbox />} label="Prevención de Lavado" />
+        </FormGroup>
+      </Grid>
+    </Grid>
 
     <Typography variant="h6" gutterBottom>
       TRANSFERENCIAS A TERCEROS:
