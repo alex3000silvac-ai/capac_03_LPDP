@@ -821,15 +821,29 @@ class PreventiveAI {
     const riskFactors = [];
     let riskScore = 0;
     
+    // Obtener categorías de datos desde la estructura correcta
+    const categorias_datos = ratData.categorias_datos || {};
+    const datosPersonales = categorias_datos.datosPersonales || {};
+    
     // Factores de riesgo conocidos
-    if (ratData.categorias_datos?.includes('biometricos')) {
+    if (datosPersonales.biometricos) {
       riskFactors.push('Datos biométricos');
       riskScore += 3;
     }
     
-    if (ratData.categorias_datos?.includes('salud')) {
+    if (datosPersonales.salud) {
       riskFactors.push('Datos de salud');
       riskScore += 3;
+    }
+    
+    if (datosPersonales.geneticos) {
+      riskFactors.push('Datos genéticos');
+      riskScore += 3;
+    }
+    
+    if (datosPersonales.socieconomicos) {
+      riskFactors.push('Datos socioeconómicos');
+      riskScore += 2;
     }
     
     if (ratData.transferencias_internacionales?.length > 0) {

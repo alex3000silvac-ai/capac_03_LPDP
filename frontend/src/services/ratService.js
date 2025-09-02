@@ -250,44 +250,6 @@ export const ratService = {
     }
   },
 
-  updateRAT: async (ratId, updatedData, tenantId = null, userId = null) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const effectiveUserId = userId || user?.id;
-      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUserId);
-
-      const { data: oldRAT, error: fetchError } = await supabase
-        .from('mapeo_datos_rat')
-        .select('*')
-        .eq('id', ratId)
-        .eq('tenant_id', effectiveTenantId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const { data, error } = await supabase
-        .from('mapeo_datos_rat')
-        .update({
-          ...updatedData,
-          updated_at: new Date().toISOString(),
-          updated_by: effectiveUserId
-        })
-        .eq('id', ratId)
-        .eq('tenant_id', effectiveTenantId)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      await temporalAudit.trackRATChange(ratId, oldRAT, data, effectiveUserId, effectiveTenantId);
-      await aiSupervisor.superviseRATCreation(data, effectiveUserId, effectiveTenantId);
-
-      return data;
-    } catch (error) {
-      console.error('Error actualizando RAT');
-      throw error;
-    }
-  },
 
   deleteRAT: async (ratId, tenantId = null, userId = null) => {
     try {

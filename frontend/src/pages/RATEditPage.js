@@ -117,7 +117,11 @@ const RATEditPage = () => {
           email: ratExistente.email_responsable || '',
           telefono: ratExistente.telefono_responsable || ''
         },
-        categoriasDatos: ratExistente.categorias_datos ? Object.keys(ratExistente.categorias_datos) : [],
+        categoriasDatos: ratExistente.categorias_datos ? 
+          (ratExistente.categorias_datos.datosPersonales ? 
+            Object.keys(ratExistente.categorias_datos.datosPersonales).filter(key => ratExistente.categorias_datos.datosPersonales[key]) 
+            : Object.keys(ratExistente.categorias_datos).filter(key => ratExistente.categorias_datos[key])
+          ) : [],
         baseJuridica: ratExistente.base_legal || '',
         finalidad: ratExistente.finalidad_principal || ratExistente.descripcion || '',
         destinatarios: ratExistente.destinatarios_internos || [],
@@ -172,7 +176,9 @@ const RATEditPage = () => {
         finalidad_principal: ratData.finalidad,
         descripcion: ratData.finalidad,
         base_legal: ratData.baseJuridica,
-        categorias_datos: ratData.categoriasDatos.reduce((acc, cat) => ({ ...acc, [cat]: true }), {}),
+        categorias_datos: { 
+          datosPersonales: ratData.categoriasDatos.reduce((acc, cat) => ({ ...acc, [cat]: true }), {})
+        },
         destinatarios_internos: ratData.destinatarios,
         transferencias_internacionales: ratData.transferenciasInternacionales,
         periodo_retencion: ratData.plazosRetencion,
@@ -184,7 +190,11 @@ const RATEditPage = () => {
       };
 
       await ratService.updateRAT(ratId, updatedRAT);
-      setOriginalRATData({ ...updatedRAT });
+      
+      // Actualizar tanto ratData como originalRATData con los datos guardados
+      const newRATData = { ...ratData, version: (ratData.version || 1) + 1, fechaActualizacion: new Date().toISOString() };
+      setRatData(newRATData);
+      setOriginalRATData({ ...newRATData });
       setEditMode(false);
       
       alert('RAT actualizado exitosamente');
@@ -210,7 +220,9 @@ const RATEditPage = () => {
         finalidad_principal: ratData.finalidad,
         descripcion: ratData.finalidad,
         base_legal: ratData.baseJuridica,
-        categorias_datos: ratData.categoriasDatos.reduce((acc, cat) => ({ ...acc, [cat]: true }), {}),
+        categorias_datos: { 
+          datosPersonales: ratData.categoriasDatos.reduce((acc, cat) => ({ ...acc, [cat]: true }), {})
+        },
         destinatarios_internos: ratData.destinatarios,
         transferencias_internacionales: ratData.transferenciasInternacionales,
         periodo_retencion: ratData.plazosRetencion,
@@ -405,10 +417,11 @@ const RATEditPage = () => {
           { value: 'laboral', label: 'Datos Laborales (Cargo, Departamento, Salario)' },
           { value: 'financiero', label: 'Datos Financieros (Cuentas Bancarias, Ingresos)' },
           { value: 'salud', label: 'Datos de Salud (Información Médica, Licencias)' },
-          { value: 'biometrico', label: 'Datos Biométricos (Huella, Facial, Iris)' },
-          { value: 'geolocalización', label: 'Datos de Geolocalización' },
+          { value: 'biometricos', label: 'Datos Biométricos (Huella, Facial, Iris)' },
+          { value: 'geneticos', label: 'Datos Genéticos (ADN, Información Hereditaria)' },
+          { value: 'geolocalizacion', label: 'Datos de Geolocalización' },
           { value: 'judicial', label: 'Datos Judiciales (Antecedentes, Procesos)' },
-          { value: 'socioeconomico', label: 'Situación Socioeconómica (Específico Chile)' }
+          { value: 'socieconomicos', label: 'Datos Socioeconómicos (Situación Económica)' }
         ].map((categoria) => (
           <FormControlLabel
             key={categoria.value}
@@ -842,21 +855,43 @@ const RATEditPage = () => {
         </Paper>
 
         {/* Navegación entre pasos */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, mb: 2 }}>
           <Button
+            variant="outlined"
             onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
             disabled={currentStep === 0}
-            sx={{ color: '#9ca3af' }}
+            sx={{ 
+              borderColor: '#6b7280', 
+              color: currentStep === 0 ? '#4b5563' : '#9ca3af',
+              '&:hover': { 
+                borderColor: '#9ca3af',
+                bgcolor: 'rgba(156, 163, 175, 0.1)' 
+              }
+            }}
           >
-            Anterior
+            ← Anterior
           </Button>
           
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" sx={{ color: '#9ca3af' }}>
+              Paso {currentStep + 1} de {steps.length}
+            </Typography>
+          </Box>
+          
           <Button
+            variant="outlined"
             onClick={() => setCurrentStep(prev => Math.min(steps.length - 1, prev + 1))}
             disabled={currentStep === steps.length - 1}
-            sx={{ color: '#4f46e5' }}
+            sx={{ 
+              borderColor: '#4f46e5', 
+              color: currentStep === steps.length - 1 ? '#4b5563' : '#4f46e5',
+              '&:hover': { 
+                borderColor: '#6366f1',
+                bgcolor: 'rgba(79, 70, 229, 0.1)' 
+              }
+            }}
           >
-            Siguiente
+            Siguiente →
           </Button>
         </Box>
 
