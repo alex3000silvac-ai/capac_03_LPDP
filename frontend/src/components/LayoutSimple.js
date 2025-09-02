@@ -70,11 +70,6 @@ function LayoutSimple({ children }) {
       icon: <DashboardIcon />
     },
     { 
-      label: 'CAPACITACIÓN', 
-      path: '/modulo-cero',
-      icon: <SchoolIcon />
-    },
-    { 
       label: 'PROVEEDORES', 
       path: '/gestion-proveedores',
       icon: <BusinessIcon />
