@@ -22,10 +22,10 @@ if (!supabaseUrl.includes('supabase.co')) {
   throw new Error('CRÍTICO: URL de Supabase no tiene formato válido');
 }
 
-// Validación de key format
-if (!supabaseKey.startsWith('eyJ')) {
+// Validación de key format (acepta tanto JWT como publishable keys)
+if (!supabaseKey.startsWith('eyJ') && !supabaseKey.startsWith('sb_publishable_')) {
   console.error('🚨 API KEY DE SUPABASE INVÁLIDA');
-  throw new Error('CRÍTICO: API Key de Supabase no tiene formato JWT válido');
+  throw new Error('CRÍTICO: API Key de Supabase debe ser JWT (eyJ...) o publishable (sb_publishable_...)');
 }
 
 console.log('🚀 Configurando Supabase:', {
