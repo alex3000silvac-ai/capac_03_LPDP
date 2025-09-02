@@ -131,7 +131,8 @@
       "Bash(for endpoint in \"/api/v1/tenants/available\" \"/api/v1/capacitacion/modulos\" \"/api/v1/downloads/templates\")",
       "WebFetch(domain:www.diarioconstitucional.cl)",
       "Bash(ESLINT_NO_DEV_ERRORS=true GENERATE_SOURCEMAP=false npm run build)",
-      "Bash(__NEW_LINE__ echo \"\")"
+      "Bash(__NEW_LINE__ echo \"\")",
+      "Bash(__NEW_LINE__ echo \"Backend Health:\")"
     ],
     "deny": [],
     "additionalDirectories": [

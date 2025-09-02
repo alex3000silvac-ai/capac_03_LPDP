@@ -12,7 +12,6 @@ import { TenantProvider, useTenant } from './contexts/TenantContext';
 
 import LayoutSimple from './components/LayoutSimple';
 import Login from './components/auth/Login';
-import ModuloCapacitacion from './pages/ModuloCapacitacion';
 import PracticaSandbox from './pages/PracticaSandbox';
 import MiProgreso from './pages/MiProgreso';
 import AdminPanel from './pages/AdminPanel';
@@ -26,7 +25,6 @@ import HerramientasLPDP from './pages/HerramientasLPDP';
 import ConceptosBasicos from './pages/ConceptosBasicos';
 import ModuloCero from './pages/ModuloCero';
 import ConsolidadoRAT from './components/ConsolidadoRAT';
-import RutaCapacitacionLPDP from './pages/RutaCapacitacionLPDP';
 import ModuloEIPD from './components/ModuloEIPD';
 import GestionProveedores from './components/GestionProveedores';
 import RATProduccion from './pages/RATProduccion';
@@ -293,11 +291,6 @@ const AppContent = () => {
             </ProtectedRoute>
           } 
         />
-        <Route path="/modulo/:moduloId" element={
-          <ProtectedRoute>
-            <ModuloCapacitacion />
-          </ProtectedRoute>
-        } />
         <Route 
           path="/modulo/introduccion_lpdp" 
           element={
@@ -344,11 +337,6 @@ const AppContent = () => {
         <Route path="/consolidado-rat" element={
           <ProtectedRoute>
             <ConsolidadoRAT />
-          </ProtectedRoute>
-        } />
-        <Route path="/ruta-capacitacion" element={
-          <ProtectedRoute>
-            <RutaCapacitacionLPDP />
           </ProtectedRoute>
         } />
         <Route path="/evaluacion-impacto" element={

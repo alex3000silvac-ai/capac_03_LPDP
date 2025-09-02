@@ -1236,25 +1236,55 @@ const RATSystemProfessional = () => {
         subtitle={`Paso ${currentStep + 1} de ${steps.length} - ${steps[currentStep]}`}
         maxWidth="lg"
       >
-            {/* INFORMACIÓN RAT EN EDICIÓN */}
+            {/* INFORMACIÓN RAT EN EDICIÓN - PALETA OSCURA PROFESIONAL */}
             {viewMode === 'edit' && editingRAT && (
-              <Paper sx={{ p: 2, mb: 3, bgcolor: '#e0f2fe', border: '1px solid #0288d1' }}>
+              <Paper sx={{ 
+                p: 2, 
+                mb: 3, 
+                bgcolor: '#1e293b', // Fondo oscuro profesional
+                border: '1px solid #4f46e5',
+                borderRadius: 2
+              }}>
                 <Grid container spacing={2} alignItems="center">
-                  <Grid item xs={12} md={4}>
-                    <Typography variant="body2" color="text.secondary">ID RAT:</Typography>
-                    <Typography variant="body1" fontWeight="bold" sx={{ color: '#0277bd' }}>
+                  <Grid item xs={12} md={3}>
+                    <Typography variant="body2" sx={{ color: '#94a3b8' }}>ID RAT:</Typography>
+                    <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
                       {editingRAT}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} md={4}>
-                    <Typography variant="body2" color="text.secondary">Fecha Creación:</Typography>
-                    <Typography variant="body1" fontWeight="bold">
+                  <Grid item xs={12} md={3}>
+                    <Typography variant="body2" sx={{ color: '#94a3b8' }}>Fecha Creación:</Typography>
+                    <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
                       {ratData.created_at ? new Date(ratData.created_at).toLocaleDateString('es-CL') : 'Hoy'}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} md={4}>
-                    <Typography variant="body2" color="text.secondary">Estado:</Typography>
-                    <Chip label="EN EDICIÓN" size="small" color="info" />
+                  <Grid item xs={12} md={3}>
+                    <Typography variant="body2" sx={{ color: '#94a3b8', mb: 1 }}>Estado:</Typography>
+                    <Chip 
+                      label="EN EDICIÓN" 
+                      size="small" 
+                      sx={{ 
+                        bgcolor: '#4f46e5', 
+                        color: '#ffffff',
+                        fontWeight: 'bold'
+                      }} 
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={3}>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => setViewMode('view')}
+                      sx={{ 
+                        bgcolor: '#059669',
+                        color: '#ffffff',
+                        '&:hover': {
+                          bgcolor: '#047857'
+                        }
+                      }}
+                    >
+                      👁️ Ver Completo
+                    </Button>
                   </Grid>
                 </Grid>
               </Paper>
@@ -2809,26 +2839,26 @@ const PasoRevision = ({ ratData, guardarRAT }) => {
       <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Responsable:</Typography>
-            <Typography variant="body1" fontWeight="bold">{ratData.responsable.razonSocial}</Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Responsable:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>{ratData.responsable.razonSocial}</Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Finalidad:</Typography>
-            <Typography variant="body1" fontWeight="bold">{ratData.finalidad}</Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Finalidad:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>{ratData.finalidad}</Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Base Legal:</Typography>
-            <Typography variant="body1" fontWeight="bold">{ratData.argumentoJuridico}</Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Base Legal:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>{ratData.argumentoJuridico}</Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Datos Sensibles:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Datos Sensibles:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.categorias.sensibles.length > 0 ? 'SÍ' : 'NO'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Conservación:</Typography>
-            <Typography variant="body1" fontWeight="bold">{ratData.plazoConservacion}</Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Conservación:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>{ratData.plazoConservacion}</Typography>
           </Grid>
         </Grid>
       </Paper>
@@ -2902,23 +2932,23 @@ const RATViewComponent = ({ ratData }) => {
       </Typography>
       
       {/* SECCIÓN 1: INFORMACIÓN GENERAL */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#1e293b', border: '1px solid #374151' }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
           1️⃣ INFORMACIÓN GENERAL
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">ID RAT:</Typography>
-            <Typography variant="body1" fontWeight="bold">{ratData.id}</Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>ID RAT:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>{ratData.id}</Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Fecha Creación:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Fecha Creación:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.created_at ? new Date(ratData.created_at).toLocaleDateString('es-CL') : 'Sin fecha'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Nivel de Riesgo:</Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Nivel de Riesgo:</Typography>
             <Chip 
               label={ratData.nivel_riesgo || 'MEDIO'} 
               size="small"
@@ -2927,7 +2957,7 @@ const RATViewComponent = ({ ratData }) => {
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Estado:</Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Estado:</Typography>
             <Chip 
               label={ratData.estado || 'CREATION'} 
               size="small"
@@ -2938,38 +2968,38 @@ const RATViewComponent = ({ ratData }) => {
       </Paper>
 
       {/* SECCIÓN 2: RESPONSABLE DEL TRATAMIENTO */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#1e293b', border: '1px solid #374151' }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
           2️⃣ RESPONSABLE DEL TRATAMIENTO
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Razón Social:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Razón Social:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.responsable?.razonSocial || ratData.responsable_proceso || 'Sin especificar'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">RUT:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>RUT:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.responsable?.rut || 'Sin especificar'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Email:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Email:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.responsable?.email || ratData.email_responsable || 'Sin especificar'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Teléfono:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Teléfono:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.responsable?.telefono || 'Sin especificar'}
             </Typography>
           </Grid>
           <Grid item xs={12}>
-            <Typography variant="body2" color="text.secondary">Dirección:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Dirección:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.responsable?.direccion || 'Sin especificar'}
             </Typography>
           </Grid>
@@ -2977,26 +3007,26 @@ const RATViewComponent = ({ ratData }) => {
       </Paper>
 
       {/* SECCIÓN 3: FINALIDADES DEL TRATAMIENTO */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#1e293b', border: '1px solid #374151' }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
           3️⃣ FINALIDADES DEL TRATAMIENTO
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Typography variant="body2" color="text.secondary">Descripción:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Descripción:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.finalidades?.descripcion || ratData.finalidad_principal || ratData.finalidad || 'No especificada'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Base Legal:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Base Legal:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.finalidades?.baseLegal || ratData.base_legal || ratData.baseLegal || 'No especificada'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Argumento Jurídico:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Argumento Jurídico:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.finalidades?.argumentoJuridico || ratData.argumentoJuridico || 'No especificado'}
             </Typography>
           </Grid>
@@ -3004,7 +3034,7 @@ const RATViewComponent = ({ ratData }) => {
       </Paper>
 
       {/* SECCIÓN 4: CATEGORÍAS DE DATOS */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#1e293b', border: '1px solid #374151' }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
           4️⃣ CATEGORÍAS DE DATOS
         </Typography>
@@ -3032,20 +3062,20 @@ const RATViewComponent = ({ ratData }) => {
       </Paper>
 
       {/* SECCIÓN 5: FUENTE DE LOS DATOS */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#1e293b', border: '1px solid #374151' }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
           5️⃣ FUENTE DE LOS DATOS
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Tipo de Fuente:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Tipo de Fuente:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.fuente?.tipo || 'Recopilación directa'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Descripción:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Descripción:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.fuente?.descripcion || 'Datos obtenidos directamente del titular'}
             </Typography>
           </Grid>
@@ -3053,20 +3083,20 @@ const RATViewComponent = ({ ratData }) => {
       </Paper>
 
       {/* SECCIÓN 6: CONSERVACIÓN */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#1e293b', border: '1px solid #374151' }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
           6️⃣ PERÍODOS DE CONSERVACIÓN
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Período:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Período:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.conservacion?.periodo || ratData.plazoConservacion || 'No especificado'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Fundamento:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Fundamento:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.conservacion?.fundamento || 'Art. 17 Código Tributario'}
             </Typography>
           </Grid>
@@ -3074,14 +3104,14 @@ const RATViewComponent = ({ ratData }) => {
       </Paper>
 
       {/* SECCIÓN 7: MEDIDAS DE SEGURIDAD */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#1e293b', border: '1px solid #374151' }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
           7️⃣ MEDIDAS DE SEGURIDAD
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Typography variant="body2" color="text.secondary">Descripción General:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Descripción General:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.seguridad?.descripcionGeneral || 'Medidas técnicas y organizativas según Art. 14 Ley 21.719'}
             </Typography>
           </Grid>
@@ -3105,7 +3135,7 @@ const RATViewComponent = ({ ratData }) => {
       </Paper>
 
       {/* SECCIÓN 8: TRANSFERENCIAS */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#1e293b', border: '1px solid #374151' }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
           8️⃣ TRANSFERENCIAS Y DESTINATARIOS
         </Typography>
@@ -3122,7 +3152,7 @@ const RATViewComponent = ({ ratData }) => {
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Transferencias Internacionales:</Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Transferencias Internacionales:</Typography>
             <Chip 
               label={ratData.transferencias?.internacionales || ratData.transferenciasInternacionales ? 'SÍ' : 'NO'} 
               size="small"
@@ -3143,7 +3173,7 @@ const RATViewComponent = ({ ratData }) => {
       </Paper>
 
       {/* SECCIÓN 9: METADATA Y COMPLIANCE */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#1e293b', border: '1px solid #374151' }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
           9️⃣ COMPLIANCE Y EVALUACIONES
         </Typography>
@@ -3166,13 +3196,13 @@ const RATViewComponent = ({ ratData }) => {
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Versión:</Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Versión:</Typography>
+            <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
               {ratData.metadata?.version || '2.0'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Cumplimiento Ley 21.719:</Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>Cumplimiento Ley 21.719:</Typography>
             <Chip 
               label={ratData.metadata?.cumplimientoLey21719 ? 'CONFORME' : 'PENDIENTE'} 
               size="small"

@@ -675,26 +675,52 @@ const RATEditPage = () => {
                 <Box mb={3}>
                   {step.content}
                 </Box>
-                <Box display="flex" gap={1}>
-                  <Button
-                    disabled={index === 0}
-                    onClick={handleBack}
-                    sx={{ color: '#bbb' }}
-                  >
-                    Atrás
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={index === steps.length - 1 ? () => handleSave(false) : handleNext}
-                    sx={{
-                      bgcolor: '#4fc3f7',
-                      color: '#000',
-                      fontWeight: 600,
-                      '&:hover': { bgcolor: '#29b6f6' }
-                    }}
-                  >
-                    {index === steps.length - 1 ? 'Finalizar' : 'Continuar'}
-                  </Button>
+                <Box display="flex" gap={1} justifyContent="space-between" alignItems="center">
+                  <Box display="flex" gap={1}>
+                    <Button
+                      disabled={index === 0}
+                      onClick={handleBack}
+                      variant="outlined"
+                      sx={{ 
+                        color: '#94a3b8',
+                        borderColor: '#374151',
+                        '&:hover': { 
+                          borderColor: '#4fc3f7',
+                          bgcolor: 'rgba(79, 195, 247, 0.1)'
+                        }
+                      }}
+                    >
+                      ← Anterior
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={index === steps.length - 1 ? () => handleSave(false) : handleNext}
+                      sx={{
+                        bgcolor: '#4fc3f7',
+                        color: '#000',
+                        fontWeight: 600,
+                        '&:hover': { bgcolor: '#29b6f6' }
+                      }}
+                    >
+                      {index === steps.length - 1 ? 'Finalizar' : 'Siguiente →'}
+                    </Button>
+                  </Box>
+                  
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+                      Paso {index + 1} de {steps.length}
+                    </Typography>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={(index + 1) / steps.length * 100}
+                      sx={{
+                        width: 100,
+                        '& .MuiLinearProgress-bar': {
+                          bgcolor: '#4fc3f7'
+                        }
+                      }}
+                    />
+                  </Box>
                 </Box>
               </StepContent>
             </Step>
