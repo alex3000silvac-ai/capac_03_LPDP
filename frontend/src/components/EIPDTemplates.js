@@ -283,7 +283,7 @@ const EIPDTemplates = () => {
   const cargarIndustrias = async () => {
     try {
       const { data, error } = await supabase
-        .from('industry_categories')
+        .from('categories') // Usar tabla categories vigente
         .select('*')
         .order('name');
       
@@ -305,7 +305,7 @@ const EIPDTemplates = () => {
       const tenantId = currentTenant?.id;
       
       const { data, error } = await supabase
-        .from('eipd_templates')
+        .from('sandbox_professional_templates') // Usar tabla templates vigente
         .select('*')
         .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false });
@@ -360,7 +360,7 @@ const EIPDTemplates = () => {
       const tenantId = currentTenant?.id;
 
       const { data, error } = await supabase
-        .from('eipd_templates')
+        .from('sandbox_professional_templates') // Usar tabla templates vigente
         .insert([{
           ...nuevoTemplate,
           tenant_id: tenantId

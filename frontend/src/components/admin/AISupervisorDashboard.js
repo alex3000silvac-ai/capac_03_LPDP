@@ -96,7 +96,7 @@ const AISupervisorDashboard = () => {
   const loadRecentActivity = async () => {
     try {
       const { data: activity, error } = await supabase
-        .from('ai_supervision_log')
+        .from('agent_activity_log') // Usar tabla vigente
         .select('*')
         .eq('tenant_id', user.tenant_id)
         .order('timestamp', { ascending: false })

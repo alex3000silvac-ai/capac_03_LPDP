@@ -104,7 +104,7 @@ const SystemValidationDashboard = () => {
 
       // Cargar correcciones pendientes
       const { data: corrections } = await supabase
-        .from('agent_corrections')
+        .from('agent_activity_log') // Usar tabla vigente para correcciones
         .select('*')
         .eq('status', 'pending_application')
         .order('created_at', { ascending: false });
@@ -155,7 +155,7 @@ const SystemValidationDashboard = () => {
   const applyPendingCorrections = async (correctionId) => {
     try {
       await supabase
-        .from('agent_corrections')
+        .from('agent_activity_log') // Usar tabla vigente para correcciones
         .update({ 
           status: 'applied',
           applied_at: new Date().toISOString()

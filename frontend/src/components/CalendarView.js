@@ -142,7 +142,7 @@ const CalendarView = () => {
       const endDate = getViewEndDate();
       
       const { data, error } = await supabase
-        .from('calendar_events')
+        .from('activities') // Usar tabla activities vigente para eventos
         .select('*')
         .eq('tenant_id', tenantId)
         .gte('fecha_evento', startDate.toISOString())
