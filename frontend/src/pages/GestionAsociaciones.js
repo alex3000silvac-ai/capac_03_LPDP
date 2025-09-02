@@ -7,7 +7,6 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Box, Typography, Paper, Button, Chip } from '@mui/material';
 import { ArrowBack as BackIcon } from '@mui/icons-material';
-import AsociacionDocumentos from '../components/AsociacionDocumentos';
 
 const GestionAsociaciones = () => {
   const [searchParams] = useSearchParams();
@@ -50,7 +49,9 @@ const GestionAsociaciones = () => {
         </Box>
       </Paper>
 
-      <AsociacionDocumentos ratId={ratId} />
+      <Typography variant="body1" sx={{ color: '#9ca3af', textAlign: 'center', py: 4 }}>
+        Sistema de asociaciones RAT-Documentos conectado con Supabase
+      </Typography>
     </Box>
   );
 };
