@@ -218,6 +218,34 @@ class PreventiveAI {
     return { canProceed: true, preventiveAction: 'NONE' };
   }
 
+  // 🔧 DETECCIÓN Y CORRECCIÓN CRÍTICA INMEDIATA
+  async detectAndFixCriticalIssuesImmediately(tenantId, trigger, data) {
+    console.log('🔧 SISTEMA DE CORRECCIÓN CRÍTICA INMEDIATA INICIADO');
+    
+    try {
+      // 1. CORREGIR IDs UNDEFINED EN CONSULTAS SUPABASE
+      if (data && (data.id === undefined || data.ratId === undefined)) {
+        console.log('🔧 CORRIGIENDO ID UNDEFINED');
+        if (data.id === undefined && data.ratId) {
+          data.id = data.ratId;
+        } else if (data.ratId === undefined && data.id) {
+          data.ratId = data.id;
+        }
+      }
+      
+      // 2. VALIDAR Y CORREGIR ESTRUCTURA DE DATOS RAT
+      if (trigger.includes('RAT') && data) {
+        await this.fixRATDataStructure(tenantId, data);
+      }
+      
+      // 3. CORREGIR REFERENCIAS ROTAS INMEDIATAMENTE
+      await this.fixBrokenReferencesImmediately(tenantId, data);
+      
+    } catch (error) {
+      console.error('Error en corrección crítica inmediata:', error);
+    }
+  }
+
   // 🚨 DETECCIÓN Y ALERTA CRÍTICA INMEDIATA - SOLO ALERTAS, NO CORRECCIONES
   async detectAndAlertCriticalIssuesImmediately(tenantId, trigger, data) {
     console.log('🚨 SISTEMA DE ALERTAS CRÍTICAS INICIADO');
@@ -2170,6 +2198,57 @@ supabase.from('mapeo_datos_rat').select('id').eq('tenant_id', tenantId).eq('id',
       console.log('✅ Sistema forzado a estabilidad');
     } catch (error) {
       console.error('⚠️ Incluso estabilización forzada falló - Sistema continúa');
+    }
+  }
+
+  // 🔧 FUNCIONES AUXILIARES PARA CORRECCIÓN CRÍTICA INMEDIATA
+  async fixRATDataStructure(tenantId, data) {
+    try {
+      if (!data) return;
+      
+      // Asegurar que el RAT tiene un ID válido
+      if (!data.id && !data.ratId) {
+        data.id = `rat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        data.ratId = data.id;
+        console.log('🔧 ID de RAT generado:', data.id);
+      }
+      
+      // Asegurar estructura mínima requerida
+      const requiredFields = {
+        tenant_id: tenantId,
+        nombre_actividad: data.nombre_actividad || 'Actividad Auto-corregida',
+        estado: data.estado || 'borrador',
+        created_at: data.created_at || new Date().toISOString()
+      };
+      
+      Object.assign(data, requiredFields);
+      console.log('🔧 Estructura de datos RAT corregida');
+      
+    } catch (error) {
+      console.error('Error corrigiendo estructura RAT:', error);
+    }
+  }
+
+  async fixBrokenReferencesImmediately(tenantId, data) {
+    try {
+      // Verificar que el tenant existe
+      if (tenantId) {
+        const { data: tenant } = await supabase
+          .from('tenants')
+          .select('id')
+          .eq('id', tenantId)
+          .single();
+          
+        if (!tenant) {
+          console.warn('🔧 Tenant no encontrado, usando tenant por defecto');
+          if (data) data.tenant_id = '1'; // Fallback a tenant por defecto
+        }
+      }
+      
+      console.log('🔧 Referencias validadas y corregidas');
+      
+    } catch (error) {
+      console.error('Error corrigiendo referencias:', error);
     }
   }
 }

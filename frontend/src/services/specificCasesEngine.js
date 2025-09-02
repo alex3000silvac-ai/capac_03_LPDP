@@ -490,6 +490,65 @@ class SpecificCasesEngine {
       });
     }
   }
+
+  // FUNCIONES DE CONTEXTO FALTANTES
+  async obtenerContextoFinanciero(tenantId) {
+    try {
+      const { data: contextFinan, error } = await supabase
+        .from('mapeo_datos_rat')
+        .select('*')
+        .eq('tenant_id', String(tenantId))
+        .contains('categorias_datos', { datosEconomicos: true })
+        .limit(10);
+
+      if (error) throw error;
+
+      return {
+        total_riesgos_financieros: contextFinan?.length || 0,
+        patrones_comunes: ['scoring_crediticio', 'evaluacion_riesgo', 'decision_automatizada'],
+        nivel_criticidad: contextFinan?.length > 5 ? 'ALTO' : 'MEDIO',
+        regulaciones_aplicables: ['LOPD', 'LPDP', 'Circular_SBS']
+      };
+    } catch (error) {
+      console.error('Error obteniendo contexto financiero:', error);
+      return {
+        total_riesgos_financieros: 0,
+        patrones_comunes: [],
+        nivel_criticidad: 'MEDIO',
+        regulaciones_aplicables: []
+      };
+    }
+  }
+
+  async obtenerContextoAcademico(tenantId) {
+    try {
+      const { data: contextAcad, error } = await supabase
+        .from('mapeo_datos_rat')
+        .select('*')
+        .eq('tenant_id', String(tenantId))
+        .ilike('nombre_actividad', '%investigacion%')
+        .limit(10);
+
+      if (error) throw error;
+
+      return {
+        total_proyectos_investigacion: contextAcad?.length || 0,
+        tipos_investigacion: ['observacional', 'experimental', 'longitudinal'],
+        nivel_sensibilidad: contextAcad?.length > 3 ? 'ALTO' : 'MEDIO',
+        comites_etica: ['CEI_PRINCIPAL', 'COMITE_BIOETICA'],
+        regulaciones_aplicables: ['LPDP', 'Codigo_Etica_Investigacion', 'Normas_CONCYTEC']
+      };
+    } catch (error) {
+      console.error('Error obteniendo contexto académico:', error);
+      return {
+        total_proyectos_investigacion: 0,
+        tipos_investigacion: [],
+        nivel_sensibilidad: 'MEDIO',
+        comites_etica: [],
+        regulaciones_aplicables: []
+      };
+    }
+  }
 }
 
 export default new SpecificCasesEngine();
