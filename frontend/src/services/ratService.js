@@ -1,6 +1,7 @@
 import { supabase } from '../config/supabaseClient';
 import temporalAudit from '../utils/temporalAudit';
 import aiSupervisor from '../utils/aiSupervisor';
+import preventiveAI from '../utils/preventiveAI';
 
 const validateRAT = (ratData) => {
   const requiredFields = [
@@ -51,6 +52,22 @@ export const ratService = {
   
   saveCompletedRAT: async (ratData, industryName = 'General', processKey = null, tenantId = null) => {
     try {
+      // 🛡️ VALIDACIÓN PREVENTIVA - ANTES DE CREAR RAT
+      const validation = await preventiveAI.interceptAction('CREATE_RAT', {
+        tenantId: tenantId,
+        ratData: ratData,
+        industryName: industryName
+      });
+      
+      if (!validation.allowed) {
+        console.log('🚫 Creación RAT bloqueada preventivamente:', validation.reason);
+        throw new Error(`Acción preventiva requerida: ${validation.reason}`);
+      }
+      
+      if (validation.preventiveActionExecuted) {
+        console.log('🔄 Acción preventiva ejecutada:', validation.preventiveActionExecuted);
+      }
+      
       const { data: { user } } = await supabase.auth.getUser();
       const effectiveUser = user || {
         id: 'system-user-' + Date.now(),
@@ -122,10 +139,20 @@ export const ratService = {
       await temporalAudit.initializeRAT(data, effectiveUser.id, effectiveTenantId);
       await aiSupervisor.superviseRATCreation(data, effectiveUser.id, effectiveTenantId);
 
+      // 🔄 INTEGRACIONES AUTOMÁTICAS CRÍTICAS
       try {
         const ratIntelligenceEngine = (await import('./ratIntelligenceEngine')).default;
         const evaluation = await ratIntelligenceEngine.evaluateRATActivity(ratData);
         
+        // 1. AUTO-GENERACIÓN EIPD si riesgo alto (según diagrama flujo)
+        if (evaluation.riskLevel === 'ALTO' || evaluation.requiereEIPD) {
+          await autoGenerarEIPD(data.id, ratData, effectiveTenantId, effectiveUser.id);
+        }
+        
+        // 2. REGISTRO AUTOMÁTICO EN INVENTARIO
+        await registrarEnInventarioRAT(data, effectiveTenantId);
+        
+        // 3. CREAR ACTIVIDADES DPO (workflow automático)
         if (evaluation.compliance_alerts && evaluation.compliance_alerts.length > 0) {
           await ratIntelligenceEngine.createDPOActivities(
             evaluation.compliance_alerts, 
@@ -133,8 +160,12 @@ export const ratService = {
             effectiveTenantId
           );
         }
+        
+        // 4. NOTIFICACIÓN AUTOMÁTICA DPO
+        await notificarDPOAutomatico(data, evaluation, effectiveTenantId);
+        
       } catch (evalError) {
-        console.error('Error generando actividades DPO:', evalError);
+        console.error('Error en integraciones automáticas:', evalError);
       }
 
       return data;
@@ -642,6 +673,288 @@ export const ratService = {
       console.error('Error en getRATById:', error);
       throw error;
     }
+  },
+
+  // 🔄 FUNCIÓN CRÍTICA: updateRAT con integraciones automáticas
+  updateRAT: async (ratId, updatedData, tenantId = null, userId = null) => {
+    try {
+      // 🛡️ VALIDACIÓN PREVENTIVA - ANTES DE ACTUALIZAR RAT
+      const validation = await preventiveAI.interceptAction('UPDATE_RAT', {
+        tenantId: tenantId,
+        ratId: ratId,
+        changes: updatedData
+      });
+      
+      if (!validation.allowed) {
+        console.log('🚫 Actualización RAT bloqueada preventivamente:', validation.reason);
+        throw new Error(`Acción preventiva requerida: ${validation.reason}`);
+      }
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      const effectiveUser = user || { id: userId };
+      const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUser.id);
+      
+      console.log('🔄 Actualizando RAT:', ratId);
+      
+      // Actualizar RAT en BD
+      const { data, error } = await supabase
+        .from('mapeo_datos_rat')
+        .update({
+          ...updatedData,
+          updated_at: new Date().toISOString(),
+          updated_by: effectiveUser.id
+        })
+        .eq('id', ratId)
+        .eq('tenant_id', effectiveTenantId)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      // 🔄 INTEGRACIONES AUTOMÁTICAS EN ACTUALIZACIÓN
+      try {
+        // 1. ACTUALIZAR INVENTARIO automáticamente
+        await actualizarInventarioRAT(data, effectiveTenantId);
+        
+        // 2. RE-EVALUAR EIPD si cambió riesgo
+        const ratIntelligenceEngine = (await import('./ratIntelligenceEngine')).default;
+        const evaluation = await ratIntelligenceEngine.evaluateRATActivity(data);
+        
+        if (evaluation.riskLevel === 'ALTO' && !evaluation.tieneEIPD) {
+          await autoGenerarEIPD(ratId, data, effectiveTenantId, effectiveUser.id);
+        }
+        
+        // 3. NOTIFICAR CAMBIOS IMPORTANTES A DPO
+        if (evaluation.cambiosSignificativos) {
+          await notificarCambiosRATaDPO(data, evaluation, effectiveTenantId);
+        }
+        
+      } catch (integrationError) {
+        console.error('Error en integraciones automáticas update:', integrationError);
+      }
+      
+      console.log('✅ RAT actualizado con integraciones:', data.id);
+      return data;
+      
+    } catch (error) {
+      console.error('Error en updateRAT:', error);
+      throw error;
+    }
+  }
+};
+
+// 🔄 FUNCIONES INTEGRACIÓN AUTOMÁTICA - PROTOCOLO DIAGRAMA FLUJOS
+
+const autoGenerarEIPD = async (ratId, ratData, tenantId, userId) => {
+  try {
+    console.log('🔄 Auto-generando EIPD para RAT:', ratId);
+    
+    // Verificar si ya existe EIPD para este RAT
+    const { data: existingEIPD } = await supabase
+      .from('generated_documents')
+      .select('id')
+      .eq('source_rat_id', ratId)
+      .eq('document_type', 'EIPD')
+      .single();
+    
+    if (existingEIPD) {
+      console.log('✅ EIPD ya existe para RAT:', ratId);
+      return existingEIPD;
+    }
+    
+    // Crear EIPD automático
+    const eipdData = {
+      tenant_id: tenantId,
+      user_id: userId,
+      source_rat_id: ratId,
+      document_type: 'EIPD',
+      title: `EIPD Auto-generada - ${ratData.responsable?.nombre || 'RAT ' + ratId}`,
+      content: {
+        rat_id: ratId,
+        generated_timestamp: new Date().toISOString(),
+        assessment_level: 'AUTOMATICO',
+        requires_manual_review: true,
+        source_data: ratData
+      },
+      status: 'BORRADOR',
+      created_at: new Date().toISOString()
+    };
+    
+    const { data, error } = await supabase
+      .from('generated_documents')
+      .insert(eipdData)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    console.log('✅ EIPD auto-generada:', data.id);
+    return data;
+    
+  } catch (error) {
+    console.error('❌ Error auto-generando EIPD:', error);
+    throw error;
+  }
+};
+
+const registrarEnInventarioRAT = async (ratData, tenantId) => {
+  try {
+    console.log('🔄 Registrando RAT en inventario:', ratData.id);
+    
+    // Verificar si ya está en inventario
+    const { data: existing } = await supabase
+      .from('inventario_rats')
+      .select('id')
+      .eq('rat_id', ratData.id)
+      .eq('tenant_id', tenantId)
+      .single();
+    
+    if (existing) {
+      console.log('✅ RAT ya está en inventario');
+      return existing;
+    }
+    
+    // Registrar en inventario automáticamente
+    const inventarioEntry = {
+      tenant_id: tenantId,
+      rat_id: ratData.id,
+      nombre_actividad: ratData.nombre_actividad,
+      area_responsable: ratData.area_responsable,
+      estado: ratData.estado || 'ACTIVO',
+      fecha_registro: new Date().toISOString(),
+      ultima_revision: new Date().toISOString(),
+      metadata: {
+        auto_registered: true,
+        source: 'rat_creation',
+        version: 1
+      }
+    };
+    
+    const { data, error } = await supabase
+      .from('inventario_rats')
+      .insert(inventarioEntry)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    console.log('✅ RAT registrado en inventario:', data.id);
+    return data;
+    
+  } catch (error) {
+    console.error('❌ Error registrando en inventario:', error);
+    // No bloquear creación RAT por error inventario
+    return null;
+  }
+};
+
+const notificarDPOAutomatico = async (ratData, evaluation, tenantId) => {
+  try {
+    console.log('🔔 Enviando notificación automática a DPO');
+    
+    const notificacion = {
+      tenant_id: tenantId,
+      type: 'RAT_CREADO',
+      title: `Nuevo RAT requiere revisión: ${ratData.nombre_actividad}`,
+      message: `RAT ID ${ratData.id} creado. Riesgo: ${evaluation.riskLevel || 'MEDIO'}. ${evaluation.requiereEIPD ? 'Requiere EIPD.' : 'Sin EIPD requerida.'}`,
+      priority: evaluation.riskLevel === 'ALTO' ? 'alta' : 'media',
+      target_role: 'DPO',
+      metadata: {
+        rat_id: ratData.id,
+        risk_level: evaluation.riskLevel,
+        requires_eipd: evaluation.requiereEIPD,
+        auto_notification: true
+      },
+      created_at: new Date().toISOString(),
+      read_at: null
+    };
+    
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert(notificacion)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    console.log('✅ DPO notificado automáticamente');
+    return data;
+    
+  } catch (error) {
+    console.error('❌ Error notificando DPO:', error);
+    return null;
+  }
+};
+
+const actualizarInventarioRAT = async (ratData, tenantId) => {
+  try {
+    console.log('🔄 Actualizando RAT en inventario:', ratData.id);
+    
+    const { data, error } = await supabase
+      .from('inventario_rats')
+      .update({
+        nombre_actividad: ratData.nombre_actividad,
+        area_responsable: ratData.area_responsable,
+        estado: ratData.estado,
+        ultima_revision: new Date().toISOString(),
+        metadata: {
+          ...ratData.metadata,
+          last_update: new Date().toISOString(),
+          auto_updated: true
+        }
+      })
+      .eq('rat_id', ratData.id)
+      .eq('tenant_id', tenantId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    console.log('✅ Inventario RAT actualizado');
+    return data;
+    
+  } catch (error) {
+    console.error('❌ Error actualizando inventario:', error);
+    return null;
+  }
+};
+
+const notificarCambiosRATaDPO = async (ratData, evaluation, tenantId) => {
+  try {
+    console.log('🔔 Notificando cambios RAT a DPO');
+    
+    const notificacion = {
+      tenant_id: tenantId,
+      type: 'RAT_MODIFICADO',
+      title: `RAT actualizado requiere revisión: ${ratData.nombre_actividad}`,
+      message: `RAT ID ${ratData.id} modificado. Nuevas condiciones de riesgo: ${evaluation.riskLevel}. Revisar cambios.`,
+      priority: evaluation.riskLevel === 'ALTO' ? 'alta' : 'media',
+      target_role: 'DPO',
+      metadata: {
+        rat_id: ratData.id,
+        risk_level: evaluation.riskLevel,
+        changes_summary: evaluation.cambiosSignificativos,
+        auto_notification: true,
+        action_required: evaluation.riskLevel === 'ALTO'
+      },
+      created_at: new Date().toISOString(),
+      read_at: null
+    };
+    
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert(notificacion)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    console.log('✅ DPO notificado de cambios RAT');
+    return data;
+    
+  } catch (error) {
+    console.error('❌ Error notificando cambios DPO:', error);
+    return null;
   }
 };
 

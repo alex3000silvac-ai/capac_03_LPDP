@@ -1138,7 +1138,7 @@ CLAUSULAS PARA CONSULTORES:
                     const reporte = `REPORTE DE CUMPLIMIENTO - PROVEEDORES
 ===================================
 
-Empresa: ${user?.organizacion_nombre || 'Demo Company'}
+Empresa: ${user?.organizacion_nombre || 'Sin configurar'}
 Fecha: ${new Date().toLocaleDateString('es-CL')}
 
 RESUMEN EJECUTIVO:
@@ -1483,7 +1483,7 @@ Se recomienda reevaluar en 6 meses.
 
 ---
 Documento generado por Sistema LPDP
-${user?.organizacion_nombre || 'Demo Company'}`;
+${user?.organizacion_nombre || 'Sin configurar'}`;
                 
                 const blob = new Blob([informe], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);

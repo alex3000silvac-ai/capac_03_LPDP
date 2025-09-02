@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -17,6 +17,7 @@ import UserManagement from './components/admin/UserManagement';
 import IAAgentStatusPage from './components/admin/IAAgentStatusPage';
 import GlosarioLPDP from './pages/GlosarioLPDP';
 import ModuloEIPD from './components/ModuloEIPD';
+import PreventiveAIController from './components/PreventiveAIController';
 import GestionProveedores from './components/GestionProveedores';
 import RATFormWithCompliance from './components/RATFormWithCompliance';
 import DashboardDPO from './pages/DashboardDPO';
@@ -33,6 +34,8 @@ import ProviderManager from './pages/ProviderManager';
 import AdminDashboard from './components/AdminDashboard';
 import RATSearchFilter from './components/RATSearchFilter';
 import NotificationCenter from './components/NotificationCenter';
+import APIPartnersIntegration from './components/APIPartnersIntegration';
+import ReportGenerator from './components/ReportGenerator';
 import EIPDTemplates from './components/EIPDTemplates';
 import CalendarView from './components/CalendarView';
 import ImmutableAuditLog from './components/ImmutableAuditLog';
@@ -92,6 +95,14 @@ const ProtectedRoute = ({ children, requiredPermissions = [], allowDemo = false 
 const AppContent = () => {
   const { user, loading } = useAuth();
   const { currentTenant } = useTenant();
+  
+  // 🛡️ ACTIVAR IA PREVENTIVA AUTOMÁTICAMENTE
+  useEffect(() => {
+    if (user && currentTenant?.id) {
+      console.log('🛡️ Activando IA Preventiva para ecosistema completo');
+      // El controlador se activa automáticamente cuando hay usuario y tenant
+    }
+  }, [user, currentTenant?.id]);
 
   if (loading) {
     return <LoadingScreen />;
@@ -117,6 +128,8 @@ const AppContent = () => {
 
   return (
     <LayoutSimple>
+      {/* 🛡️ CONTROLADOR IA PREVENTIVA - ECOSISTEMA INTEGRADO */}
+      <PreventiveAIController />
       <Routes>
         <Route path="/" element={<Navigate to="/sistema-principal" replace />} />
         
@@ -284,6 +297,18 @@ const AppContent = () => {
         <Route path="/glosario" element={
           <ProtectedRoute>
             <GlosarioLPDP />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/reports" element={
+          <ProtectedRoute>
+            <ReportGenerator />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/admin/api-partners" element={
+          <ProtectedRoute requiredPermissions={["admin.view"]}>
+            <APIPartnersIntegration />
           </ProtectedRoute>
         } />
         

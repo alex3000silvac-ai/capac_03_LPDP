@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabaseClient';
 import { useTenant } from '../contexts/TenantContext';
+import { useDataSync } from '../hooks/useDataSync';
 import { Box, Container, Typography, Paper, Grid, Card, CardContent, Chip, Alert, Button } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -13,12 +14,14 @@ import {
   List as QueueIcon,
   Analytics as MetricsIcon
 } from '@mui/icons-material';
-import { Task as TaskIcon } from '@mui/icons-material';
 import PageLayout from '../components/PageLayout';
 
 const DashboardDPO = () => {
   const navigate = useNavigate();
   const { currentTenant } = useTenant();
+  
+  // 🔄 USAR SERVICIO SINCRONIZACIÓN - DATOS CONSISTENTES
+  const { data: syncedData, loading: syncLoading, notifyChange } = useDataSync('DashboardDPO');
   const [stats, setStats] = useState([
     {
       titulo: 'RATs Activos',
@@ -50,89 +53,44 @@ const DashboardDPO = () => {
     }
   ]);
 
-  // Cargar datos reales desde Supabase
+  // 🔄 DATOS 100% DESDE SUPABASE - CERO HARDCODING
   useEffect(() => {
-    const cargarDatosReales = async () => {
-      if (!currentTenant?.id) return;
-      
-      try {
-        // 1. Contar RATs activos reales
-        const { count: ratsCount } = await supabase
-          .from('mapeo_datos_rat')
-          .select('id', { count: 'exact' })
-          .eq('tenant_id', currentTenant.id)
-          .neq('estado', 'ELIMINADO');
-        
-        // 2. Contar EIPDs pendientes reales - usando generated_documents tabla vigente
-        const { count: eipdCount } = await supabase
-          .from('generated_documents')
-          .select('id', { count: 'exact' })
-          .eq('document_type', 'EIPD')
-          .eq('status', 'pendiente');
-        
-        // 3. Contar tareas pendientes reales
-        const { count: tareasCount } = await supabase
-          .from('actividades_dpo')
-          .select('id', { count: 'exact' })
-          .eq('tenant_id', currentTenant.id)
-          .eq('estado', 'pendiente');
-        
-        // 4. Calcular cumplimiento real
-        const { count: ratsCompletos } = await supabase
-          .from('mapeo_datos_rat')
-          .select('id', { count: 'exact' })
-          .eq('tenant_id', currentTenant.id)
-          .eq('estado', 'CERTIFICADO');
-        
-        const cumplimientoPorcentaje = ratsCount > 0 ? Math.round((ratsCompletos / ratsCount) * 100) : 0;
-        
-        // Actualizar stats con datos reales
-        setStats([
-          {
-            titulo: 'RATs Activos',
-            valor: (ratsCount || 0).toString(),
-            icono: <DashboardIcon sx={{ fontSize: 32, color: '#60a5fa' }} />,
-            cambio: ratsCount > 0 ? `${ratsCount} registrados` : 'Sin RATs aún',
-            color: 'primary'
-          },
-          {
-            titulo: 'EIPD Pendientes',
-            valor: (eipdCount || 0).toString(),
-            icono: <WarningIcon sx={{ fontSize: 32, color: '#f59e0b' }} />,
-            cambio: eipdCount > 0 ? 'Requieren atención' : 'Todo al día',
-            color: eipdCount > 0 ? 'warning' : 'success'
-          },
-          {
-            titulo: 'Cumplimiento',
-            valor: `${cumplimientoPorcentaje}%`,
-            icono: <CheckIcon sx={{ fontSize: 32, color: '#10b981' }} />,
-            cambio: cumplimientoPorcentaje > 80 ? 'Excelente' : cumplimientoPorcentaje > 50 ? 'Mejorable' : 'Crítico',
-            color: cumplimientoPorcentaje > 80 ? 'success' : cumplimientoPorcentaje > 50 ? 'warning' : 'error'
-          },
-          {
-            titulo: 'Tareas Pendientes',
-            valor: (tareasCount || 0).toString(),
-            icono: <TaskIcon sx={{ fontSize: 32, color: '#ef4444' }} />,
-            cambio: tareasCount > 0 ? `${tareasCount} por resolver` : 'Sin tareas pendientes',
-            color: tareasCount > 0 ? 'error' : 'success'
-          }
-        ]);
-        
-        console.log('📊 DashboardDPO - Datos reales cargados:', {
-          ratsActivos: ratsCount,
-          eipdPendientes: eipdCount,
-          tareasPendientes: tareasCount,
-          cumplimiento: cumplimientoPorcentaje
-        });
-        
-      } catch (error) {
-        console.error('❌ Error cargando datos DashboardDPO:', error);
-        // Mantener valores 0 en caso de error
-      }
-    };
+    if (!syncedData) return;
     
-    cargarDatosReales();
-  }, [currentTenant]);
+    console.log('🔄 [DashboardDPO] Actualizando con datos sincronizados:', syncedData);
+    
+    // Actualizar stats con datos sincronizados (TODO desde Supabase)
+    setStats([
+      {
+        titulo: 'RATs Activos',
+        valor: syncedData.ratsActivos?.toString() || 'Cargando...',
+        icono: <DashboardIcon sx={{ fontSize: 32, color: '#60a5fa' }} />,
+        cambio: syncedData.ratsActivos > 0 ? `${syncedData.ratsActivos} registrados` : 'Sin datos aún',
+        color: 'primary'
+      },
+      {
+        titulo: 'EIPD Pendientes', 
+        valor: syncedData.eipdsPendientes?.toString() || 'Cargando...',
+        icono: <WarningIcon sx={{ fontSize: 32, color: '#f59e0b' }} />,
+        cambio: syncedData.eipdsPendientes > 0 ? `${syncedData.eipdsPendientes} requieren atención` : 'Sin pendientes',
+        color: 'warning'
+      },
+      {
+        titulo: 'Cumplimiento',
+        valor: syncedData.cumplimiento ? `${syncedData.cumplimiento}%` : 'Calculando...',
+        icono: <CheckIcon sx={{ fontSize: 32, color: '#10b981' }} />,
+        cambio: (syncedData.cumplimiento || 0) >= 80 ? 'Excelente' : 'Calculando...',
+        color: 'success'
+      },
+      {
+        titulo: 'Tareas Pendientes',
+        valor: syncedData.tareasPendientes?.toString() || 'Cargando...', 
+        icono: <TaskIcon sx={{ fontSize: 32, color: '#ef4444' }} />,
+        cambio: syncedData.tareasPendientes > 0 ? `${syncedData.tareasPendientes} pendientes` : 'Sin tareas',
+        color: 'error'
+      }
+    ]);
+  }, [syncedData]);
 
   return (
     <PageLayout

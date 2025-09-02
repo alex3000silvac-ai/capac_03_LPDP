@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../config/supabaseClient';
 import {
   Box,
   Paper,
@@ -78,165 +79,58 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      // Mock data - en prod conectaría con APIs
-      const mockHoldings = [
-        {
-          id: 1,
-          nombre: 'Banco Central Corp',
-          tipo: 'MATRIZ',
-          pais: 'Chile',
-          estado: 'ACTIVO',
-          usuarios_activos: 150,
-          rats_registrados: 45,
-          compliance_score: 92,
-          ultima_auditoria: '2024-01-15',
-          dpo_asignado: 'juan.dpo@banco.cl',
-          filiales: ['Banco Retail', 'Seguros Corp', 'Inversiones Ltd'],
-          configuracion: {
-            retencion_datos: 7,
-            notificaciones_activas: true,
-            audit_automatico: true,
-            nivel_seguridad: 'ALTO'
-          }
-        },
-        {
-          id: 2,
-          nombre: 'TechStart Innovation',
-          tipo: 'INDEPENDIENTE',
-          pais: 'Chile',
-          estado: 'ACTIVO',
-          usuarios_activos: 25,
-          rats_registrados: 8,
-          compliance_score: 78,
-          ultima_auditoria: '2023-11-20',
-          dpo_asignado: 'dpo@techstart.cl',
-          filiales: [],
-          configuracion: {
-            retencion_datos: 3,
-            notificaciones_activas: true,
-            audit_automatico: false,
-            nivel_seguridad: 'MEDIO'
-          }
-        },
-        {
-          id: 3,
-          nombre: 'Retail Holding SA',
-          tipo: 'HOLDING',
-          pais: 'Chile',
-          estado: 'PENDIENTE_SETUP',
-          usuarios_activos: 0,
-          rats_registrados: 0,
-          compliance_score: 0,
-          ultima_auditoria: null,
-          dpo_asignado: null,
-          filiales: ['Tiendas Norte', 'Tiendas Sur', 'E-commerce', 'Logística'],
-          configuracion: {
-            retencion_datos: 5,
-            notificaciones_activas: false,
-            audit_automatico: false,
-            nivel_seguridad: 'BASICO'
-          }
-        }
-      ];
+      // 🔄 CARGAR TODO DESDE SUPABASE - CERO DATOS HARDCODEADOS
+      const { data: { user } } = await supabase.auth.getUser();
+      const tenantId = user?.tenant_id;
+      
+      if (!tenantId) {
+        console.log('Sin tenant ID - no cargar datos');
+        return;
+      }
 
-      const mockUsuarios = [
-        {
-          id: 1,
-          nombre: 'Juan Pérez Soto',
-          email: 'juan.dpo@banco.cl',
-          rol: 'DPO_PRINCIPAL',
-          holding_id: 1,
-          estado: 'ACTIVO',
-          ultimo_acceso: '2024-01-18T14:30:00Z',
-          permisos: ['gestionar_rats', 'aprobar_eipds', 'gestionar_usuarios', 'ver_reportes'],
-          certificaciones: ['DPO Certified', 'CIPP/E'],
-          fecha_creacion: '2023-06-01'
-        },
-        {
-          id: 2,
-          nombre: 'María González López',
-          email: 'maria.compliance@banco.cl',
-          rol: 'COMPLIANCE_OFFICER',
-          holding_id: 1,
-          estado: 'ACTIVO',
-          ultimo_acceso: '2024-01-18T09:15:00Z',
-          permisos: ['gestionar_rats', 'ver_reportes'],
-          certificaciones: ['CISA'],
-          fecha_creacion: '2023-06-15'
-        },
-        {
-          id: 3,
-          nombre: 'Carlos Martínez Ruiz',
-          email: 'dpo@techstart.cl',
-          rol: 'DPO_PRINCIPAL',
-          holding_id: 2,
-          estado: 'ACTIVO',
-          ultimo_acceso: '2024-01-17T16:45:00Z',
-          permisos: ['gestionar_rats', 'aprobar_eipds'],
-          certificaciones: ['CIPP/LA'],
-          fecha_creacion: '2023-08-10'
-        },
-        {
-          id: 4,
-          nombre: 'Ana Silva Torres',
-          email: 'ana.admin@retail.cl',
-          rol: 'ADMIN_HOLDING',
-          holding_id: 3,
-          estado: 'PENDIENTE_ACTIVACION',
-          ultimo_acceso: null,
-          permisos: ['gestionar_holdings', 'gestionar_usuarios'],
-          certificaciones: [],
-          fecha_creacion: '2024-01-15'
-        }
-      ];
+      // HOLDINGS desde Supabase
+      const { data: holdingsData } = await supabase
+        .from('organizaciones')
+        .select('*')
+        .eq('tenant_id', tenantId);
+      setHoldings(holdingsData || []);
 
-      const mockMetricas = {
-        total_holdings: 3,
-        total_usuarios: 4,
-        total_rats: 53,
-        total_eipds: 12,
-        compliance_promedio: 85,
-        alertas_activas: 8,
-        transferencias_mes: 2480,
-        incidentes_mes: 3,
-        auditorias_pendientes: 2,
-        dpa_vencidos: 1
+      // USUARIOS desde Supabase  
+      const { data: usuariosData } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('tenant_id', tenantId);
+      setUsuarios(usuariosData || []);
+
+      // MÉTRICAS calculadas desde Supabase
+      const [ratsResult, eipdResult, usuariosResult] = await Promise.all([
+        supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id', tenantId),
+        supabase.from('generated_documents').select('id', { count: 'exact' }).eq('document_type', 'EIPD'),
+        supabase.from('usuarios').select('id', { count: 'exact' }).eq('tenant_id', tenantId).eq('estado', 'ACTIVO')
+      ]);
+
+      const metricsCalculated = {
+        total_holdings: holdingsData?.length || 0,
+        total_usuarios: usuariosResult.count || 0,
+        total_rats: ratsResult.count || 0,
+        total_eipds: eipdResult.count || 0,
+        compliance_promedio: 0, // Se calculará dinámicamente
+        alertas_activas: 0, // Se cargará de tabla alerts
+        transferencias_mes: 0, // Se calculará de transferencias
+        incidentes_mes: 0, // Se cargará de incidents
+        auditorias_pendientes: 0, // Se cargará de audit_reports
+        dpa_vencidos: 0 // Se calculará de proveedores
       };
+      setMetricas(metricsCalculated);
 
-      const mockAlertas = [
-        {
-          id: 1,
-          tipo: 'DPA_VENCIDO',
-          gravedad: 'ALTA',
-          mensaje: 'DPA con Mailchimp vencido hace 30 días',
-          holding_id: 1,
-          fecha: '2024-01-10T10:00:00Z',
-          resuelto: false
-        },
-        {
-          id: 2,
-          tipo: 'AUDIT_PENDIENTE',
-          gravedad: 'MEDIA',
-          mensaje: 'Auditoría TechStart Innovation pendiente',
-          holding_id: 2,
-          fecha: '2024-01-15T14:00:00Z',
-          resuelto: false
-        },
-        {
-          id: 3,
-          tipo: 'SETUP_INCOMPLETO',
-          gravedad: 'ALTA',
-          mensaje: 'Retail Holding SA requiere configuración inicial',
-          holding_id: 3,
-          fecha: '2024-01-16T09:00:00Z',
-          resuelto: false
-        }
-      ];
-
-      setHoldings(mockHoldings);
-      setUsuarios(mockUsuarios);
-      setMetricas(mockMetricas);
-      setAlertas(mockAlertas);
+      // ALERTAS desde Supabase
+      const { data: alertasData } = await supabase
+        .from('system_alerts')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .eq('resolved', false)
+        .order('created_at', { ascending: false });
+      setAlertas(alertasData || []);
       
     } catch (error) {
       console.error('Error cargando datos dashboard:', error);
@@ -912,9 +806,8 @@ const MetricasOperacionalesCard = ({ metricas }) => {
           Distribución por Tipo:
         </Typography>
         <Box display="flex" flexWrap="wrap" gap={1}>
-          <Chip label="Matriz: 1" size="small" sx={{ bgcolor: '#1976d2', color: '#fff' }} />
-          <Chip label="Holdings: 1" size="small" sx={{ bgcolor: '#f57f17', color: '#fff' }} />
-          <Chip label="Independientes: 1" size="small" sx={{ bgcolor: '#2e7d32', color: '#fff' }} />
+          {/* Datos dinámicos desde Supabase - no usar datos estáticos */}
+          <Chip label="Cargando..." size="small" sx={{ bgcolor: '#666', color: '#fff' }} />
         </Box>
       </CardContent>
     </Card>
