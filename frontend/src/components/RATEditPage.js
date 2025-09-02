@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../config/supabaseClient';
+import { useAuth } from '../hooks/useAuth';
+import preventiveAI from '../utils/preventiveAI';
 import {
   Box,
   Paper,
@@ -15,6 +18,7 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
+  Checkbox,
   Chip,
   Alert,
   Grid,
@@ -55,53 +59,65 @@ import { useParams, useNavigate } from 'react-router-dom';
 const RATEditPage = () => {
   const { ratId } = useParams();
   const navigate = useNavigate();
+  const { user, currentTenant } = useAuth();
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // MAPEO EXACTO SEGÚN DIAGRAMA - tabla mapeo_datos_rat
   const [rat, setRat] = useState({
-    // Información básica
+    // CAMPOS OBLIGATORIOS según basedatos.csv
     nombre_actividad: '',
     descripcion: '',
-    finalidad: '',
-    categoria: '',
-    
-    // Responsabilidad
-    responsable_proceso: '',
+    finalidad_principal: '', // CAMPO REAL en tabla
     area_responsable: '',
-    contacto_responsable: '',
     
-    // Base legal
-    base_legal: '',
-    interes_legitimo_detalle: '',
+    // RESPONSABLE DEL PROCESO
+    responsable_proceso: '',
+    email_responsable: '',
+    telefono_responsable: '',
     
-    // Datos personales
-    tipos_datos: [],
-    categorias_especiales: [],
-    origen_datos: '',
+    // BASE DE LICITUD (Art. 12 Ley 21.719)
+    base_licitud: '', // consentimiento, contrato, obligacion_legal, interes_legitimo
+    base_legal: '', // Texto explicativo detallado
     
-    // Destinatarios
+    // CATEGORÍAS DATOS (JSONB según diagrama líneas 134-160)
+    categorias_datos: {
+      identificacion: {
+        basicos: [],
+        contacto: [],
+        identificadores: []
+      },
+      sensibles_art14: {},
+      especiales: {},
+      tecnicas: {
+        sistemas: [],
+        comportamiento: [],
+        dispositivo: []
+      }
+    },
+    
+    // DESTINATARIOS Y TRANSFERENCIAS
     destinatarios_internos: [],
-    destinatarios_externos: [],
-    transferencias_internacionales: false,
-    paises_destino: [],
-    garantias_transferencia: '',
+    transferencias_internacionales: {},
     
-    // Conservación
+    // CONSERVACIÓN
     plazo_conservacion: '',
-    criterios_conservacion: '',
     
-    // Seguridad
-    medidas_tecnicas: [],
-    medidas_organizativas: [],
+    // MEDIDAS SEGURIDAD
+    medidas_seguridad_tecnicas: [],
+    medidas_seguridad_organizativas: [],
     
-    // Evaluación
-    nivel_riesgo: '',
+    // EVALUACIÓN RIESGO (calculado automáticamente)
+    nivel_riesgo: 'MEDIO',
     requiere_eipd: false,
-    eipd_asociada: null,
+    requiere_dpia: false,
     
-    // Estado
+    // ESTADO Y METADATOS
     estado: 'BORRADOR',
-    comentarios: ''
+    tenant_id: currentTenant?.id || 1,
+    created_at: new Date().toISOString(),
+    metadata: {}
   });
   const [validationErrors, setValidationErrors] = useState({});
 
@@ -114,41 +130,49 @@ const RATEditPage = () => {
   const loadRAT = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Cargando RAT desde Supabase:', ratId);
       
-      // Mock data - en prod conectaría con API
-      const mockRAT = {
-        id: parseInt(ratId),
-        numero_rat: `RAT-2024-${String(ratId).padStart(3, '0')}`,
-        nombre_actividad: 'Gestión de Clientes Bancarios',
-        descripcion: 'Sistema integral para la administración de datos de clientes del banco',
-        finalidad: 'Administración de cuentas bancarias, evaluación crediticia y cumplimiento normativo',
-        categoria: 'financiero',
-        responsable_proceso: 'juan.perez@banco.cl',
-        area_responsable: 'Operaciones Bancarias',
-        contacto_responsable: '+56912345678',
-        base_legal: 'ejecucion_contrato',
-        tipos_datos: ['identificacion', 'financieros', 'contacto'],
-        origen_datos: 'Directamente del titular',
-        destinatarios_internos: ['Área Comercial', 'Área Riesgos', 'Área Cumplimiento'],
-        destinatarios_externos: ['SBIF', 'CMF'],
-        transferencias_internacionales: true,
-        paises_destino: ['Estados Unidos', 'España'],
-        garantias_transferencia: 'Decisión de adecuación - Estados Unidos Safe Harbor',
-        plazo_conservacion: '10 años posterior al cierre de cuenta',
-        criterios_conservacion: 'Requerimientos normativos bancarios y tributarios',
-        medidas_tecnicas: ['Cifrado AES-256', 'Autenticación multifactor', 'Logs de auditoría'],
-        medidas_organizativas: ['Capacitación personal', 'Políticas acceso', 'Contratos confidencialidad'],
-        nivel_riesgo: 'ALTO',
-        requiere_eipd: true,
-        estado: 'EN_REVISION',
-        fecha_creacion: '2024-01-10T10:00:00Z',
-        fecha_actualizacion: '2024-01-15T14:30:00Z'
-      };
+      // CONEXIÓN REAL SUPABASE - tabla mapeo_datos_rat
+      const { data: ratData, error } = await supabase
+        .from('mapeo_datos_rat')
+        .select('*')
+        .eq('id', ratId)
+        .eq('tenant_id', currentTenant?.id || 1)
+        .single();
       
-      setRat(mockRAT);
+      if (error) {
+        console.error('❌ Error cargando RAT:', error);
+        throw error;
+      }
+      
+      if (!ratData) {
+        console.error('❌ RAT no encontrado:', ratId);
+        throw new Error('RAT no encontrado');
+      }
+      
+      console.log('✅ RAT cargado exitosamente:', ratData);
+      
+      // MAPEAR DATOS DE SUPABASE A ESTADO LOCAL
+      setRat({
+        ...ratData,
+        // ASEGURAR CAMPOS REQUERIDOS EXISTEN
+        categorias_datos: ratData.categorias_datos || {
+          identificacion: { basicos: [], contacto: [], identificadores: [] },
+          sensibles_art14: {},
+          especiales: {},
+          tecnicas: { sistemas: [], comportamiento: [], dispositivo: [] }
+        },
+        destinatarios_internos: ratData.destinatarios_internos || [],
+        transferencias_internacionales: ratData.transferencias_internacionales || {},
+        medidas_seguridad_tecnicas: ratData.medidas_seguridad_tecnicas || [],
+        medidas_seguridad_organizativas: ratData.medidas_seguridad_organizativas || [],
+        metadata: ratData.metadata || {}
+      });
       
     } catch (error) {
-      console.error('Error cargando RAT:', error);
+      console.error('❌ Error cargando RAT:', error);
+      alert('Error cargando RAT: ' + error.message);
+      navigate('/rats'); // Volver a la lista si no se puede cargar
     } finally {
       setLoading(false);
     }
@@ -191,26 +215,39 @@ const RATEditPage = () => {
     
     switch (step) {
       case 0: // Información básica
-        if (!rat.nombre_actividad) errors.nombre_actividad = 'Nombre requerido';
-        if (!rat.finalidad) errors.finalidad = 'Finalidad requerida';
-        if (!rat.categoria) errors.categoria = 'Categoría requerida';
+        if (!rat.nombre_actividad) errors.nombre_actividad = 'Nombre actividad requerido';
+        if (!rat.finalidad_principal) errors.finalidad_principal = 'Finalidad principal requerida';
+        if (!rat.area_responsable) errors.area_responsable = 'Área responsable requerida';
         break;
         
-      case 1: // Responsabilidad
-        if (!rat.responsable_proceso) errors.responsable_proceso = 'Responsable requerido';
-        if (!rat.area_responsable) errors.area_responsable = 'Área requerida';
+      case 1: // Responsabilidad 
+        if (!rat.responsable_proceso) errors.responsable_proceso = 'Responsable proceso requerido';
+        if (!rat.email_responsable) errors.email_responsable = 'Email responsable requerido';
         break;
         
-      case 2: // Base legal
-        if (!rat.base_legal) errors.base_legal = 'Base legal requerida';
+      case 2: // Base legal - MAPEO EXACTO SEGÚN DIAGRAMA
+        if (!rat.base_licitud) errors.base_licitud = 'Base de licitud requerida';
+        if (rat.base_licitud === 'interes_legitimo' && !rat.base_legal) {
+          errors.base_legal = 'Interés legítimo requiere fundamentación detallada';
+        }
         break;
         
-      case 3: // Datos personales
-        if (rat.tipos_datos.length === 0) errors.tipos_datos = 'Al menos un tipo de dato requerido';
+      case 3: // Categorías datos - ESTRUCTURA JSONB según líneas 134-160
+        const hasAnyCategory = rat.categorias_datos && (
+          rat.categorias_datos.identificacion?.basicos?.length > 0 ||
+          Object.keys(rat.categorias_datos.sensibles_art14 || {}).length > 0 ||
+          Object.keys(rat.categorias_datos.especiales || {}).length > 0 ||
+          rat.categorias_datos.tecnicas?.sistemas?.length > 0
+        );
+        if (!hasAnyCategory) {
+          errors.categorias_datos = 'Debe seleccionar al menos una categoría de datos';
+        }
         break;
         
       case 4: // Destinatarios
-        if (rat.destinatarios_internos.length === 0) errors.destinatarios_internos = 'Al menos un destinatario interno requerido';
+        if (!rat.destinatarios_internos || rat.destinatarios_internos.length === 0) {
+          errors.destinatarios_internos = 'Al menos un destinatario interno requerido';
+        }
         break;
         
       case 5: // Conservación
@@ -218,7 +255,9 @@ const RATEditPage = () => {
         break;
         
       case 6: // Seguridad
-        if (rat.medidas_tecnicas.length === 0) errors.medidas_tecnicas = 'Al menos una medida técnica requerida';
+        if (!rat.medidas_seguridad_tecnicas || rat.medidas_seguridad_tecnicas.length === 0) {
+          errors.medidas_seguridad_tecnicas = 'Al menos una medida técnica requerida';
+        }
         break;
     }
     
@@ -239,31 +278,137 @@ const RATEditPage = () => {
   const handleSave = async (asDraft = true) => {
     try {
       setSaving(true);
+      console.log('💾 Iniciando guardado RAT en Supabase...');
       
-      // Validar datos completos si no es borrador
-      if (!asDraft) {
-        const allStepsValid = Array.from({ length: 7 }, (_, i) => validateStep(i)).every(Boolean);
-        if (!allStepsValid) {
-          throw new Error('Complete todos los campos requeridos');
+      // 🛡️ IA PREVENTIVA INTERCEPTA ANTES DE GUARDAR (líneas 335-343 diagrama)
+      console.log('🛡️ IA Preventiva interceptando modificaciones RAT...');
+      
+      const preventiveCheck = await preventiveAI.validateAction(
+        'RAT_EDIT_SAVE', 
+        currentTenant?.id || 1, 
+        { 
+          ratId: rat.id || ratId,
+          originalData: rat,
+          changes: 'FULL_SAVE',
+          isEdit: ratId !== 'new'
+        }
+      );
+      
+      if (preventiveCheck.alerts && preventiveCheck.alerts.length > 0) {
+        console.log('🚨 IA Preventiva detectó problemas:', preventiveCheck.alerts);
+        
+        // Mostrar alertas críticas al usuario
+        const criticalAlerts = preventiveCheck.alerts.filter(a => a.severity === 'CRITICA');
+        if (criticalAlerts.length > 0) {
+          const alertMessages = criticalAlerts.map(a => `${a.icon} ${a.title}: ${a.message}`).join('\n\n');
+          alert(`🚨 PROBLEMAS CRÍTICOS DETECTADOS:\n\n${alertMessages}\n\nPor favor corrija estos problemas antes de continuar.`);
+          return; // NO continuar guardado si hay alertas críticas
+        }
+        
+        // Mostrar advertencias no críticas
+        const warnings = preventiveCheck.alerts.filter(a => a.severity === 'ADVERTENCIA');
+        if (warnings.length > 0) {
+          const warningMessages = warnings.map(a => `${a.icon} ${a.title}: ${a.message}`).join('\n\n');
+          const confirmContinue = confirm(`⚠️ ADVERTENCIAS DETECTADAS:\n\n${warningMessages}\n\n¿Continuar guardando el RAT?`);
+          if (!confirmContinue) {
+            return; // Usuario decidió no continuar
+          }
         }
       }
       
-      const ratData = {
-        ...rat,
+      // Validar datos críticos según diagrama
+      if (!rat.nombre_actividad || !rat.finalidad_principal || !rat.area_responsable) {
+        throw new Error('Complete los campos obligatorios: Nombre de Actividad, Finalidad Principal y Área Responsable');
+      }
+      
+      // PREPARAR DATOS PARA SUPABASE según mapeo exacto tabla mapeo_datos_rat
+      const ratDataToSave = {
+        nombre_actividad: rat.nombre_actividad.trim(),
+        descripcion: rat.descripcion || '',
+        finalidad_principal: rat.finalidad_principal.trim(),
+        area_responsable: rat.area_responsable.trim(),
+        responsable_proceso: rat.responsable_proceso || '',
+        email_responsable: rat.email_responsable || '',
+        telefono_responsable: rat.telefono_responsable || '',
+        base_licitud: rat.base_licitud || 'interes_legitimo',
+        base_legal: rat.base_legal || '',
+        categorias_datos: rat.categorias_datos,
+        destinatarios_internos: rat.destinatarios_internos,
+        transferencias_internacionales: rat.transferencias_internacionales,
+        plazo_conservacion: rat.plazo_conservacion || '',
+        medidas_seguridad_tecnicas: rat.medidas_seguridad_tecnicas,
+        medidas_seguridad_organizativas: rat.medidas_seguridad_organizativas,
+        nivel_riesgo: rat.nivel_riesgo || 'MEDIO',
+        requiere_eipd: rat.requiere_eipd || false,
+        requiere_dpia: rat.requiere_dpia || false,
         estado: asDraft ? 'BORRADOR' : 'EN_REVISION',
-        fecha_actualizacion: new Date().toISOString()
+        tenant_id: currentTenant?.id || 1,
+        updated_at: new Date().toISOString(),
+        metadata: {
+          ...rat.metadata,
+          last_edited_by: user?.email || 'sistema',
+          edit_timestamp: new Date().toISOString(),
+          version: (rat.metadata?.version || 0) + 1
+        }
       };
       
-      // En prod: enviar a API
-      console.log('Guardando RAT:', ratData);
+      let result;
       
-      // Simular guardado
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (ratId && ratId !== 'new') {
+        // ACTUALIZAR RAT EXISTENTE
+        console.log('🔄 Actualizando RAT existente ID:', ratId);
+        
+        const { data, error } = await supabase
+          .from('mapeo_datos_rat')
+          .update(ratDataToSave)
+          .eq('id', ratId)
+          .eq('tenant_id', currentTenant?.id || 1)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        result = data;
+        
+        console.log('✅ RAT actualizado exitosamente:', result.id);
+        
+      } else {
+        // CREAR NUEVO RAT
+        console.log('➕ Creando nuevo RAT...');
+        
+        const { data, error } = await supabase
+          .from('mapeo_datos_rat')
+          .insert({
+            ...ratDataToSave,
+            created_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        result = data;
+        
+        console.log('✅ RAT creado exitosamente:', result.id);
+      }
       
+      // VALIDAR PERSISTENCIA
+      const { data: verification } = await supabase
+        .from('mapeo_datos_rat')
+        .select('id, nombre_actividad, estado')
+        .eq('id', result.id)
+        .single();
+      
+      if (!verification) {
+        throw new Error('Error de persistencia: RAT no se guardó correctamente');
+      }
+      
+      console.log('✅ Persistencia verificada:', verification);
+      
+      alert(`✅ RAT "${verification.nombre_actividad}" ${ratId !== 'new' ? 'actualizado' : 'guardado'} exitosamente`);
       navigate('/rats');
       
     } catch (error) {
-      console.error('Error guardando RAT:', error);
+      console.error('❌ Error guardando RAT:', error);
+      alert('Error guardando RAT: ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -330,11 +475,11 @@ const RATEditPage = () => {
               required
               multiline
               rows={2}
-              label="Finalidad del Tratamiento"
-              value={rat.finalidad}
-              onChange={(e) => handleFieldChange('finalidad', e.target.value)}
-              error={!!validationErrors.finalidad}
-              helperText={validationErrors.finalidad}
+              label="Finalidad Principal del Tratamiento"
+              value={rat.finalidad_principal}
+              onChange={(e) => handleFieldChange('finalidad_principal', e.target.value)}
+              error={!!validationErrors.finalidad_principal}
+              helperText={validationErrors.finalidad_principal}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   bgcolor: '#2a2a2a',
@@ -348,11 +493,11 @@ const RATEditPage = () => {
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth required error={!!validationErrors.categoria}>
-              <InputLabel sx={{ color: '#bbb' }}>Categoría de Industria</InputLabel>
+            <FormControl fullWidth required error={!!validationErrors.base_licitud}>
+              <InputLabel sx={{ color: '#bbb' }}>Base de Licitud (Art. 12 Ley 21.719)</InputLabel>
               <Select
-                value={rat.categoria}
-                onChange={(e) => handleFieldChange('categoria', e.target.value)}
+                value={rat.base_licitud}
+                onChange={(e) => handleFieldChange('base_licitud', e.target.value)}
                 sx={{
                   bgcolor: '#2a2a2a',
                   color: '#fff',
@@ -360,12 +505,12 @@ const RATEditPage = () => {
                   '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#666' }
                 }}
               >
-                <MenuItem value="financiero">Financiero</MenuItem>
-                <MenuItem value="salud">Salud</MenuItem>
-                <MenuItem value="educacion">Educación</MenuItem>
-                <MenuItem value="retail">Retail</MenuItem>
-                <MenuItem value="tecnologia">Tecnología</MenuItem>
-                <MenuItem value="servicios">Servicios</MenuItem>
+                <MenuItem value="consentimiento">Consentimiento del Titular</MenuItem>
+                <MenuItem value="contrato">Ejecución de Contrato</MenuItem>
+                <MenuItem value="obligacion_legal">Cumplimiento Obligación Legal</MenuItem>
+                <MenuItem value="proteccion_intereses_vitales">Protección Intereses Vitales</MenuItem>
+                <MenuItem value="interes_publico">Interés Público</MenuItem>
+                <MenuItem value="interes_legitimo">Interés Legítimo</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -421,10 +566,30 @@ const RATEditPage = () => {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Contacto del Responsable"
-              value={rat.contacto_responsable}
-              onChange={(e) => handleFieldChange('contacto_responsable', e.target.value)}
-              placeholder="email@empresa.cl"
+              label="Email del Responsable"
+              value={rat.email_responsable}
+              onChange={(e) => handleFieldChange('email_responsable', e.target.value)}
+              placeholder="responsable@empresa.cl"
+              type="email"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: '#2a2a2a',
+                  '& fieldset': { borderColor: '#444' },
+                  '&:hover fieldset': { borderColor: '#666' },
+                  '&.Mui-focused fieldset': { borderColor: '#4fc3f7' }
+                },
+                '& .MuiInputLabel-root': { color: '#bbb' }
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Teléfono del Responsable"
+              value={rat.telefono_responsable}
+              onChange={(e) => handleFieldChange('telefono_responsable', e.target.value)}
+              placeholder="+56 9 1234 5678"
               sx={{
                 '& .MuiOutlinedInput-root': {
                   bgcolor: '#2a2a2a',
@@ -440,15 +605,21 @@ const RATEditPage = () => {
       )
     },
     {
-      label: 'Base Legal',
+      label: 'Base Legal (Art. 12 Ley 21.719)',
       content: (
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <FormControl fullWidth required error={!!validationErrors.base_legal}>
-              <InputLabel sx={{ color: '#bbb' }}>Base Legal del Tratamiento</InputLabel>
+            <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
+              ⚖️ Base de Licitud del Tratamiento
+            </Typography>
+          </Grid>
+          
+          <Grid item xs={12}>
+            <FormControl fullWidth required error={!!validationErrors.base_licitud}>
+              <InputLabel sx={{ color: '#bbb' }}>Seleccionar Base de Licitud</InputLabel>
               <Select
-                value={rat.base_legal}
-                onChange={(e) => handleFieldChange('base_legal', e.target.value)}
+                value={rat.base_licitud}
+                onChange={(e) => handleFieldChange('base_licitud', e.target.value)}
                 sx={{
                   bgcolor: '#2a2a2a',
                   color: '#fff',
@@ -456,37 +627,80 @@ const RATEditPage = () => {
                   '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#666' }
                 }}
               >
-                <MenuItem value="consentimiento_titular">Consentimiento del Titular</MenuItem>
-                <MenuItem value="ejecucion_contrato">Ejecución de Contrato</MenuItem>
-                <MenuItem value="cumplimiento_obligacion_legal">Cumplimiento Obligación Legal</MenuItem>
-                <MenuItem value="proteccion_intereses_vitales">Protección Intereses Vitales</MenuItem>
-                <MenuItem value="interes_publico">Interés Público</MenuItem>
-                <MenuItem value="interes_legitimo">Interés Legítimo</MenuItem>
+                <MenuItem value="consentimiento">
+                  <Box>
+                    <Typography>📝 Consentimiento del Titular</Typography>
+                    <Typography variant="caption" sx={{ color: '#bbb' }}>
+                      Libre, específico, informado e inequívoco
+                    </Typography>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="contrato">
+                  <Box>
+                    <Typography>📋 Ejecución de Contrato</Typography>
+                    <Typography variant="caption" sx={{ color: '#bbb' }}>
+                      Necesario para ejecutar contrato titular parte
+                    </Typography>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="obligacion_legal">
+                  <Box>
+                    <Typography>⚖️ Cumplimiento Obligación Legal</Typography>
+                    <Typography variant="caption" sx={{ color: '#bbb' }}>
+                      Requerido por ley específica aplicable
+                    </Typography>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="interes_legitimo">
+                  <Box>
+                    <Typography>🎯 Interés Legítimo</Typography>
+                    <Typography variant="caption" sx={{ color: '#bbb' }}>
+                      Requiere test balancing obligatorio
+                    </Typography>
+                  </Box>
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>
 
-          {rat.base_legal === 'interes_legitimo' && (
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              required
+              label="Fundamentación Legal Detallada"
+              value={rat.base_legal}
+              onChange={(e) => handleFieldChange('base_legal', e.target.value)}
+              error={!!validationErrors.base_legal}
+              helperText={validationErrors.base_legal}
+              placeholder={
+                rat.base_licitud === 'consentimiento' ? 'Describa el proceso de obtención del consentimiento...' :
+                rat.base_licitud === 'contrato' ? 'Indique el tipo de contrato y cláusula específica...' :
+                rat.base_licitud === 'obligacion_legal' ? 'Cite la ley específica y artículo exacto...' :
+                rat.base_licitud === 'interes_legitimo' ? 'Describa el interés legítimo y justifique la evaluación de equilibrio...' :
+                'Proporcione la fundamentación legal completa...'
+              }
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: '#2a2a2a',
+                  '& fieldset': { borderColor: '#444' },
+                  '&:hover fieldset': { borderColor: '#666' },
+                  '&.Mui-focused fieldset': { borderColor: '#4fc3f7' }
+                },
+                '& .MuiInputLabel-root': { color: '#bbb' }
+              }}
+            />
+          </Grid>
+
+          {rat.base_licitud === 'interes_legitimo' && (
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                required
-                label="Detalle del Interés Legítimo"
-                value={rat.interes_legitimo_detalle}
-                onChange={(e) => handleFieldChange('interes_legitimo_detalle', e.target.value)}
-                placeholder="Describa el interés legítimo y la evaluación de equilibrio..."
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    bgcolor: '#2a2a2a',
-                    '& fieldset': { borderColor: '#444' },
-                    '&:hover fieldset': { borderColor: '#666' },
-                    '&.Mui-focused fieldset': { borderColor: '#4fc3f7' }
-                  },
-                  '& .MuiInputLabel-root': { color: '#bbb' }
-                }}
-              />
+              <Alert severity="warning" sx={{ bgcolor: '#f57f17', color: '#000' }}>
+                <Typography fontWeight={600}>⚖️ Test Balancing Obligatorio</Typography>
+                <Typography variant="body2">
+                  Art. 12 f) Ley 21.719: Debe realizar evaluación de equilibrio entre interés legítimo empresa vs derechos fundamentales titular.
+                </Typography>
+              </Alert>
             </Grid>
           )}
         </Grid>
@@ -497,13 +711,13 @@ const RATEditPage = () => {
       content: (
         <Box>
           <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
-            🗂️ Tipos de Datos Tratados
+            🗂️ Categorías de Datos Tratados
           </Typography>
           
-          <DataTypesSelector 
-            selectedTypes={rat.tipos_datos}
-            onTypesChange={(types) => handleFieldChange('tipos_datos', types)}
-            error={validationErrors.tipos_datos}
+          <CategoriasDataSelector 
+            categoriasData={rat.categorias_datos}
+            onCategoriasChange={(categorias) => handleFieldChange('categorias_datos', categorias)}
+            error={validationErrors.categorias_datos}
           />
 
           <Typography variant="h6" sx={{ color: '#fff', mt: 3, mb: 2 }}>
@@ -629,7 +843,7 @@ const RATEditPage = () => {
             }}
             startIcon={<CancelIcon />}
           >
-            Cancelar
+            ← Volver a Lista RATs
           </Button>
           
           <Button
@@ -675,38 +889,70 @@ const RATEditPage = () => {
                 <Box mb={3}>
                   {step.content}
                 </Box>
-                <Box display="flex" gap={1} justifyContent="space-between" alignItems="center">
-                  <Box display="flex" gap={1}>
+                
+                {/* BOTONES NAVEGACIÓN CRÍTICOS */}
+                <Box display="flex" gap={2} justifyContent="space-between" alignItems="center" mt={3}>
+                  <Box display="flex" gap={2}>
                     <Button
                       disabled={index === 0}
                       onClick={handleBack}
                       variant="outlined"
+                      startIcon={<CancelIcon />}
                       sx={{ 
                         color: '#94a3b8',
                         borderColor: '#374151',
                         '&:hover': { 
                           borderColor: '#4fc3f7',
                           bgcolor: 'rgba(79, 195, 247, 0.1)'
+                        },
+                        '&:disabled': {
+                          color: '#555',
+                          borderColor: '#333'
                         }
                       }}
                     >
                       ← Anterior
                     </Button>
+                    
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleSave(true)}
+                      disabled={saving}
+                      startIcon={<SaveIcon />}
+                      sx={{
+                        borderColor: '#f57f17',
+                        color: '#f57f17',
+                        '&:hover': { 
+                          borderColor: '#ff9800', 
+                          bgcolor: 'rgba(245, 127, 23, 0.1)' 
+                        }
+                      }}
+                    >
+                      Guardar Borrador
+                    </Button>
+                    
                     <Button
                       variant="contained"
                       onClick={index === steps.length - 1 ? () => handleSave(false) : handleNext}
+                      disabled={saving}
+                      startIcon={index === steps.length - 1 ? <CheckIcon /> : <EditIcon />}
                       sx={{
                         bgcolor: '#4fc3f7',
                         color: '#000',
                         fontWeight: 600,
-                        '&:hover': { bgcolor: '#29b6f6' }
+                        '&:hover': { bgcolor: '#29b6f6' },
+                        '&:disabled': {
+                          bgcolor: '#555',
+                          color: '#999'
+                        }
                       }}
                     >
-                      {index === steps.length - 1 ? 'Finalizar' : 'Siguiente →'}
+                      {saving ? 'Guardando...' : 
+                       index === steps.length - 1 ? 'Finalizar RAT' : 'Siguiente →'}
                     </Button>
                   </Box>
                   
-                  <Box display="flex" alignItems="center" gap={1}>
+                  <Box display="flex" alignItems="center" gap={2}>
                     <Typography variant="caption" sx={{ color: '#94a3b8' }}>
                       Paso {index + 1} de {steps.length}
                     </Typography>
@@ -714,12 +960,19 @@ const RATEditPage = () => {
                       variant="determinate" 
                       value={(index + 1) / steps.length * 100}
                       sx={{
-                        width: 100,
+                        width: 120,
+                        height: 6,
+                        borderRadius: 3,
+                        bgcolor: '#333',
                         '& .MuiLinearProgress-bar': {
-                          bgcolor: '#4fc3f7'
+                          bgcolor: '#4fc3f7',
+                          borderRadius: 3
                         }
                       }}
                     />
+                    <Typography variant="caption" sx={{ color: '#4fc3f7', fontWeight: 600 }}>
+                      {Math.round((index + 1) / steps.length * 100)}%
+                    </Typography>
                   </Box>
                 </Box>
               </StepContent>
@@ -1121,6 +1374,187 @@ const SecurityMeasuresSection = ({ rat, onArrayAdd, onArrayRemove, validationErr
           />
         ))}
       </Box>
+    </Box>
+  );
+};
+
+// Componente categorías de datos según ESTRUCTURA JSONB diagrama líneas 134-160
+const CategoriasDataSelector = ({ categoriasData, onCategoriasChange, error }) => {
+  const handleCategoryToggle = (categoria, subcategoria, valor) => {
+    const newCategorias = { ...categoriasData };
+    
+    if (!newCategorias[categoria]) {
+      newCategorias[categoria] = {};
+    }
+    
+    if (!newCategorias[categoria][subcategoria]) {
+      newCategorias[categoria][subcategoria] = [];
+    }
+    
+    const currentValues = newCategorias[categoria][subcategoria];
+    if (currentValues.includes(valor)) {
+      newCategorias[categoria][subcategoria] = currentValues.filter(v => v !== valor);
+    } else {
+      newCategorias[categoria][subcategoria] = [...currentValues, valor];
+    }
+    
+    onCategoriasChange(newCategorias);
+  };
+
+  const isSelected = (categoria, subcategoria, valor) => {
+    return categoriasData[categoria]?.[subcategoria]?.includes(valor) || false;
+  };
+
+  const categoriasDefinition = {
+    identificacion: {
+      title: '🆔 Datos de Identificación',
+      subcategorias: {
+        basicos: {
+          title: 'Básicos',
+          valores: ['nombre', 'apellidos', 'rut', 'email']
+        },
+        contacto: {
+          title: 'Contacto',
+          valores: ['telefono', 'direccion', 'codigo_postal']
+        },
+        identificadores: {
+          title: 'Identificadores',
+          valores: ['numero_cliente', 'codigo_empleado', 'matricula']
+        }
+      }
+    },
+    sensibles_art14: {
+      title: '🚨 Datos Sensibles Art. 14',
+      subcategorias: {
+        salud: {
+          title: 'Salud',
+          valores: ['historial_medico', 'diagnosticos', 'tratamientos']
+        },
+        biometricos: {
+          title: 'Biométricos',
+          valores: ['huella_dactilar', 'reconocimiento_facial', 'voz']
+        },
+        origen: {
+          title: 'Origen',
+          valores: ['raza', 'etnia', 'nacionalidad']
+        },
+        religion: {
+          title: 'Religión',
+          valores: ['creencias', 'afiliacion_religiosa']
+        },
+        ideologia: {
+          title: 'Ideología',
+          valores: ['opinion_politica', 'sindical']
+        },
+        vida_sexual: {
+          title: 'Vida Sexual',
+          valores: ['orientacion', 'comportamiento_sexual']
+        }
+      }
+    },
+    especiales: {
+      title: '⚡ Datos Especiales',
+      subcategorias: {
+        menores: {
+          title: 'Menores',
+          valores: ['datos_menores_14', 'consentimiento_parental']
+        },
+        trabajadores: {
+          title: 'Trabajadores',
+          valores: ['nomina', 'evaluaciones', 'disciplinarias']
+        },
+        financieros: {
+          title: 'Financieros',
+          valores: ['ingresos', 'crediticio', 'patrimonio']
+        },
+        ubicacion: {
+          title: 'Ubicación',
+          valores: ['gps', 'ip_address', 'geolocation']
+        }
+      }
+    },
+    tecnicas: {
+      title: '🔧 Datos Técnicos',
+      subcategorias: {
+        sistemas: {
+          title: 'Sistemas',
+          valores: ['logs', 'metadatos', 'cookies']
+        },
+        comportamiento: {
+          title: 'Comportamiento',
+          valores: ['clicks', 'navegacion', 'preferencias']
+        },
+        dispositivo: {
+          title: 'Dispositivo',
+          valores: ['mac_address', 'device_id', 'browser_fingerprint']
+        }
+      }
+    }
+  };
+
+  return (
+    <Box>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2, bgcolor: '#d32f2f', color: '#fff' }}>
+          {error}
+        </Alert>
+      )}
+      
+      {Object.entries(categoriasDefinition).map(([categoriaKey, categoria]) => (
+        <Accordion 
+          key={categoriaKey}
+          sx={{ 
+            bgcolor: '#2a2a2a', 
+            border: '1px solid #444',
+            mb: 2,
+            '&:before': { display: 'none' }
+          }}
+        >
+          <AccordionSummary 
+            expandIcon={<ExpandMoreIcon sx={{ color: '#4fc3f7' }} />}
+            sx={{ bgcolor: '#333' }}
+          >
+            <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>
+              {categoria.title}
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={2}>
+              {Object.entries(categoria.subcategorias).map(([subKey, subcategoria]) => (
+                <Grid item xs={12} md={6} key={subKey}>
+                  <Paper sx={{ bgcolor: '#1a1a1a', p: 2 }}>
+                    <Typography variant="subtitle1" sx={{ color: '#4fc3f7', mb: 2, fontWeight: 600 }}>
+                      {subcategoria.title}
+                    </Typography>
+                    <Box display="flex" flexDirection="column" gap={1}>
+                      {subcategoria.valores.map((valor) => (
+                        <FormControlLabel
+                          key={valor}
+                          control={
+                            <Checkbox
+                              checked={isSelected(categoriaKey, subKey, valor)}
+                              onChange={() => handleCategoryToggle(categoriaKey, subKey, valor)}
+                              sx={{
+                                color: '#666',
+                                '&.Mui-checked': { color: '#4fc3f7' }
+                              }}
+                            />
+                          }
+                          label={
+                            <Typography sx={{ color: '#bbb', fontSize: '0.9rem' }}>
+                              {valor.replace(/_/g, ' ')}
+                            </Typography>
+                          }
+                        />
+                      ))}
+                    </Box>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+      ))}
     </Box>
   );
 };
