@@ -98,15 +98,8 @@ const EIPDTemplates = () => {
     recomendado: false
   });
 
-  // Templates dinámicos desde Supabase
-          'Controles acceso basados en roles',
-          'Auditoría completa transacciones',
-          'Anonimización para analytics',
-          'Contratos DPA proveedores'
-        ],
-        evaluacion_final: 'Riesgo ALTO mitigado a MEDIO mediante controles técnicos y organizacionales'
-      }
-    },
+  // Templates dinámicos desde Supabase - TODO: Implementar carga desde Supabase
+  const staticTemplates = [
     {
       id: 'healthcare-patient-records',
       nombre: 'Registros Médicos Electrónicos',

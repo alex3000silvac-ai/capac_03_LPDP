@@ -34,6 +34,7 @@ import {
 } from '@mui/material';
 import {
   CheckCircle as ApproveIcon,
+  CheckCircle as CheckIcon,
   Cancel as RejectIcon,
   Visibility as ViewIcon,
   Edit as EditIcon,

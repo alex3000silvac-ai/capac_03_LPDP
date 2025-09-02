@@ -29,7 +29,7 @@ import DPOApprovalQueue from './pages/DPOApprovalQueue';
 import ComplianceMetrics from './components/ComplianceMetrics';
 import EIPDCreator from './pages/EIPDCreator';
 import ProviderManager from './pages/ProviderManager';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from './components/AdminDashboard';
 import RATSearchFilter from './components/RATSearchFilter';
 import NotificationCenter from './components/NotificationCenter';
 import EIPDTemplates from './components/EIPDTemplates';

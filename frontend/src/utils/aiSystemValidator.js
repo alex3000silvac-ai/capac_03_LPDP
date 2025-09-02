@@ -1702,7 +1702,6 @@ class AISystemValidator {
       ]
     };
   }
-}
 
   // CICLO COMPLETO GESTIÓN RAT - VALIDACIÓN EXHAUSTIVA
   async validateCompleteRATLifecycle(ratData, operation = 'create') {
