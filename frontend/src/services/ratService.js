@@ -81,18 +81,22 @@ export const ratService = {
         user_id: effectiveUser.id,
         created_by: effectiveUser.email,
         nombre_actividad: `${industryName} - ${processKey || 'Proceso General'}`,
-        area_responsable: ratData.responsable?.area || industryName,
+        area_responsable: ratData.responsable?.razonSocial || ratData.responsable?.area || industryName,
         responsable_proceso: ratData.responsable?.nombre || 'No especificado',
         email_responsable: ratData.responsable?.email || effectiveUser.email,
         telefono_responsable: ratData.responsable?.telefono || '',
+        // 🔧 CORRECCIÓN CRÍTICA: Campos que se estaban perdiendo
+        rut_empresa: ratData.responsable?.rut || '',
+        direccion_empresa: ratData.responsable?.direccion || '',
         descripcion: ratData.finalidades?.descripcion || 'RAT generado desde sistema de producción',
-        finalidad_principal: ratData.finalidades?.descripcion || 'No especificada',
-        base_licitud: ratData.finalidades?.baseLegal || 'No especificada',
-        base_legal: ratData.finalidades?.baseLegal || 'No especificada',
+        finalidad_principal: ratData.finalidad || ratData.finalidades?.descripcion || 'No especificada',
+        base_licitud: ratData.finalidades?.baseLegal || ratData.baseLegal || 'No especificada',
+        base_legal: ratData.finalidades?.baseLegal || ratData.baseLegal || 'No especificada',
+        base_legal_descripcion: ratData.argumentoJuridico || ratData.finalidades?.argumentoJuridico || '',
         categorias_datos: ratData.categorias || {},
-        destinatarios_internos: ratData.transferencias?.destinatarios || [],
-        transferencias_internacionales: ratData.transferencias || {},
-        plazo_conservacion: ratData.conservacion?.periodo || 'No especificado',
+        destinatarios_internos: ratData.destinatarios || ratData.transferencias?.destinatarios || [],
+        transferencias_internacionales: ratData.transferenciasInternacionales || ratData.transferencias || {},
+        plazo_conservacion: ratData.plazoConservacion || ratData.conservacion?.periodo || 'No especificado',
         medidas_seguridad_tecnicas: ratData.seguridad?.tecnicas || [],
         medidas_seguridad_organizativas: ratData.seguridad?.organizativas || [],
         status: 'completado',
@@ -221,11 +225,16 @@ export const ratService = {
         responsable: {
           nombre: rat.responsable_proceso,
           email: rat.email_responsable,
-          telefono: rat.telefono_responsable
+          telefono: rat.telefono_responsable,
+          // 🔧 RECUPERAR CAMPOS CORREGIDOS:
+          razonSocial: rat.area_responsable,
+          rut: rat.rut_empresa || '',
+          direccion: rat.direccion_empresa || ''
         },
         finalidades: {
           descripcion: rat.finalidad_principal,
-          baseLegal: rat.base_legal
+          baseLegal: rat.base_legal,
+          argumentoJuridico: rat.base_legal_descripcion || ''
         },
         categorias: rat.categorias_datos || {},
         transferencias: rat.transferencias_internacionales || {},
