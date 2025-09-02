@@ -1363,7 +1363,7 @@ const RATSystemProfessional = () => {
             {/* Contenido del paso actual */}
             <Box sx={{ minHeight: 400 }}>
               {currentStep === 0 && <PasoIdentificacion ratData={ratData} setRatData={setRatData} />}
-              {currentStep === 1 && <PasoCategorias ratData={ratData} setRatData={setRatData} />}
+              {currentStep === 1 && <PasoCategorias ratData={ratData} setRatData={setRatData} currentTenant={currentTenant} setAlertas={setAlertas} />}
               {currentStep === 2 && <PasoBaseLegal ratData={ratData} setRatData={setRatData} />}
               {currentStep === 3 && <PasoFinalidad ratData={ratData} setRatData={setRatData} />}
               {currentStep === 4 && <PasoTransferencias ratData={ratData} setRatData={setRatData} />}
@@ -1585,7 +1585,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
   );
 };
 
-const PasoCategorias = ({ ratData, setRatData }) => {
+const PasoCategorias = ({ ratData, setRatData, currentTenant, setAlertas }) => {
   const [expandedCategory, setExpandedCategory] = React.useState('identificacion');
   
   const handleIdentificacion = (event) => {
