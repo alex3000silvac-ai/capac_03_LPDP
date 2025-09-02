@@ -217,7 +217,7 @@ const AdminPanel = () => {
     try {
       // Cargar organizaciones
       const orgsData = await adminService.getOrganizaciones();
-      setOrganizaciones(orgsData);
+      setOrganizaciones(Array.isArray(orgsData) ? orgsData : []);
       
       // Cargar usuarios
       const usersData = await adminService.getUsuarios();

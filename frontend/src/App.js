@@ -15,6 +15,7 @@ import Login from './components/auth/Login';
 import AdminPanel from './pages/AdminPanel';
 import UserManagement from './components/admin/UserManagement';
 import IAAgentStatusPage from './components/admin/IAAgentStatusPage';
+import GlosarioLPDP from './pages/GlosarioLPDP';
 import ModuloEIPD from './components/ModuloEIPD';
 import GestionProveedores from './components/GestionProveedores';
 import RATFormWithCompliance from './components/RATFormWithCompliance';
@@ -279,6 +280,12 @@ const AppContent = () => {
             </ProtectedRoute>
           } 
         />
+        
+        <Route path="/glosario" element={
+          <ProtectedRoute>
+            <GlosarioLPDP />
+          </ProtectedRoute>
+        } />
         
         <Route path="*" element={<Navigate to="/sistema-principal" replace />} />
       </Routes>

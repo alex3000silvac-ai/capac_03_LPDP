@@ -143,8 +143,9 @@ const ProviderManager = () => {
 
   const cargarContratos = async (tenantId) => {
     try {
+      // TODO: Tabla contratos_dpa no existe en Supabase - usar proveedores como base
       const { data, error } = await supabase
-        .from('contratos_dpa')
+        .from('proveedores')
         .select('*')
         .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false });
@@ -162,8 +163,9 @@ const ProviderManager = () => {
 
   const cargarTransferencias = async (tenantId) => {
     try {
+      // TODO: Tabla transferencias_internacionales no existe - usar organizaciones
       const { data, error } = await supabase
-        .from('transferencias_internacionales')
+        .from('organizaciones')
         .select('*')
         .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false });

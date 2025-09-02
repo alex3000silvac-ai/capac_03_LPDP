@@ -156,7 +156,7 @@ const NotificationCenter = () => {
       const tenantId = currentTenant?.id;
       
       const { data, error } = await supabase
-        .from('notifications')
+        .from('dpo_notifications')
         .select(`
           *,
           usuario:usuarios(first_name, last_name, email)
@@ -184,7 +184,7 @@ const NotificationCenter = () => {
       const tenantId = currentTenant?.id;
       
       const { data, error } = await supabase
-        .from('notification_settings')
+        .from('dpo_notifications')
         .select('*')
         .eq('tenant_id', tenantId)
         .single();
@@ -237,7 +237,7 @@ const NotificationCenter = () => {
   const marcarLeida = async (notificationId) => {
     try {
       const { error } = await supabase
-        .from('notifications')
+        .from('dpo_notifications')
         .update({ leida: true, read_at: new Date().toISOString() })
         .eq('id', notificationId);
 
@@ -255,7 +255,7 @@ const NotificationCenter = () => {
   const eliminarNotificacion = async (notificationId) => {
     try {
       const { error } = await supabase
-        .from('notifications')
+        .from('dpo_notifications')
         .delete()
         .eq('id', notificationId);
 
@@ -273,7 +273,7 @@ const NotificationCenter = () => {
       const unreadIds = notifications.filter(n => !n.leida).map(n => n.id);
       
       const { error } = await supabase
-        .from('notifications')
+        .from('dpo_notifications')
         .update({ leida: true, read_at: new Date().toISOString() })
         .in('id', unreadIds);
 

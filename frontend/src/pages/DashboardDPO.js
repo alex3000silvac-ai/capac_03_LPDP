@@ -63,12 +63,13 @@ const DashboardDPO = () => {
           .eq('tenant_id', currentTenant.id)
           .neq('estado', 'ELIMINADO');
         
-        // 2. Contar EIPDs pendientes reales
+        // 2. Contar EIPDs pendientes reales - usando actividades_dpo como base
         const { count: eipdCount } = await supabase
-          .from('eipd_evaluaciones')
+          .from('actividades_dpo')
           .select('id', { count: 'exact' })
           .eq('tenant_id', currentTenant.id)
-          .eq('estado', 'PENDIENTE');
+          .eq('tipo_actividad', 'EIPD')
+          .eq('estado', 'pendiente');
         
         // 3. Contar tareas pendientes reales
         const { count: tareasCount } = await supabase

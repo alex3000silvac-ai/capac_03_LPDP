@@ -1306,7 +1306,7 @@ const RATSystemProfessional = () => {
                     <Button
                       variant="contained"
                       size="small"
-                      onClick={() => setViewMode('view')}
+                      onClick={() => window.location.href = `/rat-edit/${rat.id}`}
                       sx={{ 
                         bgcolor: '#059669',
                         color: '#ffffff',
