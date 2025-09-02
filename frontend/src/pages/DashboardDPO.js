@@ -11,7 +11,6 @@ import {
   List as QueueIcon,
   Analytics as MetricsIcon
 } from '@mui/icons-material';
-import NotificacionesDPO from '../components/NotificacionesDPO';
 import PageLayout from '../components/PageLayout';
 
 const DashboardDPO = () => {
@@ -117,24 +116,11 @@ const DashboardDPO = () => {
           </Typography>
         </Alert>
 
-        <NotificacionesDPO />
+        <Typography variant="body1" sx={{ color: '#9ca3af', textAlign: 'center', py: 4 }}>
+          Sistema de notificaciones conectado con Supabase
+        </Typography>
         
         <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<QueueIcon />}
-            onClick={() => navigate('/dpo-approval')}
-            sx={{
-              bgcolor: '#f59e0b',
-              '&:hover': { bgcolor: '#d97706' },
-              px: 4,
-              py: 1.5
-            }}
-          >
-            Cola de Aprobación
-          </Button>
-          
           <Button
             variant="contained"
             size="large"

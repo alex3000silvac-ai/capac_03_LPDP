@@ -12,28 +12,16 @@ import { TenantProvider, useTenant } from './contexts/TenantContext';
 
 import LayoutSimple from './components/LayoutSimple';
 import Login from './components/auth/Login';
-import PracticaSandbox from './pages/PracticaSandbox';
-import MiProgreso from './pages/MiProgreso';
 import AdminPanel from './pages/AdminPanel';
 import UserManagement from './components/admin/UserManagement';
 import IAAgentStatusPage from './components/admin/IAAgentStatusPage';
-import Modulo3Inventario from './pages/Modulo3Inventario';
-import GlosarioLPDP from './pages/GlosarioLPDP';
-import SandboxCompleto from './pages/SandboxCompleto';
-import IntroduccionLPDP from './pages/IntroduccionLPDP';
-import HerramientasLPDP from './pages/HerramientasLPDP';
-import ConceptosBasicos from './pages/ConceptosBasicos';
-import ModuloCero from './pages/ModuloCero';
-import ConsolidadoRAT from './components/ConsolidadoRAT';
 import ModuloEIPD from './components/ModuloEIPD';
 import GestionProveedores from './components/GestionProveedores';
-import RATProduccion from './pages/RATProduccion';
 import RATFormWithCompliance from './components/RATFormWithCompliance';
 import DashboardDPO from './pages/DashboardDPO';
 import ProcesoCompletoPage from './pages/ProcesoCompleto';
 import GestionAsociaciones from './pages/GestionAsociaciones';
 import DPIAAlgoritmos from './pages/DPIAAlgoritmos';
-import ConsultaPreviaAgencia from './components/ConsultaPreviaAgencia';
 import RATSystemProfessional from './components/RATSystemProfessional';
 import RATListPage from './components/RATListPage';
 import RATEditPage from './components/RATEditPage';
@@ -43,10 +31,6 @@ import EIPDCreator from './components/EIPDCreator';
 import ProviderManager from './components/ProviderManager';
 import AdminDashboard from './components/AdminDashboard';
 import RATSearchFilter from './components/RATSearchFilter';
-import DataSubjectRights from './components/DataSubjectRights';
-import LegalUpdatesMonitor from './components/LegalUpdatesMonitor';
-import RATWorkflowManager from './components/RATWorkflowManager';
-import DPAGenerator from './components/DPAGenerator';
 import NotificationCenter from './components/NotificationCenter';
 import EIPDTemplates from './components/EIPDTemplates';
 import CalendarView from './components/CalendarView';
@@ -157,11 +141,6 @@ const AppContent = () => {
           </ProtectedRoute>
         } />
         
-        <Route path="/dpo-approval" element={
-          <ProtectedRoute requiredPermissions={["dpo.view"]}>
-            <DPOApprovalQueue />
-          </ProtectedRoute>
-        } />
         
         <Route path="/compliance-metrics" element={
           <ProtectedRoute requiredPermissions={["dpo.view"]}>
@@ -193,17 +172,7 @@ const AppContent = () => {
           </ProtectedRoute>
         } />
         
-        <Route path="/rat-workflow" element={
-          <ProtectedRoute requiredPermissions={["rat.workflow"]}>
-            <RATWorkflowManager />
-          </ProtectedRoute>
-        } />
         
-        <Route path="/dpa-generator" element={
-          <ProtectedRoute requiredPermissions={["dpa.generate"]}>
-            <DPAGenerator />
-          </ProtectedRoute>
-        } />
         
         <Route path="/notifications" element={
           <ProtectedRoute>
@@ -241,17 +210,7 @@ const AppContent = () => {
           </ProtectedRoute>
         } />
         
-        <Route path="/data-subject-rights" element={
-          <ProtectedRoute>
-            <DataSubjectRights />
-          </ProtectedRoute>
-        } />
         
-        <Route path="/legal-updates" element={
-          <ProtectedRoute requiredPermissions={["dpo.view"]}>
-            <LegalUpdatesMonitor />
-          </ProtectedRoute>
-        } />
         
         <Route path="/dashboard-dpo" element={
           <ProtectedRoute>
@@ -277,68 +236,7 @@ const AppContent = () => {
           </ProtectedRoute>
         } />
         
-        <Route path="/consulta-previa" element={
-          <ProtectedRoute>
-            <ConsultaPreviaAgencia />
-          </ProtectedRoute>
-        } />
         
-        <Route 
-          path="/modulo-cero" 
-          element={
-            <ProtectedRoute allowDemo={true}>
-              <ModuloCero />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/modulo/introduccion_lpdp" 
-          element={
-            <ProtectedRoute allowDemo={true}>
-              <IntroduccionLPDP />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/modulo/conceptos_basicos" element={
-          <ProtectedRoute>
-            <ConceptosBasicos />
-          </ProtectedRoute>
-        } />
-        <Route path="/modulo3" element={
-          <ProtectedRoute>
-            <Modulo3Inventario />
-          </ProtectedRoute>
-        } />
-        <Route path="/glosario" element={
-          <ProtectedRoute>
-            <GlosarioLPDP />
-          </ProtectedRoute>
-        } />
-        <Route path="/sandbox" element={
-          <ProtectedRoute>
-            <PracticaSandbox />
-          </ProtectedRoute>
-        } />
-        <Route path="/sandbox-completo" element={
-          <ProtectedRoute>
-            <SandboxCompleto />
-          </ProtectedRoute>
-        } />
-        <Route path="/herramientas" element={
-          <ProtectedRoute>
-            <HerramientasLPDP />
-          </ProtectedRoute>
-        } />
-        <Route path="/mi-progreso" element={
-          <ProtectedRoute>
-            <MiProgreso />
-          </ProtectedRoute>
-        } />
-        <Route path="/consolidado-rat" element={
-          <ProtectedRoute>
-            <ConsolidadoRAT />
-          </ProtectedRoute>
-        } />
         <Route path="/evaluacion-impacto" element={
           <ProtectedRoute>
             <ModuloEIPD />
@@ -347,16 +245,6 @@ const AppContent = () => {
         <Route path="/gestion-proveedores" element={
           <ProtectedRoute>
             <GestionProveedores />
-          </ProtectedRoute>
-        } />
-        <Route path="/rat-produccion" element={
-          <ProtectedRoute>
-            <RATProduccion />
-          </ProtectedRoute>
-        } />
-        <Route path="/reportes" element={
-          <ProtectedRoute>
-            <ConsolidadoRAT />
           </ProtectedRoute>
         } />
         
