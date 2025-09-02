@@ -370,8 +370,8 @@ const RATSystemProfessional = () => {
             responsable: {
               // DATOS PERMANENTES QUE NO CAMBIAN - MAPEO CORRECTO BD
               razonSocial: ultimoRAT.area_responsable || currentTenant.company_name || '',
-              rut: ultimoRAT.rut_empresa || currentTenant.rut || '',
-              direccion: ultimoRAT.direccion_empresa || currentTenant.direccion || '',
+              rut: ultimoRAT.metadata?.rut_empresa || currentTenant.rut || '',
+              direccion: ultimoRAT.metadata?.direccion_empresa || currentTenant.direccion || '',
               nombre: ultimoRAT.responsable_proceso || currentTenant.dpo?.nombre || '',
               email: ultimoRAT.email_responsable || currentTenant.dpo?.email || user?.email || '',
               telefono: ultimoRAT.telefono_responsable || currentTenant.dpo?.telefono || '',
@@ -736,6 +736,24 @@ const RATSystemProfessional = () => {
       
       if (resultado && resultado.id) {
         console.log(viewMode === 'edit' ? '✅ RAT actualizado exitosamente con ID:' : '✅ RAT guardado exitosamente con ID:', resultado.id);
+        
+        // 🧠 PROCESAR ANÁLISIS DE CATEGORÍAS PENDIENTES
+        if (viewMode !== 'edit' && ratData.categorias?.sensibles?.length > 0) {
+          console.log('🔄 Procesando análisis de categorías pendientes para RAT guardado...');
+          
+          // Actualizar ratData con el ID recién generado para análisis posteriores
+          const ratDataConId = { ...ratData, id: resultado.id };
+          
+          // Re-procesar análisis de categorías sensibles ahora que tenemos ID
+          for (const subcategoria of ratData.categorias.sensibles) {
+            try {
+              await categoryAnalysisEngine.analizarCategoriaSeleccionada('sensibles', subcategoria, ratDataConId, currentTenant?.id);
+              console.log(`✅ Análisis completado para: sensibles.${subcategoria}`);
+            } catch (error) {
+              console.error(`❌ Error análisis ${subcategoria}:`, error);
+            }
+          }
+        }
         
         // 🚀 GENERACIÓN AUTOMÁTICA EIPD/DPIA AL CREAR RAT (Art. 25 Ley 21.719)
         if (ratCompleto.metadata.requiereEIPD || ratCompleto.metadata.requiereDPIA) {

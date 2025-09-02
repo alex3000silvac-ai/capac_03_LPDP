@@ -1,101 +1,101 @@
-table_name,column_name,ordinal_position,column_default,is_nullable,data_type
-active_agents,id,1,nextval('active_agents_id_seq'::regclass),NO,integer
-active_agents,agent_id,2,(gen_random_uuid())::text,YES,text
-active_agents,agent_type,3,'system_validation'::character varying,YES,character varying
-active_agents,status,4,'active'::character varying,YES,character varying
-active_agents,last_activity,5,now(),YES,timestamp with time zone
-active_agents,configuration,6,"'{""block_flow"": false, ""auto_correction"": true}'::jsonb",YES,jsonb
-active_agents,created_at,7,now(),YES,timestamp with time zone
-actividades_dpo,id,1,nextval('actividades_dpo_id_seq'::regclass),NO,integer
-actividades_dpo,rat_id,2,null,YES,integer
-actividades_dpo,tenant_id,3,null,YES,character varying
-actividades_dpo,tipo_actividad,4,null,NO,character varying
-actividades_dpo,descripcion,5,null,YES,text
-actividades_dpo,estado,6,'pendiente'::character varying,YES,character varying
-actividades_dpo,prioridad,7,'media'::character varying,YES,character varying
-actividades_dpo,fecha_creacion,8,now(),YES,timestamp with time zone
-actividades_dpo,fecha_vencimiento,9,null,YES,timestamp with time zone
-actividades_dpo,asignado_a,10,null,YES,uuid
-actividades_dpo,organizacion_id,11,1,YES,integer
-actividades_dpo,created_by,12,null,YES,uuid
-actividades_dpo,created_at,13,now(),YES,timestamp with time zone
-actividades_dpo,metadatos,14,null,YES,jsonb
-activities,id,1,uuid_generate_v4(),NO,uuid
-activities,user_id,2,null,YES,uuid
-activities,tenant_id,3,null,YES,uuid
-activities,empresa_id,4,null,YES,uuid
-activities,action,5,null,NO,character varying
-activities,details,6,null,YES,jsonb
-activities,ip_address,7,null,YES,inet
-activities,user_agent,8,null,YES,text
-activities,created_at,9,CURRENT_TIMESTAMP,YES,timestamp without time zone
-agent_activity_log,id,1,nextval('agent_activity_log_id_seq'::regclass),NO,integer
-agent_activity_log,agent_id,2,null,YES,text
-agent_activity_log,activity_type,3,null,YES,character varying
-agent_activity_log,activity_data,4,null,YES,jsonb
-agent_activity_log,timestamp,5,now(),YES,timestamp with time zone
-agent_activity_log,created_at,6,now(),YES,timestamp with time zone
-agent_corrections,id,1,gen_random_uuid(),NO,uuid
-agent_corrections,agent_id,2,null,NO,character varying
-agent_corrections,correction_type,3,null,NO,character varying
-agent_corrections,original_data,4,null,YES,jsonb
-agent_corrections,corrected_data,5,null,YES,jsonb
-agent_corrections,reason,6,null,YES,text
-agent_corrections,tenant_id,7,null,YES,character varying
-agent_corrections,created_at,8,now(),YES,timestamp with time zone
-ai_learning_patterns,id,1,gen_random_uuid(),NO,uuid
-ai_learning_patterns,tenant_id,2,null,YES,character varying
-ai_learning_patterns,data,3,'{}'::jsonb,YES,jsonb
-ai_learning_patterns,metadata,4,'{}'::jsonb,YES,jsonb
-ai_learning_patterns,created_at,5,now(),YES,timestamp with time zone
-ai_learning_patterns,updated_at,6,now(),YES,timestamp with time zone
-ai_prevenciones_log,id,1,gen_random_uuid(),NO,uuid
-ai_prevenciones_log,tenant_id,2,null,YES,character varying
-ai_prevenciones_log,data,3,'{}'::jsonb,YES,jsonb
-ai_prevenciones_log,metadata,4,'{}'::jsonb,YES,jsonb
-ai_prevenciones_log,created_at,5,now(),YES,timestamp with time zone
-ai_prevenciones_log,updated_at,6,now(),YES,timestamp with time zone
-ai_supervision_log,id,1,gen_random_uuid(),NO,uuid
-ai_supervision_log,tenant_id,2,null,YES,character varying
-ai_supervision_log,data,3,'{}'::jsonb,YES,jsonb
-ai_supervision_log,metadata,4,'{}'::jsonb,YES,jsonb
-ai_supervision_log,created_at,5,now(),YES,timestamp with time zone
-ai_supervision_log,updated_at,6,now(),YES,timestamp with time zone
-ai_validation_log,id,1,gen_random_uuid(),NO,uuid
-ai_validation_log,tenant_id,2,null,YES,character varying
-ai_validation_log,data,3,'{}'::jsonb,YES,jsonb
-ai_validation_log,metadata,4,'{}'::jsonb,YES,jsonb
-ai_validation_log,created_at,5,now(),YES,timestamp with time zone
-ai_validation_log,updated_at,6,now(),YES,timestamp with time zone
-api_partners,id,1,gen_random_uuid(),NO,uuid
-api_partners,tenant_id,2,null,YES,character varying
-api_partners,data,3,'{}'::jsonb,YES,jsonb
-api_partners,metadata,4,'{}'::jsonb,YES,jsonb
-api_partners,created_at,5,now(),YES,timestamp with time zone
-api_partners,updated_at,6,now(),YES,timestamp with time zone
-api_usage_metrics,id,1,gen_random_uuid(),NO,uuid
-api_usage_metrics,tenant_id,2,null,NO,character varying
-api_usage_metrics,endpoint,3,null,NO,character varying
-api_usage_metrics,method,4,null,NO,character varying
-api_usage_metrics,response_time,5,null,YES,integer
-api_usage_metrics,status_code,6,null,YES,integer
-api_usage_metrics,user_id,7,null,YES,uuid
-api_usage_metrics,ip_address,8,null,YES,inet
-api_usage_metrics,created_at,9,now(),YES,timestamp with time zone
-arcopol,id,1,uuid_generate_v4(),NO,uuid
-arcopol,tenant_id,2,null,YES,uuid
-arcopol,empresa_id,3,null,YES,uuid
-arcopol,title,4,null,NO,character varying
-arcopol,description,5,null,YES,text
-arcopol,status,6,'pending'::character varying,YES,character varying
-arcopol,is_active,7,true,YES,boolean
-arcopol,created_at,8,CURRENT_TIMESTAMP,YES,timestamp without time zone
-arcopol,updated_at,9,CURRENT_TIMESTAMP,YES,timestamp without time zone
-audit_log,id,1,gen_random_uuid(),NO,uuid
-audit_log,tenant_id,2,null,NO,character varying
-audit_log,user_id,3,null,YES,character varying
-audit_log,user_email,4,null,YES,character varying
-audit_log,action,5,null,NO,character varying
-audit_log,table_name,6,null,NO,character varying
-audit_log,record_id,7,null,YES,uuid
-audit_log,old_values,8,null,YES,jsonb
+table_schema,table_name,column_name,data_type,is_nullable,column_default
+public,active_agents,created_at,timestamp with time zone,YES,now()
+public,active_agents,agent_type,character varying,YES,'system_validation'::character varying
+public,active_agents,agent_id,text,YES,(gen_random_uuid())::text
+public,active_agents,configuration,jsonb,YES,"'{""block_flow"": false, ""auto_correction"": true}'::jsonb"
+public,active_agents,status,character varying,YES,'active'::character varying
+public,active_agents,id,integer,NO,nextval('active_agents_id_seq'::regclass)
+public,active_agents,last_activity,timestamp with time zone,YES,now()
+public,actividades_dpo,estado,character varying,YES,'pendiente'::character varying
+public,actividades_dpo,metadatos,jsonb,YES,null
+public,actividades_dpo,organizacion_id,integer,YES,1
+public,actividades_dpo,id,integer,NO,nextval('actividades_dpo_id_seq'::regclass)
+public,actividades_dpo,created_at,timestamp with time zone,YES,now()
+public,actividades_dpo,prioridad,character varying,YES,'media'::character varying
+public,actividades_dpo,created_by,uuid,YES,null
+public,actividades_dpo,asignado_a,uuid,YES,null
+public,actividades_dpo,tipo_actividad,character varying,NO,null
+public,actividades_dpo,descripcion,text,YES,null
+public,actividades_dpo,fecha_creacion,timestamp with time zone,YES,now()
+public,actividades_dpo,rat_id,integer,YES,null
+public,actividades_dpo,fecha_vencimiento,timestamp with time zone,YES,null
+public,actividades_dpo,tenant_id,character varying,YES,null
+public,activities,tenant_id,uuid,YES,null
+public,activities,action,character varying,NO,null
+public,activities,user_agent,text,YES,null
+public,activities,created_at,timestamp without time zone,YES,CURRENT_TIMESTAMP
+public,activities,user_id,uuid,YES,null
+public,activities,ip_address,inet,YES,null
+public,activities,empresa_id,uuid,YES,null
+public,activities,id,uuid,NO,uuid_generate_v4()
+public,activities,details,jsonb,YES,null
+public,agent_activity_log,agent_id,text,YES,null
+public,agent_activity_log,activity_type,character varying,YES,null
+public,agent_activity_log,created_at,timestamp with time zone,YES,now()
+public,agent_activity_log,activity_data,jsonb,YES,null
+public,agent_activity_log,id,integer,NO,nextval('agent_activity_log_id_seq'::regclass)
+public,agent_activity_log,timestamp,timestamp with time zone,YES,now()
+public,agent_corrections,correction_type,character varying,NO,null
+public,agent_corrections,tenant_id,character varying,YES,null
+public,agent_corrections,created_at,timestamp with time zone,YES,now()
+public,agent_corrections,reason,text,YES,null
+public,agent_corrections,id,uuid,NO,gen_random_uuid()
+public,agent_corrections,original_data,jsonb,YES,null
+public,agent_corrections,agent_id,character varying,NO,null
+public,agent_corrections,corrected_data,jsonb,YES,null
+public,ai_learning_patterns,metadata,jsonb,YES,'{}'::jsonb
+public,ai_learning_patterns,data,jsonb,YES,'{}'::jsonb
+public,ai_learning_patterns,id,uuid,NO,gen_random_uuid()
+public,ai_learning_patterns,created_at,timestamp with time zone,YES,now()
+public,ai_learning_patterns,updated_at,timestamp with time zone,YES,now()
+public,ai_learning_patterns,tenant_id,character varying,YES,null
+public,ai_prevenciones_log,tenant_id,character varying,YES,null
+public,ai_prevenciones_log,updated_at,timestamp with time zone,YES,now()
+public,ai_prevenciones_log,metadata,jsonb,YES,'{}'::jsonb
+public,ai_prevenciones_log,created_at,timestamp with time zone,YES,now()
+public,ai_prevenciones_log,id,uuid,NO,gen_random_uuid()
+public,ai_prevenciones_log,data,jsonb,YES,'{}'::jsonb
+public,ai_supervision_log,id,uuid,NO,gen_random_uuid()
+public,ai_supervision_log,data,jsonb,YES,'{}'::jsonb
+public,ai_supervision_log,metadata,jsonb,YES,'{}'::jsonb
+public,ai_supervision_log,created_at,timestamp with time zone,YES,now()
+public,ai_supervision_log,updated_at,timestamp with time zone,YES,now()
+public,ai_supervision_log,tenant_id,character varying,YES,null
+public,ai_validation_log,created_at,timestamp with time zone,YES,now()
+public,ai_validation_log,updated_at,timestamp with time zone,YES,now()
+public,ai_validation_log,id,uuid,NO,gen_random_uuid()
+public,ai_validation_log,data,jsonb,YES,'{}'::jsonb
+public,ai_validation_log,metadata,jsonb,YES,'{}'::jsonb
+public,ai_validation_log,tenant_id,character varying,YES,null
+public,api_partners,metadata,jsonb,YES,'{}'::jsonb
+public,api_partners,data,jsonb,YES,'{}'::jsonb
+public,api_partners,tenant_id,character varying,YES,null
+public,api_partners,id,uuid,NO,gen_random_uuid()
+public,api_partners,updated_at,timestamp with time zone,YES,now()
+public,api_partners,created_at,timestamp with time zone,YES,now()
+public,api_usage_metrics,user_id,uuid,YES,null
+public,api_usage_metrics,created_at,timestamp with time zone,YES,now()
+public,api_usage_metrics,ip_address,inet,YES,null
+public,api_usage_metrics,status_code,integer,YES,null
+public,api_usage_metrics,id,uuid,NO,gen_random_uuid()
+public,api_usage_metrics,response_time,integer,YES,null
+public,api_usage_metrics,tenant_id,character varying,NO,null
+public,api_usage_metrics,endpoint,character varying,NO,null
+public,api_usage_metrics,method,character varying,NO,null
+public,arcopol,tenant_id,uuid,YES,null
+public,arcopol,updated_at,timestamp without time zone,YES,CURRENT_TIMESTAMP
+public,arcopol,id,uuid,NO,uuid_generate_v4()
+public,arcopol,created_at,timestamp without time zone,YES,CURRENT_TIMESTAMP
+public,arcopol,empresa_id,uuid,YES,null
+public,arcopol,is_active,boolean,YES,true
+public,arcopol,title,character varying,NO,null
+public,arcopol,description,text,YES,null
+public,arcopol,status,character varying,YES,'pending'::character varying
+public,audit_log,tenant_id,character varying,NO,null
+public,audit_log,id,uuid,NO,gen_random_uuid()
+public,audit_log,user_id,character varying,YES,null
+public,audit_log,success,boolean,YES,true
+public,audit_log,ip_address,inet,YES,null
+public,audit_log,created_at,timestamp with time zone,YES,now()
+public,audit_log,old_values,jsonb,YES,null
+public,audit_log,new_values,jsonb,YES,null

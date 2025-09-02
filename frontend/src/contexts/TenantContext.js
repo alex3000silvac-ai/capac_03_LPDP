@@ -41,13 +41,6 @@ export const TenantProvider = ({ children }) => {
         .eq('active', true) // Solo organizaciones activas
         .order('created_at', { ascending: false });
       
-      if (error) {
-        console.error('🚀 Error cargando organizaciones:', error);
-        // Si no hay organizaciones o hay error, crear una por defecto
-        const defaultOrg = await createDefaultOrganization();
-        return [defaultOrg];
-      }
-      
       console.log('🚀 Organizaciones cargadas:', data?.length || 0);
       
       if (!data || data.length === 0) {

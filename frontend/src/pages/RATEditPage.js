@@ -111,8 +111,8 @@ const RATEditPage = () => {
         id: ratExistente.id,
         responsable: {
           razonSocial: ratExistente.area_responsable || '',
-          rut: ratExistente.rut_empresa || '',
-          direccion: ratExistente.direccion_empresa || '',
+          rut: ratExistente.metadata?.rut_empresa || '',
+          direccion: ratExistente.metadata?.direccion_empresa || '',
           nombre: ratExistente.responsable_proceso || '',
           email: ratExistente.email_responsable || '',
           telefono: ratExistente.telefono_responsable || ''
@@ -171,8 +171,6 @@ const RATEditPage = () => {
         responsable_proceso: ratData.responsable.nombre,
         email_responsable: ratData.responsable.email,
         telefono_responsable: ratData.responsable.telefono,
-        rut_empresa: ratData.responsable.rut,
-        direccion_empresa: ratData.responsable.direccion,
         finalidad_principal: ratData.finalidad,
         descripcion: ratData.finalidad,
         base_legal: ratData.baseJuridica,
@@ -186,7 +184,13 @@ const RATEditPage = () => {
         estado: ratData.estado,
         version: (ratData.version || 1) + 1,
         updated_at: new Date().toISOString(),
-        analysis_results: analysis
+        analysis_results: analysis,
+        metadata: {
+          rut_empresa: ratData.responsable?.rut || '',
+          direccion_empresa: ratData.responsable?.direccion || '',
+          version: (ratData.version || 1) + 1,
+          updated_at: new Date().toISOString()
+        }
       };
 
       await ratService.updateRAT(ratId, updatedRAT);
@@ -215,8 +219,6 @@ const RATEditPage = () => {
         responsable_proceso: ratData.responsable.nombre,
         email_responsable: ratData.responsable.email,
         telefono_responsable: ratData.responsable.telefono,
-        rut_empresa: ratData.responsable.rut,
-        direccion_empresa: ratData.responsable.direccion,
         finalidad_principal: ratData.finalidad,
         descripcion: ratData.finalidad,
         base_legal: ratData.baseJuridica,
@@ -230,6 +232,14 @@ const RATEditPage = () => {
         estado: 'BORRADOR',
         version: 1,
         created_at: new Date().toISOString(),
+        metadata: {
+          rut_empresa: ratData.responsable?.rut || '',
+          direccion_empresa: ratData.responsable?.direccion || '',
+          version: 1,
+          created_at: new Date().toISOString(),
+          es_duplicado: true,
+          rat_original_id: ratId
+        },
         updated_at: new Date().toISOString()
       };
 

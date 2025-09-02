@@ -7,7 +7,12 @@
       "Bash(grep:*)",
       "Bash(npm run lint)",
       "Bash(head:*)",
-      "Bash(cut:*)"
+      "Bash(cut:*)",
+      "Bash(npm start)",
+      "Bash(./RENDER.exe services list)",
+      "Bash(./RENDER.exe services get srv-d2b6krjuibrs73fauhr0)",
+      "WebFetch(domain:scldp-frontend.onrender.com)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": [],

@@ -85,9 +85,7 @@ export const ratService = {
         responsable_proceso: ratData.responsable?.nombre || 'No especificado',
         email_responsable: ratData.responsable?.email || effectiveUser.email,
         telefono_responsable: ratData.responsable?.telefono || '',
-        // 🔧 CORRECCIÓN CRÍTICA: Campos que se estaban perdiendo
-        rut_empresa: ratData.responsable?.rut || '',
-        direccion_empresa: ratData.responsable?.direccion || '',
+        // 🔧 CORRECCIÓN CRÍTICA: Campos guardados en metadata ya que no existen en tabla
         descripcion: ratData.finalidades?.descripcion || 'RAT generado desde sistema de producción',
         finalidad_principal: ratData.finalidad || ratData.finalidades?.descripcion || 'No especificada',
         base_licitud: ratData.finalidades?.baseLegal || ratData.baseLegal || 'No especificada',
@@ -110,7 +108,10 @@ export const ratService = {
           cumpleLey21719: true,
           camposObligatoriosCompletos: validateRAT(ratData),
           usuario: effectiveUser.email,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          // Campos adicionales que no están en tabla
+          rut_empresa: ratData.responsable?.rut || '',
+          direccion_empresa: ratData.responsable?.direccion || ''
         }
       };
 
@@ -136,6 +137,7 @@ export const ratService = {
             },
             created_at: new Date().toISOString()
           });
+        
         
         throw error;
       }
@@ -226,10 +228,10 @@ export const ratService = {
           nombre: rat.responsable_proceso,
           email: rat.email_responsable,
           telefono: rat.telefono_responsable,
-          // 🔧 RECUPERAR CAMPOS CORREGIDOS:
+          // 🔧 RECUPERAR CAMPOS DESDE METADATA:
           razonSocial: rat.area_responsable,
-          rut: rat.rut_empresa || '',
-          direccion: rat.direccion_empresa || ''
+          rut: rat.metadata?.rut_empresa || '',
+          direccion: rat.metadata?.direccion_empresa || ''
         },
         finalidades: {
           descripcion: rat.finalidad_principal,

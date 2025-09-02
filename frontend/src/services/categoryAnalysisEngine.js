@@ -134,8 +134,12 @@ class CategoryAnalysisEngine {
           resultado.analisis_basico = true;
       }
 
-      // GUARDAR RESULTADO ANÁLISIS
-      await this.guardarAnalisisCategoria(resultado, ratData.id, tenantId);
+      // GUARDAR RESULTADO ANÁLISIS solo si el RAT ya existe en BD
+      if (ratData.id) {
+        await this.guardarAnalisisCategoria(resultado, ratData.id, tenantId);
+      } else {
+        console.log('🔄 RAT sin ID - análisis temporal hasta que se guarde');
+      }
 
       return resultado;
 
