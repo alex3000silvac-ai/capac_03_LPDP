@@ -35,6 +35,53 @@ agent_activity_log,activity_type,3,null,YES,character varying
 agent_activity_log,activity_data,4,null,YES,jsonb
 agent_activity_log,timestamp,5,now(),YES,timestamp with time zone
 agent_activity_log,created_at,6,now(),YES,timestamp with time zone
+agent_corrections,id,1,gen_random_uuid(),NO,uuid
+agent_corrections,agent_id,2,null,NO,character varying
+agent_corrections,correction_type,3,null,NO,character varying
+agent_corrections,original_data,4,null,YES,jsonb
+agent_corrections,corrected_data,5,null,YES,jsonb
+agent_corrections,reason,6,null,YES,text
+agent_corrections,tenant_id,7,null,YES,character varying
+agent_corrections,created_at,8,now(),YES,timestamp with time zone
+ai_learning_patterns,id,1,gen_random_uuid(),NO,uuid
+ai_learning_patterns,tenant_id,2,null,YES,character varying
+ai_learning_patterns,data,3,'{}'::jsonb,YES,jsonb
+ai_learning_patterns,metadata,4,'{}'::jsonb,YES,jsonb
+ai_learning_patterns,created_at,5,now(),YES,timestamp with time zone
+ai_learning_patterns,updated_at,6,now(),YES,timestamp with time zone
+ai_prevenciones_log,id,1,gen_random_uuid(),NO,uuid
+ai_prevenciones_log,tenant_id,2,null,YES,character varying
+ai_prevenciones_log,data,3,'{}'::jsonb,YES,jsonb
+ai_prevenciones_log,metadata,4,'{}'::jsonb,YES,jsonb
+ai_prevenciones_log,created_at,5,now(),YES,timestamp with time zone
+ai_prevenciones_log,updated_at,6,now(),YES,timestamp with time zone
+ai_supervision_log,id,1,gen_random_uuid(),NO,uuid
+ai_supervision_log,tenant_id,2,null,YES,character varying
+ai_supervision_log,data,3,'{}'::jsonb,YES,jsonb
+ai_supervision_log,metadata,4,'{}'::jsonb,YES,jsonb
+ai_supervision_log,created_at,5,now(),YES,timestamp with time zone
+ai_supervision_log,updated_at,6,now(),YES,timestamp with time zone
+ai_validation_log,id,1,gen_random_uuid(),NO,uuid
+ai_validation_log,tenant_id,2,null,YES,character varying
+ai_validation_log,data,3,'{}'::jsonb,YES,jsonb
+ai_validation_log,metadata,4,'{}'::jsonb,YES,jsonb
+ai_validation_log,created_at,5,now(),YES,timestamp with time zone
+ai_validation_log,updated_at,6,now(),YES,timestamp with time zone
+api_partners,id,1,gen_random_uuid(),NO,uuid
+api_partners,tenant_id,2,null,YES,character varying
+api_partners,data,3,'{}'::jsonb,YES,jsonb
+api_partners,metadata,4,'{}'::jsonb,YES,jsonb
+api_partners,created_at,5,now(),YES,timestamp with time zone
+api_partners,updated_at,6,now(),YES,timestamp with time zone
+api_usage_metrics,id,1,gen_random_uuid(),NO,uuid
+api_usage_metrics,tenant_id,2,null,NO,character varying
+api_usage_metrics,endpoint,3,null,NO,character varying
+api_usage_metrics,method,4,null,NO,character varying
+api_usage_metrics,response_time,5,null,YES,integer
+api_usage_metrics,status_code,6,null,YES,integer
+api_usage_metrics,user_id,7,null,YES,uuid
+api_usage_metrics,ip_address,8,null,YES,inet
+api_usage_metrics,created_at,9,now(),YES,timestamp with time zone
 arcopol,id,1,uuid_generate_v4(),NO,uuid
 arcopol,tenant_id,2,null,YES,uuid
 arcopol,empresa_id,3,null,YES,uuid
@@ -52,50 +99,3 @@ audit_log,action,5,null,NO,character varying
 audit_log,table_name,6,null,NO,character varying
 audit_log,record_id,7,null,YES,uuid
 audit_log,old_values,8,null,YES,jsonb
-audit_log,new_values,9,null,YES,jsonb
-audit_log,changes,10,null,YES,jsonb
-audit_log,ip_address,11,null,YES,inet
-audit_log,user_agent,12,null,YES,text
-audit_log,session_id,13,null,YES,character varying
-audit_log,application_name,14,'SCLDP-Frontend'::character varying,YES,character varying
-audit_log,operation_type,15,null,YES,character varying
-audit_log,success,16,true,YES,boolean
-audit_log,error_message,17,null,YES,text
-audit_log,created_at,18,now(),YES,timestamp with time zone
-audit_logs,id,1,uuid_generate_v4(),NO,uuid
-audit_logs,tenant_id,2,null,YES,uuid
-audit_logs,empresa_id,3,null,YES,uuid
-audit_logs,user_id,4,null,YES,uuid
-audit_logs,action,5,null,NO,character varying
-audit_logs,table_name,6,null,YES,character varying
-audit_logs,record_id,7,null,YES,uuid
-audit_logs,old_values,8,null,YES,jsonb
-audit_logs,new_values,9,null,YES,jsonb
-audit_logs,ip_address,10,null,YES,inet
-audit_logs,created_at,11,CURRENT_TIMESTAMP,YES,timestamp without time zone
-breaches,id,1,uuid_generate_v4(),NO,uuid
-breaches,tenant_id,2,null,YES,uuid
-breaches,empresa_id,3,null,YES,uuid
-breaches,title,4,null,NO,character varying
-breaches,description,5,null,YES,text
-breaches,severity,6,null,YES,character varying
-breaches,status,7,'open'::character varying,YES,character varying
-breaches,is_active,8,true,YES,boolean
-breaches,created_at,9,CURRENT_TIMESTAMP,YES,timestamp without time zone
-breaches,updated_at,10,CURRENT_TIMESTAMP,YES,timestamp without time zone
-categories,id,1,uuid_generate_v4(),NO,uuid
-categories,name,2,null,NO,character varying
-categories,description,3,null,YES,text
-categories,tenant_id,4,null,YES,uuid
-categories,empresa_id,5,null,YES,uuid
-categories,is_active,6,true,YES,boolean
-categories,created_at,7,CURRENT_TIMESTAMP,YES,timestamp without time zone
-categories,updated_at,8,CURRENT_TIMESTAMP,YES,timestamp without time zone
-client_companies,id,1,gen_random_uuid(),NO,uuid
-client_companies,company_code,2,null,NO,character varying
-client_companies,company_name,3,null,NO,character varying
-client_companies,company_rut,4,null,YES,character varying
-client_companies,business_sector,5,null,YES,character varying
-client_companies,company_size,6,null,YES,character varying
-client_companies,contact_email,7,null,NO,character varying
-client_companies,contact_phone,8,null,YES,character varying
