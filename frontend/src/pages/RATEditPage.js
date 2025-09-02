@@ -139,7 +139,7 @@ const RATEditPage = () => {
       setOriginalRATData({ ...ratMapeado });
       
       // Ejecutar análisis automático del RAT cargado
-      const analysis = await ratIntelligenceEngine.analyzeRAT(ratMapeado);
+      const analysis = await ratIntelligenceEngine.evaluateRATActivity(ratMapeado);
       setAnalysisResults(analysis);
       
     } catch (error) {

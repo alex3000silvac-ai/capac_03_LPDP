@@ -43,6 +43,10 @@ class TemporalAudit {
     if (!this.trackingEnabled) return { success: true };
 
     try {
+      // 🔧 TEMPORAL: Deshabilitar audit hasta crear tabla rat_audit_trail
+      console.log('⚠️ Audit temporalmente deshabilitado - tabla rat_audit_trail no existe en Supabase');
+      return { success: true, message: 'Audit deshabilitado temporalmente' };
+
       const changes = this.calculateChanges(oldData, newData);
       
       if (changes.changedFields.length === 0) {

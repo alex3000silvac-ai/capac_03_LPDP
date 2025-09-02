@@ -349,17 +349,24 @@ const RATSystemProfessional = () => {
         if (!error && ultimoRAT) {
           console.log('✅ Auto-completando con datos del último RAT:', ultimoRAT.id);
           
+          // 🎯 NOTIFICAR AL USUARIO QUE SE PRE-LLENARON DATOS
+          setAlertas(prev => [...prev, {
+            tipo: 'info',
+            mensaje: `✅ Datos empresa y DPO pre-llenados automáticamente desde RAT anterior (${ultimoRAT.nombre_actividad}). Solo completa los campos específicos de esta nueva actividad.`,
+            timestamp: Date.now()
+          }]);
+          
           // SOLO PRE-LLENAR DATOS PERMANENTES (empresa/DPO)
           setRatData(prev => ({
             ...prev,
             responsable: {
-              // DATOS PERMANENTES QUE NO CAMBIAN
-              razonSocial: ultimoRAT.responsable?.razonSocial || currentTenant.company_name || '',
-              rut: ultimoRAT.responsable?.rut || currentTenant.rut || '',
-              direccion: ultimoRAT.responsable?.direccion || currentTenant.direccion || '',
-              nombre: ultimoRAT.responsable?.nombre || currentTenant.dpo?.nombre || '',
-              email: ultimoRAT.responsable?.email || currentTenant.dpo?.email || user?.email || '',
-              telefono: ultimoRAT.responsable?.telefono || currentTenant.dpo?.telefono || '',
+              // DATOS PERMANENTES QUE NO CAMBIAN - MAPEO CORRECTO BD
+              razonSocial: ultimoRAT.area_responsable || currentTenant.company_name || '',
+              rut: ultimoRAT.rut_empresa || currentTenant.rut || '',
+              direccion: ultimoRAT.direccion_empresa || currentTenant.direccion || '',
+              nombre: ultimoRAT.responsable_proceso || currentTenant.dpo?.nombre || '',
+              email: ultimoRAT.email_responsable || currentTenant.dpo?.email || user?.email || '',
+              telefono: ultimoRAT.telefono_responsable || currentTenant.dpo?.telefono || '',
               representanteLegal: ultimoRAT.responsable?.representanteLegal || {
                 esExtranjero: false,
                 nombre: '',
@@ -374,7 +381,8 @@ const RATSystemProfessional = () => {
             // CAMPOS ACTIVIDAD SIEMPRE VACÍOS (NUEVA ACTIVIDAD)
             nombreActividad: '', // NUEVA actividad
             finalidad: '', // NUEVA finalidad
-            baseLegal: '', // NUEVA base legal
+            // 🔧 PROPONER BASE LEGAL MÁS COMÚN COMO SUGERENCIA
+            baseLegal: ultimoRAT.base_legal === 'contrato' ? 'contrato' : '', // Sugerir si era común
             argumentoJuridico: '', // NUEVO argumento
             categorias: { 
               identificacion: [], 
