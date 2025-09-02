@@ -338,13 +338,21 @@ const RATSystemProfessional = () => {
       try {
         console.log('📋 Cargando datos permanentes empresa/DPO...');
         
-        const { data: ultimoRAT, error } = await supabase
+        console.log('🔍 Buscando último RAT para tenant:', currentTenant.id, typeof currentTenant.id);
+        
+        const { data: ultimosRATs, error } = await supabase
           .from('mapeo_datos_rat')
           .select('*')
-          .eq('tenant_id', currentTenant.id)
+          .eq('tenant_id', String(currentTenant.id)) // Asegurar string
           .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
+          .limit(1);
+        
+        const ultimoRAT = ultimosRATs && ultimosRATs.length > 0 ? ultimosRATs[0] : null;
+        
+        if (error) {
+          console.warn('⚠️ Error consultando último RAT:', error.message, error.code);
+          // Continuar con datos tenant básicos
+        }
         
         if (!error && ultimoRAT) {
           console.log('✅ Auto-completando con datos del último RAT:', ultimoRAT.id);
