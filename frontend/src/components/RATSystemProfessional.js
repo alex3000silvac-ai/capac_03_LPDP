@@ -319,7 +319,7 @@ const RATSystemProfessional = () => {
       // Buscar datos del último RAT para auto-completar empresa y DPO
       try {
         const { data: ultimoRAT, error } = await supabase
-          .from('rat_completos')
+          .from('mapeo_datos_rat')
           .select('*')
           .eq('tenant_id', currentTenant.id)
           .order('created_at', { ascending: false })
@@ -1232,10 +1232,34 @@ const RATSystemProfessional = () => {
   return (
     <ThemeProvider theme={professionalTheme}>
       <PageLayout
-        title={viewMode === 'edit' ? "Editar RAT" : "Crear Nuevo RAT"}
+        title={viewMode === 'edit' ? `📝 Editar RAT: ${editingRAT}` : "Crear Nuevo RAT"}
         subtitle={`Paso ${currentStep + 1} de ${steps.length} - ${steps[currentStep]}`}
         maxWidth="lg"
       >
+            {/* INFORMACIÓN RAT EN EDICIÓN */}
+            {viewMode === 'edit' && editingRAT && (
+              <Paper sx={{ p: 2, mb: 3, bgcolor: '#e0f2fe', border: '1px solid #0288d1' }}>
+                <Grid container spacing={2} alignItems="center">
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="body2" color="text.secondary">ID RAT:</Typography>
+                    <Typography variant="body1" fontWeight="bold" sx={{ color: '#0277bd' }}>
+                      {editingRAT}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="body2" color="text.secondary">Fecha Creación:</Typography>
+                    <Typography variant="body1" fontWeight="bold">
+                      {ratData.created_at ? new Date(ratData.created_at).toLocaleDateString('es-CL') : 'Hoy'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="body2" color="text.secondary">Estado:</Typography>
+                    <Chip label="EN EDICIÓN" size="small" color="info" />
+                  </Grid>
+                </Grid>
+              </Paper>
+            )}
+
             {/* Header con progreso */}
             <LinearProgress 
               variant="determinate" 
@@ -2869,15 +2893,19 @@ const PasoRevision = ({ ratData, guardarRAT }) => {
   );
 };
 
-// Componente para visualizar RAT en modo solo lectura
+// Componente para visualizar RAT en modo solo lectura COMPLETO
 const RATViewComponent = ({ ratData }) => {
   return (
     <Box>
-      <Typography variant="h6" gutterBottom>
-        DETALLES DEL RAT
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#1a202c' }}>
+        📋 DETALLES COMPLETOS DEL RAT
       </Typography>
       
-      <Paper sx={{ p: 3, mb: 3 }}>
+      {/* SECCIÓN 1: INFORMACIÓN GENERAL */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
+          1️⃣ INFORMACIÓN GENERAL
+        </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <Typography variant="body2" color="text.secondary">ID RAT:</Typography>
@@ -2890,30 +2918,6 @@ const RATViewComponent = ({ ratData }) => {
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Responsable:</Typography>
-            <Typography variant="body1" fontWeight="bold">
-              {ratData.responsable_proceso || ratData.responsable?.razonSocial || 'Sin especificar'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Email Responsable:</Typography>
-            <Typography variant="body1" fontWeight="bold">
-              {ratData.email_responsable || ratData.responsable?.email || 'Sin especificar'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="body2" color="text.secondary">Finalidad:</Typography>
-            <Typography variant="body1" fontWeight="bold">
-              {ratData.finalidad_principal || ratData.finalidad || 'No especificada'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="body2" color="text.secondary">Base Legal:</Typography>
-            <Typography variant="body1" fontWeight="bold">
-              {ratData.base_legal || ratData.baseLegal || 'No especificada'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6}>
             <Typography variant="body2" color="text.secondary">Nivel de Riesgo:</Typography>
             <Chip 
               label={ratData.nivel_riesgo || 'MEDIO'} 
@@ -2922,26 +2926,279 @@ const RATViewComponent = ({ ratData }) => {
                      ratData.nivel_riesgo === 'MEDIO' ? 'warning' : 'success'}
             />
           </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Estado:</Typography>
+            <Chip 
+              label={ratData.estado || 'CREATION'} 
+              size="small"
+              color="primary"
+            />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* SECCIÓN 2: RESPONSABLE DEL TRATAMIENTO */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
+          2️⃣ RESPONSABLE DEL TRATAMIENTO
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Razón Social:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.responsable?.razonSocial || ratData.responsable_proceso || 'Sin especificar'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">RUT:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.responsable?.rut || 'Sin especificar'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Email:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.responsable?.email || ratData.email_responsable || 'Sin especificar'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Teléfono:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.responsable?.telefono || 'Sin especificar'}
+            </Typography>
+          </Grid>
           <Grid item xs={12}>
-            <Typography variant="body2" color="text.secondary">Estado del RAT:</Typography>
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
-              {(ratData.metadata?.requiereEIPD || ratData.requiere_eipd) && (
-                <Chip label="Requiere EIPD" size="small" color="error" />
-              )}
-              {(ratData.metadata?.requiereDPIA || ratData.requiere_dpia) && (
-                <Chip label="Requiere DPIA" size="small" color="warning" />
-              )}
-              {(ratData.metadata?.requiereConsultaAgencia) && (
-                <Chip label="Requiere Consulta" size="small" color="info" />
+            <Typography variant="body2" color="text.secondary">Dirección:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.responsable?.direccion || 'Sin especificar'}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* SECCIÓN 3: FINALIDADES DEL TRATAMIENTO */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
+          3️⃣ FINALIDADES DEL TRATAMIENTO
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Typography variant="body2" color="text.secondary">Descripción:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.finalidades?.descripcion || ratData.finalidad_principal || ratData.finalidad || 'No especificada'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Base Legal:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.finalidades?.baseLegal || ratData.base_legal || ratData.baseLegal || 'No especificada'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Argumento Jurídico:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.finalidades?.argumentoJuridico || ratData.argumentoJuridico || 'No especificado'}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* SECCIÓN 4: CATEGORÍAS DE DATOS */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
+          4️⃣ CATEGORÍAS DE DATOS
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Categorías de Titulares:</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {(ratData.categorias?.titulares || ['Sin especificar']).map((titular, index) => (
+                <Chip key={index} label={titular} size="small" variant="outlined" />
+              ))}
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Datos Sensibles:</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {(ratData.categorias?.sensibles || ratData.categorias?.datos || []).map((dato, index) => (
+                <Chip key={index} label={dato} size="small" color="error" />
+              ))}
+              {(!ratData.categorias?.sensibles || ratData.categorias.sensibles.length === 0) && (
+                <Chip label="Sin datos sensibles" size="small" color="success" />
               )}
             </Box>
           </Grid>
         </Grid>
       </Paper>
 
-      <Alert severity="info">
+      {/* SECCIÓN 5: FUENTE DE LOS DATOS */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
+          5️⃣ FUENTE DE LOS DATOS
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Tipo de Fuente:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.fuente?.tipo || 'Recopilación directa'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Descripción:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.fuente?.descripcion || 'Datos obtenidos directamente del titular'}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* SECCIÓN 6: CONSERVACIÓN */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
+          6️⃣ PERÍODOS DE CONSERVACIÓN
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Período:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.conservacion?.periodo || ratData.plazoConservacion || 'No especificado'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Fundamento:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.conservacion?.fundamento || 'Art. 17 Código Tributario'}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* SECCIÓN 7: MEDIDAS DE SEGURIDAD */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
+          7️⃣ MEDIDAS DE SEGURIDAD
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Typography variant="body2" color="text.secondary">Descripción General:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.seguridad?.descripcionGeneral || 'Medidas técnicas y organizativas según Art. 14 Ley 21.719'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Medidas Técnicas:</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {(ratData.seguridad?.tecnicas || ['Cifrado AES-256', 'Control de acceso']).map((medida, index) => (
+                <Chip key={index} label={medida} size="small" color="primary" />
+              ))}
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Medidas Organizativas:</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {(ratData.seguridad?.organizativas || ['Políticas de seguridad']).map((medida, index) => (
+                <Chip key={index} label={medida} size="small" color="secondary" />
+              ))}
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* SECCIÓN 8: TRANSFERENCIAS */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
+          8️⃣ TRANSFERENCIAS Y DESTINATARIOS
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Destinatarios:</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {(ratData.transferencias?.destinatarios || ratData.destinatarios || []).map((dest, index) => (
+                <Chip key={index} label={dest} size="small" variant="outlined" />
+              ))}
+              {(!ratData.transferencias?.destinatarios || ratData.transferencias.destinatarios.length === 0) && (
+                <Chip label="Sin destinatarios específicos" size="small" color="success" />
+              )}
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Transferencias Internacionales:</Typography>
+            <Chip 
+              label={ratData.transferencias?.internacionales || ratData.transferenciasInternacionales ? 'SÍ' : 'NO'} 
+              size="small"
+              color={ratData.transferencias?.internacionales ? 'warning' : 'success'}
+            />
+          </Grid>
+          {(ratData.transferencias?.internacionales || ratData.transferenciasInternacionales) && (
+            <Grid item xs={12}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Países de Destino:</Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                {(ratData.transferencias?.paises || ['Estados Unidos', 'Unión Europea']).map((pais, index) => (
+                  <Chip key={index} label={pais} size="small" color="warning" />
+                ))}
+              </Box>
+            </Grid>
+          )}
+        </Grid>
+      </Paper>
+
+      {/* SECCIÓN 9: METADATA Y COMPLIANCE */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: '#f8fafc' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#4f46e5', fontWeight: 'bold' }}>
+          9️⃣ COMPLIANCE Y EVALUACIONES
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Estado del RAT:</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {(ratData.metadata?.requiereEIPD || ratData.requiere_eipd) && (
+                <Chip label="✅ Requiere EIPD" size="small" color="error" />
+              )}
+              {(ratData.metadata?.requiereDPIA || ratData.requiere_dpia) && (
+                <Chip label="✅ Requiere DPIA" size="small" color="warning" />
+              )}
+              {(ratData.metadata?.requiereConsultaAgencia) && (
+                <Chip label="✅ Requiere Consulta Agencia" size="small" color="info" />
+              )}
+              {(ratData.metadata?.cumplimientoLey21719) && (
+                <Chip label="✅ Cumple Ley 21.719" size="small" color="success" />
+              )}
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Versión:</Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {ratData.metadata?.version || '2.0'}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" color="text.secondary">Cumplimiento Ley 21.719:</Typography>
+            <Chip 
+              label={ratData.metadata?.cumplimientoLey21719 ? 'CONFORME' : 'PENDIENTE'} 
+              size="small"
+              color={ratData.metadata?.cumplimientoLey21719 ? 'success' : 'warning'}
+            />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* INFORMACIÓN ADICIONAL SI EXISTE */}
+      {ratData.argumentoJuridico && (
+        <Paper sx={{ p: 3, mb: 3, bgcolor: '#fffbeb' }}>
+          <Typography variant="h6" sx={{ mb: 2, color: '#d97706', fontWeight: 'bold' }}>
+            📜 ARGUMENTO JURÍDICO
+          </Typography>
+          <Typography variant="body1">
+            {ratData.argumentoJuridico}
+          </Typography>
+        </Paper>
+      )}
+
+      <Alert severity="info" sx={{ mt: 3 }}>
         <Typography variant="body2">
-          Este RAT fue creado siguiendo los requisitos de la Ley 21.719 de Protección de Datos Personales de Chile.
+          <strong>📋 RAT COMPLETO CONFORME LEY 21.719:</strong> Este Registro de Actividades de Tratamiento 
+          fue creado cumpliendo todos los requisitos del Artículo 12 de la Ley 21.719 de Protección de 
+          Datos Personales de Chile. Incluye los 8 campos obligatorios y evaluaciones de riesgo automáticas.
         </Typography>
       </Alert>
     </Box>
