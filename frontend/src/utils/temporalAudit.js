@@ -609,12 +609,15 @@ class TemporalAudit {
   async saveAuditReport(report) {
     try {
       await supabase
-        .from('audit_reports')
+        .from('ia_agent_reports')
         .insert({
-          rat_id: report.rat_id,
-          report_data: report,
-          generated_at: report.generated_at,
-          report_type: 'temporal_audit'
+          report_id: `TEMPORAL_AUDIT_${Date.now()}`,
+          report_type: 'temporal_audit',
+          report_data: {
+            rat_id: report.rat_id,
+            report_data: report,
+            generated_at: report.generated_at
+          }
         });
     } catch (error) {
       console.error('Error guardando reporte de auditoría');
@@ -850,9 +853,10 @@ class TemporalAudit {
       }
 
       const { data: deletedReports, error: reportError } = await supabase
-        .from('audit_reports')
+        .from('ia_agent_reports')
         .delete()
-        .lt('generated_at', cutoffDate.toISOString());
+        .eq('report_type', 'temporal_audit')
+        .lt('created_at', cutoffDate.toISOString());
 
       if (!reportError) {
         results.reports_deleted = deletedReports?.length || 0;

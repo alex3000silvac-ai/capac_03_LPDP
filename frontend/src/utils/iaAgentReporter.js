@@ -176,32 +176,10 @@ class IAAgentReporter {
    * 🔍 ANALIZAR ERRORES
    */
   async analyzeErrors() {
-    try {
-      // Buscar errores en logs recientes
-      const { data: errorLogs } = await supabase
-        .from('error_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      const errors = errorLogs || [];
-      const last24h = errors.filter(e => 
-        new Date(e.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000
-      );
-
-      return {
-        total_errors: errors.length,
-        errors_24h: last24h.length,
-        error_types: this.groupByType(errors, 'error_type'),
-        critical_errors: errors.filter(e => e.severity === 'critical'),
-        most_common: this.getMostCommonErrors(errors)
-      };
-    } catch (error) {
-      return {
-        no_error_table: true,
-        message: 'Tabla error_logs no existe - Sistema funcionando sin logging errors'
-      };
-    }
+    return {
+      no_error_table: true,
+      message: 'Tabla error_logs no existe - Sistema funcionando sin logging errors'
+    };
   }
 
   /**

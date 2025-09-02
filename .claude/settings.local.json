@@ -134,7 +134,11 @@
       "Bash(__NEW_LINE__ echo \"\")",
       "Bash(__NEW_LINE__ echo \"Backend Health:\")",
       "Bash(./fix_getCurrentTenantId.sh:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(./RENDER.exe services logs:*)",
+      "Bash(head:*)",
+      "Bash(wc:*)",
+      "Bash(cut:*)"
     ],
     "deny": [],
     "additionalDirectories": [

@@ -62,6 +62,10 @@ import {
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ratService from '../services/ratService';
 import ratIntelligenceEngine from '../services/ratIntelligenceEngine';
+import riskCalculationEngine from '../services/riskCalculationEngine';
+import testBalancingEngine from '../services/testBalancingEngine';
+import categoryAnalysisEngine from '../services/categoryAnalysisEngine';
+import specificCasesEngine from '../services/specificCasesEngine';
 import EmpresaDataManager from './EmpresaDataManager';
 import PageLayout from './PageLayout';
 import { supabase } from '../config/supabaseClient';
@@ -272,6 +276,7 @@ const RATSystemProfessional = () => {
   const [editingRAT, setEditingRAT] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list', 'create', 'edit', 'view'
   
+  const [alertas, setAlertas] = useState([]);
   const [ratData, setRatData] = useState({
     responsable: {
       razonSocial: '',
@@ -666,16 +671,41 @@ const RATSystemProfessional = () => {
         },
         metadata: {
           fechaCreacion: new Date().toISOString(),
-          version: '2.0',
+          version: '3.1.0',
           cumplimientoLey21719: true,
-          requiereEIPD: Array.isArray(ratData.categorias?.sensibles) && ratData.categorias.sensibles.length > 0,
-          requiereDPIA: Array.isArray(ratData.categorias?.sensibles) && ratData.categorias.sensibles.length > 2,
-          requiereConsultaAgencia: Array.isArray(ratData.categorias?.sensibles) && ratData.categorias.sensibles.includes('datos_salud'),
         },
         estado: 'CREATION',
-        nivel_riesgo: (Array.isArray(ratData.categorias?.sensibles) && ratData.categorias.sensibles.length > 0) ? 'ALTO' : 'MEDIO',
       };
       
+      // 🧮 CÁLCULO RIESGO AUTOMÁTICO SEGÚN DIAGRAMA LÍNEAS 610-701
+      console.log('🧮 Calculando riesgo multi-dimensional...');
+      const analisisRiesgo = await riskCalculationEngine.calcularRiesgoTotal(ratData, currentTenant?.id);
+      
+      // APLICAR RESULTADOS ANÁLISIS RIESGO
+      ratCompleto.nivel_riesgo = analisisRiesgo.nivel_riesgo;
+      ratCompleto.metadata.analisis_riesgo = analisisRiesgo;
+      ratCompleto.metadata.requiereEIPD = analisisRiesgo.clasificacion?.requiere_eipd || false;
+      ratCompleto.metadata.requiereDPIA = analisisRiesgo.clasificacion?.requiere_dpia || false;
+      ratCompleto.metadata.consultaAgencia = analisisRiesgo.clasificacion?.consulta_previa_agencia || false;
+
+      // ⚖️ TEST BALANCING SI ES INTERÉS LEGÍTIMO
+      if (ratData.baseLegal === 'interes_legitimo') {
+        console.log('⚖️ Ejecutando Test Balancing obligatorio...');
+        const testBalancing = await testBalancingEngine.ejecutarTestBalancing(ratData, currentTenant?.id);
+        ratCompleto.metadata.test_balancing = testBalancing;
+        
+        if (!testBalancing.resultado || testBalancing.resultado === 'DESFAVORABLE') {
+          alert('❌ Test Balancing DESFAVORABLE - Debe cambiar base legal');
+          return;
+        }
+      }
+
+      // ⚠️ PROCESAR CASUÍSTICAS ESPECÍFICAS
+      const casuisticasEspecificas = await specificCasesEngine.procesarCasuisticaEspecifica(ratData, currentTenant?.id);
+      if (casuisticasEspecificas.requiere_atencion_especial) {
+        ratCompleto.metadata.casuisticas_especiales = casuisticasEspecificas;
+      }
+
       console.log(viewMode === 'edit' ? '📝 Actualizando RAT:' : '📦 Guardando RAT con estructura completa:', ratCompleto);
       
       let resultado;
@@ -1602,6 +1632,19 @@ const PasoCategorias = ({ ratData, setRatData }) => {
           }
         });
         console.log('🚨 Dato sensible agregado - Trigger EIPD:', value);
+        
+        // 🧠 ANÁLISIS AUTOMÁTICO SEGÚN DIAGRAMA LÍNEAS 162-228
+        if (currentTenant?.id) {
+          categoryAnalysisEngine.analizarCategoriaSeleccionada('sensibles', value, ratData, currentTenant.id)
+            .then(analisis => {
+              console.log('🧠 Análisis automático categoría:', analisis);
+              // Aplicar alertas y efectos automáticos
+              if (analisis.alertas?.length > 0) {
+                setAlertas(prev => [...prev, ...analisis.alertas]);
+              }
+            })
+            .catch(error => console.error('Error análisis automático:', error));
+        }
       } else {
         setRatData({
           ...ratData,

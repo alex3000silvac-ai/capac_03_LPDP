@@ -189,7 +189,7 @@ class LogicAuditor {
         supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id', tenantId),
         supabase.from('generated_documents').select('id', { count: 'exact' }).eq('document_type', 'EIPD'),
         supabase.from('actividades_dpo').select('id', { count: 'exact' }).eq('tenant_id', tenantId),
-        supabase.from('inventario_rats').select('id', { count: 'exact' }).eq('tenant_id', tenantId)
+supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id', tenantId)
       ]);
 
       return {
@@ -244,12 +244,12 @@ class LogicAuditor {
 
   async getInventarioRATs(tenantId) {
     const { data, error } = await supabase
-      .from('inventario_rats')
-      .select('id, rat_id, estado')
+      .from('mapeo_datos_rat')
+      .select('id, estado')
       .eq('tenant_id', tenantId);
     
     if (error) throw error;
-    return data || [];
+    return (data || []).map(item => ({ ...item, rat_id: item.id }));
   }
 
   async getEIPDs(tenantId) {
@@ -454,8 +454,14 @@ class LogicAuditor {
       };
       
       const { data, error } = await supabase
-        .from('inventario_rats')
-        .insert(inventarioEntry)
+        .from('mapeo_datos_rat')
+        .update({
+          metadata: {
+            ...inventarioEntry.metadata,
+            auto_inventory_registered: true
+          }
+        })
+        .eq('id', inventarioEntry.rat_id)
         .select()
         .single();
       
@@ -499,14 +505,19 @@ class LogicAuditor {
   // 💾 GUARDAR REPORTE AUDITORÍA
   async saveAuditReport(auditReport) {
     try {
+      // Usar tabla real ia_agent_reports en lugar de vista audit_reports
       const { data, error } = await supabase
-        .from('audit_reports')
+        .from('ia_agent_reports')
         .insert({
-          tenant_id: auditReport.tenant_id,
+          report_id: `AUDIT_${Date.now()}`,
           report_type: 'LOGIC_AUDIT',
-          status: auditReport.status,
-          summary: auditReport.summary,
-          details: auditReport,
+          report_data: {
+            tenant_id: auditReport.tenant_id,
+            status: auditReport.status,
+            summary: auditReport.summary,
+            details: auditReport,
+            timestamp: auditReport.timestamp
+          },
           created_at: auditReport.timestamp
         })
         .select()
