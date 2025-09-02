@@ -266,6 +266,29 @@ export const ratService = {
 
       if (fetchError) throw fetchError;
 
+      // Eliminar referencias dependientes ANTES de eliminar RAT
+      console.log('🗑️ Eliminando actividades DPO relacionadas...');
+      await supabase
+        .from('actividades_dpo')
+        .delete()
+        .eq('rat_id', ratId)
+        .eq('tenant_id', effectiveTenantId);
+
+      // Eliminar otras referencias dependientes
+      console.log('🗑️ Eliminando documentos generados relacionados...');
+      await supabase
+        .from('generated_documents')
+        .delete()
+        .eq('rat_id', ratId);
+
+      console.log('🗑️ Eliminando notificaciones relacionadas...');
+      await supabase
+        .from('dpo_notifications')
+        .delete()
+        .eq('rat_id', ratId);
+
+      // Ahora eliminar el RAT principal
+      console.log('🗑️ Eliminando RAT principal...');
       const { error } = await supabase
         .from('mapeo_datos_rat')
         .delete()

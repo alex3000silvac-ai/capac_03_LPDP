@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import preventiveAI from '../utils/preventiveAI';
 import {
   Box,
@@ -266,6 +267,7 @@ const professionalTheme = createTheme({
 });
 
 const RATSystemProfessional = () => {
+  const navigate = useNavigate();
   const { currentTenant } = useTenant();
   const { user } = useAuth();
   
@@ -1206,7 +1208,10 @@ const RATSystemProfessional = () => {
                                 >
                                   <IconButton 
                                     size="small" 
-                                    onClick={() => editarRAT(rat.id)}
+                                    onClick={() => {
+                                      console.log('🔍 Navegando a edición RAT:', rat.id);
+                                      navigate(`/rat-edit/${rat.id}`);
+                                    }}
                                     sx={{ 
                                       color: '#059669',
                                       '&:hover': { bgcolor: 'rgba(5, 150, 105, 0.1)' }
@@ -1337,7 +1342,10 @@ const RATSystemProfessional = () => {
                     <Button
                       variant="contained"
                       size="small"
-                      onClick={() => window.location.href = `/rat-edit/${ratData.id || 'nuevo'}`}
+                      onClick={() => {
+                        console.log('🔍 Navegando a vista completa RAT:', editingRAT);
+                        navigate(`/rat-edit/${editingRAT}`);
+                      }}
                       sx={{ 
                         bgcolor: '#059669',
                         color: '#ffffff',
