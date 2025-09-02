@@ -316,8 +316,20 @@ const RATSystemProfessional = () => {
 
   const cargarDatosComunes = async () => {
     if (currentTenant) {
+      // VALIDAR SI YA HAY DATOS INGRESADOS - NO SOBRESCRIBIR
+      const datosYaIngresados = ratData.responsable?.nombre || 
+                               ratData.responsable?.email || 
+                               ratData.responsable?.razonSocial;
+      
+      if (datosYaIngresados) {
+        console.log('📋 IA: Datos ya ingresados, NO sobrescribiendo');
+        return; // NO CARGAR SI YA HAY DATOS
+      }
+
       // Buscar datos del último RAT para auto-completar empresa y DPO
       try {
+        console.log('📋 Cargando datos permanentes empresa/DPO...');
+        
         const { data: ultimoRAT, error } = await supabase
           .from('mapeo_datos_rat')
           .select('*')
@@ -327,12 +339,13 @@ const RATSystemProfessional = () => {
           .single();
         
         if (!error && ultimoRAT) {
-          console.log('📋 Auto-completando con datos del último RAT:', ultimoRAT.id);
+          console.log('✅ Auto-completando con datos del último RAT:', ultimoRAT.id);
           
-          // Pre-llenar con datos empresa y DPO del último RAT
+          // SOLO PRE-LLENAR DATOS PERMANENTES (empresa/DPO)
           setRatData(prev => ({
             ...prev,
             responsable: {
+              // DATOS PERMANENTES QUE NO CAMBIAN
               razonSocial: ultimoRAT.responsable?.razonSocial || currentTenant.company_name || '',
               rut: ultimoRAT.responsable?.rut || currentTenant.rut || '',
               direccion: ultimoRAT.responsable?.direccion || currentTenant.direccion || '',
@@ -346,18 +359,29 @@ const RATSystemProfessional = () => {
                 telefono: ''
               }
             },
-            // Limpiar campos específicos de actividad (nueva actividad, no copiar)
-            finalidad: '', // Nueva finalidad
-            baseLegal: '', // Nueva base legal
-            argumentoJuridico: '', // Nuevo argumento
-            categorias: { identificacion: [], sensibles: [] }, // Nuevas categorías
-            destinatarios: [], // Nuevos destinatarios
-            plazoConservacion: '', // Nuevo plazo
-            // Mantener configuraciones empresa
+            // MANTENER CONFIGURACIONES EMPRESA PERMANENTES
             plataformasTecnologicas: ultimoRAT.plataformasTecnologicas || currentTenant.plataformasTecnologicas || [],
-            politicasRetencion: ultimoRAT.politicasRetencion || currentTenant.politicasRetencion || {}
+            politicasRetencion: ultimoRAT.politicasRetencion || currentTenant.politicasRetencion || {},
+            
+            // CAMPOS ACTIVIDAD SIEMPRE VACÍOS (NUEVA ACTIVIDAD)
+            nombreActividad: '', // NUEVA actividad
+            finalidad: '', // NUEVA finalidad
+            baseLegal: '', // NUEVA base legal
+            argumentoJuridico: '', // NUEVO argumento
+            categorias: { 
+              identificacion: [], 
+              sensibles: [],
+              datosPersonales: {} // NUEVO mapeo datos
+            },
+            destinatarios: [], // NUEVOS destinatarios
+            plazoConservacion: '', // NUEVO plazo
+            medidas: { tecnicas: [], organizativas: [] }, // NUEVAS medidas
+            transferencias: { existe: false, destinos: [] } // NUEVAS transferencias
           }));
+          
+          console.log('✅ Datos permanentes cargados, campos actividad limpios');
         } else {
+          console.log('⚠️ No hay RATs previos, usando datos tenant básicos');
           // Si no hay RATs previos, usar datos tenant
           setRatData(prev => ({
             ...prev,
@@ -368,25 +392,33 @@ const RATSystemProfessional = () => {
               nombre: currentTenant.dpo?.nombre || '',
               email: currentTenant.dpo?.email || user?.email || '',
               telefono: currentTenant.dpo?.telefono || '',
+              representanteLegal: {
+                esExtranjero: false,
+                nombre: '',
+                email: '',
+                telefono: ''
+              }
             },
             plataformasTecnologicas: currentTenant.plataformasTecnologicas || [],
             politicasRetencion: currentTenant.politicasRetencion || {}
           }));
         }
       } catch (error) {
-        console.error('Error cargando datos comunes:', error);
-        // Fallback a datos tenant básicos
-        setRatData(prev => ({
-          ...prev,
-          responsable: {
-            razonSocial: currentTenant.company_name || '',
-            rut: currentTenant.rut || '',
-            direccion: currentTenant.direccion || '',
-            nombre: currentTenant.dpo?.nombre || '',
-            email: currentTenant.dpo?.email || user?.email || '',
-            telefono: currentTenant.dpo?.telefono || '',
-          }
-        }));
+        console.error('❌ Error cargando datos permanentes:', error);
+        // Fallback a datos tenant básicos sin sobrescribir
+        if (!datosYaIngresados) {
+          setRatData(prev => ({
+            ...prev,
+            responsable: {
+              razonSocial: currentTenant.company_name || '',
+              rut: currentTenant.rut || '',
+              direccion: currentTenant.direccion || '',
+              nombre: currentTenant.dpo?.nombre || '',
+              email: currentTenant.dpo?.email || user?.email || '',
+              telefono: currentTenant.dpo?.telefono || '',
+            }
+          }));
+        }
       }
     }
   };
