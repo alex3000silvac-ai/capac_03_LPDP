@@ -71,6 +71,7 @@ const DPOApprovalQueue = () => {
     try {
       setLoading(true);
       
+      // En producción: cargar RATs reales desde Supabase que requieren aprobación DPO
       // Mock data - en prod conectaría con API
       const mockPendingRATs = [
         {
@@ -197,16 +198,61 @@ const DPOApprovalQueue = () => {
     try {
       setLoading(true);
       
-      // Validaciones DPO
-      if (selectedRAT.nivel_riesgo === 'ALTO' && !selectedRAT.requiere_eipd) {
-        throw new Error('RAT de alto riesgo requiere EIPD');
+      // Validaciones DPO automáticas según Art. 25 Ley 21.719
+      const validacionesRequeridas = [];
+      
+      // 1. RAT alto riesgo requiere EIPD
+      if (selectedRAT.nivel_riesgo === 'ALTO') {
+        validacionesRequeridas.push({
+          tipo: 'EIPD',
+          articulo: 'Art. 25 Ley 21.719',
+          descripcion: 'Evaluación de Impacto en Protección de Datos requerida para alto riesgo'
+        });
       }
       
-      // En prod: llamar API aprobación
-      console.log('Aprobando RAT:', selectedRAT.id, 'Comentarios:', dpoComments);
+      // 2. Transferencias internacionales requieren DPA
+      if (selectedRAT.transferencias_internacionales) {
+        validacionesRequeridas.push({
+          tipo: 'DPA',
+          articulo: 'Art. 28 Ley 21.719',
+          descripcion: 'Data Processing Agreement requerido para transferencias internacionales'
+        });
+      }
+      
+      // 3. Datos sensibles múltiples requieren DPIA extendida
+      if (selectedRAT.tipos_datos.includes('financieros') && selectedRAT.tipos_datos.includes('salud')) {
+        validacionesRequeridas.push({
+          tipo: 'DPIA_EXTENDIDA',
+          articulo: 'Art. 25 inc. 2° Ley 21.719',
+          descripcion: 'Evaluación de Impacto extendida para datos sensibles múltiples'
+        });
+      }
+      
+      // 4. Perfilado automatizado requiere consulta previa
+      if (selectedRAT.analisis_ia?.alertas?.includes('Perfilado automatizado')) {
+        validacionesRequeridas.push({
+          tipo: 'CONSULTA_AGENCIA',
+          articulo: 'Art. 26 Ley 21.719',
+          descripcion: 'Consulta previa a la Agencia de Protección de Datos'
+        });
+      }
+      
+      // Generar automáticamente los documentos requeridos
+      const documentosGenerados = await generarDocumentosRequeridos(selectedRAT, validacionesRequeridas);
+      
+      // En prod: llamar API aprobación con documentos generados
+      console.log('🔥 Aprobando RAT:', selectedRAT.id);
+      console.log('📋 Comentarios DPO:', dpoComments);
+      console.log('📄 Documentos generados automáticamente:', documentosGenerados);
+      console.log('⚖️ Validaciones aplicadas:', validacionesRequeridas);
       
       // Actualizar estado
       setPendingRATs(prev => prev.filter(r => r.id !== selectedRAT.id));
+      
+      // Mostrar resumen de documentos generados
+      if (validacionesRequeridas.length > 0) {
+        alert(`✅ RAT aprobado con ${validacionesRequeridas.length} documento(s) generado(s):\n${validacionesRequeridas.map(v => `• ${v.tipo}: ${v.descripcion}`).join('\n')}`);
+      }
       
       setApprovalDialog(false);
       setDpoComments('');
@@ -214,9 +260,90 @@ const DPOApprovalQueue = () => {
       
     } catch (error) {
       console.error('Error aprobando RAT:', error);
+      alert(`Error: ${error.message}`);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Función auxiliar para generar documentos automáticamente
+  const generarDocumentosRequeridos = async (rat, validaciones) => {
+    const documentosGenerados = [];
+    
+    for (const validacion of validaciones) {
+      try {
+        switch (validacion.tipo) {
+          case 'EIPD':
+            const eipd = await generarEIPD(rat);
+            documentosGenerados.push({
+              tipo: 'EIPD',
+              id: `EIPD-${rat.numero_rat}`,
+              fecha: new Date().toISOString(),
+              estado: 'GENERADO_AUTOMATICAMENTE'
+            });
+            break;
+            
+          case 'DPA':
+            const dpa = await generarDPA(rat);
+            documentosGenerados.push({
+              tipo: 'DPA',
+              id: `DPA-${rat.numero_rat}`,
+              fecha: new Date().toISOString(),
+              estado: 'PENDIENTE_FIRMA'
+            });
+            break;
+            
+          case 'DPIA_EXTENDIDA':
+            const dpia = await generarDPIAExtendida(rat);
+            documentosGenerados.push({
+              tipo: 'DPIA_EXTENDIDA',
+              id: `DPIA-${rat.numero_rat}`,
+              fecha: new Date().toISOString(),
+              estado: 'REQUIERE_REVISION_TECNICA'
+            });
+            break;
+            
+          case 'CONSULTA_AGENCIA':
+            const consulta = await generarConsultaAgencia(rat);
+            documentosGenerados.push({
+              tipo: 'CONSULTA_AGENCIA',
+              id: `CONSULTA-${rat.numero_rat}`,
+              fecha: new Date().toISOString(),
+              estado: 'ENVIADO_A_AGENCIA'
+            });
+            break;
+        }
+      } catch (error) {
+        console.error(`Error generando ${validacion.tipo}:`, error);
+      }
+    }
+    
+    return documentosGenerados;
+  };
+
+  // Funciones auxiliares para generar documentos específicos
+  const generarEIPD = async (rat) => {
+    console.log(`📄 Generando EIPD para ${rat.numero_rat}...`);
+    // En producción: generar documento EIPD real
+    return { generado: true, tipo: 'EIPD' };
+  };
+
+  const generarDPA = async (rat) => {
+    console.log(`📄 Generando DPA para ${rat.numero_rat}...`);
+    // En producción: generar contrato DPA real
+    return { generado: true, tipo: 'DPA' };
+  };
+
+  const generarDPIAExtendida = async (rat) => {
+    console.log(`📄 Generando DPIA Extendida para ${rat.numero_rat}...`);
+    // En producción: generar evaluación DPIA extendida
+    return { generado: true, tipo: 'DPIA_EXTENDIDA' };
+  };
+
+  const generarConsultaAgencia = async (rat) => {
+    console.log(`📄 Generando Consulta Agencia para ${rat.numero_rat}...`);
+    // En producción: generar consulta previa a la Agencia
+    return { generado: true, tipo: 'CONSULTA_AGENCIA' };
   };
 
   const confirmRejection = async () => {

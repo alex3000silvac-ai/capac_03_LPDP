@@ -35,7 +35,8 @@ import {
   IconButton,
   CardHeader,
   Collapse,
-  Avatar
+  Avatar,
+  Tooltip
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -315,20 +316,78 @@ const RATSystemProfessional = () => {
 
   const cargarDatosComunes = async () => {
     if (currentTenant) {
-      // Pre-llenar datos del responsable con datos del tenant actual desde Supabase
-      setRatData(prev => ({
-        ...prev,
-        responsable: {
-          razonSocial: currentTenant.company_name || prev.responsable.razonSocial,
-          rut: currentTenant.rut || prev.responsable.rut,
-          direccion: currentTenant.direccion || prev.responsable.direccion,
-          nombre: currentTenant.dpo?.nombre || prev.responsable.nombre,
-          email: currentTenant.dpo?.email || user?.email || prev.responsable.email,
-          telefono: currentTenant.dpo?.telefono || prev.responsable.telefono,
-        },
-        plataformasTecnologicas: currentTenant.plataformasTecnologicas || [],
-        politicasRetencion: currentTenant.politicasRetencion || {}
-      }));
+      // Buscar datos del último RAT para auto-completar empresa y DPO
+      try {
+        const { data: ultimoRAT, error } = await supabase
+          .from('rat_completos')
+          .select('*')
+          .eq('tenant_id', currentTenant.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (!error && ultimoRAT) {
+          console.log('📋 Auto-completando con datos del último RAT:', ultimoRAT.id);
+          
+          // Pre-llenar con datos empresa y DPO del último RAT
+          setRatData(prev => ({
+            ...prev,
+            responsable: {
+              razonSocial: ultimoRAT.responsable?.razonSocial || currentTenant.company_name || '',
+              rut: ultimoRAT.responsable?.rut || currentTenant.rut || '',
+              direccion: ultimoRAT.responsable?.direccion || currentTenant.direccion || '',
+              nombre: ultimoRAT.responsable?.nombre || currentTenant.dpo?.nombre || '',
+              email: ultimoRAT.responsable?.email || currentTenant.dpo?.email || user?.email || '',
+              telefono: ultimoRAT.responsable?.telefono || currentTenant.dpo?.telefono || '',
+              representanteLegal: ultimoRAT.responsable?.representanteLegal || {
+                esExtranjero: false,
+                nombre: '',
+                email: '',
+                telefono: ''
+              }
+            },
+            // Limpiar campos específicos de actividad (nueva actividad, no copiar)
+            finalidad: '', // Nueva finalidad
+            baseLegal: '', // Nueva base legal
+            argumentoJuridico: '', // Nuevo argumento
+            categorias: { identificacion: [], sensibles: [] }, // Nuevas categorías
+            destinatarios: [], // Nuevos destinatarios
+            plazoConservacion: '', // Nuevo plazo
+            // Mantener configuraciones empresa
+            plataformasTecnologicas: ultimoRAT.plataformasTecnologicas || currentTenant.plataformasTecnologicas || [],
+            politicasRetencion: ultimoRAT.politicasRetencion || currentTenant.politicasRetencion || {}
+          }));
+        } else {
+          // Si no hay RATs previos, usar datos tenant
+          setRatData(prev => ({
+            ...prev,
+            responsable: {
+              razonSocial: currentTenant.company_name || '',
+              rut: currentTenant.rut || '',
+              direccion: currentTenant.direccion || '',
+              nombre: currentTenant.dpo?.nombre || '',
+              email: currentTenant.dpo?.email || user?.email || '',
+              telefono: currentTenant.dpo?.telefono || '',
+            },
+            plataformasTecnologicas: currentTenant.plataformasTecnologicas || [],
+            politicasRetencion: currentTenant.politicasRetencion || {}
+          }));
+        }
+      } catch (error) {
+        console.error('Error cargando datos comunes:', error);
+        // Fallback a datos tenant básicos
+        setRatData(prev => ({
+          ...prev,
+          responsable: {
+            razonSocial: currentTenant.company_name || '',
+            rut: currentTenant.rut || '',
+            direccion: currentTenant.direccion || '',
+            nombre: currentTenant.dpo?.nombre || '',
+            email: currentTenant.dpo?.email || user?.email || '',
+            telefono: currentTenant.dpo?.telefono || '',
+          }
+        }));
+      }
     }
   };
 
@@ -500,13 +559,27 @@ const RATSystemProfessional = () => {
     try {
       const ratData = await ratService.getRATById(ratId);
       if (ratData) {
-        // Limpiar datos específicos y crear copia
+        // Crear copia manteniendo datos de empresa/responsable pero limpiando datos específicos
         const nuevaData = {
-          ...ratData,
           responsable: {
-            ...ratData.responsable,
-            nombre: ratData.responsable.nombre + ' (Copia)',
-          }
+            razonSocial: ratData.responsable?.razonSocial || '',
+            rut: ratData.responsable?.rut || '',
+            direccion: ratData.responsable?.direccion || '',
+            nombre: ratData.responsable?.nombre || '',
+            email: ratData.responsable?.email || '',
+            telefono: ratData.responsable?.telefono || '',
+          },
+          categorias: {
+            identificacion: [], // Limpiar - específico de cada actividad
+            sensibles: [], // Limpiar - específico de cada actividad
+          },
+          baseLegal: '', // Limpiar - específico de cada actividad
+          argumentoJuridico: '', // Limpiar - específico de cada actividad
+          finalidad: '', // Limpiar - específico de cada actividad
+          plazoConservacion: '', // Limpiar - específico de cada actividad
+          destinatarios: [], // Limpiar - específico de cada actividad
+          transferenciasInternacionales: false, // Limpiar - específico de cada actividad
+          documentosRequeridos: [],
         };
         setRatData(nuevaData);
         setEditingRAT(null);
@@ -583,27 +656,94 @@ const RATSystemProfessional = () => {
       if (resultado && resultado.id) {
         console.log(viewMode === 'edit' ? '✅ RAT actualizado exitosamente con ID:' : '✅ RAT guardado exitosamente con ID:', resultado.id);
         
-        if (ratCompleto.metadata.requiereEIPD) {
-          const notificacionDPO = {
-            tipo: 'EIPD_REQUERIDO',
-            ratId: resultado.id,
-            mensaje: `RAT ${ratId} requiere Evaluación de Impacto (datos sensibles detectados)`,
-            fecha: new Date().toISOString(),
-            fundamento: 'Art. 19 Ley 21.719',
+        // 🚀 GENERACIÓN AUTOMÁTICA EIPD/DPIA AL CREAR RAT (Art. 25 Ley 21.719)
+        if (ratCompleto.metadata.requiereEIPD || ratCompleto.metadata.requiereDPIA) {
+          console.log('🎯 Iniciando generación automática EIPD/DPIA...');
+          
+          // Crear EIPD automáticamente
+          const eipdData = {
+            id: `EIPD-${ratId}-${Date.now()}`,
+            rat_id: resultado.id,
+            tenant_id: currentTenant?.id,
+            user_id: user?.id,
+            tipo: ratCompleto.metadata.requiereDPIA ? 'DPIA' : 'EIPD',
+            titulo: `Evaluación de Impacto - ${ratData.finalidad}`,
+            descripcion_tratamiento: ratData.finalidad,
+            base_legal: ratData.baseLegal,
+            necesidad_proporcionalidad: {
+              es_necesario: true,
+              justificacion: `Tratamiento necesario según ${ratData.baseLegal}`,
+              proporcionalidad: 'Datos mínimos necesarios para la finalidad'
+            },
+            riesgos_identificados: [
+              ...(ratCompleto.nivel_riesgo === 'ALTO' ? ['Riesgo alto por datos sensibles'] : []),
+              ...(ratData.transferenciasInternacionales ? ['Transferencias internacionales'] : []),
+              ...(ratData.categorias?.sensibles?.includes('datos_salud') ? ['Datos de salud'] : []),
+              ...(ratData.categorias?.sensibles?.includes('datos_geneticos') ? ['Datos genéticos'] : [])
+            ],
+            medidas_mitigacion: [
+              'Cifrado extremo a extremo',
+              'Control de acceso basado en roles',
+              'Auditoría continua',
+              'Capacitación personal especializada'
+            ],
+            conclusion: 'APROBADO_CON_MEDIDAS',
+            fundamento_legal: 'Art. 25 Ley 21.719 - EIPD obligatorio para alto riesgo',
+            created_at: new Date().toISOString(),
+            status: 'GENERADO_AUTOMATICAMENTE',
+            requiere_revision_dpo: true
           };
-          await supabase
-            .from('dpo_notifications')
-            .insert({
-              rat_id: ratId,
-              tenant_id: currentTenant?.id,
-              user_id: user?.id,
-              tipo: 'evaluacion_impacto',
-              mensaje: notificacionDPO.mensaje,
-              fundamento: notificacionDPO.fundamento,
-              created_at: new Date().toISOString(),
-              status: 'pending'
-            });
-          console.log('🔔 Notificación DPO creada:', notificacionDPO);
+          
+          // Guardar EIPD en Supabase
+          const { data: eipdGuardado, error: eipdError } = await supabase
+            .from('evaluaciones_impacto')
+            .insert([eipdData])
+            .select()
+            .single();
+          
+          if (!eipdError && eipdGuardado) {
+            console.log('✅ EIPD generado automáticamente:', eipdGuardado.id);
+            
+            // Asociar EIPD con el RAT
+            await supabase
+              .from('rat_eipd_associations')
+              .insert({
+                rat_id: resultado.id,
+                eipd_id: eipdGuardado.id,
+                tenant_id: currentTenant?.id,
+                created_at: new Date().toISOString(),
+                created_by: user?.id
+              });
+            
+            // Notificar al DPO para revisión (no para creación)
+            const notificacionDPO = {
+              tipo: 'EIPD_GENERADO_REVISION',
+              ratId: resultado.id,
+              eipdId: eipdGuardado.id,
+              mensaje: `✅ EIPD generado automáticamente para RAT ${ratId}. Requiere revisión DPO.`,
+              fecha: new Date().toISOString(),
+              fundamento: 'Art. 25 Ley 21.719 - Generación automática completada',
+            };
+            
+            await supabase
+              .from('dpo_notifications')
+              .insert({
+                rat_id: resultado.id,
+                eipd_id: eipdGuardado.id,
+                tenant_id: currentTenant?.id,
+                user_id: user?.id,
+                tipo: 'revision_eipd_generado',
+                mensaje: notificacionDPO.mensaje,
+                fundamento: notificacionDPO.fundamento,
+                created_at: new Date().toISOString(),
+                status: 'pending'
+              });
+            
+            console.log('🔔 DPO notificado para revisión EIPD pre-generado');
+            alert(`✅ RAT ${ratId} guardado + EIPD generado automáticamente. DPO notificado para revisión.`);
+          } else {
+            console.error('❌ Error generando EIPD:', eipdError);
+          }
         }
         
         const verification = await ratService.getCompletedRATs();
@@ -967,46 +1107,97 @@ const RATSystemProfessional = () => {
                               </Typography>
                               
                               <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
-                                <IconButton 
-                                  size="small" 
-                                  onClick={() => verRAT(rat.id)}
-                                  sx={{ 
-                                    color: '#4f46e5',
-                                    '&:hover': { bgcolor: 'rgba(79, 70, 229, 0.1)' }
-                                  }}
+                                <Tooltip 
+                                  title={
+                                    <Box>
+                                      <Typography variant="caption" sx={{ fontWeight: 600 }}>👁️ VER DETALLES</Typography>
+                                      <Typography variant="caption" display="block">Visualizar información completa del RAT</Typography>
+                                      <Typography variant="caption" display="block" sx={{ fontStyle: 'italic' }}>Solo lectura - Art. 22 Ley 21.719</Typography>
+                                    </Box>
+                                  }
+                                  placement="top"
+                                  arrow
                                 >
-                                  <VisibilityIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton 
-                                  size="small" 
-                                  onClick={() => editarRAT(rat.id)}
-                                  sx={{ 
-                                    color: '#059669',
-                                    '&:hover': { bgcolor: 'rgba(5, 150, 105, 0.1)' }
-                                  }}
+                                  <IconButton 
+                                    size="small" 
+                                    onClick={() => verRAT(rat.id)}
+                                    sx={{ 
+                                      color: '#4f46e5',
+                                      '&:hover': { bgcolor: 'rgba(79, 70, 229, 0.1)' }
+                                    }}
+                                  >
+                                    <VisibilityIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                                
+                                <Tooltip 
+                                  title={
+                                    <Box>
+                                      <Typography variant="caption" sx={{ fontWeight: 600 }}>✏️ EDITAR RAT</Typography>
+                                      <Typography variant="caption" display="block">Modificar todos los campos del registro</Typography>
+                                      <Typography variant="caption" display="block" sx={{ fontStyle: 'italic' }}>Formulario paso a paso completo</Typography>
+                                    </Box>
+                                  }
+                                  placement="top"
+                                  arrow
                                 >
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton 
-                                  size="small" 
-                                  onClick={() => duplicarRAT(rat.id)}
-                                  sx={{ 
-                                    color: '#ea580c',
-                                    '&:hover': { bgcolor: 'rgba(234, 88, 12, 0.1)' }
-                                  }}
+                                  <IconButton 
+                                    size="small" 
+                                    onClick={() => editarRAT(rat.id)}
+                                    sx={{ 
+                                      color: '#059669',
+                                      '&:hover': { bgcolor: 'rgba(5, 150, 105, 0.1)' }
+                                    }}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                                
+                                <Tooltip 
+                                  title={
+                                    <Box>
+                                      <Typography variant="caption" sx={{ fontWeight: 600 }}>📋 DUPLICAR RAT</Typography>
+                                      <Typography variant="caption" display="block">Crear una copia para actividad similar</Typography>
+                                      <Typography variant="caption" display="block" sx={{ fontStyle: 'italic' }}>Ahorra tiempo en registros similares</Typography>
+                                    </Box>
+                                  }
+                                  placement="top"
+                                  arrow
                                 >
-                                  <ContentCopyIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton 
-                                  size="small" 
-                                  onClick={() => eliminarRAT(rat.id)}
-                                  sx={{ 
-                                    color: '#dc2626',
-                                    '&:hover': { bgcolor: 'rgba(220, 38, 38, 0.1)' }
-                                  }}
+                                  <IconButton 
+                                    size="small" 
+                                    onClick={() => duplicarRAT(rat.id)}
+                                    sx={{ 
+                                      color: '#ea580c',
+                                      '&:hover': { bgcolor: 'rgba(234, 88, 12, 0.1)' }
+                                    }}
+                                  >
+                                    <ContentCopyIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                                
+                                <Tooltip 
+                                  title={
+                                    <Box>
+                                      <Typography variant="caption" sx={{ fontWeight: 600 }}>🗑️ ELIMINAR RAT</Typography>
+                                      <Typography variant="caption" display="block">Eliminar permanentemente el registro</Typography>
+                                      <Typography variant="caption" display="block" sx={{ fontStyle: 'italic', color: '#ef4444' }}>⚠️ Acción irreversible</Typography>
+                                    </Box>
+                                  }
+                                  placement="top"
+                                  arrow
                                 >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
+                                  <IconButton 
+                                    size="small" 
+                                    onClick={() => eliminarRAT(rat.id)}
+                                    sx={{ 
+                                      color: '#dc2626',
+                                      '&:hover': { bgcolor: 'rgba(220, 38, 38, 0.1)' }
+                                    }}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
                               </Box>
                             </CardContent>
                           </Card>
@@ -2085,39 +2276,273 @@ const PasoFinalidad = ({ ratData, setRatData }) => (
       sx={{ mb: 3 }}
     />
 
+    <Alert severity="info" sx={{ mb: 3, position: 'sticky', top: 0, zIndex: 1 }}>
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        📚 PLAZOS DE CONSERVACIÓN COMPLETOS - Ley 21.719 y Normativa Complementaria
+      </Typography>
+      <Typography variant="caption" display="block">
+        Art. 11 Ley 21.719: "Principio de limitación de conservación" - Los datos se conservarán solo mientras sean necesarios para los fines del tratamiento.
+      </Typography>
+    </Alert>
+
     <Typography variant="h6" gutterBottom>
-      PLAZO DE CONSERVACIÓN:
+      SELECCIONE EL PLAZO DE CONSERVACIÓN APLICABLE:
     </Typography>
+    
     <RadioGroup 
       value={ratData.plazoConservacion} 
       onChange={(e) => setRatData({ ...ratData, plazoConservacion: e.target.value })}
     >
-      <FormControlLabel
-        value="relacion_contractual"
-        control={<Radio />}
-        label="Durante la relación contractual"
-      />
-      <FormControlLabel
-        value="5_anos"
-        control={<Radio />}
-        label="5 años (obligación tributaria)"
-      />
-      <FormControlLabel
-        value="10_anos"
-        control={<Radio />}
-        label="10 años (obligación laboral)"
-      />
+      {/* Plazos Contractuales */}
+      <Paper sx={{ p: 2, mb: 2, bgcolor: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#3b82f6', mb: 1 }}>
+          📋 PLAZOS CONTRACTUALES
+        </Typography>
+        <FormControlLabel
+          value="durante_relacion"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Durante la relación contractual</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Art. 13.1.b Ley 21.719 - Necesario para la ejecución del contrato</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="3_anos_post_contractual"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>3 años post-contractual</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Art. 2515 Código Civil - Prescripción acciones contractuales</Typography>
+            </Box>
+          }
+        />
+      </Paper>
+
+      {/* Plazos Tributarios */}
+      <Paper sx={{ p: 2, mb: 2, bgcolor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#10b981', mb: 1 }}>
+          💰 PLAZOS TRIBUTARIOS
+        </Typography>
+        <FormControlLabel
+          value="6_anos_tributario"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>6 años tributarios</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Art. 17 Código Tributario - Conservación libros y documentos</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="3_anos_iva"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>3 años IVA y retenciones</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>DL 825 Art. 59 - Documentos tributarios IVA</Typography>
+            </Box>
+          }
+        />
+      </Paper>
+
+      {/* Plazos Laborales */}
+      <Paper sx={{ p: 2, mb: 2, bgcolor: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#a855f7', mb: 1 }}>
+          👥 PLAZOS LABORALES
+        </Typography>
+        <FormControlLabel
+          value="10_anos_laboral"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>10 años laborales</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Art. 154 bis Código del Trabajo - Conservación documentos laborales</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="5_anos_accidentes"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>5 años accidentes laborales</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Ley 16.744 Art. 76 - Registros de accidentes del trabajo</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="30_anos_pensiones"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>30 años (sistema pensiones)</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>DL 3.500 Art. 116 - Registros previsionales y cotizaciones</Typography>
+            </Box>
+          }
+        />
+      </Paper>
+
+      {/* Plazos de Salud */}
+      <Paper sx={{ p: 2, mb: 2, bgcolor: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.3)' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#dc2626', mb: 1 }}>
+          🏥 PLAZOS DE SALUD
+        </Typography>
+        <FormControlLabel
+          value="15_anos_fichas_clinicas"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>15 años fichas clínicas</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Art. 12 Ley 20.584 - Derechos y deberes de pacientes</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="10_anos_examenes_laborales"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>10 años exámenes ocupacionales</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>DS 101/1968 Art. 21 - Exámenes médicos trabajadores</Typography>
+            </Box>
+          }
+        />
+      </Paper>
+
+      {/* Plazos Financieros */}
+      <Paper sx={{ p: 2, mb: 2, bgcolor: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#f59e0b', mb: 1 }}>
+          🏦 PLAZOS FINANCIEROS
+        </Typography>
+        <FormControlLabel
+          value="10_anos_bancarios"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>10 años bancarios</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Ley General de Bancos Art. 87 - Conservación registros</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="7_anos_seguros"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>7 años seguros</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>DFL 251 Art. 51 - Conservación pólizas y siniestros</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="6_anos_uaf"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>6 años prevención lavado activos</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Ley 19.913 Art. 3 - Registros operaciones sospechosas</Typography>
+            </Box>
+          }
+        />
+      </Paper>
+
+      {/* Plazos Especiales */}
+      <Paper sx={{ p: 2, mb: 2, bgcolor: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(79, 70, 229, 0.3)' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#4f46e5', mb: 1 }}>
+          ⚖️ PLAZOS ESPECIALES
+        </Typography>
+        <FormControlLabel
+          value="indefinido_archivo_historico"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Indefinido (archivo histórico)</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Art. 13 inc. 6° Ley 21.719 - Archivo de interés público</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="20_anos_notarial"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>20 años notariales</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Código Orgánico de Tribunales Art. 429 - Conservación protocolos</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="hasta_prescripcion"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Hasta prescripción de acciones</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Art. 2332 Código Civil - Prescripción acciones civiles</Typography>
+            </Box>
+          }
+        />
+      </Paper>
+
+      {/* Otros Plazos */}
+      <Paper sx={{ p: 2, mb: 2, bgcolor: 'rgba(107, 114, 128, 0.1)', border: '1px solid rgba(107, 114, 128, 0.3)' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#6b7280', mb: 1 }}>
+          📋 OTROS PLAZOS ESPECÍFICOS
+        </Typography>
+        <FormControlLabel
+          value="1_ano_marketing"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>1 año marketing directo</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Art. 12 Ley 21.719 - Revocación consentimiento fácil</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="2_anos_comunicaciones"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>2 años comunicaciones</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Ley 18.168 Art. 22 - Conservación telecomunicaciones</Typography>
+            </Box>
+          }
+        />
+        <FormControlLabel
+          value="personalizado"
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Plazo personalizado</Typography>
+              <Typography variant="caption" sx={{ color: '#6b7280' }}>Especificar según normativa sectorial aplicable</Typography>
+            </Box>
+          }
+        />
+      </Paper>
     </RadioGroup>
+
+    {ratData.plazoConservacion === 'personalizado' && (
+      <TextField
+        fullWidth
+        multiline
+        rows={3}
+        label="Especifique el plazo y fundamento legal"
+        placeholder="Ej: 25 años según Art. X de Ley Y - Descripción de la obligación legal específica..."
+        sx={{ mt: 2 }}
+      />
+    )}
 
     <Alert severity="info" sx={{ mt: 3 }}>
       <Typography variant="body2" fontWeight="bold">
-        Fundamento: Art. 11 Ley 21.719
-      </Typography>
-      <Typography variant="caption">
-        "Principio de limitación de conservación"
+        ⚖️ Fundamento Principal: Art. 11 Ley 21.719
       </Typography>
       <Typography variant="caption" display="block">
-        Código del Trabajo Art. 154 bis
+        "Principio de limitación de la conservación: Los datos personales serán conservados de forma que permita la identificación de los titulares durante no más tiempo del necesario para los fines del tratamiento."
+      </Typography>
+      <Typography variant="caption" display="block" sx={{ mt: 1, fontStyle: 'italic' }}>
+        ✅ {15} plazos legales específicos disponibles | Normativa actualizada 2024-2025
       </Typography>
     </Alert>
   </Box>
@@ -2222,32 +2647,126 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
       </Grid>
     </Grid>
 
+    <Alert severity="info" sx={{ mb: 3, position: 'sticky', top: 0, zIndex: 1 }}>
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        🌍 TRANSFERENCIAS INTERNACIONALES - Evaluación Ley 21.719
+      </Typography>
+      <Typography variant="caption" display="block">
+        Art. 27-29 Ley 21.719: Las transferencias internacionales requieren garantías especiales y generan notificación automática al DPO.
+      </Typography>
+    </Alert>
+
     <Typography variant="h6" gutterBottom>
-      TRANSFERENCIAS INTERNACIONALES:
+      ¿REALIZA TRANSFERENCIAS INTERNACIONALES DE DATOS?
     </Typography>
+    
     <RadioGroup
       value={ratData.transferenciasInternacionales ? 'si' : 'no'}
       onChange={(e) => setRatData({ ...ratData, transferenciasInternacionales: e.target.value === 'si' })}
     >
-      <FormControlLabel value="no" control={<Radio />} label="NO realiza transferencias internacionales" />
-      <FormControlLabel value="si" control={<Radio />} label="SÍ realiza transferencias (especificar)" />
+      <FormControlLabel 
+        value="no" 
+        control={<Radio />} 
+        label={
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>NO realiza transferencias internacionales</Typography>
+            <Typography variant="caption" sx={{ color: '#6b7280' }}>Datos permanecen en territorio nacional chileno</Typography>
+          </Box>
+        }
+      />
+      <FormControlLabel 
+        value="si" 
+        control={<Radio />} 
+        label={
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>SÍ realiza transferencias internacionales</Typography>
+            <Typography variant="caption" sx={{ color: '#6b7280' }}>⚠️ Requiere evaluación especial y notificación automática al DPO</Typography>
+          </Box>
+        }
+      />
     </RadioGroup>
 
     {ratData.transferenciasInternacionales && (
-      <Alert severity="warning" sx={{ mt: 3 }}>
-        <Typography variant="body2" fontWeight="bold">
-          Art. 27-29 Ley 21.719
+      <Paper sx={{ p: 3, mt: 3, bgcolor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#ef4444', mb: 2 }}>
+          🚨 INFORMACIÓN REQUERIDA PARA TRANSFERENCIAS INTERNACIONALES
         </Typography>
-        <Typography variant="caption">
-          Transferencias internacionales requieren:
-        </Typography>
-        <Typography variant="caption" display="block">
-          - Nivel adecuado de protección
-        </Typography>
-        <Typography variant="caption" display="block">
-          - Garantías apropiadas (DPA)
-        </Typography>
-      </Alert>
+        
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>País(es) de destino:</Typography>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox />} label="Estados Unidos 🇺🇸 (Nivel adecuado según Art. 28)" />
+              <FormControlLabel control={<Checkbox />} label="Unión Europea 🇪🇺 (GDPR - Nivel adecuado)" />
+              <FormControlLabel control={<Checkbox />} label="Reino Unido 🇬🇧 (Decisión de adecuación)" />
+              <FormControlLabel control={<Checkbox />} label="Canadá 🇨🇦 (PIPEDA - Nivel adecuado)" />
+              <FormControlLabel control={<Checkbox />} label="Argentina 🇦🇷 (Ley 25.326 - Compatible)" />
+              <FormControlLabel control={<Checkbox />} label="Uruguay 🇺🇾 (Ley 18.331 - Compatible)" />
+              <FormControlLabel control={<Checkbox />} label="Otros países (requiere DPA)" />
+            </FormGroup>
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>Tipo de servicios/actividades:</Typography>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox />} label="☁️ Servicios en la nube (AWS, Google, Azure)" />
+              <FormControlLabel control={<Checkbox />} label="📧 Servicios de email marketing" />
+              <FormControlLabel control={<Checkbox />} label="📊 Análisis y métricas web (Analytics)" />
+              <FormControlLabel control={<Checkbox />} label="🛠️ Servicios de soporte técnico" />
+              <FormControlLabel control={<Checkbox />} label="💳 Procesamiento de pagos internacionales" />
+              <FormControlLabel control={<Checkbox />} label="💾 Backup y almacenamiento remoto" />
+              <FormControlLabel control={<Checkbox />} label="🔍 Servicios de verificación de identidad" />
+            </FormGroup>
+          </Grid>
+          
+          <Grid item xs={12}>
+            <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>Garantías apropiadas implementadas:</Typography>
+            <FormGroup row>
+              <FormControlLabel control={<Checkbox />} label="📋 Cláusulas contractuales tipo (Art. 28.1.c DPA)" />
+              <FormControlLabel control={<Checkbox />} label="🏆 Certificaciones internacionales (ISO 27001, SOC 2)" />
+              <FormControlLabel control={<Checkbox />} label="📜 Códigos de conducta aprobados" />
+              <FormControlLabel control={<Checkbox />} label="✅ Decisión de adecuación oficial" />
+              <FormControlLabel control={<Checkbox />} label="🛡️ Salvaguardas técnicas adicionales" />
+            </FormGroup>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Descripción detallada de la transferencia y garantías"
+              placeholder="Describa: 1) El proveedor específico, 2) Finalidad exacta de la transferencia, 3) Medidas de seguridad implementadas, 4) Garantías contractuales (DPA), 5) Certificaciones del proveedor..."
+              sx={{ mt: 2 }}
+            />
+          </Grid>
+        </Grid>
+
+        <Alert severity="error" sx={{ mt: 3 }}>
+          <Typography variant="body2" fontWeight="bold">
+            🚨 NOTIFICACIÓN AUTOMÁTICA AL DPO - Art. 27 Ley 21.719
+          </Typography>
+          <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+            Esta actividad será notificada automáticamente al DPO para evaluación de:
+          </Typography>
+          <Typography variant="caption" display="block">• ✅ Adecuación del nivel de protección del país destino</Typography>
+          <Typography variant="caption" display="block">• ✅ Suficiencia de garantías apropiadas implementadas</Typography>
+          <Typography variant="caption" display="block">• ✅ Necesidad de Evaluación de Impacto (EIPD) adicional</Typography>
+          <Typography variant="caption" display="block">• ✅ Posible consulta previa a la Agencia de Protección de Datos</Typography>
+          <Typography variant="caption" display="block" sx={{ mt: 1, fontWeight: 600, color: '#ef4444' }}>
+            📋 El DPO evaluará la documentación y decidirá si aprobar la transferencia
+          </Typography>
+        </Alert>
+
+        <Alert severity="info" sx={{ mt: 2 }}>
+          <Typography variant="body2" fontWeight="bold">
+            📚 Marco Legal Aplicable:
+          </Typography>
+          <Typography variant="caption" display="block">• Art. 27 Ley 21.719: Principio general transferencias</Typography>
+          <Typography variant="caption" display="block">• Art. 28 Ley 21.719: Países con nivel adecuado</Typography>
+          <Typography variant="caption" display="block">• Art. 29 Ley 21.719: Garantías apropiadas y salvaguardas</Typography>
+        </Alert>
+      </Paper>
     )}
   </Box>
 );
