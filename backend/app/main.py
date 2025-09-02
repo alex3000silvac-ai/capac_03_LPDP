@@ -244,6 +244,10 @@ async def root():
 async def test_imports():
     try:
         # Temporalmente comentado hasta resolver dependencias
+        return {"status": "ok", "imports": "disabled"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
