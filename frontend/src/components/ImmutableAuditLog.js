@@ -65,9 +65,11 @@ import {
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
 import { supabase } from '../config/supabaseClient';
+import { useTenant } from '../contexts/TenantContext';
 
 const ImmutableAuditLog = () => {
   const navigate = useNavigate();
+  const { currentTenant } = useTenant();
   const [loading, setLoading] = useState(true);
   const [auditLogs, setAuditLogs] = useState([]);
   const [selectedLog, setSelectedLog] = useState(null);
@@ -159,7 +161,7 @@ const ImmutableAuditLog = () => {
   const cargarLogsAuditoria = async () => {
     try {
       setLoading(true);
-      const tenantId = await ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
       
       let query = supabase
         .from('audit_logs')
@@ -189,8 +191,7 @@ const ImmutableAuditLog = () => {
 
       if (error) throw error;
 
-      // Simular logs si no existen
-      const logsData = data?.length > 0 ? data : generarLogsSimulados();
+      const logsData = data || [];
       
       setAuditLogs(logsData);
       calcularEstadisticas(logsData);
@@ -202,100 +203,6 @@ const ImmutableAuditLog = () => {
     }
   };
 
-  const generarLogsSimulados = () => {
-    const baseTimestamp = Date.now();
-    
-    return [
-      {
-        id: 'audit-001',
-        timestamp: new Date(baseTimestamp - 2 * 60 * 60 * 1000).toISOString(),
-        usuario_id: 'user-001',
-        accion: 'RAT_APPROVED',
-        recurso_tipo: 'RAT',
-        recurso_id: 'rat-123',
-        tenant_id: 'tenant-001',
-        ip_address: '192.168.1.100',
-        user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        datos_antes: '{"estado": "PENDIENTE_APROBACION"}',
-        datos_despues: '{"estado": "CERTIFICADO", "certificado_por": "user-001"}',
-        hash_integridad: 'sha256:a1b2c3d4e5f6789012345678901234567890abcdef',
-        hash_anterior: 'sha256:1234567890abcdef1234567890abcdef12345678',
-        signature: 'RSA:verified',
-        usuario: {
-          first_name: 'María',
-          last_name: 'González',
-          email: 'maria.gonzalez@empresa.cl',
-          role: 'DPO'
-        }
-      },
-      {
-        id: 'audit-002',
-        timestamp: new Date(baseTimestamp - 4 * 60 * 60 * 1000).toISOString(),
-        usuario_id: 'user-002',
-        accion: 'DPA_GENERATED',
-        recurso_tipo: 'DPA',
-        recurso_id: 'dpa-aws-001',
-        tenant_id: 'tenant-001',
-        ip_address: '192.168.1.101',
-        user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-        datos_antes: '{}',
-        datos_despues: '{"proveedor": "AWS", "template": "international-scc", "estado": "BORRADOR"}',
-        hash_integridad: 'sha256:b2c3d4e5f6789012345678901234567890abcdef1',
-        hash_anterior: 'sha256:a1b2c3d4e5f6789012345678901234567890abcdef',
-        signature: 'RSA:verified',
-        usuario: {
-          first_name: 'Carlos',
-          last_name: 'Rodríguez',
-          email: 'carlos.rodriguez@empresa.cl',
-          role: 'COMPLIANCE_OFFICER'
-        }
-      },
-      {
-        id: 'audit-003',
-        timestamp: new Date(baseTimestamp - 6 * 60 * 60 * 1000).toISOString(),
-        usuario_id: 'user-003',
-        accion: 'ADMIN_ACTION',
-        recurso_tipo: 'TENANT',
-        recurso_id: 'tenant-002',
-        tenant_id: 'tenant-001',
-        ip_address: '192.168.1.102',
-        user_agent: 'Mozilla/5.0 (X11; Linux x86_64)',
-        datos_antes: '{}',
-        datos_despues: '{"empresa": "Nueva Subsidiaria", "tipo": "SUBSIDIARIA", "parent": "tenant-001"}',
-        hash_integridad: 'sha256:c3d4e5f6789012345678901234567890abcdef12',
-        hash_anterior: 'sha256:b2c3d4e5f6789012345678901234567890abcdef1',
-        signature: 'RSA:verified',
-        usuario: {
-          first_name: 'Ana',
-          last_name: 'López',
-          email: 'ana.lopez@empresa.cl',
-          role: 'ADMIN'
-        }
-      },
-      {
-        id: 'audit-004',
-        timestamp: new Date(baseTimestamp - 8 * 60 * 60 * 1000).toISOString(),
-        usuario_id: 'user-004',
-        accion: 'DATA_EXPORT',
-        recurso_tipo: 'RAT',
-        recurso_id: 'export-batch-001',
-        tenant_id: 'tenant-001',
-        ip_address: '192.168.1.103',
-        user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        datos_antes: '{}',
-        datos_despues: '{"formato": "PDF", "rats_incluidos": 15, "firmado": true}',
-        hash_integridad: 'sha256:d4e5f6789012345678901234567890abcdef123',
-        hash_anterior: 'sha256:c3d4e5f6789012345678901234567890abcdef12',
-        signature: 'RSA:verified',
-        usuario: {
-          first_name: 'Pedro',
-          last_name: 'Martínez',
-          email: 'pedro.martinez@empresa.cl',
-          role: 'DPO'
-        }
-      }
-    ];
-  };
 
   const calcularEstadisticas = (logsData) => {
     const hoy = new Date();

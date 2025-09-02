@@ -640,7 +640,8 @@ const ratIntelligenceEngine = {
   },
   
   isInternationalProvider(nombre) {
-    const internationalProviders = ['aws', 'amazon', 'google', 'microsoft', 'azure', 'gcp', 'salesforce', 'oracle'];
+    // TODO: Obtener lista de proveedores internacionales desde Supabase
+    const internationalProviders = []; // Lista vacía hasta implementar consulta real
     return internationalProviders.some(provider => 
       (nombre || '').toLowerCase().includes(provider)
     );

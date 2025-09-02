@@ -52,10 +52,12 @@ import {
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
 import ratIntelligenceEngine from '../services/ratIntelligenceEngine';
+import { useTenant } from '../contexts/TenantContext';
 
 const EIPDCreator = () => {
   const navigate = useNavigate();
   const { ratId } = useParams(); // Si viene desde un RAT específico
+  const { currentTenant } = useTenant();
   
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -213,7 +215,7 @@ const EIPDCreator = () => {
       const { data: eipdCreated, error } = await ratService.supabase
         .from('evaluaciones_impacto')
         .insert([{
-          tenant_id: await ratService.getCurrentTenantId(),
+          tenant_id: currentTenant?.id,
           rat_id: ratId,
           nombre_evaluacion: eipdCompleta.general.nombre_evaluacion,
           contenido_eipd: eipdCompleta,

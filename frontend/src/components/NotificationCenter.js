@@ -64,9 +64,11 @@ import {
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
 import { supabase } from '../config/supabaseClient';
+import { useTenant } from '../contexts/TenantContext';
 
 const NotificationCenter = () => {
   const navigate = useNavigate();
+  const { currentTenant } = useTenant();
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
@@ -151,7 +153,7 @@ const NotificationCenter = () => {
   const cargarNotificaciones = async () => {
     try {
       setLoading(true);
-      const tenantId = await ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
       
       const { data, error } = await supabase
         .from('notifications')
@@ -165,79 +167,7 @@ const NotificationCenter = () => {
 
       if (error) throw error;
 
-      // Simular notificaciones si no existen
-      const notificationsData = data?.length > 0 ? data : [
-        {
-          id: 1,
-          tipo: 'RAT_VENCIMIENTO',
-          titulo: 'RAT Marketing próximo a vencer',
-          mensaje: 'El RAT de campañas publicitarias vence en 7 días y requiere renovación',
-          prioridad: 'ALTA',
-          leida: false,
-          usuario_destino: 'user-001',
-          recurso_id: 'rat-123',
-          recurso_tipo: 'RAT',
-          created_at: '2024-08-30T10:30:00Z',
-          scheduled_for: '2024-09-01T09:00:00Z',
-          channels: ['EMAIL', 'IN_APP']
-        },
-        {
-          id: 2,
-          tipo: 'DPA_RENOVACION',
-          titulo: 'DPA AWS requiere renovación urgente',
-          mensaje: 'El contrato DPA con Amazon Web Services vence en 15 días. Iniciar proceso de renovación.',
-          prioridad: 'CRITICA',
-          leida: false,
-          usuario_destino: 'user-002',
-          recurso_id: 'dpa-aws-001',
-          recurso_tipo: 'DPA',
-          created_at: '2024-08-28T14:15:00Z',
-          scheduled_for: '2024-08-29T08:00:00Z',
-          channels: ['EMAIL', 'IN_APP', 'SMS']
-        },
-        {
-          id: 3,
-          tipo: 'WORKFLOW_ASIGNACION',
-          titulo: 'Nuevo RAT asignado para revisión',
-          mensaje: 'Se ha asignado el RAT de Recursos Humanos para su revisión departamental',
-          prioridad: 'NORMAL',
-          leida: true,
-          usuario_destino: 'user-003',
-          recurso_id: 'rat-456',
-          recurso_tipo: 'RAT',
-          created_at: '2024-08-25T16:45:00Z',
-          scheduled_for: '2024-08-25T16:45:00Z',
-          channels: ['IN_APP']
-        },
-        {
-          id: 4,
-          tipo: 'EIPD_REQUERIDA',
-          titulo: 'EIPD requerida para nuevo tratamiento',
-          mensaje: 'El RAT de datos biométricos requiere una Evaluación de Impacto según Art. 25 Ley 21.719',
-          prioridad: 'ALTA',
-          leida: false,
-          usuario_destino: 'user-001',
-          recurso_id: 'rat-789',
-          recurso_tipo: 'RAT',
-          created_at: '2024-08-27T11:20:00Z',
-          scheduled_for: '2024-08-28T09:00:00Z',
-          channels: ['EMAIL', 'IN_APP']
-        },
-        {
-          id: 5,
-          tipo: 'PROVEEDOR_RIESGO',
-          titulo: 'Proveedor clasificado como alto riesgo',
-          mensaje: 'Salesforce ha sido reclasificado como alto riesgo. Revisar medidas de seguridad.',
-          prioridad: 'CRITICA',
-          leida: false,
-          usuario_destino: 'user-002',
-          recurso_id: 'prv-salesforce',
-          recurso_tipo: 'PROVEEDOR',
-          created_at: '2024-08-26T13:10:00Z',
-          scheduled_for: '2024-08-26T13:10:00Z',
-          channels: ['EMAIL', 'IN_APP']
-        }
-      ];
+      const notificationsData = data || [];
 
       setNotifications(notificationsData);
       calcularEstadisticas(notificationsData);
@@ -250,29 +180,46 @@ const NotificationCenter = () => {
   };
 
   const cargarConfiguracion = async () => {
-    // Simular configuración de notificaciones
-    const configData = {
-      canales_habilitados: ['EMAIL', 'IN_APP'],
-      horario_notificaciones: {
-        inicio: '08:00',
-        fin: '18:00',
-        dias_semana: ['L', 'M', 'X', 'J', 'V']
-      },
-      tipos_habilitados: {
-        'RAT_VENCIMIENTO': true,
-        'DPA_RENOVACION': true,
-        'EIPD_REQUERIDA': true,
-        'WORKFLOW_ASIGNACION': true,
-        'PROVEEDOR_RIESGO': true,
-        'USUARIO_NUEVO': false,
-        'SISTEMA_ACTUALIZACION': false,
-        'AUDITORIA_PROGRAMADA': true
-      },
-      frecuencia_digest: 'DIARIO',
-      modo_no_molestar: false
-    };
-    
-    setSettings(configData);
+    try {
+      const tenantId = currentTenant?.id;
+      
+      const { data, error } = await supabase
+        .from('notification_settings')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error cargando configuración notificaciones:', error);
+        return;
+      }
+
+      // Si no existe configuración, usar defaults
+      const configData = data || {
+        canales_habilitados: ['EMAIL', 'IN_APP'],
+        horario_notificaciones: {
+          inicio: '08:00',
+          fin: '18:00',
+          dias_semana: ['L', 'M', 'X', 'J', 'V']
+        },
+        tipos_habilitados: {
+          'RAT_VENCIMIENTO': true,
+          'DPA_RENOVACION': true,
+          'EIPD_REQUERIDA': true,
+          'WORKFLOW_ASIGNACION': true,
+          'PROVEEDOR_RIESGO': true,
+          'USUARIO_NUEVO': false,
+          'SISTEMA_ACTUALIZACION': false,
+          'AUDITORIA_PROGRAMADA': true
+        },
+        frecuencia_digest: 'DIARIO',
+        modo_no_molestar: false
+      };
+      
+      setSettings(configData);
+    } catch (error) {
+      console.error('Error cargando configuración:', error);
+    }
   };
 
   const calcularEstadisticas = (notificationsData) => {

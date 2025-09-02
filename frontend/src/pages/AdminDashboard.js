@@ -132,48 +132,15 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      // Simular datos si no existen
-      const tenantsData = data?.length > 0 ? data : [
-        {
-          id: 'holding-master-001',
-          company_name: 'Grupo Empresarial ABC',
-          rut: '96.123.456-7',
-          industry: 'financiero',
-          tipo_tenant: 'HOLDING',
-          parent_tenant_id: null,
-          created_at: '2024-01-15',
-          estado: 'ACTIVO',
-          subsidiaries: [
-            { id: 'sub-001', company_name: 'ABC Financiera', industry: 'financiero' },
-            { id: 'sub-002', company_name: 'ABC Seguros', industry: 'financiero' }
-          ]
-        },
-        {
-          id: 'empresa-individual-001',
-          company_name: 'Tech Solutions SPA',
-          rut: '77.987.654-3',
-          industry: 'tecnologia',
-          tipo_tenant: 'EMPRESA',
-          parent_tenant_id: null,
-          created_at: '2024-02-20',
-          estado: 'ACTIVO',
-          subsidiaries: []
-        },
-        {
-          id: 'empresa-salud-001',
-          company_name: 'Clínica Los Andes',
-          rut: '88.555.777-9',
-          industry: 'salud',
-          tipo_tenant: 'EMPRESA',
-          parent_tenant_id: null,
-          created_at: '2024-03-10',
-          estado: 'ACTIVO',
-          subsidiaries: []
-        }
-      ];
+      if (error) {
+        console.error('Error consultando tenants:', error);
+        return;
+      }
+
+      const tenantsData = data || [];
 
       setTenants(tenantsData);
-      calcularEstadisticas(tenantsData);
+      await calcularEstadisticas(tenantsData);
       
     } catch (error) {
       console.error('Error cargando tenants:', error);
@@ -192,31 +159,12 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      // Simular usuarios si no existen
-      const usersData = data?.length > 0 ? data : [
-        {
-          id: 'user-001',
-          first_name: 'María',
-          last_name: 'González',
-          email: 'maria.gonzalez@grupoabc.cl',
-          role: 'DPO',
-          tenant_id: 'holding-master-001',
-          is_active: true,
-          permissions: ['dpo.view', 'dpo.approve', 'admin.view'],
-          created_at: '2024-01-15'
-        },
-        {
-          id: 'user-002',
-          first_name: 'Carlos',
-          last_name: 'Rodríguez',
-          email: 'carlos.rodriguez@techsolutions.cl',
-          role: 'COMPLIANCE_OFFICER',
-          tenant_id: 'empresa-individual-001',
-          is_active: true,
-          permissions: ['rat.create', 'rat.view'],
-          created_at: '2024-02-20'
-        }
-      ];
+      if (error) {
+        console.error('Error consultando usuarios:', error);
+        return;
+      }
+
+      const usersData = data || [];
 
       setUsers(usersData);
       
@@ -226,47 +174,84 @@ const AdminDashboard = () => {
   };
 
   const cargarLogsAuditoria = async () => {
-    // Simular logs de auditoría
-    const logsData = [
-      {
-        id: 1,
-        usuario: 'maría.gonzalez@grupoabc.cl',
-        accion: 'RAT_APPROVED',
-        recurso: 'RAT #1234',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        tenant_id: 'holding-master-001'
-      },
-      {
-        id: 2,
-        usuario: 'carlos.rodriguez@techsolutions.cl',
-        accion: 'RAT_CREATED',
-        recurso: 'RAT #1235',
-        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-        tenant_id: 'empresa-individual-001'
-      },
-      {
-        id: 3,
-        usuario: 'admin@sistema.cl',
-        accion: 'TENANT_CREATED',
-        recurso: 'Clínica Los Andes',
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        tenant_id: 'admin'
-      }
-    ];
+    try {
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select(`
+          *,
+          usuario:usuarios(first_name, last_name, email)
+        `)
+        .order('timestamp', { ascending: false })
+        .limit(50);
 
-    setAuditLogs(logsData);
+      if (error) {
+        console.error('Error consultando audit logs:', error);
+        return;
+      }
+
+      setAuditLogs(data || []);
+      
+    } catch (error) {
+      console.error('Error cargando logs auditoría:', error);
+    }
   };
 
-  const calcularEstadisticas = (tenantsData) => {
-    const stats = {
-      totalTenants: tenantsData.length,
-      activeUsers: users.filter(u => u.is_active).length,
-      totalRATs: tenantsData.reduce((sum, t) => sum + (t.rats_count || 0), 0),
-      complianceScore: 87, // Simular score agregado
-      activeHoldings: tenantsData.filter(t => t.tipo_tenant === 'HOLDING').length,
-      pendingApprovals: 8 // Simular aprobaciones pendientes
-    };
-    setStats(stats);
+  const calcularComplianceAggregado = async (tenantsData) => {
+    try {
+      const { data, error } = await supabase
+        .from('mapeo_datos_rat')
+        .select('estado')
+        .in('tenant_id', tenantsData.map(t => t.id));
+
+      if (error) return 0;
+      
+      const totalRATs = data?.length || 0;
+      const certificados = data?.filter(r => r.estado === 'CERTIFICADO').length || 0;
+      
+      return totalRATs > 0 ? Math.round((certificados / totalRATs) * 100) : 0;
+    } catch (error) {
+      console.error('Error calculando compliance:', error);
+      return 0;
+    }
+  };
+
+  const obtenerAprobacionesPendientes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('mapeo_datos_rat')
+        .select('id')
+        .eq('estado', 'PENDIENTE_APROBACION');
+
+      if (error) return 0;
+      return data?.length || 0;
+    } catch (error) {
+      console.error('Error obteniendo pendientes:', error);
+      return 0;
+    }
+  };
+
+  const calcularEstadisticas = async (tenantsData) => {
+    try {
+      // Obtener conteo real de RATs por tenant
+      const { data: ratsData, error: ratsError } = await supabase
+        .from('mapeo_datos_rat')
+        .select('tenant_id')
+        .in('tenant_id', tenantsData.map(t => t.id));
+
+      const totalRATs = ratsData?.length || 0;
+      
+      const stats = {
+        totalTenants: tenantsData.length,
+        activeUsers: users.filter(u => u.is_active).length,
+        totalRATs: totalRATs,
+        complianceScore: await calcularComplianceAggregado(tenantsData),
+        activeHoldings: tenantsData.filter(t => t.tipo_tenant === 'HOLDING').length,
+        pendingApprovals: await obtenerAprobacionesPendientes()
+      };
+      setStats(stats);
+    } catch (error) {
+      console.error('Error calculando estadísticas:', error);
+    }
   };
 
   const crearTenant = async () => {

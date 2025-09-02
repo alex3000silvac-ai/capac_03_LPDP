@@ -604,28 +604,17 @@ class AISystemValidator {
   // 🎯 VALIDACIÓN FLUJO RAT → EIPD AUTOMÁTICO
   async validarFlujoRATaEIPD() {
     try {
-      // Simular RAT alto riesgo
-      const ratAltoRiesgo = {
-        id: 'test_rat_' + Date.now(),
-        categorias: { sensibles: ['datos_salud'] },
-        nivel_riesgo: 'ALTO',
-        metadata: { requiereEIPD: true }
-      };
-      
-      // Verificar que se debe generar EIPD
-      const debeGenerarEIPD = ratAltoRiesgo.metadata.requiereEIPD;
-      
-      // Simular notificación DPO
-      const notificacionEsperada = debeGenerarEIPD;
+      // TODO: Implementar validación real con datos de Supabase
+      console.warn('validarFlujoRATaEIPD: Funcionalidad deshabilitada - solo datos reales permitidos');
       
       return {
-        valid: debeGenerarEIPD && notificacionEsperada,
+        valid: false,
         flujo: 'RAT_EIPD_AUTOMATICO',
-        descripcion: 'RAT alto riesgo genera EIPD automáticamente',
+        descripcion: 'Validación deshabilitada - requiere implementación con Supabase',
         validaciones: {
-          deteccion_riesgo: debeGenerarEIPD,
-          notificacion_dpo: notificacionEsperada,
-          persistencia_esperada: true
+          deteccion_riesgo: false,
+          notificacion_dpo: false,
+          persistencia_esperada: false
         }
       };
     } catch (error) {
@@ -636,24 +625,17 @@ class AISystemValidator {
   // 🏢 VALIDACIÓN FLUJO MULTI-TENANT
   async validarFlujoMultiTenant() {
     try {
-      // Simular 2 tenants diferentes
-      const tenant1 = { id: 'empresa_a', company_name: 'Empresa A' };
-      const tenant2 = { id: 'empresa_b', company_name: 'Empresa B' };
-      
-      // Verificar aislamiento datos
-      const aislamientoOK = tenant1.id !== tenant2.id;
-      
-      // Verificar RLS automático
-      const rlsEsperado = true; // Supabase RLS debe estar activo
+      // TODO: Implementar validación real consultando datos Supabase
+      console.warn('validarFlujoMultiTenant: Funcionalidad deshabilitada - solo datos reales permitidos');
       
       return {
-        valid: aislamientoOK && rlsEsperado,
+        valid: false,
         flujo: 'MULTI_TENANT_ISOLATION',
-        descripcion: 'Aislamiento datos entre organizaciones',
+        descripcion: 'Validación deshabilitada - requiere verificación con datos reales',
         validaciones: {
-          tenant_separation: aislamientoOK,
-          rls_active: rlsEsperado,
-          data_isolation: true
+          tenant_separation: false,
+          rls_active: false,
+          data_isolation: false
         }
       };
     } catch (error) {
@@ -688,15 +670,8 @@ class AISystemValidator {
   // 🔐 VALIDACIÓN FLUJO DERECHOS ARCOP
   async validarFlujoDerechosARCOP() {
     try {
-      // Simular solicitud derecho acceso
-      const solicitudARCOP = {
-        tipo: 'acceso',
-        titular_rut: '12345678-9',
-        documentos_verificacion: ['cedula_identidad.pdf'],
-        fecha_solicitud: new Date().toISOString()
-      };
-      
-      // Verificar flujo: solicitud → verificación → respuesta → log
+      // TODO: Implementar validación real con solicitudes de Supabase
+      console.warn('validarFlujoDerechosARCOP: Funcionalidad deshabilitada - solo datos reales permitidos');
       const pasosSolicitud = {
         recepcion_solicitud: true,
         verificacion_identidad: solicitudARCOP.documentos_verificacion.length > 0,

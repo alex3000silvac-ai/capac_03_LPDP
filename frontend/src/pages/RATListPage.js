@@ -40,9 +40,11 @@ import {
   Error as ErrorIcon
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
+import { useTenant } from '../contexts/TenantContext';
 
 const RATListPage = () => {
   const navigate = useNavigate();
+  const { currentTenant } = useTenant();
   const [rats, setRats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -64,7 +66,7 @@ const RATListPage = () => {
   const cargarRATs = async () => {
     try {
       setLoading(true);
-      const tenantId = ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
       const ratsData = await ratService.getCompletedRATs(tenantId);
       
       setRats(ratsData || []);
@@ -286,11 +288,12 @@ const RATListPage = () => {
                   }}
                 >
                   <MenuItem value="TODOS">Todas las Industrias</MenuItem>
-                  <MenuItem value="financiero">Financiero</MenuItem>
-                  <MenuItem value="salud">Salud</MenuItem>
-                  <MenuItem value="tecnologia">Tecnología</MenuItem>
-                  <MenuItem value="retail">Retail</MenuItem>
-                  <MenuItem value="manufactura">Manufactura</MenuItem>
+                  {/* Industrias dinámicas desde base de datos */}
+                  {Array.from(new Set(rats.map(r => r.industria).filter(Boolean))).map(industria => (
+                    <MenuItem key={industria} value={industria}>
+                      {industria.charAt(0).toUpperCase() + industria.slice(1)}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>

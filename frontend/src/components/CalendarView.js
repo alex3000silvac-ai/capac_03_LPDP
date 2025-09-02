@@ -53,9 +53,11 @@ import {
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
 import { supabase } from '../config/supabaseClient';
+import { useTenant } from '../contexts/TenantContext';
 
 const CalendarView = () => {
   const navigate = useNavigate();
+  const { currentTenant } = useTenant();
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month'); // month, week, day
@@ -133,7 +135,7 @@ const CalendarView = () => {
   const cargarEventos = async () => {
     try {
       setLoading(true);
-      const tenantId = await ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
       
       // Calcular rango de fechas según vista
       const startDate = getViewStartDate();
@@ -149,8 +151,7 @@ const CalendarView = () => {
 
       if (error) throw error;
 
-      // Simular eventos si no existen
-      const eventsData = data?.length > 0 ? data : generarEventosSimulados();
+      const eventsData = data || [];
       
       setEvents(eventsData);
       calcularEstadisticas(eventsData);
@@ -162,82 +163,6 @@ const CalendarView = () => {
     }
   };
 
-  const generarEventosSimulados = () => {
-    const hoy = new Date();
-    const eventos = [];
-
-    // RAT vencimientos
-    eventos.push({
-      id: 1,
-      titulo: 'Vencimiento RAT Marketing',
-      descripcion: 'RAT de campañas publicitarias requiere renovación',
-      tipo: 'RAT_VENCIMIENTO',
-      fecha_evento: new Date(hoy.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-      prioridad: 'ALTA',
-      recurso_id: 'rat-123',
-      recurso_tipo: 'RAT',
-      usuario_responsable: 'María González',
-      estado: 'PENDIENTE'
-    });
-
-    // DPA renovación
-    eventos.push({
-      id: 2,
-      titulo: 'Renovación DPA AWS',
-      descripcion: 'Contrato con Amazon Web Services próximo a vencer',
-      tipo: 'DPA_RENOVACION',
-      fecha_evento: new Date(hoy.getTime() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-      prioridad: 'CRITICA',
-      recurso_id: 'dpa-aws-001',
-      recurso_tipo: 'DPA',
-      usuario_responsable: 'Carlos Rodríguez',
-      estado: 'PENDIENTE'
-    });
-
-    // EIPD deadline
-    eventos.push({
-      id: 3,
-      titulo: 'Deadline EIPD Datos Biométricos',
-      descripcion: 'Evaluación de impacto para sistema acceso biométrico',
-      tipo: 'EIPD_DEADLINE',
-      fecha_evento: new Date(hoy.getTime() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-      prioridad: 'ALTA',
-      recurso_id: 'eipd-biometric-001',
-      recurso_tipo: 'EIPD',
-      usuario_responsable: 'Pedro Martínez',
-      estado: 'EN_PROGRESO'
-    });
-
-    // Auditoría programada
-    eventos.push({
-      id: 4,
-      titulo: 'Auditoría Compliance Trimestral',
-      descripcion: 'Revisión cumplimiento normativo Q4 2024',
-      tipo: 'AUDITORIA_PROGRAMADA',
-      fecha_evento: new Date(hoy.getTime() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-      prioridad: 'NORMAL',
-      recurso_id: 'audit-q4-2024',
-      recurso_tipo: 'AUDITORIA',
-      usuario_responsable: 'Ana López',
-      estado: 'PROGRAMADO'
-    });
-
-    // Capacitación
-    eventos.push({
-      id: 5,
-      titulo: 'Capacitación LPDP Equipo Legal',
-      descripcion: 'Sesión formativa actualizaciones Ley 21.719',
-      tipo: 'CAPACITACION',
-      fecha_evento: new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      prioridad: 'NORMAL',
-      recurso_id: 'training-legal-001',
-      recurso_tipo: 'CAPACITACION',
-      usuario_responsable: 'Luis Hernández',
-      estado: 'CONFIRMADO'
-    });
-
-    return eventos;
-  };
 
   const getViewStartDate = () => {
     switch (viewMode) {

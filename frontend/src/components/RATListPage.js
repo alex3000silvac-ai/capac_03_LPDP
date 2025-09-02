@@ -60,65 +60,23 @@ const RATListPage = () => {
     try {
       setLoading(true);
       
-      // Mock data - en prod conectaría con API
-      const mockRats = [
-        {
-          id: 1,
-          numero_rat: 'RAT-2024-001',
-          nombre_actividad: 'Gestión de Clientes Bancarios',
-          finalidad: 'Administración y seguimiento de cuentas bancarias',
-          estado: 'CERTIFICADO',
-          nivel_riesgo: 'ALTO',
-          responsable: 'juan.perez@banco.cl',
-          area_responsable: 'Operaciones Bancarias',
-          fecha_creacion: '2024-01-10T10:00:00Z',
-          fecha_actualizacion: '2024-01-15T14:30:00Z',
-          requiere_eipd: true,
-          transferencias_internacionales: true,
-          tipos_datos: ['identificacion', 'financieros', 'contacto'],
-          base_legal: 'ejecucion_contrato',
-          plazo_conservacion: '10 años post cierre cuenta'
-        },
-        {
-          id: 2,
-          numero_rat: 'RAT-2024-002',
-          nombre_actividad: 'Sistema de Recursos Humanos',
-          finalidad: 'Gestión de personal y nóminas',
-          estado: 'EN_REVISION',
-          nivel_riesgo: 'MEDIO',
-          responsable: 'maria.gonzalez@empresa.cl',
-          area_responsable: 'Recursos Humanos',
-          fecha_creacion: '2024-01-12T09:15:00Z',
-          fecha_actualizacion: '2024-01-18T11:45:00Z',
-          requiere_eipd: false,
-          transferencias_internacionales: false,
-          tipos_datos: ['identificacion', 'laborales', 'contacto'],
-          base_legal: 'cumplimiento_obligacion_legal',
-          plazo_conservacion: '5 años post término contrato'
-        },
-        {
-          id: 3,
-          numero_rat: 'RAT-2024-003',
-          nombre_actividad: 'Plataforma E-commerce',
-          finalidad: 'Ventas online y marketing digital',
-          estado: 'BORRADOR',
-          nivel_riesgo: 'MEDIO',
-          responsable: 'carlos.martinez@tienda.cl',
-          area_responsable: 'Marketing Digital',
-          fecha_creacion: '2024-01-20T15:20:00Z',
-          fecha_actualizacion: '2024-01-20T15:20:00Z',
-          requiere_eipd: true,
-          transferencias_internacionales: true,
-          tipos_datos: ['identificacion', 'contacto', 'navegacion', 'preferencias'],
-          base_legal: 'consentimiento_titular',
-          plazo_conservacion: '2 años post última actividad'
-        }
-      ];
+      // TODO: Conectar con Supabase API para cargar RATs reales
+      // const { data, error } = await supabase
+      //   .from('rats')
+      //   .select('*')
+      //   .eq('tenant_id', currentTenant?.id)
+      //   .order('fecha_actualizacion', { ascending: false });
       
-      setRats(mockRats);
+      // if (error) throw error;
+      // setRats(data || []);
+      
+      // TEMPORAL: Funcionalidad deshabilitada hasta integración completa
+      setRats([]);
+      console.warn('RATListPage: Funcionalidad deshabilitada - solo datos de Supabase permitidos');
       
     } catch (error) {
       console.error('Error cargando RATs:', error);
+      setRats([]);
     } finally {
       setLoading(false);
     }

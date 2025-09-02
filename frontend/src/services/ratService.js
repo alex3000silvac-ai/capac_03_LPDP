@@ -47,6 +47,7 @@ const getCurrentTenantId = async (userId = null) => {
 };
 
 export const ratService = {
+  getCurrentTenantId,
   
   saveCompletedRAT: async (ratData, industryName = 'General', processKey = null, tenantId = null) => {
     try {

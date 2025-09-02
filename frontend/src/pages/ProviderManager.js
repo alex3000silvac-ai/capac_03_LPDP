@@ -60,9 +60,11 @@ import {
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
 import { supabase } from '../config/supabaseClient';
+import { useTenant } from '../contexts/TenantContext';
 
 const ProviderManager = () => {
   const navigate = useNavigate();
+  const { currentTenant } = useTenant();
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [providers, setProviders] = useState([]);
@@ -104,7 +106,7 @@ const ProviderManager = () => {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const tenantId = await ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
       
       await Promise.all([
         cargarProveedores(tenantId),
@@ -129,48 +131,7 @@ const ProviderManager = () => {
 
       if (error) throw error;
 
-      // Simular datos si no existen en BD
-      const providersData = data?.length > 0 ? data : [
-        {
-          id: 1,
-          nombre: 'AWS Amazon Web Services',
-          rut: '97.123.456-7',
-          tipo_proveedor: 'INTERNACIONAL',
-          servicios_prestados: 'Infraestructura cloud, almacenamiento datos',
-          nivel_riesgo: 'MEDIO',
-          pais_origen: 'Estados Unidos',
-          estado: 'ACTIVO',
-          fecha_evaluacion: '2024-01-15',
-          contacto_principal: 'Juan Pérez',
-          email: 'juan.perez@aws.com'
-        },
-        {
-          id: 2,
-          nombre: 'Microsoft Chile',
-          rut: '96.789.123-4',
-          tipo_proveedor: 'NACIONAL',
-          servicios_prestados: 'Office 365, Azure, Teams',
-          nivel_riesgo: 'BAJO',
-          pais_origen: 'Chile',
-          estado: 'ACTIVO',
-          fecha_evaluacion: '2024-02-20',
-          contacto_principal: 'María González',
-          email: 'maria.gonzalez@microsoft.cl'
-        },
-        {
-          id: 3,
-          nombre: 'Salesforce',
-          rut: '98.456.789-1',
-          tipo_proveedor: 'INTERNACIONAL',
-          servicios_prestados: 'CRM, gestión clientes',
-          nivel_riesgo: 'ALTO',
-          pais_origen: 'Estados Unidos',
-          estado: 'REVISION',
-          fecha_evaluacion: '2024-03-10',
-          contacto_principal: 'Carlos Rodriguez',
-          email: 'carlos.rodriguez@salesforce.com'
-        }
-      ];
+      const providersData = data || [];
 
       setProviders(providersData);
       calcularEstadisticas(providersData);
@@ -181,67 +142,41 @@ const ProviderManager = () => {
   };
 
   const cargarContratos = async (tenantId) => {
-    // Simular contratos DPA
-    const contractsData = [
-      {
-        id: 1,
-        proveedor_id: 1,
-        tipo_contrato: 'DPA',
-        estado: 'VIGENTE',
-        fecha_inicio: '2024-01-15',
-        fecha_vencimiento: '2025-01-15',
-        clausulas_especiales: 'Transferencia datos UE-Chile',
-        nivel_riesgo: 'MEDIO'
-      },
-      {
-        id: 2,
-        proveedor_id: 2,
-        tipo_contrato: 'DPA',
-        estado: 'VIGENTE',
-        fecha_inicio: '2024-02-20',
-        fecha_vencimiento: '2025-02-20',
-        clausulas_especiales: 'Proveedor nacional estándar',
-        nivel_riesgo: 'BAJO'
-      },
-      {
-        id: 3,
-        proveedor_id: 3,
-        tipo_contrato: 'DPA',
-        estado: 'PENDIENTE',
-        fecha_inicio: '2024-03-10',
-        fecha_vencimiento: '2025-03-10',
-        clausulas_especiales: 'Transferencia internacional alta criticidad',
-        nivel_riesgo: 'ALTO'
+    try {
+      const { data, error } = await supabase
+        .from('contratos_dpa')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error cargando contratos DPA:', error);
+        return;
       }
-    ];
-    
-    setContracts(contractsData);
+
+      setContracts(data || []);
+    } catch (error) {
+      console.error('Error cargando contratos:', error);
+    }
   };
 
   const cargarTransferencias = async (tenantId) => {
-    // Simular transferencias internacionales
-    const transfersData = [
-      {
-        id: 1,
-        proveedor_id: 1,
-        pais_destino: 'Estados Unidos',
-        tipo_datos: 'Logs aplicación, métricas uso',
-        garantias: 'Standard Contractual Clauses (SCC)',
-        fecha_inicio: '2024-01-15',
-        estado: 'ACTIVA'
-      },
-      {
-        id: 2,
-        proveedor_id: 3,
-        pais_destino: 'Estados Unidos',
-        tipo_datos: 'Datos clientes, información comercial',
-        garantias: 'Binding Corporate Rules (BCR)',
-        fecha_inicio: '2024-03-10',
-        estado: 'PENDIENTE_APROBACION'
+    try {
+      const { data, error } = await supabase
+        .from('transferencias_internacionales')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error cargando transferencias:', error);
+        return;
       }
-    ];
-    
-    setTransfers(transfersData);
+
+      setTransfers(data || []);
+    } catch (error) {
+      console.error('Error cargando transferencias internacionales:', error);
+    }
   };
 
   const calcularEstadisticas = (providersData) => {
@@ -262,7 +197,7 @@ const ProviderManager = () => {
 
   const agregarProveedor = async () => {
     try {
-      const tenantId = await ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
       
       const { data, error } = await supabase
         .from('proveedores')

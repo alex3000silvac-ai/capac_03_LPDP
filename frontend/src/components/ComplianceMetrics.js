@@ -38,8 +38,10 @@ import {
   Timeline as TimelineIcon
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
+import { useTenant } from '../contexts/TenantContext';
 
 const ComplianceMetrics = () => {
+  const { currentTenant } = useTenant();
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState({
     overview: {
@@ -68,7 +70,7 @@ const ComplianceMetrics = () => {
   const cargarMetricas = async () => {
     try {
       setLoading(true);
-      const tenantId = await ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
       
       // Obtener todos los RATs del tenant
       const ratsData = await ratService.getCompletedRATs(tenantId);
@@ -77,7 +79,7 @@ const ComplianceMetrics = () => {
       const overview = calcularMetricasGenerales(ratsData);
       
       // Calcular tendencias
-      const trends = calcularTendencias(ratsData);
+      const trends = await calcularTendencias(ratsData);
       
       // Calcular detalles por categoría
       const details = await calcularDetalles(ratsData);
@@ -101,11 +103,11 @@ const ComplianceMetrics = () => {
       borrador: ratsData.filter(r => r.estado === 'BORRADOR').length
     };
 
-    // Distribución por riesgo (simulada - en producción vendría del analysis)
+    // Distribución por riesgo REAL desde base de datos
     const riskDistribution = {
-      alto: Math.floor(total * 0.15),
-      medio: Math.floor(total * 0.55),
-      bajo: Math.floor(total * 0.30)
+      alto: ratsData.filter(r => r.nivel_riesgo === 'ALTO').length,
+      medio: ratsData.filter(r => r.nivel_riesgo === 'MEDIO').length,
+      bajo: ratsData.filter(r => r.nivel_riesgo === 'BAJO').length
     };
 
     // Score de compliance general
@@ -120,17 +122,155 @@ const ComplianceMetrics = () => {
     };
   };
 
-  const calcularTendencias = (ratsData) => {
-    // Simular tendencias - en producción se calcularían con datos históricos
-    const monthlyGrowth = ratsData.length > 10 ? 25 : 15;
-    const complianceImprovement = 12;
-    const averageCompletionTime = 7.5;
+  const calcularTendencias = async (ratsData) => {
+    try {
+      // Calcular crecimiento mensual real
+      const ahora = new Date();
+      const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+      const inicioMesAnterior = new Date(ahora.getFullYear(), ahora.getMonth() - 1, 1);
+      
+      const ratsEsteMes = ratsData.filter(r => new Date(r.created_at) >= inicioMes).length;
+      const ratsMesAnterior = ratsData.filter(r => {
+        const fecha = new Date(r.created_at);
+        return fecha >= inicioMesAnterior && fecha < inicioMes;
+      }).length;
+      
+      const monthlyGrowth = ratsMesAnterior > 0 ? 
+        Math.round(((ratsEsteMes - ratsMesAnterior) / ratsMesAnterior) * 100) : 0;
+      
+      // Mejora en compliance (certificados vs total)
+      const certificadosRecientes = ratsData.filter(r => 
+        r.estado === 'CERTIFICADO' && new Date(r.fecha_certificacion) >= inicioMes
+      ).length;
+      const complianceImprovement = ratsEsteMes > 0 ? 
+        Math.round((certificadosRecientes / ratsEsteMes) * 100) : 0;
+      
+      // Tiempo promedio de completitud real
+      const ratsCompletados = ratsData.filter(r => r.estado === 'CERTIFICADO');
+      let averageCompletionTime = 0;
+      
+      if (ratsCompletados.length > 0) {
+        const tiempos = ratsCompletados.map(r => {
+          const creado = new Date(r.created_at);
+          const certificado = new Date(r.fecha_certificacion || r.updated_at);
+          return Math.floor((certificado - creado) / (1000 * 60 * 60 * 24));
+        });
+        
+        averageCompletionTime = tiempos.reduce((sum, t) => sum + t, 0) / tiempos.length;
+      }
 
-    return {
-      monthlyGrowth,
-      complianceImprovement,
-      averageCompletionTime
-    };
+      return {
+        monthlyGrowth,
+        complianceImprovement,
+        averageCompletionTime: Math.round(averageCompletionTime * 10) / 10
+      };
+    } catch (error) {
+      console.error('Error calculando tendencias:', error);
+      return { monthlyGrowth: 0, complianceImprovement: 0, averageCompletionTime: 0 };
+    }
+  };
+
+  const obtenerFactoresRiesgoReales = async (ratsData) => {
+    try {
+      const factores = [];
+      
+      // Contar datos sensibles sin EIPD
+      const datosSensiblesSinEIPD = ratsData.filter(r => 
+        r.datos_sensibles === 'SI' && (!r.eipd_requerida || r.eipd_requerida === 'NO')
+      ).length;
+      if (datosSensiblesSinEIPD > 0) {
+        factores.push({ factor: 'Datos Sensibles Sin EIPD', count: datosSensiblesSinEIPD, severity: 'alto' });
+      }
+      
+      // Contar transferencias internacionales
+      const transferenciasInternacionales = ratsData.filter(r => 
+        r.transferencia_internacional === 'SI'
+      ).length;
+      if (transferenciasInternacionales > 0) {
+        factores.push({ factor: 'Transferencias Internacionales', count: transferenciasInternacionales, severity: 'medio' });
+      }
+      
+      // Contar base jurídica poco clara
+      const baseJuridicaUnclear = ratsData.filter(r => 
+        !r.base_juridica || r.base_juridica === 'OTRO'
+      ).length;
+      if (baseJuridicaUnclear > 0) {
+        factores.push({ factor: 'Base Jurídica Poco Clara', count: baseJuridicaUnclear, severity: 'alto' });
+      }
+      
+      // Contar plazos retención indefinidos
+      const plazosIndefinidos = ratsData.filter(r => 
+        !r.plazo_conservacion || r.plazo_conservacion.includes('indefinido')
+      ).length;
+      if (plazosIndefinidos > 0) {
+        factores.push({ factor: 'Plazos Retención Indefinidos', count: plazosIndefinidos, severity: 'medio' });
+      }
+      
+      return factores;
+    } catch (error) {
+      console.error('Error analizando factores riesgo:', error);
+      return [];
+    }
+  };
+
+  const obtenerAccionesPendientesReales = async () => {
+    try {
+      const tenantId = currentTenant?.id;
+      const acciones = [];
+      
+      // Obtener EIPDs pendientes
+      const { data: eipdsPendientes, error: eipdError } = await supabase
+        .from('mapeo_datos_rat')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .eq('datos_sensibles', 'SI')
+        .eq('nivel_riesgo', 'ALTO')
+        .neq('estado', 'CERTIFICADO');
+      
+      if (eipdsPendientes?.length > 0) {
+        acciones.push({
+          action: `Completar ${eipdsPendientes.length} EIPDs urgentes`,
+          priority: 'alta',
+          days: 15
+        });
+      }
+      
+      // Obtener proveedores sin DPA
+      const { data: proveedoresSinDPA, error: provError } = await supabase
+        .from('proveedores')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .eq('estado', 'ACTIVO')
+        .is('dpa_vigente', null);
+      
+      if (proveedoresSinDPA?.length > 0) {
+        acciones.push({
+          action: `Revisar ${proveedoresSinDPA.length} contratos DPA proveedores`,
+          priority: 'media',
+          days: 30
+        });
+      }
+      
+      // Obtener RATs con plazos indefinidos
+      const { data: plazosIndefinidos, error: plazosError } = await supabase
+        .from('mapeo_datos_rat')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .or('plazo_conservacion.is.null,plazo_conservacion.ilike.%indefinido%');
+      
+      if (plazosIndefinidos?.length > 0) {
+        acciones.push({
+          action: `Actualizar ${plazosIndefinidos.length} políticas retención`,
+          priority: 'media',
+          days: 45
+        });
+      }
+      
+      return acciones;
+    } catch (error) {
+      console.error('Error obteniendo acciones pendientes:', error);
+      return [];
+    }
   };
 
   const calcularDetalles = async (ratsData) => {
@@ -150,22 +290,11 @@ const ComplianceMetrics = () => {
       compliance: Math.round((data.certificados / data.total) * 100)
     }));
 
-    // Factores de riesgo identificados
-    const riskFactors = [
-      { factor: 'Datos Sensibles Sin EIPD', count: 3, severity: 'alto' },
-      { factor: 'Transferencias Internacionales', count: 7, severity: 'medio' },
-      { factor: 'Falta Base Jurídica Clara', count: 2, severity: 'alto' },
-      { factor: 'Plazos Retención Indefinidos', count: 5, severity: 'medio' },
-      { factor: 'Medidas Seguridad Insuficientes', count: 4, severity: 'medio' }
-    ];
-
-    // Acciones pendientes prioritarias
-    const pendingActions = [
-      { action: 'Completar 3 EIPDs urgentes', priority: 'alta', days: 15 },
-      { action: 'Revisar contratos DPA proveedores', priority: 'media', days: 30 },
-      { action: 'Actualizar políticas retención', priority: 'media', days: 45 },
-      { action: 'Capacitar equipos nuevos procedimientos', priority: 'baja', days: 60 }
-    ];
+    // Factores de riesgo REALES desde análisis de RATs
+    const riskFactors = await obtenerFactoresRiesgoReales(ratsData);
+    
+    // Acciones pendientes REALES desde base de datos
+    const pendingActions = await obtenerAccionesPendientesReales();
 
     return {
       byDepartment,

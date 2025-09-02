@@ -50,9 +50,11 @@ import {
 import { ratService } from '../services/ratService';
 import ratIntelligenceEngine from '../services/ratIntelligenceEngine';
 import { supabase } from '../config/supabaseClient';
+import { useTenant } from '../contexts/TenantContext';
 
 const DPOApprovalQueue = () => {
   const navigate = useNavigate();
+  const { currentTenant } = useTenant();
   const [pendingRATs, setPendingRATs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRAT, setSelectedRAT] = useState(null);
@@ -76,7 +78,7 @@ const DPOApprovalQueue = () => {
   const cargarRATsPendientes = async () => {
     try {
       setLoading(true);
-      const tenantId = await ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
       
       // Obtener RATs en estado PENDIENTE_APROBACION
       const { data: pendingData, error } = await supabase

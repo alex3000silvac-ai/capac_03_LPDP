@@ -61,9 +61,11 @@ import {
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
 import { supabase } from '../config/supabaseClient';
+import { useTenant } from '../contexts/TenantContext';
 
 const EIPDTemplates = () => {
   const navigate = useNavigate();
+  const { currentTenant } = useTenant();
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -96,35 +98,7 @@ const EIPDTemplates = () => {
     recomendado: false
   });
 
-  // Templates predefinidos por industria y riesgo
-  const templatesPredefinidos = [
-    {
-      id: 'financial-customer-data',
-      nombre: 'Datos Clientes Sector Financiero',
-      descripcion: 'EIPD para tratamiento datos clientes en instituciones financieras',
-      industria: 'financiero',
-      nivel_riesgo: 'ALTO',
-      criterios_aplicacion: [
-        'Datos financieros sensibles',
-        'Decisiones automatizadas (scoring)',
-        'Observación sistemática comportamiento',
-        'Transferencias internacionales'
-      ],
-      tiempo_estimado: '120',
-      recomendado: true,
-      created_at: '2024-01-15',
-      usos: 15,
-      estructura: {
-        descripcion_tratamiento: 'Procesamiento datos personales clientes para evaluación crediticia, gestión productos financieros y cumplimiento normativo CMF',
-        necesidad_proporcionalidad: 'Necesario para cumplimiento obligaciones contractuales y legales. Proporcional al riesgo crediticio y operativo.',
-        riesgos_identificados: [
-          'Exposición datos financieros sensibles',
-          'Decisiones automatizadas afectando derechos',
-          'Transferencias a centrales de riesgo',
-          'Perfilado para productos'
-        ],
-        medidas_mitigacion: [
-          'Cifrado AES-256 base datos',
+  // Templates dinámicos desde Supabase
           'Controles acceso basados en roles',
           'Auditoría completa transacciones',
           'Anonimización para analytics',
@@ -310,24 +284,32 @@ const EIPDTemplates = () => {
     }
   ];
 
-  const industries = [
-    { id: 'financiero', name: 'Financiero', icon: '🏦' },
-    { id: 'salud', name: 'Salud', icon: '🏥' },
-    { id: 'educacion', name: 'Educación', icon: '🎓' },
-    { id: 'retail', name: 'Retail', icon: '🛍️' },
-    { id: 'tecnologia', name: 'Tecnología', icon: '💻' },
-    { id: 'manufactura', name: 'Manufactura', icon: '🏭' },
-    { id: 'general', name: 'General', icon: '🏢' }
-  ];
+  // Industrias dinámicas desde base de datos
+  const [industries, setIndustries] = useState([]);
+  
+  const cargarIndustrias = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('industry_categories')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setIndustries(data || []);
+    } catch (error) {
+      console.error('Error cargando industrias:', error);
+    }
+  };
 
   useEffect(() => {
     cargarTemplates();
+    cargarIndustrias();
   }, []);
 
   const cargarTemplates = async () => {
     try {
       setLoading(true);
-      const tenantId = await ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
       
       const { data, error } = await supabase
         .from('eipd_templates')
@@ -337,8 +319,7 @@ const EIPDTemplates = () => {
 
       if (error) throw error;
 
-      // Usar templates predefinidos si no hay datos
-      const templatesData = data?.length > 0 ? data : templatesPredefinidos;
+      const templatesData = data || [];
       
       setTemplates(templatesData);
       calcularEstadisticas(templatesData);
@@ -383,7 +364,7 @@ const EIPDTemplates = () => {
         usos: 0
       };
 
-      const tenantId = await ratService.getCurrentTenantId();
+      const tenantId = currentTenant?.id;
 
       const { data, error } = await supabase
         .from('eipd_templates')
