@@ -46,7 +46,7 @@ import {
 
 import aiSupervisor from '../../utils/aiSupervisor';
 import aiSystemValidator from '../../utils/aiSystemValidator';
-import supabase from '../../config/supabaseClient';
+import { supabase } from '../../config/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AISupervisorDashboard = () => {

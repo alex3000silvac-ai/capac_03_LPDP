@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Tooltip, Alert, Snackbar, Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material';
 import { Help, LightbulbOutlined, WarningAmber, CheckCircle } from '@mui/icons-material';
-import supabase from '../config/supabaseClient';
+import { supabase } from '../config/supabaseClient';
 
 const HelpContext = createContext();
 

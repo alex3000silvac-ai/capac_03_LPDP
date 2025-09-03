@@ -294,7 +294,7 @@ const RATEditPage = () => {
         }
       );
       
-      if (preventiveCheck.alerts && preventiveCheck.alerts.length > 0) {
+      if (preventiveCheck.alerts && Array.isArray(preventiveCheck.alerts) && preventiveCheck.alerts.length > 0) {
         console.log('🚨 IA Preventiva detectó problemas:', preventiveCheck.alerts);
         
         // Mostrar alertas críticas al usuario
@@ -306,7 +306,7 @@ const RATEditPage = () => {
         }
         
         // Mostrar advertencias no críticas
-        const warnings = preventiveCheck.alerts.filter(a => a.severity === 'ADVERTENCIA');
+        const warnings = Array.isArray(preventiveCheck.alerts) ? preventiveCheck.alerts.filter(a => a.severity === 'ADVERTENCIA') : [];
         if (warnings.length > 0) {
           const warningMessages = warnings.map(a => `${a.icon} ${a.title}: ${a.message}`).join('\n\n');
           const confirmContinue = confirm(`⚠️ ADVERTENCIAS DETECTADAS:\n\n${warningMessages}\n\n¿Continuar guardando el RAT?`);

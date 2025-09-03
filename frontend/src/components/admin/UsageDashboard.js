@@ -25,7 +25,7 @@ import {
   Security,
   Business
 } from '@mui/icons-material';
-import supabase from '../../config/supabaseClient';
+import { supabase } from '../../config/supabaseClient';
 
 const UsageDashboard = () => {
   const [usageData, setUsageData] = useState([]);
