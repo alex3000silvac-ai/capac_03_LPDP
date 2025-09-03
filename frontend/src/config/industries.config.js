@@ -2,22 +2,11 @@
 // Sistema LPDP - Ley 21.719 Chile
 // Mover a Supabase en siguiente iteración
 
-import {
-  AccountBalance as FinanceIcon,
-  LocalHospital as HealthIcon,
-  School as EducationIcon,
-  Store as RetailIcon,
-  Build as TechIcon,
-  Factory as ManufacturingIcon,
-  Restaurant as FoodIcon,
-  DirectionsCar as TransportIcon
-} from '@mui/icons-material';
-
 export const INDUSTRIES_CONFIG = [
   {
     id: 'financiero',
     name: 'Sector Financiero',
-    icon: FinanceIcon,
+    icon: 'AccountBalance',
     color: '#059669',
     regulations: ['Ley 21.719', 'Ley 21.000 (CMF)', 'Basilea III', 'FATCA'],
     specialRequirements: 'Regulación CMF - Datos financieros sensibles',
@@ -28,7 +17,7 @@ export const INDUSTRIES_CONFIG = [
   {
     id: 'salud',
     name: 'Sector Salud',
-    icon: HealthIcon,
+    icon: 'LocalHospital',
     color: '#dc2626',
     regulations: ['Ley 21.719', 'Ley 20.584 (Derechos Pacientes)', 'Código Sanitario'],
     specialRequirements: 'Datos de salud - Protección especial Art. 12 Ley 21.719',
@@ -39,7 +28,7 @@ export const INDUSTRIES_CONFIG = [
   {
     id: 'educacion',
     name: 'Sector Educación',
-    icon: EducationIcon,
+    icon: 'School',
     color: '#7c3aed',
     regulations: ['Ley 21.719', 'Ley 20.370 (LGE)', 'Protección Menores'],
     specialRequirements: 'Datos de menores - Consentimiento parental requerido',
@@ -50,7 +39,7 @@ export const INDUSTRIES_CONFIG = [
   {
     id: 'retail',
     name: 'Comercio y Retail',
-    icon: RetailIcon,
+    icon: 'Store',
     color: '#ea580c',
     regulations: ['Ley 21.719', 'Ley 19.496 (SERNAC)', 'Ley 20.009 (DICOM)'],
     specialRequirements: 'Datos comerciales - Información crediticia',
@@ -61,7 +50,7 @@ export const INDUSTRIES_CONFIG = [
   {
     id: 'tecnologia',
     name: 'Tecnología',
-    icon: TechIcon,
+    icon: 'Build',
     color: '#0891b2',
     regulations: ['Ley 21.719', 'Ciberseguridad', 'Transferencias Internacionales'],
     specialRequirements: 'Datos en la nube - Transferencias internacionales',
@@ -72,7 +61,7 @@ export const INDUSTRIES_CONFIG = [
   {
     id: 'manufactura',
     name: 'Manufactura',
-    icon: ManufacturingIcon,
+    icon: 'Factory',
     color: '#4f46e5',
     regulations: ['Ley 21.719', 'Normativa Laboral', 'Medio Ambiente'],
     specialRequirements: 'Datos laborales - Medicina del trabajo',
@@ -83,7 +72,7 @@ export const INDUSTRIES_CONFIG = [
   {
     id: 'alimentos',
     name: 'Alimentos y Bebidas',
-    icon: FoodIcon,
+    icon: 'Restaurant',
     color: '#be185d',
     regulations: ['Ley 21.719', 'Código Sanitario', 'Trazabilidad HACCP'],
     specialRequirements: 'Trazabilidad alimentaria - Seguridad sanitaria',
@@ -94,7 +83,7 @@ export const INDUSTRIES_CONFIG = [
   {
     id: 'transporte',
     name: 'Transporte y Logística',
-    icon: TransportIcon,
+    icon: 'DirectionsCar',
     color: '#9333ea',
     regulations: ['Ley 21.719', 'Ley Tránsito', 'Normativa MTT'],
     specialRequirements: 'Datos de ubicación - Seguimiento GPS',

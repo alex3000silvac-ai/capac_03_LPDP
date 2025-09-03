@@ -34,11 +34,7 @@ import { INDUSTRIES_CONFIG } from '../config/industries.config';
 const SistemaPrincipal = () => {
   const navigate = useNavigate();
   
-  // Usar configuración centralizada de industrias
-  const industries = INDUSTRIES_CONFIG.filter(ind => ind.id !== 'general').map(ind => ({
-    ...ind,
-    icon: ind.icon ? <ind.icon /> : null
-  }));
+  // Usar configuración centralizada de industrias (los iconos ya no se usan aquí)
   
   // Mantener estructura original para compatibilidad
   const industriesLegacy = [
