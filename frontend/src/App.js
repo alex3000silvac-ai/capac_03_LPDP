@@ -34,6 +34,7 @@ import ProviderManager from './pages/ProviderManager';
 import AdminDashboard from './components/AdminDashboard';
 import RATSearchFilter from './components/RATSearchFilter';
 import NotificationCenter from './components/NotificationCenter';
+import DPAGenerator from './components/DPAGenerator';
 import APIPartnersIntegration from './components/APIPartnersIntegration';
 import ReportGenerator from './components/ReportGenerator';
 import EIPDTemplates from './components/EIPDTemplates';
@@ -152,6 +153,12 @@ const AppContent = () => {
         <Route path="/rat-edit/:ratId" element={
           <ProtectedRoute>
             <RATEditPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/dpa-generator" element={
+          <ProtectedRoute>
+            <DPAGenerator />
           </ProtectedRoute>
         } />
         

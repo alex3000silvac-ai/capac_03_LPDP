@@ -802,9 +802,9 @@ const autoGenerarEIPD = async (ratId, ratData, tenantId, userId) => {
 
 const registrarEnInventarioRAT = async (ratData, tenantId) => {
   try {
-    console.log('🔄 Registrando RAT en inventario:', ratData.id);
+    console.log('🔄 Verificando RAT en inventario (usando vista):', ratData.id);
     
-    // Verificar si ya está en inventario
+    // CORREGIDO: Solo verificar en VISTA (READ-ONLY)
     const { data: existing } = await supabase
       .from('inventario_rats')
       .select('id')
@@ -813,36 +813,19 @@ const registrarEnInventarioRAT = async (ratData, tenantId) => {
       .single();
     
     if (existing) {
-      console.log('✅ RAT ya está en inventario');
+      console.log('✅ RAT ya visible en inventario');
       return existing;
     }
     
-    // Registrar en inventario automáticamente
-    const inventarioEntry = {
+    console.log('📋 RAT creado, inventario se actualizará automáticamente via vista');
+    
+    // NO INTENTAR INSERT EN VISTA - La vista se actualiza automáticamente
+    // desde mapeo_datos_rat que ya contiene todos los datos necesarios
+    return { 
+      id: ratData.id, 
       tenant_id: tenantId,
-      rat_id: ratData.id,
-      nombre_actividad: ratData.nombre_actividad,
-      area_responsable: ratData.area_responsable,
-      estado: ratData.estado || 'ACTIVO',
-      fecha_registro: new Date().toISOString(),
-      ultima_revision: new Date().toISOString(),
-      metadata: {
-        auto_registered: true,
-        source: 'rat_creation',
-        version: 1
-      }
+      status: 'auto_registered_in_view' 
     };
-    
-    const { data, error } = await supabase
-      .from('inventario_rats')
-      .insert(inventarioEntry)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    
-    console.log('✅ RAT registrado en inventario:', data.id);
-    return data;
     
   } catch (error) {
     console.error('❌ Error registrando en inventario:', error);
@@ -891,30 +874,26 @@ const notificarDPOAutomatico = async (ratData, evaluation, tenantId) => {
 
 const actualizarInventarioRAT = async (ratData, tenantId) => {
   try {
-    console.log('🔄 Actualizando RAT en inventario:', ratData.id);
+    console.log('🔄 Verificando RAT actualizado en inventario:', ratData.id);
     
+    // CORREGIDO: NO actualizar vista - se actualiza automáticamente
+    // La vista inventario_rats se actualiza cuando se modifica mapeo_datos_rat
+    console.log('📋 Inventario se actualiza automáticamente via vista desde mapeo_datos_rat');
+    
+    // Solo verificar que esté visible en la vista
     const { data, error } = await supabase
       .from('inventario_rats')
-      .update({
-        nombre_actividad: ratData.nombre_actividad,
-        area_responsable: ratData.area_responsable,
-        estado: ratData.estado,
-        ultima_revision: new Date().toISOString(),
-        metadata: {
-          ...ratData.metadata,
-          last_update: new Date().toISOString(),
-          auto_updated: true
-        }
-      })
+      .select('id, name, updated_at')
       .eq('id', ratData.id)
       .eq('tenant_id', tenantId)
-      .select()
       .single();
     
-    if (error) throw error;
+    if (error && error.code !== 'PGRST116') {
+      console.warn('⚠️ RAT no visible en inventario aún:', error.message);
+    }
     
-    console.log('✅ Inventario RAT actualizado');
-    return data;
+    console.log('✅ Inventario verificado');
+    return data || { id: ratData.id, status: 'pending_view_update' };
     
   } catch (error) {
     console.error('❌ Error actualizando inventario:', error);

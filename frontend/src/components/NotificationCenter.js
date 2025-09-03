@@ -162,6 +162,7 @@ const NotificationCenter = () => {
         .from('dpo_notifications')
         .select('*')
         .or(`tenant_id.eq.${tenantId},tenant_id.eq.default`)
+        .not('tipo_notificacion', 'is', null)  // FILTRAR tipo_notificacion NULL
         .order('created_at', { ascending: false })
         .limit(100);
 
@@ -252,13 +253,18 @@ const NotificationCenter = () => {
   };
 
   const calcularEstadisticas = (notificationsData) => {
+    // DEFENSA EXTRA: Filtrar datos válidos antes de calcular stats
+    const notificacionesValidas = notificationsData.filter(n => 
+      n && typeof n === 'object' && n.tipo_notificacion
+    );
+
     const stats = {
-      total: notificationsData.length,
-      noLeidas: notificationsData.filter(n => !n.leida_en).length,
-      criticas: notificationsData.filter(n => n.prioridad === 'CRITICA').length,
-      vencimientos: notificationsData.filter(n => n.tipo_notificacion && n.tipo_notificacion.includes('VENCIMIENTO')).length,
-      tareas: notificationsData.filter(n => n.tipo_notificacion && n.tipo_notificacion.includes('WORKFLOW')).length,
-      alertas: notificationsData.filter(n => n.prioridad === 'ALTA').length
+      total: notificacionesValidas.length,
+      noLeidas: notificacionesValidas.filter(n => !n.leida_en).length,
+      criticas: notificacionesValidas.filter(n => n.prioridad === 'CRITICA').length,
+      vencimientos: notificacionesValidas.filter(n => n.tipo_notificacion && n.tipo_notificacion.includes('VENCIMIENTO')).length,
+      tareas: notificacionesValidas.filter(n => n.tipo_notificacion && n.tipo_notificacion.includes('WORKFLOW')).length,
+      alertas: notificacionesValidas.filter(n => n.prioridad === 'ALTA').length
     };
     setStats(stats);
   };
