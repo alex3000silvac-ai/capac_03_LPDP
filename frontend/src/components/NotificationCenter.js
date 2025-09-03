@@ -254,10 +254,10 @@ const NotificationCenter = () => {
   const calcularEstadisticas = (notificationsData) => {
     const stats = {
       total: notificationsData.length,
-      noLeidas: notificationsData.filter(n => !n.leida).length,
+      noLeidas: notificationsData.filter(n => !n.leida_en).length,
       criticas: notificationsData.filter(n => n.prioridad === 'CRITICA').length,
-      vencimientos: notificationsData.filter(n => n.tipo.includes('VENCIMIENTO')).length,
-      tareas: notificationsData.filter(n => n.tipo.includes('WORKFLOW')).length,
+      vencimientos: notificationsData.filter(n => n.tipo_notificacion && n.tipo_notificacion.includes('VENCIMIENTO')).length,
+      tareas: notificationsData.filter(n => n.tipo_notificacion && n.tipo_notificacion.includes('WORKFLOW')).length,
       alertas: notificationsData.filter(n => n.prioridad === 'ALTA').length
     };
     setStats(stats);
@@ -267,13 +267,13 @@ const NotificationCenter = () => {
     try {
       const { error } = await supabase
         .from('dpo_notifications')
-        .update({ leida: true, read_at: new Date().toISOString() })
+        .update({ leida_en: new Date().toISOString() })
         .eq('id', notificationId);
 
       if (error) throw error;
 
       setNotifications(prev => 
-        prev.map(n => n.id === notificationId ? { ...n, leida: true } : n)
+        prev.map(n => n.id === notificationId ? { ...n, leida_en: new Date().toISOString() } : n)
       );
       
     } catch (error) {
@@ -299,11 +299,11 @@ const NotificationCenter = () => {
 
   const marcarTodasLeidas = async () => {
     try {
-      const unreadIds = notifications.filter(n => !n.leida).map(n => n.id);
+      const unreadIds = notifications.filter(n => !n.leida_en).map(n => n.id);
       
       const { error } = await supabase
         .from('dpo_notifications')
-        .update({ leida: true, read_at: new Date().toISOString() })
+        .update({ leida_en: new Date().toISOString() })
         .in('id', unreadIds);
 
       if (error) throw error;
@@ -317,10 +317,10 @@ const NotificationCenter = () => {
 
   const filtrarNotificaciones = () => {
     return notifications.filter(notification => {
-      const matchType = filterType === 'TODAS' || notification.tipo === filterType;
+      const matchType = filterType === 'TODAS' || notification.tipo_notificacion === filterType;
       const matchStatus = filterStatus === 'TODAS' || 
-                         (filterStatus === 'NO_LEIDAS' && !notification.leida) ||
-                         (filterStatus === 'LEIDAS' && notification.leida);
+                         (filterStatus === 'NO_LEIDAS' && !notification.leida_en) ||
+                         (filterStatus === 'LEIDAS' && notification.leida_en);
       
       return matchType && matchStatus;
     });
@@ -509,10 +509,10 @@ const NotificationCenter = () => {
             <React.Fragment key={notification.id}>
               <ListItem
                 sx={{
-                  bgcolor: notification.leida ? 'transparent' : 'rgba(79, 70, 229, 0.05)',
+                  bgcolor: notification.leida_en ? 'transparent' : 'rgba(79, 70, 229, 0.05)',
                   '&:hover': { bgcolor: '#374151' },
                   cursor: 'pointer',
-                  opacity: notification.leida ? 0.7 : 1
+                  opacity: notification.leida_en ? 0.7 : 1
                 }}
                 onClick={() => {
                   setSelectedNotification(notification);
@@ -523,9 +523,9 @@ const NotificationCenter = () => {
                   <Badge
                     color="error"
                     variant="dot"
-                    invisible={notification.leida}
+                    invisible={!!notification.leida_en}
                   >
-                    {getNotificationIcon(notification.tipo, notification.prioridad)}
+                    {getNotificationIcon(notification.tipo_notificacion, notification.prioridad)}
                   </Badge>
                 </ListItemIcon>
                 
@@ -536,7 +536,7 @@ const NotificationCenter = () => {
                         variant="body2" 
                         sx={{ 
                           color: '#f9fafb',
-                          fontWeight: notification.leida ? 'normal' : 'bold'
+                          fontWeight: notification.leida_en ? 'normal' : 'bold'
                         }}
                       >
                         {notification.titulo}
@@ -791,7 +791,7 @@ const NotificationCenter = () => {
     >
       <DialogTitle sx={{ color: '#f9fafb' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {selectedNotification && getNotificationIcon(selectedNotification.tipo, selectedNotification.prioridad)}
+          {selectedNotification && getNotificationIcon(selectedNotification.tipo_notificacion, selectedNotification.prioridad)}
           Detalles de Notificación
         </Box>
       </DialogTitle>
@@ -841,7 +841,7 @@ const NotificationCenter = () => {
           Cerrar
         </Button>
         
-        {selectedNotification && !selectedNotification.leida && (
+        {selectedNotification && !selectedNotification.leida_en && (
           <Button
             onClick={() => {
               marcarLeida(selectedNotification.id);

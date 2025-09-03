@@ -499,14 +499,15 @@ const RATSystemProfessional = () => {
     }
   };
 
-  const iniciarNuevoRAT = () => {
+  const iniciarNuevoRAT = async () => {
     setEditingRAT(null);
     setIsCreatingRAT(true);
     setShowRATList(false);
     setShowEmpresaManager(false);
     setViewMode('create');
     setCurrentStep(0);
-    // Limpiar formulario
+    
+    // Limpiar formulario con estructura básica
     setRatData({
       responsable: {
         razonSocial: '',
@@ -528,6 +529,11 @@ const RATSystemProfessional = () => {
       transferenciasInternacionales: false,
       documentosRequeridos: []
     });
+    
+    // 🔧 FIX CRÍTICO: Auto-completar datos empresa después de limpiar
+    setTimeout(() => {
+      cargarDatosComunes();
+    }, 100); // Permitir que React procese el setRatData primero
   };
 
   const mostrarGestionEmpresa = () => {
@@ -561,8 +567,8 @@ const RATSystemProfessional = () => {
             telefono: ratToEdit.responsable?.telefono || '',
           },
           categorias: {
-            identificacion: ratToEdit.categorias?.identificacion || [], // ARRAY
-            sensibles: ratToEdit.categorias?.sensibles || ratToEdit.categorias?.datos?.sensibles || [], // ARRAY
+            identificacion: ratToEdit.categoriasDatos?.identificacion || ratToEdit.categorias_datos?.identificacion || [], // ARRAY
+            sensibles: ratToEdit.categoriasDatos?.sensibles || ratToEdit.categorias_datos?.sensibles || [], // ARRAY
           },
           baseLegal: ratToEdit.finalidades?.baseLegal || ratToEdit.base_legal || '',
           argumentoJuridico: ratToEdit.finalidades?.argumentoJuridico || '',
