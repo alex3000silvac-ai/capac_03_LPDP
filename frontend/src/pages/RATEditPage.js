@@ -161,7 +161,7 @@ const RATEditPage = () => {
       }
 
       // Ejecutar re-análisis antes de guardar
-      const analysis = await ratIntelligenceEngine.analyzeRAT(ratData);
+      const analysis = await ratIntelligenceEngine.evaluateRATActivity(ratData);
       setAnalysisResults(analysis);
 
       // Mapear datos del formulario a estructura de base de datos

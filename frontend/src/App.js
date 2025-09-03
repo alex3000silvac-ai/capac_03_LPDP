@@ -30,6 +30,7 @@ import RATEditPage from './pages/RATEditPage';
 import DPOApprovalQueue from './pages/DPOApprovalQueue';
 import ComplianceMetrics from './components/ComplianceMetrics';
 import EIPDCreator from './pages/EIPDCreator';
+import EIPDListPage from './pages/EIPDListPage';
 import ProviderManager from './pages/ProviderManager';
 import AdminDashboard from './components/AdminDashboard';
 import RATSearchFilter from './components/RATSearchFilter';
@@ -178,6 +179,12 @@ const AppContent = () => {
         <Route path="/eipd-creator/:ratId" element={
           <ProtectedRoute>
             <EIPDCreator />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/eipd-list" element={
+          <ProtectedRoute>
+            <EIPDListPage />
           </ProtectedRoute>
         } />
         

@@ -26,22 +26,22 @@ import {
   AdminPanelSettings as AdminIcon,
   Gavel as ContractIcon,
   Notifications as NotificationIcon,
-  Factory as ManufacturingIcon,
-  LocalHospital as HealthIcon,
-  AccountBalance as FinanceIcon,
-  Store as RetailIcon,
-  Build as TechIcon,
-  School as EducationIcon,
-  Restaurant as FoodIcon,
-  DirectionsCar as TransportIcon
+  Description as ReportIcon,
+  Assessment as AssessmentIcon
 } from '@mui/icons-material';
+import { INDUSTRIES_CONFIG } from '../config/industries.config';
 
 const SistemaPrincipal = () => {
   const navigate = useNavigate();
-  const [selectedIndustry, setSelectedIndustry] = useState('');
   
-  // Configuración de industrias con regulaciones específicas
-  const industries = [
+  // Usar configuración centralizada de industrias
+  const industries = INDUSTRIES_CONFIG.filter(ind => ind.id !== 'general').map(ind => ({
+    ...ind,
+    icon: ind.icon ? <ind.icon /> : null
+  }));
+  
+  // Mantener estructura original para compatibilidad
+  const industriesLegacy = [
     {
       id: 'financiero',
       name: 'Sector Financiero',
@@ -139,10 +139,17 @@ const SistemaPrincipal = () => {
     },
     {
       titulo: 'Módulo DPIA/PIA',
-      subtitulo: 'Art. 19 Ley 21.719',
+      subtitulo: 'Art. 25 Ley 21.719',
       icono: <DPIAIcon sx={{ fontSize: 48, color: '#34d399' }} />,
       ruta: '/eipd-creator',
       descripcion: 'Evaluación de Impacto en Protección de Datos'
+    },
+    {
+      titulo: 'Lista EIPDs Guardadas',
+      subtitulo: 'Consultar y Descargar',
+      icono: <AssessmentIcon sx={{ fontSize: 48, color: '#a78bfa' }} />,
+      ruta: '/eipd-list',
+      descripcion: 'Ver todas las evaluaciones de impacto guardadas'
     },
     {
       titulo: 'Módulo Proveedores',
@@ -171,6 +178,13 @@ const SistemaPrincipal = () => {
       icono: <NotificationIcon sx={{ fontSize: 48, color: '#60a5fa' }} />,
       ruta: '/notifications',
       descripcion: 'Gestión de alertas y notificaciones sistema'
+    },
+    {
+      titulo: 'Generador Reportes',
+      subtitulo: 'Exportación PDF/Excel',
+      icono: <ReportIcon sx={{ fontSize: 48, color: '#8b5cf6' }} />,
+      ruta: '/reports',
+      descripcion: 'Generación automática reportes consolidados'
     }
   ];
 
@@ -209,85 +223,25 @@ const SistemaPrincipal = () => {
             Ley 21.719 de Protección de Datos Personales
           </Typography>
           
-          {/* SELECTOR DE INDUSTRIAS */}
-          <Box sx={{ maxWidth: 400, mx: 'auto', mb: 4 }}>
-            <FormControl fullWidth>
-              <InputLabel 
-                id="industry-select-label"
-                sx={{ color: '#9ca3af' }}
-              >
-                Seleccione su Industria
-              </InputLabel>
-              <Select
-                labelId="industry-select-label"
-                value={selectedIndustry}
-                label="Seleccione su Industria"
-                onChange={(e) => setSelectedIndustry(e.target.value)}
-                sx={{
-                  bgcolor: '#374151',
-                  color: '#f9fafb',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#4b5563',
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#6b7280',
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#4f46e5',
-                  },
-                }}
-              >
-                <MenuItem value="">
-                  <em>Todas las Industrias</em>
-                </MenuItem>
-                {industries.map((industry) => (
-                  <MenuItem key={industry.id} value={industry.id}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {industry.icon}
-                      {industry.name}
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          
-          {/* INFORMACIÓN DE LA INDUSTRIA SELECCIONADA */}
-          {selectedIndustry && (
-            <Alert 
-              severity="info" 
-              sx={{ 
-                maxWidth: 600, 
-                mx: 'auto', 
-                mb: 4,
-                bgcolor: 'rgba(79, 70, 229, 0.1)',
-                border: '1px solid rgba(79, 70, 229, 0.3)',
-                color: '#f9fafb'
-              }}
-            >
-              <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
-                🏢 {industries.find(i => i.id === selectedIndustry)?.name}
-              </Typography>
-              <Typography variant="caption" sx={{ mb: 1, display: 'block' }}>
-                {industries.find(i => i.id === selectedIndustry)?.specialRequirements}
-              </Typography>
-              <Box sx={{ mt: 1 }}>
-                {industries.find(i => i.id === selectedIndustry)?.regulations.map((reg, index) => (
-                  <Chip 
-                    key={index}
-                    label={reg}
-                    size="small"
-                    sx={{
-                      mr: 0.5,
-                      mb: 0.5,
-                      bgcolor: 'rgba(79, 70, 229, 0.2)',
-                      color: '#a78bfa'
-                    }}
-                  />
-                ))}
-              </Box>
-            </Alert>
-          )}
+          <Alert 
+            severity="success" 
+            sx={{ 
+              maxWidth: 600, 
+              mx: 'auto', 
+              mb: 4,
+              bgcolor: 'rgba(34, 197, 94, 0.1)',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+              color: '#f9fafb'
+            }}
+          >
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+              ✨ Mejora de UX: Selección de Industria en el RAT
+            </Typography>
+            <Typography variant="caption" sx={{ display: 'block' }}>
+              La selección de industria ahora se hace directamente al crear un RAT, 
+              haciendo el proceso más intuitivo y evitando pasos innecesarios.
+            </Typography>
+          </Alert>
         </Box>
 
         <Grid container spacing={3} justifyContent="center">

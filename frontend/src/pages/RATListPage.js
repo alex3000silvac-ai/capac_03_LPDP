@@ -272,18 +272,19 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
         rat.area_responsable // Como centro de costos
       ]);
       
-      // Crear contenido CSV (Excel compatible)
-      const csvContent = [
-        headers.join(','),
-        ...data.map(row => row.map(cell => `"${cell || ''}"`).join(','))
+      // Crear contenido Excel real (TSV para mejor compatibilidad)
+      const tsvContent = [
+        headers.join('\t'),
+        ...data.map(row => row.map(cell => `${cell || ''}`).join('\t'))
       ].join('\n');
       
-      // Descargar archivo
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      // BOM para UTF-8 y descargar como Excel
+      const BOM = '\uFEFF';
+      const blob = new Blob([BOM + tsvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `RATs_Export_${new Date().toISOString().slice(0,10)}.csv`;
+      a.download = `RATs_Export_${new Date().toISOString().slice(0,10)}.xls`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -292,6 +293,143 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
       console.log('✅ Excel exportado exitosamente');
     } catch (error) {
       console.error('❌ Error exportando Excel:', error);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // 📄 FUNCIÓN PDF CONSOLIDADO MEJORADA
+  const generateConsolidatedPDF = async () => {
+    try {
+      setExporting(true);
+      console.log('📄 Generando PDF consolidado para', rats.length, 'RATs');
+      
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>Reporte RATs Consolidado - ${currentTenant?.company_name || 'Jurídica Digital'}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+              .header { text-align: center; border-bottom: 2px solid #4f46e5; padding-bottom: 20px; margin-bottom: 30px; }
+              .header h1 { color: #4f46e5; margin: 0; font-size: 24px; }
+              .header p { margin: 5px 0; color: #666; }
+              .stats { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+              .stats-grid { display: flex; justify-content: space-around; }
+              .stat-item { text-align: center; }
+              .stat-number { font-size: 24px; font-weight: bold; color: #4f46e5; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+              th { background-color: #4f46e5; color: white; font-weight: bold; }
+              tr:nth-child(even) { background-color: #f9f9f9; }
+              .status-chip { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+              .status-certificado { background: #dcfce7; color: #166534; }
+              .status-pendiente { background: #fef3c7; color: #92400e; }
+              .status-borrador { background: #fee2e2; color: #991b1b; }
+              .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>📋 Reporte Consolidado RATs</h1>
+              <p><strong>Empresa:</strong> ${currentTenant?.company_name || 'Jurídica Digital SpA'}</p>
+              <p><strong>RUT:</strong> ${currentTenant?.rut || '77.123.456-7'}</p>
+              <p><strong>Fecha Generación:</strong> ${new Date().toLocaleDateString('es-CL')}</p>
+              <p><strong>Hora:</strong> ${new Date().toLocaleTimeString('es-CL')}</p>
+            </div>
+
+            <div class="stats">
+              <h3>📊 Resumen Ejecutivo</h3>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-number">${rats.length}</div>
+                  <div>Total RATs</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">${stats.certificados}</div>
+                  <div>Certificados</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">${stats.pendientes}</div>
+                  <div>Pendientes</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">${stats.borradores}</div>
+                  <div>Borradores</div>
+                </div>
+              </div>
+            </div>
+
+            <h3>📋 Detalle de Registros de Actividades de Tratamiento</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Actividad</th>
+                  <th>Área Responsable</th>
+                  <th>Estado</th>
+                  <th>Nivel Riesgo</th>
+                  <th>Finalidad</th>
+                  <th>Fecha Actualización</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rats.map(rat => `
+                  <tr>
+                    <td>${rat.id}</td>
+                    <td>${rat.nombre_actividad || 'N/A'}</td>
+                    <td>${rat.area_responsable || 'N/A'}</td>
+                    <td>
+                      <span class="status-chip status-${rat.estado?.toLowerCase() || 'borrador'}">
+                        ${rat.estado || 'BORRADOR'}
+                      </span>
+                    </td>
+                    <td>${rat.nivel_riesgo || 'MEDIO'}</td>
+                    <td>${rat.finalidad?.substring(0, 50) || 'N/A'}${rat.finalidad?.length > 50 ? '...' : ''}</td>
+                    <td>${rat.fecha_actualizacion ? new Date(rat.fecha_actualizacion).toLocaleDateString('es-CL') : 'N/A'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="footer">
+              <p>📋 <strong>Cumplimiento Ley 21.719</strong> - Generado automáticamente por Sistema LPDP</p>
+              <p>Este reporte contiene información confidencial - Uso exclusivo interno</p>
+            </div>
+          </body>
+        </html>
+      `;
+      
+      // Crear y descargar archivo HTML/PDF
+      // 🔧 GENERAR PDF REAL usando Print to PDF
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      
+      // Esperar a que cargue y luego ejecutar print
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+      
+      // También generar backup como HTML
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `RATs_Consolidado_${new Date().toISOString().slice(0,10)}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      console.log('✅ PDF consolidado generado exitosamente');
+      alert(`✅ Reporte PDF generado!\n\n📊 Total RATs: ${rats.length}\n🖨️ Se abrirá ventana de impresión para generar PDF\n📄 También se descarga como HTML de respaldo`);
+      
+    } catch (error) {
+      console.error('❌ Error generando PDF:', error);
+      alert('Error generando reporte PDF');
     } finally {
       setExporting(false);
     }
@@ -589,49 +727,74 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
                 Nuevo RAT
               </Button>
               
-              {/* Botones de Exportación */}
-              <Grid container spacing={1}>
-                <Grid item xs={6}>
+              {/* 📊 BOTONES EXPORTACIÓN MEJORADOS */}
+              <Typography variant="subtitle2" sx={{ color: '#f9fafb', mb: 1, fontWeight: 'bold' }}>
+                📤 Exportar Datos:
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
                   <Button
                     fullWidth
-                    variant="outlined"
+                    variant="contained"
                     startIcon={<ExcelIcon />}
                     onClick={exportAllRATsToExcel}
                     disabled={exporting || rats.length === 0}
-                    size="small"
                     sx={{
-                      borderColor: '#10b981',
-                      color: '#10b981',
-                      '&:hover': { 
-                        borderColor: '#059669',
-                        bgcolor: 'rgba(16, 185, 129, 0.1)'
-                      }
+                      bgcolor: '#10b981',
+                      '&:hover': { bgcolor: '#059669' },
+                      py: 1.5,
+                      fontSize: '0.9rem',
+                      fontWeight: 'bold'
                     }}
                   >
-                    Excel
+                    {exporting ? '⏳ Exportando...' : '📊 Exportar Excel'}
                   </Button>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={12} sm={4}>
                   <Button
                     fullWidth
-                    variant="outlined"
+                    variant="contained"
+                    startIcon={<PDFIcon />}
+                    onClick={generateConsolidatedPDF}
+                    disabled={rats.length === 0}
+                    sx={{
+                      bgcolor: '#ef4444',
+                      '&:hover': { bgcolor: '#dc2626' },
+                      py: 1.5,
+                      fontSize: '0.9rem',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    📄 Generar PDF
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Button
+                    fullWidth
+                    variant="contained"
                     startIcon={<ShareIcon />}
                     onClick={() => sendToPartnerAPI(rats[0]?.id, 'prelafit')}
                     disabled={rats.length === 0}
-                    size="small"
                     sx={{
-                      borderColor: '#f59e0b',
-                      color: '#f59e0b',
-                      '&:hover': { 
-                        borderColor: '#d97706',
-                        bgcolor: 'rgba(245, 158, 11, 0.1)'
-                      }
+                      bgcolor: '#f59e0b',
+                      '&:hover': { bgcolor: '#d97706' },
+                      py: 1.5,
+                      fontSize: '0.9rem',
+                      fontWeight: 'bold'
                     }}
                   >
-                    API
+                    🔗 Enviar API
                   </Button>
                 </Grid>
               </Grid>
+
+              <Alert severity="info" sx={{ mt: 2, bgcolor: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                <Typography variant="caption" sx={{ color: '#f9fafb' }}>
+                  <strong>Total RATs disponibles:</strong> {rats.length} | 
+                  <strong> Certificados:</strong> {stats.certificados} | 
+                  <strong> Pendientes:</strong> {stats.pendientes}
+                </Typography>
+              </Alert>
             </Grid>
           </Grid>
         </Paper>
@@ -753,7 +916,7 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
                                 size="small"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleExportRAT(rat.id);
+                                  handleExportRAT(rat.id, 'pdf');
                                 }}
                                 sx={{ color: '#34d399' }}
                               >

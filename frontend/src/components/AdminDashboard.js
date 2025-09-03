@@ -186,14 +186,14 @@ const AdminDashboard = () => {
   };
 
   return (
-    <Box p={3}>
-      {/* Header */}
+    <Box sx={{ p: 3, pt: 10, minHeight: '100vh', bgcolor: '#111827' }}>
+      {/* Header con espaciado mejorado */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Box>
-          <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
+          <Typography variant="h4" sx={{ color: '#f9fafb', fontWeight: 700, mb: 1 }}>
             🏛️ Panel Administrativo Multi-tenant
           </Typography>
-          <Typography variant="body1" sx={{ color: '#bbb' }}>
+          <Typography variant="body1" sx={{ color: '#9ca3af', fontSize: '1rem' }}>
             Gestión holdings, usuarios y configuración sistema LPDP
           </Typography>
         </Box>
@@ -204,9 +204,9 @@ const AdminDashboard = () => {
               variant="outlined"
               startIcon={<NotificationIcon />}
               sx={{
-                borderColor: '#f57f17',
-                color: '#f57f17',
-                '&:hover': { borderColor: '#ff9800', bgcolor: '#333' }
+                borderColor: '#f59e0b',
+                color: '#f59e0b',
+                '&:hover': { borderColor: '#fbbf24', bgcolor: 'rgba(251, 191, 36, 0.1)' }
               }}
             >
               Alertas
@@ -219,9 +219,9 @@ const AdminDashboard = () => {
             onClick={loadDashboardData}
             disabled={loading}
             sx={{
-              borderColor: '#4fc3f7',
-              color: '#4fc3f7',
-              '&:hover': { borderColor: '#29b6f6', bgcolor: '#333' }
+              borderColor: '#60a5fa',
+              color: '#60a5fa',
+              '&:hover': { borderColor: '#3b82f6', bgcolor: 'rgba(96, 165, 250, 0.1)' }
             }}
           >
             Actualizar

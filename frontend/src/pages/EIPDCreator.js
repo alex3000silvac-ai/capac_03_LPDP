@@ -1108,6 +1108,39 @@ const EIPDCreator = () => {
           </Button>
           
           <Box sx={{ display: 'flex', gap: 2 }}>
+            {/* Botón Guardar Borrador en cualquier paso */}
+            <Button
+              variant="outlined"
+              onClick={async () => {
+                try {
+                  await guardarEIPD();
+                  alert('✅ EIPD guardada como borrador');
+                } catch (error) {
+                  alert('❌ Error guardando borrador');
+                }
+              }}
+              sx={{ 
+                borderColor: '#6b7280',
+                color: '#9ca3af',
+                '&:hover': { borderColor: '#4b5563' }
+              }}
+            >
+              Guardar Borrador
+            </Button>
+            
+            {/* Botón Ver Lista EIPDs */}
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/eipd-list')}
+              sx={{ 
+                borderColor: '#4f46e5',
+                color: '#60a5fa',
+                '&:hover': { borderColor: '#3730a3' }
+              }}
+            >
+              Ver EIPDs Guardadas
+            </Button>
+            
             {currentStep === steps.length - 1 ? (
               <Button
                 variant="contained"
@@ -1124,8 +1157,12 @@ const EIPDCreator = () => {
               </Button>
             ) : (
               <Button
+                variant="contained"
                 onClick={() => setCurrentStep(prev => Math.min(steps.length - 1, prev + 1))}
-                sx={{ color: '#ef4444' }}
+                sx={{ 
+                  bgcolor: '#4f46e5',
+                  '&:hover': { bgcolor: '#3730a3' }
+                }}
               >
                 Siguiente
               </Button>
@@ -1133,6 +1170,17 @@ const EIPDCreator = () => {
           </Box>
         </Box>
 
+        {/* Información del RAT vinculado */}
+        {ratId && (
+          <Box sx={{ mt: 3 }}>
+            <Alert severity="info" sx={{ bgcolor: 'rgba(79, 70, 229, 0.1)' }}>
+              <Typography variant="body2">
+                📋 Esta EIPD está vinculada al RAT #{ratId}
+              </Typography>
+            </Alert>
+          </Box>
+        )}
+        
         {/* Información Legal */}
         <Box sx={{ mt: 4 }}>
           <Alert 

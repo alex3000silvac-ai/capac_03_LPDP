@@ -95,7 +95,7 @@ const DPOApprovalQueue = () => {
       const enrichedRATs = await Promise.all(
         pendingData.map(async (rat) => {
           try {
-            const analysis = await ratIntelligenceEngine.analyzeRAT(rat);
+            const analysis = await ratIntelligenceEngine.evaluateRATActivity(rat);
             const daysSinceCreation = Math.floor(
               (new Date() - new Date(rat.created_at)) / (1000 * 60 * 60 * 24)
             );

@@ -57,9 +57,7 @@ import {
   HealthAndSafety as HealthIcon,
   Warning as WarningIcon,
   CheckCircle as CheckIcon,
-  AccountBalance,
-  Assignment as RATIcon,
-  School
+  Assignment as RATIcon
 } from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ratService from '../services/ratService';
@@ -331,15 +329,15 @@ const RATSystemProfessional = () => {
                                ratData.responsable?.razonSocial;
       
       if (datosYaIngresados) {
-        console.log('📋 IA: Datos ya ingresados, NO sobrescribiendo');
+        // IA: Datos ya ingresados, NO sobrescribiendo
         return; // NO CARGAR SI YA HAY DATOS
       }
 
       // Buscar datos del último RAT para auto-completar empresa y DPO
       try {
-        console.log('📋 Cargando datos permanentes empresa/DPO...');
+        // Cargando datos permanentes empresa/DPO...
         
-        console.log('🔍 Buscando último RAT para tenant:', currentTenant.id, typeof currentTenant.id);
+        // Buscando último RAT para tenant
         
         const { data: ultimosRATs, error } = await supabase
           .from('mapeo_datos_rat')
@@ -356,7 +354,7 @@ const RATSystemProfessional = () => {
         }
         
         if (!error && ultimoRAT) {
-          console.log('✅ Auto-completando con datos del último RAT:', ultimoRAT.id);
+          // Auto-completando con datos del último RAT
           
           // 🎯 NOTIFICAR AL USUARIO QUE SE PRE-LLENARON DATOS
           setAlertas(prev => [...prev, {
@@ -404,7 +402,7 @@ const RATSystemProfessional = () => {
             transferencias: { existe: false, destinos: [] } // NUEVAS transferencias
           }));
           
-          console.log('✅ Datos permanentes cargados, campos actividad limpios');
+          // Datos permanentes cargados, campos actividad limpios
         } else {
           console.log('⚠️ No hay RATs previos, usando datos tenant básicos');
           // Si no hay RATs previos, usar datos tenant
@@ -555,28 +553,85 @@ const RATSystemProfessional = () => {
     try {
       const ratToEdit = rats.find(rat => rat.id === ratId);
       if (ratToEdit) {
+        console.log('🔧 Cargando RAT para edición:', ratId, ratToEdit);
         setEditingRAT(ratId);
+        
+        // 🚨 MAPEO ROBUSTO - MÚLTIPLES POSIBLES ESTRUCTURAS
+        const mapearCategorias = (rat) => {
+          // Intentar diferentes estructuras posibles
+          const categorias = {
+            identificacion: [],
+            sensibles: []
+          };
+          
+          // Estructura 1: categoriasDatos
+          if (rat.categoriasDatos) {
+            if (Array.isArray(rat.categoriasDatos.identificacion)) {
+              categorias.identificacion = rat.categoriasDatos.identificacion;
+            }
+            if (Array.isArray(rat.categoriasDatos.sensibles)) {
+              categorias.sensibles = rat.categoriasDatos.sensibles;
+            }
+          }
+          
+          // Estructura 2: categorias_datos
+          if (rat.categorias_datos) {
+            if (Array.isArray(rat.categorias_datos.identificacion)) {
+              categorias.identificacion = rat.categorias_datos.identificacion;
+            }
+            if (Array.isArray(rat.categorias_datos.sensibles)) {
+              categorias.sensibles = rat.categorias_datos.sensibles;
+            }
+          }
+          
+          // Estructura 3: categorias directo
+          if (rat.categorias) {
+            if (Array.isArray(rat.categorias.identificacion)) {
+              categorias.identificacion = rat.categorias.identificacion;
+            }
+            if (Array.isArray(rat.categorias.sensibles)) {
+              categorias.sensibles = rat.categorias.sensibles;
+            }
+          }
+          
+          // Estructura 4: campos separados (legacy)
+          if (rat.datos_identificacion && Array.isArray(rat.datos_identificacion)) {
+            categorias.identificacion = rat.datos_identificacion;
+          }
+          if (rat.datos_sensibles && Array.isArray(rat.datos_sensibles)) {
+            categorias.sensibles = rat.datos_sensibles;
+          }
+          
+          console.log('📊 Categorías mapeadas:', categorias);
+          return categorias;
+        };
+        
+        const categoriasMapeadas = mapearCategorias(ratToEdit);
+        
+        // DEBUG logs removidos para producción
+        
         // Mapear datos del RAT guardado al formato esperado por el formulario
         setRatData({
           responsable: {
-            razonSocial: ratToEdit.responsable?.razonSocial || ratToEdit.responsable_proceso || '',
+            razonSocial: ratToEdit.responsable?.razonSocial || ratToEdit.responsable_proceso || ratToEdit.area_responsable || '',
             rut: ratToEdit.responsable?.rut || ratToEdit.responsable_rut || '',
-            direccion: ratToEdit.responsable?.direccion || '',
-            nombre: ratToEdit.responsable?.nombre || '',
-            email: ratToEdit.responsable?.email || ratToEdit.email_responsable || '',
-            telefono: ratToEdit.responsable?.telefono || '',
+            direccion: ratToEdit.responsable?.direccion || ratToEdit.direccion_responsable || '',
+            nombre: ratToEdit.responsable?.nombre || ratToEdit.nombre_dpo || '',
+            email: ratToEdit.responsable?.email || ratToEdit.email_responsable || ratToEdit.contacto_dpo || '',
+            telefono: ratToEdit.responsable?.telefono || ratToEdit.telefono_dpo || '',
+            sector: ratToEdit.responsable?.sector || ratToEdit.sector_industria || 'general'
           },
           categorias: {
-            identificacion: ratToEdit.categoriasDatos?.identificacion || ratToEdit.categorias_datos?.identificacion || [], // ARRAY
-            sensibles: ratToEdit.categoriasDatos?.sensibles || ratToEdit.categorias_datos?.sensibles || [], // ARRAY
+            identificacion: categoriasMapeadas?.identificacion || [],
+            sensibles: categoriasMapeadas?.sensibles || []
           },
-          baseLegal: ratToEdit.finalidades?.baseLegal || ratToEdit.base_legal || '',
-          argumentoJuridico: ratToEdit.finalidades?.argumentoJuridico || '',
+          baseLegal: ratToEdit.finalidades?.baseLegal || ratToEdit.base_legal || ratToEdit.base_juridica || '',
+          argumentoJuridico: ratToEdit.finalidades?.argumentoJuridico || ratToEdit.argumento_juridico || '',
           finalidad: ratToEdit.finalidades?.descripcion || ratToEdit.finalidad_principal || ratToEdit.finalidad || '',
-          plazoConservacion: ratToEdit.conservacion?.periodo || '',
-          destinatarios: ratToEdit.transferencias?.destinatarios || [],
-          transferenciasInternacionales: ratToEdit.transferencias?.internacionales || false,
-          documentosRequeridos: [],
+          plazoConservacion: ratToEdit.conservacion?.periodo || ratToEdit.plazo_conservacion || '',
+          destinatarios: ratToEdit.transferencias?.destinatarios || ratToEdit.destinatarios || [],
+          transferenciasInternacionales: ratToEdit.transferencias?.internacionales || ratToEdit.transferencias_internacionales || false,
+          documentosRequeridos: ratToEdit.documentos_requeridos || [],
         });
         setIsCreatingRAT(true);
         setShowRATList(false);
@@ -1440,15 +1495,32 @@ const RATSystemProfessional = () => {
                   Anterior
                 </Button>
               </Box>
-              {currentStep < steps.length - 1 && (
+              
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {/* 🚨 BOTÓN GUARDAR SIEMPRE VISIBLE EN EDICIÓN */}
                 <Button
-                  onClick={handleNext}
-                  variant="contained"
-                  disabled={!checkStepComplete(currentStep)}
+                  onClick={guardarRAT}
+                  variant="outlined"
+                  color="success"
+                  sx={{
+                    borderColor: '#10b981',
+                    color: '#10b981',
+                    '&:hover': { bgcolor: 'rgba(16, 185, 129, 0.1)', borderColor: '#059669' }
+                  }}
                 >
-                  Siguiente
+                  💾 Guardar Cambios
                 </Button>
-              )}
+                
+                {currentStep < steps.length - 1 && (
+                  <Button
+                    onClick={handleNext}
+                    variant="contained"
+                    disabled={!checkStepComplete(currentStep)}
+                  >
+                    Siguiente
+                  </Button>
+                )}
+              </Box>
             </Box>
       </PageLayout>
     </ThemeProvider>
@@ -1622,6 +1694,112 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
           required
         />
       </Grid>
+    </Grid>
+
+    
+    {/* NUEVA SECCIÓN: SELECCIÓN DE INDUSTRIA */}
+    <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+      <Box component="span" sx={{ color: '#10b981', mr: 1 }}>🏭</Box>
+      SECTOR INDUSTRIAL Y REGULACIONES
+    </Typography>
+    <Alert severity="info" sx={{ mb: 2 }}>
+      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+        📖 Art. 25 Ley 21.719 - Evaluación de Impacto según sector
+      </Typography>
+      <Typography variant="caption" display="block">
+        Cada industria tiene regulaciones específicas que afectan el tratamiento de datos
+      </Typography>
+    </Alert>
+    
+    <Grid container spacing={2} sx={{ mb: 3 }}>
+      {[
+        {
+          id: 'financiero',
+          name: 'Sector Financiero',
+          color: '#059669',
+          regulations: ['Ley 21.719', 'Ley 21.000 (CMF)', 'Basilea III'],
+          requirements: 'Regulación CMF - Datos financieros sensibles'
+        },
+        {
+          id: 'salud',
+          name: 'Sector Salud', 
+          color: '#dc2626',
+          regulations: ['Ley 21.719', 'Ley 20.584 (Pacientes)', 'Código Sanitario'],
+          requirements: 'Datos salud - Protección especial Art. 12'
+        },
+        {
+          id: 'educacion',
+          name: 'Educación',
+          color: '#7c3aed', 
+          regulations: ['Ley 21.719', 'Ley 20.370 (LGE)', 'Protección Menores'],
+          requirements: 'Datos menores - Consentimiento parental'
+        },
+        {
+          id: 'retail',
+          name: 'Comercio y Retail',
+          color: '#ea580c',
+          regulations: ['Ley 21.719', 'Ley 19.496 (SERNAC)', 'Ley 20.009 (DICOM)'],
+          requirements: 'Datos comerciales - Información crediticia'
+        },
+        {
+          id: 'tecnologia',
+          name: 'Tecnología',
+          color: '#0891b2',
+          regulations: ['Ley 21.719', 'Ciberseguridad', 'Transferencias Internacionales'],
+          requirements: 'Datos en nube - Transferencias internacionales'
+        },
+        {
+          id: 'manufactura',
+          name: 'Manufactura',
+          color: '#4f46e5', 
+          regulations: ['Ley 21.719', 'Normativa Laboral', 'Medio Ambiente'],
+          requirements: 'Datos laborales - Medicina del trabajo'
+        }
+      ].map((industria) => (
+        <Grid item xs={12} sm={6} md={4} key={industria.id}>
+          <Card
+            sx={{
+              cursor: 'pointer',
+              border: ratData.responsable.sector === industria.id ? 
+                `2px solid ${industria.color}` : '1px solid #374151',
+              bgcolor: ratData.responsable.sector === industria.id ? 
+                `${industria.color}15` : 'transparent',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                borderColor: industria.color,
+                transform: 'translateY(-2px)'
+              }
+            }}
+            onClick={() => setRatData({
+              ...ratData,
+              responsable: { ...ratData.responsable, sector: industria.id }
+            })}
+          >
+            <CardContent sx={{ p: 2 }}>
+              <Typography variant="subtitle2" fontWeight="bold" sx={{ color: industria.color, mb: 1 }}>
+                {industria.name}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+                {industria.requirements}
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {industria.regulations.slice(0, 2).map((reg, index) => (
+                  <Chip
+                    key={index}
+                    label={reg}
+                    size="small"
+                    sx={{
+                      bgcolor: `${industria.color}20`,
+                      color: industria.color,
+                      fontSize: '0.7rem'
+                    }}
+                  />
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
     </Grid>
 
     <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
@@ -1967,9 +2145,15 @@ const PasoCategorias = ({ ratData, setRatData, currentTenant, setAlertas }) => {
                   <CardContent sx={{ pt: 0 }}>
                     <Grid container spacing={1}>
                       {categoria.items.map((item) => {
-                        const isChecked = categoria.id === 'sensibles' ?
-                          Array.isArray(ratData.categorias.sensibles) && ratData.categorias.sensibles.includes(item.value) :
-                          Array.isArray(ratData.categorias.identificacion) && ratData.categorias.identificacion.includes(item.value);
+                        // 🔍 DEBUG: Verificar estado checkbox en edición + FIX mejorado
+                        const categoriaArray = categoria.id === 'sensibles' ? 
+                          ratData.categorias?.sensibles : ratData.categorias?.identificacion;
+                        const isChecked = Array.isArray(categoriaArray) && categoriaArray.includes(item.value);
+                          
+                        // 🔍 DEBUG COMPLETO: Verificar estado todos los checkboxes en edición
+                        if (editMode && (item.value === 'nombre' || item.value === 'email' || item.value === 'rut')) {
+                          // DEBUG logs removidos para producción
+                        }
                         
                         return (
                           <Grid item xs={12} sm={6} md={4} key={item.value}>
@@ -3413,7 +3597,12 @@ const RATViewComponent = ({ ratData }) => {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Países de Destino:</Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {(ratData.transferencias?.paises || ['Estados Unidos', 'Unión Europea']).map((pais, index) => (
-                  <Chip key={index} label={pais} size="small" color="warning" />
+                  <Chip 
+                    key={index} 
+                    label={typeof pais === 'object' ? pais.nombre || pais.name || 'País no definido' : pais} 
+                    size="small" 
+                    color="warning" 
+                  />
                 ))}
               </Box>
             </Grid>
