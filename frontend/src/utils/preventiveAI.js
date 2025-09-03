@@ -909,9 +909,9 @@ class PreventiveAI {
   async checkRATDependencies(tenantId, ratId) {
     try {
       const [eipds, tasks, inventory] = await Promise.all([
-        supabase.from('generated_documents').select('id').eq('source_rat_id', ratId),
+        supabase.from('actividades_dpo').select('id').eq('rat_id', ratId),
         supabase.from('actividades_dpo').select('id').eq('tenant_id', tenantId).eq('rat_id', ratId),
-supabase.from('mapeo_datos_rat').select('id').eq('tenant_id', tenantId).eq('id', ratId)
+        supabase.from('activities').select('id').eq('tenant_id', tenantId)
       ]);
       
       return {
@@ -928,10 +928,10 @@ supabase.from('mapeo_datos_rat').select('id').eq('tenant_id', tenantId).eq('id',
 
   async getEIPDsByRAT(tenantId, ratId) {
     const { data, error } = await supabase
-      .from('generated_documents')
-      .select('id, status, title')
-      .eq('document_type', 'EIPD')
-      .eq('source_rat_id', ratId);
+      .from('actividades_dpo')
+      .select('id, estado, descripcion')
+      .eq('tipo_actividad', 'EIPD')
+      .eq('rat_id', ratId);
     
     if (error) throw error;
     return data || [];

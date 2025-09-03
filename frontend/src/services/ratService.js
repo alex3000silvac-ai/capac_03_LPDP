@@ -288,7 +288,7 @@ export const ratService = {
       // Eliminar otras referencias dependientes
       console.log('🗑️ Eliminando documentos generados relacionados...');
       await supabase
-        .from('generated_documents')
+        .from('actividades_dpo')
         .delete()
         .eq('rat_id', ratId);
 
@@ -747,10 +747,10 @@ const autoGenerarEIPD = async (ratId, ratData, tenantId, userId) => {
     
     // Verificar si ya existe EIPD para este RAT
     const { data: existingEIPD } = await supabase
-      .from('generated_documents')
+      .from('actividades_dpo')
       .select('id')
-      .eq('source_rat_id', ratId)
-      .eq('document_type', 'EIPD')
+      .eq('rat_id', ratId)
+      .eq('tipo_actividad', 'EIPD')
       .single();
     
     if (existingEIPD) {
@@ -777,8 +777,15 @@ const autoGenerarEIPD = async (ratId, ratData, tenantId, userId) => {
     };
     
     const { data, error } = await supabase
-      .from('generated_documents')
-      .insert(eipdData)
+      .from('actividades_dpo')
+      .insert({
+        rat_id: eipdData.rat_id,
+        tenant_id: eipdData.tenant_id,
+        tipo_actividad: 'EIPD',
+        descripcion: eipdData.titulo,
+        estado: eipdData.status || 'pendiente',
+        metadatos: eipdData
+      })
       .select()
       .single();
     
@@ -801,7 +808,7 @@ const registrarEnInventarioRAT = async (ratData, tenantId) => {
     const { data: existing } = await supabase
       .from('inventario_rats')
       .select('id')
-      .eq('rat_id', ratData.id)
+      .eq('id', ratData.id)
       .eq('tenant_id', tenantId)
       .single();
     
@@ -899,7 +906,7 @@ const actualizarInventarioRAT = async (ratData, tenantId) => {
           auto_updated: true
         }
       })
-      .eq('rat_id', ratData.id)
+      .eq('id', ratData.id)
       .eq('tenant_id', tenantId)
       .select()
       .single();

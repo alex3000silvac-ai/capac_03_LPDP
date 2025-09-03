@@ -308,6 +308,12 @@ class CategoryAnalysisEngine {
 
   // GUARDAR ANÁLISIS EN SUPABASE
   async guardarAnalisisCategoria(resultado, ratId, tenantId) {
+    // 🔒 VALIDACIÓN CRÍTICA: No proceder si ratId es undefined
+    if (!ratId || ratId === 'undefined') {
+      console.warn('⚠️ guardarAnalisisCategoria: ratId inválido, omitiendo guardado');
+      return;
+    }
+
     const analisis = {
       rat_id: ratId,
       tenant_id: tenantId,
@@ -317,30 +323,43 @@ class CategoryAnalysisEngine {
       timestamp: new Date().toISOString()
     };
 
-    // Obtener datos actuales del RAT
-    const { data: currentRat } = await supabase
-      .from('mapeo_datos_rat')
-      .select('metadata')
-      .eq('id', ratId)
-      .single();
+    try {
+      // Obtener datos actuales del RAT
+      const { data: currentRat } = await supabase
+        .from('mapeo_datos_rat')
+        .select('metadata')
+        .eq('id', ratId)
+        .single();
 
-    // Guardar en tabla mapeo_datos_rat.metadata
-    await supabase
-      .from('mapeo_datos_rat')
-      .update({
-        metadata: {
-          ...currentRat?.metadata,
-          analisis_categorias: {
-            ...currentRat?.metadata?.analisis_categorias,
-            [resultado.categoria]: resultado
+      // Guardar en tabla mapeo_datos_rat.metadata
+      await supabase
+        .from('mapeo_datos_rat')
+        .update({
+          metadata: {
+            ...currentRat?.metadata,
+            analisis_categorias: {
+              ...currentRat?.metadata?.analisis_categorias,
+              [resultado.categoria]: resultado
+            }
           }
-        }
-      })
-      .eq('id', ratId);
+        })
+        .eq('id', ratId);
+        
+      console.log('✅ Análisis categoría guardado:', resultado.categoria);
+    } catch (error) {
+      console.error('❌ Error guardando análisis categoría:', error);
+      // No lanzar error para no romper el flujo principal
+    }
   }
 
   // HELPERS
   async verificarProfesionalSalud(tenantId) {
+    // 🔒 VALIDACIÓN: No proceder si tenantId es inválido
+    if (!tenantId || tenantId === 'undefined') {
+      console.warn('⚠️ verificarProfesionalSalud: tenantId inválido');
+      return false;
+    }
+
     try {
       const { data: organizacion } = await supabase
         .from('organizaciones')
@@ -350,7 +369,8 @@ class CategoryAnalysisEngine {
 
       return organizacion?.industry?.toLowerCase().includes('salud') ||
              organizacion?.metadata?.registro_profesional_salud === true;
-    } catch {
+    } catch (error) {
+      console.error('❌ Error verificarProfesionalSalud:', error);
       return false;
     }
   }

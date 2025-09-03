@@ -103,7 +103,7 @@ const ratIntelligenceEngine = {
     }
   },
 
-  evaluateRATActivity: async (ratData) => {
+  evaluateRATActivity: async function(ratData) {
     const area = ratData.area || this.detectArea(ratData);
     console.log(`ANÁLISIS COMPLETO RAT - Área: ${area}`, ratData);
     
@@ -648,7 +648,7 @@ const ratIntelligenceEngine = {
   },
   
   // Método para simular notificación en tiempo real
-  notificarDPO: async (notificaciones) => {
+  notificarDPO: async function(notificaciones) {
     console.log('ENVIANDO NOTIFICACIONES AL DPO:', notificaciones);
     
     // En producción real, aquí se enviarían:

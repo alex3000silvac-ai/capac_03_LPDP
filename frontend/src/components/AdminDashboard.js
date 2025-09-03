@@ -104,8 +104,8 @@ const AdminDashboard = () => {
 
       // MÉTRICAS calculadas desde Supabase
       const [ratsResult, eipdResult, usuariosResult] = await Promise.all([
-        supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id', tenantId),
-        supabase.from('generated_documents').select('id', { count: 'exact' }).eq('document_type', 'EIPD'),
+        supabase.from('activities').select('id', { count: 'exact' }).eq('tenant_id', tenantId),
+        supabase.from('actividades_dpo').select('id', { count: 'exact' }).eq('tipo_actividad', 'EIPD'),
         supabase.from('usuarios').select('id', { count: 'exact' }).eq('tenant_id', tenantId).eq('estado', 'ACTIVO')
       ]);
 

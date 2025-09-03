@@ -390,14 +390,14 @@ class SpecificCasesEngine {
     for (const doc of tiposDocumentos) {
       try {
         const { data } = await supabase
-          .from('generated_documents')
+          .from('actividades_dpo')
           .insert({
             rat_id: ratId,
             tenant_id: tenantId,
-            document_type: doc.tipo,
-            status: 'BORRADOR',
-            document_data: {
-              titulo: doc.titulo,
+            tipo_actividad: doc.tipo,
+            estado: 'BORRADOR',
+            descripcion: doc.titulo,
+            metadatos: {
               template_usado: doc.template,
               generado_por: 'CASUISTICA_GENETICOS',
               requiere_revision_especialista: true

@@ -366,10 +366,8 @@ const RATListPage = () => {
                       <TableRow 
                         key={rat.id}
                         sx={{ 
-                          '&:hover': { bgcolor: '#374151' },
-                          cursor: 'pointer'
+                          '&:hover': { bgcolor: '#374151' }
                         }}
-                        onClick={() => handleViewRAT(rat.id)}
                       >
                         <TableCell sx={{ color: '#f9fafb', borderColor: '#374151' }}>
                           <Box>
