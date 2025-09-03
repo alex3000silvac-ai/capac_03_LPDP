@@ -2414,7 +2414,7 @@ const PasoBaseLegal = ({ ratData, setRatData }) => {
       title: 'INVESTIGACIÓN CIENTÍFICA',
       subtitle: 'Art. 13 inc. 2° Ley 21.719',
       description: 'Investigación científica, histórica o estadística con garantías',
-      icon: <School />,
+      icon: <EducationIcon />,
       color: '#0891b2',
       casos: ['Estudios académicos', 'Investigación médica', 'Estadísticas públicas']
     },

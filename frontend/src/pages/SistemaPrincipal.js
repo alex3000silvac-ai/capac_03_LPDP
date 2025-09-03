@@ -34,75 +34,7 @@ import { INDUSTRIES_CONFIG } from '../config/industries.config';
 const SistemaPrincipal = () => {
   const navigate = useNavigate();
   
-  // Usar configuración centralizada de industrias (los iconos ya no se usan aquí)
-  
-  // Mantener estructura original para compatibilidad
-  const industriesLegacy = [
-    {
-      id: 'financiero',
-      name: 'Sector Financiero',
-      icon: <FinanceIcon />,
-      color: '#059669',
-      regulations: ['Ley 21.719', 'Ley 21.000 (CMF)', 'Basilea III', 'FATCA'],
-      specialRequirements: 'Regulación CMF - Datos financieros sensibles'
-    },
-    {
-      id: 'salud',
-      name: 'Sector Salud',
-      icon: <HealthIcon />,
-      color: '#dc2626',
-      regulations: ['Ley 21.719', 'Ley 20.584 (Derechos Pacientes)', 'Código Sanitario'],
-      specialRequirements: 'Datos de salud - Protección especial Art. 12 Ley 21.719'
-    },
-    {
-      id: 'educacion',
-      name: 'Sector Educación',
-      icon: <EducationIcon />,
-      color: '#7c3aed',
-      regulations: ['Ley 21.719', 'Ley 20.370 (LGE)', 'Protección Menores'],
-      specialRequirements: 'Datos de menores - Consentimiento parental requerido'
-    },
-    {
-      id: 'retail',
-      name: 'Comercio y Retail',
-      icon: <RetailIcon />,
-      color: '#ea580c',
-      regulations: ['Ley 21.719', 'Ley 19.496 (SERNAC)', 'Ley 20.009 (DICOM)'],
-      specialRequirements: 'Datos comerciales - Información crediticia'
-    },
-    {
-      id: 'tecnologia',
-      name: 'Tecnología',
-      icon: <TechIcon />,
-      color: '#0891b2',
-      regulations: ['Ley 21.719', 'Ciberseguridad', 'Transferencias Internacionales'],
-      specialRequirements: 'Datos en la nube - Transferencias internacionales'
-    },
-    {
-      id: 'manufactura',
-      name: 'Manufactura',
-      icon: <ManufacturingIcon />,
-      color: '#4f46e5',
-      regulations: ['Ley 21.719', 'Normativa Laboral', 'Medio Ambiente'],
-      specialRequirements: 'Datos laborales - Medicina del trabajo'
-    },
-    {
-      id: 'alimentos',
-      name: 'Alimentos y Bebidas',
-      icon: <FoodIcon />,
-      color: '#be185d',
-      regulations: ['Ley 21.719', 'Código Sanitario', 'Trazabilidad HACCP'],
-      specialRequirements: 'Trazabilidad alimentaria - Seguridad sanitaria'
-    },
-    {
-      id: 'transporte',
-      name: 'Transporte y Logística',
-      icon: <TransportIcon />,
-      color: '#9333ea',
-      regulations: ['Ley 21.719', 'Ley Tránsito', 'Normativa MTT'],
-      specialRequirements: 'Datos de ubicación - Seguimiento GPS'
-    }
-  ];
+  // Configuración de industrias se maneja desde industries.config.js
 
   const tarjetas = [
     {
