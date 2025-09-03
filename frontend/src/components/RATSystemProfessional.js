@@ -2150,10 +2150,7 @@ const PasoCategorias = ({ ratData, setRatData, currentTenant, setAlertas }) => {
                           ratData.categorias?.sensibles : ratData.categorias?.identificacion;
                         const isChecked = Array.isArray(categoriaArray) && categoriaArray.includes(item.value);
                           
-                        // 🔍 DEBUG COMPLETO: Verificar estado todos los checkboxes en edición
-                        if (editMode && (item.value === 'nombre' || item.value === 'email' || item.value === 'rut')) {
-                          // DEBUG logs removidos para producción
-                        }
+                        // DEBUG logs removidos para producción
                         
                         return (
                           <Grid item xs={12} sm={6} md={4} key={item.value}>
@@ -2378,7 +2375,7 @@ const PasoBaseLegal = ({ ratData, setRatData }) => {
       title: 'OBLIGACIÓN LEGAL',
       subtitle: 'Art. 13.1.c Ley 21.719',
       description: 'Cumplimiento de obligación legal aplicable al responsable',
-      icon: <AccountBalance />,
+      icon: <FinanceIcon />,
       color: '#6366f1',
       casos: ['Obligaciones tributarias', 'Informes SII', 'Cumplimiento laboral', 'Prevención lavado']
     },
