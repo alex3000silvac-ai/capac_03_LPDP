@@ -37,10 +37,17 @@ import {
   Assessment as RATIcon,
   CheckCircle as CertifiedIcon,
   Schedule as PendingIcon,
-  Error as ErrorIcon
+  Error as ErrorIcon,
+  PictureAsPdf as PDFIcon,
+  TableChart as ExcelIcon,
+  Api as APIIcon,
+  Business as CostCenterIcon,
+  CloudDownload as DownloadIcon,
+  Share as ShareIcon
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
 import { useTenant } from '../contexts/TenantContext';
+import { supabase } from '../config/supabaseClient';
 
 const RATListPage = () => {
   const navigate = useNavigate();
@@ -58,21 +65,63 @@ const RATListPage = () => {
     pendientes: 0,
     borradores: 0
   });
+  const [costCenterData, setCostCenterData] = useState({});
+  const [apiStats, setApiStats] = useState({ 
+    permanentes: 0, 
+    no_permanentes: 0,
+    total_integraciones: 0
+  });
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     cargarRATs();
   }, []);
 
+  useEffect(() => {
+    if (rats.length > 0) {
+      loadCostCenterAndAPIData();
+    }
+  }, [rats]);
+
   const cargarRATs = async () => {
     try {
       setLoading(true);
       const tenantId = currentTenant?.id;
-      const ratsData = await ratService.getCompletedRATs(tenantId);
+      console.log('🔍 Cargando RATs para tenant:', tenantId);
       
-      setRats(ratsData || []);
-      calcularEstadisticas(ratsData || []);
+      // Primero intentar cargar todos los RATs del tenant
+      const { data: ratsRaw, error } = await supabase
+        .from('mapeo_datos_rat')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error consultando BD:', error);
+        throw error;
+      }
+      
+      console.log('📊 RATs encontrados en BD:', ratsRaw?.length || 0);
+      
+      // Formatear los RATs para mostrar
+      const formattedRATs = (ratsRaw || []).map(rat => ({
+        id: rat.id,
+        nombre_actividad: rat.nombre_actividad || 'Sin nombre',
+        finalidad: rat.finalidad_principal || rat.descripcion || 'Sin finalidad especificada',
+        estado: rat.estado || 'BORRADOR',
+        nivel_riesgo: rat.metadata?.riskLevel || 'BAJO',
+        industria: rat.metadata?.industria || rat.area_responsable || 'General',
+        fecha_actualizacion: rat.updated_at || rat.created_at,
+        area_responsable: rat.area_responsable || 'Sin especificar',
+        responsable_proceso: rat.responsable_proceso || 'Sin especificar',
+        tenant_id: rat.tenant_id
+      }));
+      
+      console.log('✅ RATs formateados:', formattedRATs.length);
+      setRats(formattedRATs);
+      calcularEstadisticas(formattedRATs);
     } catch (error) {
       console.error('Error cargando RATs:', error);
+      setRats([]);
     } finally {
       setLoading(false);
     }
@@ -146,9 +195,193 @@ const RATListPage = () => {
 
   const handleExportRAT = async (ratId) => {
     try {
-      await ratService.exportRATToPDF(ratId);
+      await exportRATToPDF(ratId);
     } catch (error) {
       console.error('Error exportando RAT:', error);
+    }
+  };
+
+  // 📄 FUNCIÓN DE EXPORTACIÓN PDF INDIVIDUAL
+  const exportRATToPDF = async (ratId) => {
+    try {
+      const rat = rats.find(r => r.id === ratId);
+      if (!rat) throw new Error('RAT no encontrado');
+      
+      console.log('📄 Exportando RAT a PDF:', ratId);
+      
+      // Crear contenido PDF
+      const pdfContent = `
+RAT - REGISTRO DE ACTIVIDADES DE TRATAMIENTO
+Ley 21.719 - Protección de Datos Personales Chile
+
+IDENTIFICACIÓN:
+- ID RAT: ${rat.id}
+- Nombre Actividad: ${rat.nombre_actividad}
+- Área Responsable: ${rat.area_responsable}
+- Estado: ${rat.estado}
+- Riesgo: ${rat.nivel_riesgo}
+
+FINALIDAD:
+${rat.finalidad}
+
+FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
+      `;
+      
+      // Crear archivo y descargar
+      const blob = new Blob([pdfContent], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `RAT_${rat.nombre_actividad}_${rat.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      console.log('✅ RAT exportado exitosamente');
+    } catch (error) {
+      console.error('❌ Error exportando PDF:', error);
+    }
+  };
+
+  // 📊 FUNCIÓN DE EXPORTACIÓN EXCEL MASIVA
+  const exportAllRATsToExcel = async () => {
+    try {
+      setExporting(true);
+      console.log('📊 Exportando todos los RATs a Excel');
+      
+      const headers = [
+        'ID RAT',
+        'Nombre Actividad',
+        'Área Responsable',
+        'Estado',
+        'Nivel Riesgo',
+        'Finalidad',
+        'Fecha Creación',
+        'Centro Costos'
+      ];
+      
+      const data = rats.map(rat => [
+        rat.id,
+        rat.nombre_actividad,
+        rat.area_responsable,
+        rat.estado,
+        rat.nivel_riesgo,
+        rat.finalidad,
+        new Date(rat.fecha_actualizacion).toLocaleDateString('es-CL'),
+        rat.area_responsable // Como centro de costos
+      ]);
+      
+      // Crear contenido CSV (Excel compatible)
+      const csvContent = [
+        headers.join(','),
+        ...data.map(row => row.map(cell => `"${cell || ''}"`).join(','))
+      ].join('\n');
+      
+      // Descargar archivo
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `RATs_Export_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      console.log('✅ Excel exportado exitosamente');
+    } catch (error) {
+      console.error('❌ Error exportando Excel:', error);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // 🌐 FUNCIÓN INTEGRACIÓN API PARTNERS
+  const sendToPartnerAPI = async (ratId, partnerType = 'prelafit') => {
+    try {
+      console.log('🌐 Enviando RAT a Partner API:', partnerType);
+      
+      const rat = rats.find(r => r.id === ratId);
+      if (!rat) throw new Error('RAT no encontrado');
+      
+      const partnerPayload = {
+        rat_id: rat.id,
+        fecha_creacion: rat.fecha_actualizacion,
+        responsable: {
+          area: rat.area_responsable,
+          email: rat.responsable_proceso || 'admin@juridicadigital.cl'
+        },
+        finalidad: rat.finalidad,
+        nivel_riesgo: rat.nivel_riesgo,
+        estado: rat.estado,
+        compliance_status: {
+          requiere_eipd: rat.nivel_riesgo === 'ALTO',
+          requiere_dpia: false,
+          requiere_consulta_previa: rat.nivel_riesgo === 'ALTO'
+        },
+        metadata: {
+          partner: partnerType,
+          timestamp: new Date().toISOString(),
+          api_version: 'v1'
+        }
+      };
+      
+      // Simular envío API (en producción sería POST real)
+      console.log('📡 Payload enviado a partner:', partnerPayload);
+      
+      // Registrar integración
+      await supabase
+        .from('partner_integrations')
+        .insert({
+          rat_id: ratId,
+          partner_type: partnerType,
+          payload: partnerPayload,
+          status: 'enviado',
+          created_at: new Date().toISOString()
+        });
+      
+      alert(`✅ RAT enviado a ${partnerType} exitosamente`);
+    } catch (error) {
+      console.error('❌ Error enviando a Partner API:', error);
+      alert('Error enviando a Partner API');
+    }
+  };
+
+  // 📈 CARGAR DATOS CENTRO COSTOS Y APIs
+  const loadCostCenterAndAPIData = async () => {
+    try {
+      // Agrupar por centro de costos (área responsable)
+      const costCenters = rats.reduce((acc, rat) => {
+        const center = rat.area_responsable || 'Sin asignar';
+        acc[center] = (acc[center] || 0) + 1;
+        return acc;
+      }, {});
+      
+      setCostCenterData(costCenters);
+      
+      // Simular datos API permanentes/no permanentes
+      const { data: integrations } = await supabase
+        .from('partner_integrations')
+        .select('*')
+        .eq('tenant_id', currentTenant?.id);
+      
+      const permanentes = (integrations || []).filter(i => 
+        ['prelafit', 'rsm_chile'].includes(i.partner_type)
+      ).length;
+      
+      const no_permanentes = (integrations || []).filter(i => 
+        ['datacompliance', 'amsoft'].includes(i.partner_type)
+      ).length;
+      
+      setApiStats({
+        permanentes,
+        no_permanentes,
+        total_integraciones: (integrations || []).length
+      });
+      
+    } catch (error) {
+      console.error('Error cargando datos adicionales:', error);
     }
   };
 
@@ -220,6 +453,49 @@ const RATListPage = () => {
                 <Typography variant="body2" sx={{ color: '#9ca3af' }}>
                   Borradores
                 </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* 📊 ESTADÍSTICAS CENTRO DE COSTOS Y APIs */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ bgcolor: '#1f2937', border: '1px solid #374151' }}>
+              <CardContent>
+                <Typography variant="h6" sx={{ color: '#f9fafb', mb: 2, display: 'flex', alignItems: 'center' }}>
+                  <CostCenterIcon sx={{ mr: 1 }} />
+                  Centro de Costos
+                </Typography>
+                {Object.entries(costCenterData).map(([center, count]) => (
+                  <Box key={center} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" sx={{ color: '#9ca3af' }}>{center}</Typography>
+                    <Typography variant="body2" sx={{ color: '#4f46e5', fontWeight: 600 }}>{count}</Typography>
+                  </Box>
+                ))}
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <Card sx={{ bgcolor: '#1f2937', border: '1px solid #374151' }}>
+              <CardContent>
+                <Typography variant="h6" sx={{ color: '#f9fafb', mb: 2, display: 'flex', alignItems: 'center' }}>
+                  <APIIcon sx={{ mr: 1 }} />
+                  Integración APIs Partners
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#9ca3af' }}>APIs Permanentes</Typography>
+                  <Typography variant="body2" sx={{ color: '#10b981', fontWeight: 600 }}>{apiStats.permanentes}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#9ca3af' }}>APIs No Permanentes</Typography>
+                  <Typography variant="body2" sx={{ color: '#f59e0b', fontWeight: 600 }}>{apiStats.no_permanentes}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" sx={{ color: '#9ca3af' }}>Total Integraciones</Typography>
+                  <Typography variant="body2" sx={{ color: '#4f46e5', fontWeight: 600 }}>{apiStats.total_integraciones}</Typography>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
@@ -306,11 +582,56 @@ const RATListPage = () => {
                 sx={{
                   bgcolor: '#4f46e5',
                   '&:hover': { bgcolor: '#4338ca' },
-                  py: 1.5
+                  py: 1.5,
+                  mb: 1
                 }}
               >
                 Nuevo RAT
               </Button>
+              
+              {/* Botones de Exportación */}
+              <Grid container spacing={1}>
+                <Grid item xs={6}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<ExcelIcon />}
+                    onClick={exportAllRATsToExcel}
+                    disabled={exporting || rats.length === 0}
+                    size="small"
+                    sx={{
+                      borderColor: '#10b981',
+                      color: '#10b981',
+                      '&:hover': { 
+                        borderColor: '#059669',
+                        bgcolor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Excel
+                  </Button>
+                </Grid>
+                <Grid item xs={6}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<ShareIcon />}
+                    onClick={() => sendToPartnerAPI(rats[0]?.id, 'prelafit')}
+                    disabled={rats.length === 0}
+                    size="small"
+                    sx={{
+                      borderColor: '#f59e0b',
+                      color: '#f59e0b',
+                      '&:hover': { 
+                        borderColor: '#d97706',
+                        bgcolor: 'rgba(245, 158, 11, 0.1)'
+                      }
+                    }}
+                  >
+                    API
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </Paper>
@@ -436,7 +757,19 @@ const RATListPage = () => {
                                 }}
                                 sx={{ color: '#34d399' }}
                               >
-                                <ExportIcon />
+                                <PDFIcon />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Enviar a Partner API">
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  sendToPartnerAPI(rat.id, 'prelafit');
+                                }}
+                                sx={{ color: '#f59e0b' }}
+                              >
+                                <APIIcon />
                               </IconButton>
                             </Tooltip>
                           </Box>

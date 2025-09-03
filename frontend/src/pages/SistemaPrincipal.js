@@ -24,7 +24,6 @@ import {
   Notifications as ApprovalIcon,
   Analytics as MetricsIcon,
   AdminPanelSettings as AdminIcon,
-  Assignment as WorkflowIcon,
   Gavel as ContractIcon,
   Notifications as NotificationIcon,
   Factory as ManufacturingIcon,
@@ -125,13 +124,6 @@ const SistemaPrincipal = () => {
       descripcion: 'Ver, editar y gestionar RATs creados'
     },
     {
-      titulo: 'Cola de Aprobación DPO',
-      subtitulo: 'Certificación RATs',
-      icono: <ApprovalIcon sx={{ fontSize: 48, color: '#f59e0b' }} />,
-      ruta: '/dpo-approval',
-      descripcion: 'RATs pendientes de certificación DPO'
-    },
-    {
       titulo: 'Métricas de Compliance',
       subtitulo: 'Analytics y KPIs',
       icono: <MetricsIcon sx={{ fontSize: 48, color: '#8b5cf6' }} />,
@@ -165,13 +157,6 @@ const SistemaPrincipal = () => {
       icono: <AdminIcon sx={{ fontSize: 48, color: '#ef4444' }} />,
       ruta: '/admin-dashboard',
       descripcion: 'Administración holdings y empresas subsidiarias'
-    },
-    {
-      titulo: 'Workflow RATs',
-      subtitulo: 'Estados y Colaboración',
-      icono: <WorkflowIcon sx={{ fontSize: 48, color: '#8b5cf6' }} />,
-      ruta: '/rat-workflow',
-      descripcion: 'Gestión de estados y asignaciones RATs'
     },
     {
       titulo: 'Generador DPA',

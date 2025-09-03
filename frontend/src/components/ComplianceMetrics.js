@@ -219,58 +219,90 @@ const ComplianceMetrics = () => {
       const tenantId = currentTenant?.id;
       const acciones = [];
       
-      // Obtener EIPDs pendientes
-      const { data: eipdsPendientes, error: eipdError } = await supabase
-        .from('mapeo_datos_rat')
-        .select('id')
-        .eq('tenant_id', tenantId)
-        .eq('datos_sensibles', 'SI')
-        .eq('nivel_riesgo', 'ALTO')
-        .neq('estado', 'CERTIFICADO');
+      console.log('🔍 Obteniendo acciones pendientes DPO para tenant:', tenantId);
       
-      if (eipdsPendientes?.length > 0) {
+      // 1. Obtener RATs no certificados (necesitan revisión DPO)
+      const { data: ratsNoCertificados, error: ratsError } = await supabase
+        .from('mapeo_datos_rat')
+        .select('id, nombre_actividad, estado, metadata')
+        .or('estado.neq.CERTIFICADO,estado.is.null');
+      
+      if (!ratsError && ratsNoCertificados?.length > 0) {
         acciones.push({
-          action: `Completar ${eipdsPendientes.length} EIPDs urgentes`,
+          action: `Revisar ${ratsNoCertificados.length} RATs pendientes de certificación`,
           priority: 'alta',
-          days: 15
+          days: 15,
+          details: ratsNoCertificados.map(r => r.nombre_actividad).join(', ')
         });
       }
       
-      // Obtener proveedores sin DPA
-      const { data: proveedoresSinDPA, error: provError } = await supabase
-        .from('proveedores')
-        .select('id')
-        .eq('tenant_id', tenantId)
-        .eq('estado', 'ACTIVO')
-        .is('dpa_vigente', null);
+      // 2. Obtener actividades DPO específicas de la tabla
+      const { data: actividadesDPO, error: dpoError } = await supabase
+        .from('actividades_dpo')
+        .select('*')
+        .neq('estado', 'completado')
+        .limit(10);
       
-      if (proveedoresSinDPA?.length > 0) {
+      if (!dpoError && actividadesDPO?.length > 0) {
         acciones.push({
-          action: `Revisar ${proveedoresSinDPA.length} contratos DPA proveedores`,
-          priority: 'media',
-          days: 30
+          action: `Completar ${actividadesDPO.length} tareas DPO pendientes`,
+          priority: 'alta',
+          days: 7,
+          details: actividadesDPO.map(a => a.descripcion || a.tipo_actividad).join(', ')
         });
       }
       
-      // Obtener RATs con plazos indefinidos
-      const { data: plazosIndefinidos, error: plazosError } = await supabase
+      // 3. Obtener RATs sin plazo de conservación definido
+      const { data: sinPlazoConservacion, error: plazoError } = await supabase
         .from('mapeo_datos_rat')
-        .select('id')
-        .eq('tenant_id', tenantId)
-        .or('plazo_conservacion.is.null,plazo_conservacion.ilike.%indefinido%');
+        .select('id, nombre_actividad')
+        .or('plazo_conservacion.is.null,plazo_conservacion.eq.""')
+        .limit(20);
       
-      if (plazosIndefinidos?.length > 0) {
+      if (!plazoError && sinPlazoConservacion?.length > 0) {
         acciones.push({
-          action: `Actualizar ${plazosIndefinidos.length} políticas retención`,
+          action: `Definir plazos de conservación para ${sinPlazoConservacion.length} RATs`,
           priority: 'media',
-          days: 45
+          days: 30,
+          details: sinPlazoConservacion.map(r => r.nombre_actividad).join(', ')
         });
       }
       
+      // 4. Buscar RATs con transferencias internacionales sin salvaguardias
+      const { data: transferenciasRiesgo, error: transError } = await supabase
+        .from('mapeo_datos_rat')
+        .select('id, nombre_actividad, transferencias_internacionales')
+        .not('transferencias_internacionales', 'is', null);
+        
+      const transferenciasConRiesgo = (transferenciasRiesgo || []).filter(rat => {
+        const transferencias = rat.transferencias_internacionales;
+        return transferencias && Object.keys(transferencias).length > 0;
+      });
+      
+      if (transferenciasConRiesgo.length > 0) {
+        acciones.push({
+          action: `Revisar salvaguardias en ${transferenciasConRiesgo.length} transferencias internacionales`,
+          priority: 'alta',
+          days: 10,
+          details: transferenciasConRiesgo.map(r => r.nombre_actividad).join(', ')
+        });
+      }
+      
+      console.log('✅ Acciones pendientes obtenidas:', acciones.length);
       return acciones;
+      
     } catch (error) {
-      console.error('Error obteniendo acciones pendientes:', error);
-      return [];
+      console.error('❌ Error obteniendo acciones pendientes:', error);
+      
+      // Retornar acciones por defecto si hay error
+      return [
+        {
+          action: 'Revisar sistema de compliance general',
+          priority: 'media',
+          days: 30,
+          details: 'Error en consulta BD - revisar configuración'
+        }
+      ];
     }
   };
 
@@ -702,31 +734,52 @@ const ComplianceMetrics = () => {
           </Typography>
           
           <Grid container spacing={2}>
-            {metrics.details.pendingActions.map((action, index) => (
-              <Grid item xs={12} md={6} key={index}>
-                <Card sx={{ bgcolor: '#374151', border: '1px solid #4b5563' }}>
-                  <CardContent sx={{ py: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="body2" sx={{ color: '#f9fafb', fontWeight: 'bold' }}>
-                        {action.action}
+            {metrics.details.pendingActions.length > 0 ? (
+              metrics.details.pendingActions.map((action, index) => (
+                <Grid item xs={12} md={6} key={index}>
+                  <Card sx={{ bgcolor: '#374151', border: '1px solid #4b5563' }}>
+                    <CardContent sx={{ py: 2 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="body2" sx={{ color: '#f9fafb', fontWeight: 'bold' }}>
+                          {action.action}
+                        </Typography>
+                        <Chip 
+                          label={action.priority}
+                          size="small"
+                          sx={{ 
+                            bgcolor: getPriorityColor(action.priority),
+                            color: '#fff',
+                            fontSize: '0.7rem'
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="caption" sx={{ color: '#9ca3af', display: 'block' }}>
+                        📅 Plazo: {action.days} días
                       </Typography>
-                      <Chip 
-                        label={action.priority}
-                        size="small"
-                        sx={{ 
-                          bgcolor: getPriorityColor(action.priority),
-                          color: '#fff',
-                          fontSize: '0.7rem'
-                        }}
-                      />
-                    </Box>
-                    <Typography variant="caption" sx={{ color: '#9ca3af' }}>
-                      📅 Plazo: {action.days} días
+                      {action.details && (
+                        <Typography variant="caption" sx={{ color: '#6b7280', display: 'block', mt: 1 }}>
+                          📋 Detalles: {action.details.length > 100 ? action.details.substring(0, 100) + '...' : action.details}
+                        </Typography>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))
+            ) : (
+              <Grid item xs={12}>
+                <Card sx={{ bgcolor: '#374151', border: '1px solid #10b981' }}>
+                  <CardContent sx={{ py: 3, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ color: '#10b981', mb: 1 }}>
+                      ✅ ¡Excelente trabajo!
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#9ca3af' }}>
+                      No hay acciones pendientes de DPO en este momento.
+                      Todos los procesos están en compliance.
                     </Typography>
                   </CardContent>
                 </Card>
               </Grid>
-            ))}
+            )}
           </Grid>
         </Paper>
 
