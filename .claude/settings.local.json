@@ -12,7 +12,16 @@
       "Bash(./RENDER.exe services list)",
       "Bash(./RENDER.exe services get srv-d2b6krjuibrs73fauhr0)",
       "WebFetch(domain:scldp-frontend.onrender.com)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(git commit:*)",
+      "Bash(sed:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(node:*)",
+      "Bash(psql:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": [],

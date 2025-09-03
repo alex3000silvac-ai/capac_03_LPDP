@@ -198,21 +198,6 @@ const DashboardDPO = () => {
           </Button>
           
           <Button
-            variant="contained"
-            size="large"
-            startIcon={<QueueIcon />}
-            onClick={() => navigate('/dpo-approval-queue')}
-            sx={{
-              bgcolor: '#f59e0b',
-              '&:hover': { bgcolor: '#d97706' },
-              px: 4,
-              py: 1.5
-            }}
-          >
-            Cola de Aprobación DPO
-          </Button>
-          
-          <Button
             variant="outlined"
             size="large"
             startIcon={<DashboardIcon />}

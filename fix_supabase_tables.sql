@@ -130,7 +130,28 @@ CREATE TABLE IF NOT EXISTS public.dpo_notifications (
 CREATE INDEX IF NOT EXISTS idx_dpo_notifications_rat_id ON public.dpo_notifications(rat_id);
 CREATE INDEX IF NOT EXISTS idx_dpo_notifications_status ON public.dpo_notifications(status);
 
--- 7. INSERTAR ORGANIZACIÓN POR DEFECTO (SI NO EXISTE)
+-- 7. CREAR TABLA RAT_AUDIT_TRAIL (SI NO EXISTE)
+-- ========================================
+CREATE TABLE IF NOT EXISTS public.rat_audit_trail (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    rat_id VARCHAR(255) NOT NULL,
+    tenant_id INTEGER,
+    user_id UUID,
+    action VARCHAR(100) NOT NULL,
+    old_data JSONB,
+    new_data JSONB,
+    changes_summary TEXT,
+    ip_address INET,
+    user_agent TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Índices para rat_audit_trail
+CREATE INDEX IF NOT EXISTS idx_rat_audit_trail_rat_id ON public.rat_audit_trail(rat_id);
+CREATE INDEX IF NOT EXISTS idx_rat_audit_trail_created_at ON public.rat_audit_trail(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_rat_audit_trail_user_id ON public.rat_audit_trail(user_id);
+
+-- 8. INSERTAR ORGANIZACIÓN POR DEFECTO (SI NO EXISTE)
 -- ========================================
 INSERT INTO public.organizaciones (
     company_name,
@@ -227,6 +248,7 @@ ALTER TABLE public.system_alerts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.evaluaciones_impacto ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rat_eipd_associations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.dpo_notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rat_audit_trail ENABLE ROW LEVEL SECURITY;
 
 -- Políticas para organizaciones
 CREATE POLICY "Users can view their own organizations" 
@@ -283,6 +305,15 @@ CREATE POLICY "Users can view their notifications"
 
 CREATE POLICY "System can insert notifications" 
     ON public.dpo_notifications FOR INSERT 
+    WITH CHECK (true);
+
+-- Políticas para rat_audit_trail
+CREATE POLICY "Users can view audit trail for their RATs" 
+    ON public.rat_audit_trail FOR SELECT 
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "System can insert audit records" 
+    ON public.rat_audit_trail FOR INSERT 
     WITH CHECK (true);
 
 -- 11. VERIFICACIÓN FINAL

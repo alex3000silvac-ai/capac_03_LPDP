@@ -68,6 +68,7 @@ import riskCalculationEngine from '../services/riskCalculationEngine';
 import testBalancingEngine from '../services/testBalancingEngine';
 import categoryAnalysisEngine from '../services/categoryAnalysisEngine';
 import specificCasesEngine from '../services/specificCasesEngine';
+import { fuentesNormativas, obtenerInformacionSectorial } from '../services/industryStandardsService';
 import EmpresaDataManager from './EmpresaDataManager';
 import PageLayout from './PageLayout';
 import { supabase } from '../config/supabaseClient';
@@ -2443,7 +2444,7 @@ const PasoFinalidad = ({ ratData, setRatData }) => (
       multiline
       rows={4}
       placeholder="Describa la finalidad del tratamiento de datos..."
-      value={ratData.finalidad}
+      value={ratData.finalidad || ''}
       onChange={(e) => setRatData({ ...ratData, finalidad: e.target.value })}
       sx={{ mb: 3 }}
     />
@@ -2462,7 +2463,7 @@ const PasoFinalidad = ({ ratData, setRatData }) => (
     </Typography>
     
     <RadioGroup 
-      value={ratData.plazoConservacion} 
+      value={ratData.plazoConservacion || ''} 
       onChange={(e) => setRatData({ ...ratData, plazoConservacion: e.target.value })}
     >
       {/* Plazos Contractuales */}
@@ -2720,7 +2721,22 @@ const PasoFinalidad = ({ ratData, setRatData }) => (
   </Box>
 );
 
-const PasoTransferencias = ({ ratData, setRatData }) => (
+const PasoTransferencias = ({ ratData, setRatData }) => {
+  // Asegurar que destinatarios existe
+  const destinatarios = ratData.destinatarios || [];
+  
+  const handleDestinatarioChange = (area) => {
+    const newDestinatarios = destinatarios.includes(area) 
+      ? destinatarios.filter(d => d !== area)
+      : [...destinatarios, area];
+    
+    setRatData({
+      ...ratData,
+      destinatarios: newDestinatarios
+    });
+  };
+
+  return (
   <Box>
     <Typography variant="h6" gutterBottom>
       DESTINATARIOS INTERNOS:
@@ -2735,11 +2751,26 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
       <Grid item xs={12} md={6}>
         <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#4f46e5', mb: 1 }}>📋 ÁREAS ADMINISTRATIVAS</Typography>
         <FormGroup>
-          <FormControlLabel control={<Checkbox />} label="Gerencia General" />
-          <FormControlLabel control={<Checkbox />} label="Subgerencia" />
-          <FormControlLabel control={<Checkbox />} label="Dirección Ejecutiva" />
-          <FormControlLabel control={<Checkbox />} label="Secretaría General" />
-          <FormControlLabel control={<Checkbox />} label="Administración" />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Gerencia General')} onChange={() => handleDestinatarioChange('Gerencia General')} />} 
+            label="Gerencia General" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Subgerencia')} onChange={() => handleDestinatarioChange('Subgerencia')} />} 
+            label="Subgerencia" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Dirección Ejecutiva')} onChange={() => handleDestinatarioChange('Dirección Ejecutiva')} />} 
+            label="Dirección Ejecutiva" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Secretaría General')} onChange={() => handleDestinatarioChange('Secretaría General')} />} 
+            label="Secretaría General" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Administración')} onChange={() => handleDestinatarioChange('Administración')} />} 
+            label="Administración" 
+          />
         </FormGroup>
       </Grid>
       
@@ -2747,11 +2778,26 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
       <Grid item xs={12} md={6}>
         <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#059669', mb: 1 }}>💰 ÁREAS FINANCIERAS</Typography>
         <FormGroup>
-          <FormControlLabel control={<Checkbox />} label="Contabilidad" />
-          <FormControlLabel control={<Checkbox />} label="Finanzas" />
-          <FormControlLabel control={<Checkbox />} label="Tesorería" />
-          <FormControlLabel control={<Checkbox />} label="Control de Gestión" />
-          <FormControlLabel control={<Checkbox />} label="Auditoría Interna" />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Contabilidad')} onChange={() => handleDestinatarioChange('Contabilidad')} />} 
+            label="Contabilidad" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Finanzas')} onChange={() => handleDestinatarioChange('Finanzas')} />} 
+            label="Finanzas" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Tesorería')} onChange={() => handleDestinatarioChange('Tesorería')} />} 
+            label="Tesorería" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Control de Gestión')} onChange={() => handleDestinatarioChange('Control de Gestión')} />} 
+            label="Control de Gestión" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Auditoría Interna')} onChange={() => handleDestinatarioChange('Auditoría Interna')} />} 
+            label="Auditoría Interna" 
+          />
         </FormGroup>
       </Grid>
       
@@ -2759,11 +2805,26 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
       <Grid item xs={12} md={6}>
         <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#dc2626', mb: 1 }}>⚙️ ÁREAS OPERACIONALES</Typography>
         <FormGroup>
-          <FormControlLabel control={<Checkbox />} label="Recursos Humanos" />
-          <FormControlLabel control={<Checkbox />} label="Operaciones" />
-          <FormControlLabel control={<Checkbox />} label="Producción" />
-          <FormControlLabel control={<Checkbox />} label="Logística" />
-          <FormControlLabel control={<Checkbox />} label="Compras" />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Recursos Humanos')} onChange={() => handleDestinatarioChange('Recursos Humanos')} />} 
+            label="Recursos Humanos" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Operaciones')} onChange={() => handleDestinatarioChange('Operaciones')} />} 
+            label="Operaciones" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Producción')} onChange={() => handleDestinatarioChange('Producción')} />} 
+            label="Producción" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Logística')} onChange={() => handleDestinatarioChange('Logística')} />} 
+            label="Logística" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Compras')} onChange={() => handleDestinatarioChange('Compras')} />} 
+            label="Compras" 
+          />
         </FormGroup>
       </Grid>
       
@@ -2771,11 +2832,26 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
       <Grid item xs={12} md={6}>
         <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#7c3aed', mb: 1 }}>🔧 ÁREAS TÉCNICAS</Typography>
         <FormGroup>
-          <FormControlLabel control={<Checkbox />} label="Tecnología (TI)" />
-          <FormControlLabel control={<Checkbox />} label="Sistemas" />
-          <FormControlLabel control={<Checkbox />} label="Seguridad de la Información" />
-          <FormControlLabel control={<Checkbox />} label="Calidad" />
-          <FormControlLabel control={<Checkbox />} label="I+D+i" />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Tecnología (TI)')} onChange={() => handleDestinatarioChange('Tecnología (TI)')} />} 
+            label="Tecnología (TI)" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Sistemas')} onChange={() => handleDestinatarioChange('Sistemas')} />} 
+            label="Sistemas" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Seguridad de la Información')} onChange={() => handleDestinatarioChange('Seguridad de la Información')} />} 
+            label="Seguridad de la Información" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Calidad')} onChange={() => handleDestinatarioChange('Calidad')} />} 
+            label="Calidad" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('I+D+i')} onChange={() => handleDestinatarioChange('I+D+i')} />} 
+            label="I+D+i" 
+          />
         </FormGroup>
       </Grid>
       
@@ -2783,11 +2859,26 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
       <Grid item xs={12} md={6}>
         <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#ea580c', mb: 1 }}>🎯 ÁREAS COMERCIALES</Typography>
         <FormGroup>
-          <FormControlLabel control={<Checkbox />} label="Ventas" />
-          <FormControlLabel control={<Checkbox />} label="Marketing" />
-          <FormControlLabel control={<Checkbox />} label="Servicio al Cliente" />
-          <FormControlLabel control={<Checkbox />} label="Desarrollo de Negocios" />
-          <FormControlLabel control={<Checkbox />} label="CRM" />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Ventas')} onChange={() => handleDestinatarioChange('Ventas')} />} 
+            label="Ventas" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Marketing')} onChange={() => handleDestinatarioChange('Marketing')} />} 
+            label="Marketing" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Servicio al Cliente')} onChange={() => handleDestinatarioChange('Servicio al Cliente')} />} 
+            label="Servicio al Cliente" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Desarrollo de Negocios')} onChange={() => handleDestinatarioChange('Desarrollo de Negocios')} />} 
+            label="Desarrollo de Negocios" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('CRM')} onChange={() => handleDestinatarioChange('CRM')} />} 
+            label="CRM" 
+          />
         </FormGroup>
       </Grid>
       
@@ -2795,11 +2886,26 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
       <Grid item xs={12} md={6}>
         <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#0891b2', mb: 1 }}>⚖️ ÁREAS LEGALES Y COMPLIANCE</Typography>
         <FormGroup>
-          <FormControlLabel control={<Checkbox />} label="Legal" />
-          <FormControlLabel control={<Checkbox />} label="Compliance" />
-          <FormControlLabel control={<Checkbox />} label="Riesgos" />
-          <FormControlLabel control={<Checkbox />} label="DPO (Delegado Protección Datos)" />
-          <FormControlLabel control={<Checkbox />} label="Prevención de Lavado" />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Legal')} onChange={() => handleDestinatarioChange('Legal')} />} 
+            label="Legal" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Compliance')} onChange={() => handleDestinatarioChange('Compliance')} />} 
+            label="Compliance" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Riesgos')} onChange={() => handleDestinatarioChange('Riesgos')} />} 
+            label="Riesgos" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('DPO (Delegado Protección Datos)')} onChange={() => handleDestinatarioChange('DPO (Delegado Protección Datos)')} />} 
+            label="DPO (Delegado Protección Datos)" 
+          />
+          <FormControlLabel 
+            control={<Checkbox checked={destinatarios.includes('Prevención de Lavado')} onChange={() => handleDestinatarioChange('Prevención de Lavado')} />} 
+            label="Prevención de Lavado" 
+          />
         </FormGroup>
       </Grid>
     </Grid>
@@ -2809,13 +2915,30 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
     </Typography>
     <Grid container spacing={2} sx={{ mb: 3 }}>
       <Grid item xs={12} md={4}>
-        <TextField fullWidth label="Entidad" placeholder="Ej: Servicio Impuestos Internos" />
+        <TextField 
+          fullWidth 
+          label="Entidad" 
+          placeholder="Ej: Servicio Impuestos Internos" 
+          value={ratData.entidadTerceros || ''}
+          onChange={(e) => setRatData({ ...ratData, entidadTerceros: e.target.value })}
+        />
       </Grid>
       <Grid item xs={12} md={4}>
-        <TextField fullWidth label="País" defaultValue="Chile" />
+        <TextField 
+          fullWidth 
+          label="País" 
+          value={ratData.paisTerceros || 'Chile'}
+          onChange={(e) => setRatData({ ...ratData, paisTerceros: e.target.value })}
+        />
       </Grid>
       <Grid item xs={12} md={4}>
-        <TextField fullWidth label="Base Legal" placeholder="Ej: Obligación tributaria" />
+        <TextField 
+          fullWidth 
+          label="Base Legal" 
+          placeholder="Ej: Obligación tributaria" 
+          value={ratData.baseLegalTerceros || ''}
+          onChange={(e) => setRatData({ ...ratData, baseLegalTerceros: e.target.value })}
+        />
       </Grid>
     </Grid>
 
@@ -2941,10 +3064,12 @@ const PasoTransferencias = ({ ratData, setRatData }) => (
       </Paper>
     )}
   </Box>
-);
+  );
+};
 
 const PasoRevision = ({ ratData, guardarRAT }) => {
-  const tieneEIPD = ratData.categorias.sensibles.length > 0;
+  // CORREGIR: Validar que categorias existe antes de acceder a sensibles
+  const tieneEIPD = ratData.categorias?.sensibles?.length > 0 || false;
   const tieneDPIA = false; // Se puede agregar lógica para detectar
   const tieneDPA = ratData.transferenciasInternacionales;
 
@@ -2971,7 +3096,7 @@ const PasoRevision = ({ ratData, guardarRAT }) => {
           <Grid item xs={12} md={6}>
             <Typography variant="body2" sx={{ color: '#94a3b8' }}>Datos Sensibles:</Typography>
             <Typography variant="body1" fontWeight="bold" sx={{ color: '#f1f5f9' }}>
-              {ratData.categorias.sensibles.length > 0 ? 'SÍ' : 'NO'}
+              {(ratData.categorias?.sensibles?.length || 0) > 0 ? 'SÍ' : 'NO'}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>

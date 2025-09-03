@@ -557,7 +557,9 @@ const RATEditPage = () => {
             multiline
             rows={3}
             label="Transferencias Internacionales"
-            value={ratData.transferenciasInternacionales?.join(', ') || ''}
+            value={Array.isArray(ratData.transferenciasInternacionales) 
+              ? ratData.transferenciasInternacionales.join(', ') 
+              : ratData.transferenciasInternacionales || ''}
             onChange={(e) => setRatData(prev => ({ 
               ...prev, 
               transferenciasInternacionales: e.target.value.split(',').map(t => t.trim()).filter(t => t) 
