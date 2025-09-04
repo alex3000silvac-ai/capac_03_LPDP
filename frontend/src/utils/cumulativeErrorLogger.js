@@ -212,20 +212,46 @@ ${separator}
    */
   async writeToFile(filename, content) {
     try {
-      if (window.showSaveFilePicker) {
-        await this.writeWithFileSystemAPI(filename, content);
-      } else {
-        await this.downloadFile(filename, content);
-      }
+      // Para logs automáticos, usar localStorage en lugar de File System API
+      // File System API requiere interacción del usuario
+      await this.storeInLocalStorage(filename, content);
     } catch (error) {
-      console.error(`❌ Error escribiendo archivo ${filename}:`, error);
+      // Silencioso - no mostrar errores de archivo en consola
+      // Solo almacenar en memoria
+      this.errorBuffer.set(filename, content);
     }
   }
 
   /**
-   * 💾 ESCRIBIR CON FILE SYSTEM API
+   * 💾 ALMACENAR EN LOCALSTORAGE (PARA LOGS AUTOMÁTICOS)
    */
-  async writeWithFileSystemAPI(filename, content) {
+  async storeInLocalStorage(filename, content) {
+    try {
+      const key = `error_log_${filename}`;
+      const maxSize = 1024 * 1024; // 1MB máximo por archivo
+      
+      if (content.length > maxSize) {
+        // Si es muy grande, solo mantener las últimas líneas
+        const lines = content.split('\n');
+        const keepLines = Math.floor(maxSize / 100); // Aproximadamente
+        content = lines.slice(-keepLines).join('\n');
+      }
+      
+      localStorage.setItem(key, content);
+      
+      // Opcional: También mantener en buffer de memoria
+      this.errorBuffer.set(filename, content);
+      
+    } catch (error) {
+      // Si localStorage falla, solo mantener en memoria
+      this.errorBuffer.set(filename, content);
+    }
+  }
+
+  /**
+   * 💾 ESCRIBIR CON FILE SYSTEM API (SOLO MANUAL)
+   */
+  async writeWithFileSystemAPIManual(filename, content) {
     try {
       // Para modo acumulativo, intentar abrir archivo existente o crear nuevo
       let fileHandle;
@@ -418,6 +444,39 @@ ${separator}
   }
 
   /**
+   * 📎 DESCARGAR LOGS MANUALMENTE (CON INTERACCIÓN USUARIO)
+   */
+  async downloadLogsManually() {
+    try {
+      const allLogs = {};
+      
+      // Recopilar de localStorage
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('error_log_')) {
+          const filename = key.replace('error_log_', '');
+          allLogs[filename] = localStorage.getItem(key);
+        }
+      }
+      
+      // Recopilar de buffer memoria
+      this.errorBuffer.forEach((content, filename) => {
+        allLogs[filename] = content;
+      });
+      
+      // Descargar cada archivo
+      for (const [filename, content] of Object.entries(allLogs)) {
+        await this.downloadFile(filename, content);
+      }
+      
+      return { success: true, files: Object.keys(allLogs).length };
+      
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
    * 📊 OBTENER ESTADÍSTICAS
    */
   getStats() {
@@ -474,5 +533,6 @@ const cumulativeErrorLogger = new CumulativeErrorLogger();
 
 // Hacer disponible globalmente
 window.cumulativeErrorLogger = cumulativeErrorLogger;
+window.downloadErrorLogs = () => cumulativeErrorLogger.downloadLogsManually();
 
 export default cumulativeErrorLogger;
