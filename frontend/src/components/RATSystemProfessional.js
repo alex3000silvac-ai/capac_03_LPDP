@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 // import preventiveAI from '../utils/preventiveAI'; // REMOVIDO - causaba errores
 import { 
@@ -324,7 +324,7 @@ const RATSystemProfessional = () => {
   /**
    * 💾 HELPER PARA PERSISTIR DATOS EMPRESA AL CAMBIAR CAMPOS
    */
-  const persistirDatosEmpresa = (nuevosResponsableData) => {
+  const persistirDatosEmpresa = useCallback((nuevosResponsableData) => {
     try {
       const datosEmpresa = {
         razon_social: nuevosResponsableData.razonSocial || '',
@@ -371,7 +371,7 @@ const RATSystemProfessional = () => {
         }, 'RAT_AUTO_PERSISTENCE');
       }
     }
-  };
+  }, []); // useCallback sin dependencias
 
   // Cargar RATs existentes y datos comunes de empresa
   useEffect(() => {

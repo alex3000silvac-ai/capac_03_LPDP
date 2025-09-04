@@ -231,7 +231,7 @@ class DatosEmpresaPersistence {
       return this.guardarDatosEmpresa(datosActualizados, opciones);
     } else {
       // No hay datos previos, guardar nuevos
-      return this.guardarDatosEmpresa(nuevosDataEmpresa, opciones);
+      return this.guardarDatosEmpresa(nuevosdatos, opciones);
     }
   }
 
