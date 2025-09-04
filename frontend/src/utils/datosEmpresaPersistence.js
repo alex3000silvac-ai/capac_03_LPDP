@@ -22,6 +22,8 @@ class DatosEmpresaPersistence {
       notificar = true          // Notificar a listeners
     } = opciones;
 
+    console.log('🔴 DEBUG guardarDatosEmpresa llamado con:', datosEmpresa);
+    
     try {
       const datosParaGuardar = {
         ...datosEmpresa,
@@ -36,7 +38,8 @@ class DatosEmpresaPersistence {
       // Guardar en localStorage (permanente) si se solicita
       if (persistir && !soloSesion) {
         localStorage.setItem(this.storageKey, JSON.stringify(datosParaGuardar));
-        // Logged via cumulativeErrorLogger above
+        console.log('🟢 DEBUG: Guardado en localStorage con key:', this.storageKey);
+        console.log('🟢 DEBUG: Datos guardados:', datosParaGuardar);
       }
 
       // Notificar cambio a listeners
@@ -82,6 +85,8 @@ class DatosEmpresaPersistence {
       incluirMetadata = false   // Incluir timestamp, fuente, etc.
     } = preferencias;
 
+    console.log('🔵 DEBUG cargarDatosEmpresa llamado');
+    
     try {
       let datosEncontrados = null;
       let fuente = null;
@@ -105,8 +110,10 @@ class DatosEmpresaPersistence {
       }
 
       if (datosEncontrados) {
+        console.log('🔶 DEBUG: Datos encontrados en storage:', datosEncontrados);
         // Validar datos antes de retornar
         const datosValidos = this.validarDatos(datosEncontrados);
+        console.log('🔶 DEBUG: Resultado validación:', datosValidos);
         
         if (datosValidos.valid) {
           //console.log(`📖 Datos empresa cargados desde ${fuente}`);
@@ -170,13 +177,14 @@ class DatosEmpresaPersistence {
         return { valid: false, error: 'Datos no es un objeto válido' };
       }
 
-      // VALIDACIÓN RELAJADA: Al menos un campo importante debe estar presente
-      const tieneAlgunCampoImportante = camposImportantes.some(campo => 
-        datos[campo] && typeof datos[campo] === 'string' && datos[campo].trim().length > 0
-      );
+      // VALIDACIÓN ULTRA RELAJADA: Aceptar cualquier dato que no sea null/undefined
+      const tieneAlgunDato = Object.keys(datos).some(campo => {
+        const valor = datos[campo];
+        return valor !== null && valor !== undefined && valor !== '';
+      });
       
-      if (!tieneAlgunCampoImportante) {
-        return { valid: false, error: 'Al menos un campo importante debe estar presente (razón social, RUT o email)' };
+      if (!tieneAlgunDato) {
+        return { valid: false, error: 'No hay datos para guardar' };
       }
 
       // Validar formato RUT básico
