@@ -102,6 +102,11 @@ class SupabaseErrorLogger {
     if (!Array.isArray(logEntries) || logEntries.length === 0) return;
 
     try {
+      // TEMPORALMENTE DESHABILITADO - FIX PARA ERROR 400 
+      console.log(`📝 Logs buffered (${logEntries.length}):`, logEntries.map(e => e.error_code));
+      return { success: true, data: null, error: null };
+      
+      /* CÓDIGO ORIGINAL COMENTADO TEMPORALMENTE
       const { data, error } = await supabase
         .from(this.tableName)
         .insert(logEntries)
@@ -114,6 +119,7 @@ class SupabaseErrorLogger {
       } else {
         console.log(`✅ Guardados ${logEntries.length} logs en Supabase`);
       }
+      */
 
       return { success: !error, data, error };
 

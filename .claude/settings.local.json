@@ -24,7 +24,11 @@
       "Bash(done)",
       "Bash(git pull:*)",
       "Bash(npm run build:*)",
-      "WebFetch(domain:dashboard.render.com)"
+      "WebFetch(domain:dashboard.render.com)",
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(./test-api-directo.sh:*)",
+      "Bash(bash:*)"
     ],
     "deny": [],
     "ask": [],

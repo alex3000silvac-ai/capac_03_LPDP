@@ -106,7 +106,7 @@ class RATService {
         return { success: false, error: 'Usuario o tenant requerido' };
       }
 
-      // Upsert en user_sessions para persistir tenant seleccionado
+      // Upsert con conflict resolution específico para user_id + tenant_id
       const { data, error } = await supabase
         .from('user_sessions')
         .upsert({
@@ -115,6 +115,8 @@ class RATService {
           tenant_data: tenant,
           is_active: true,
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,tenant_id'
         })
         .select();
 
