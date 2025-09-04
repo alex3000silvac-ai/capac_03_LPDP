@@ -1840,7 +1840,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
       dpo_email: nuevosResponsableData.email || '',
       dpo_telefono: nuevosResponsableData.telefono || ''
     };
-    guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true });
+    guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
     
     if (rut.length > 8) {
       if (!validarRUT(rut)) {
@@ -1908,7 +1908,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               dpo_email: nuevosResponsableData.email || '',
               dpo_telefono: nuevosResponsableData.telefono || ''
             };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true });
+            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
           }}
           helperText="Nombre legal completo de la empresa"
           required
@@ -1947,7 +1947,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               dpo_email: nuevosResponsableData.email || '',
               dpo_telefono: nuevosResponsableData.telefono || ''
             };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true });
+            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
           }}
           helperText="Dirección física de la oficina principal"
           required
@@ -1993,7 +1993,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               dpo_email: nuevosResponsableData.email || '',
               dpo_telefono: nuevosResponsableData.telefono || ''
             };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true });
+            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
           }}
           helperText="Nombre y apellidos del DPO designado"
           required
@@ -2022,7 +2022,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               dpo_email: nuevosResponsableData.email || '',
               dpo_telefono: nuevosResponsableData.telefono || ''
             };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true });
+            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
           }}
           helperText="Email oficial para consultas de privacidad"
           required
@@ -2050,7 +2050,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               dpo_email: nuevosResponsableData.email || '',
               dpo_telefono: nuevosResponsableData.telefono || ''
             };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true });
+            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
           }}
           helperText="Teléfono directo del DPO"
           required

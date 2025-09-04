@@ -19,10 +19,22 @@ class DatosEmpresaPersistence {
     const {
       persistir = true,          // Guardar en localStorage permanente
       soloSesion = false,       // Solo sessionStorage (se borra al cerrar)
-      notificar = true          // Notificar a listeners
+      notificar = true,          // Notificar a listeners
+      permitirParcial = false    // Permitir guardar datos parciales (actualizaciones)
     } = opciones;
 
     console.log('🔴 DEBUG guardarDatosEmpresa llamado con:', datosEmpresa);
+    
+    // VALIDACIÓN OBLIGATORIA AL GUARDAR
+    const validacion = this.validarDatos(datosEmpresa, { permitirParcial });
+    if (!validacion.valid) {
+      console.log('❌ DEBUG: Validación fallida:', validacion);
+      return { 
+        success: false, 
+        error: validacion.error,
+        camposFaltantes: validacion.camposFaltantes || []
+      };
+    }
     
     try {
       const datosParaGuardar = {
@@ -156,17 +168,18 @@ class DatosEmpresaPersistence {
   /**
    * ✅ VALIDAR ESTRUCTURA DE DATOS
    */
-  validarDatos(datos) {
-    const camposImportantes = [
+  validarDatos(datos, opciones = {}) {
+    const { permitirParcial = false } = opciones;
+    const camposObligatorios = [
       'razon_social',
       'rut', 
-      'email_empresa'
+      'email_empresa',
+      'direccion_empresa',
+      'dpo_nombre'
     ];
 
     const camposOpcionales = [
       'telefono_empresa',
-      'direccion_empresa',
-      'dpo_nombre',
       'dpo_email',
       'dpo_telefono'
     ];
@@ -177,14 +190,33 @@ class DatosEmpresaPersistence {
         return { valid: false, error: 'Datos no es un objeto válido' };
       }
 
-      // VALIDACIÓN ULTRA RELAJADA: Aceptar cualquier dato que no sea null/undefined
-      const tieneAlgunDato = Object.keys(datos).some(campo => {
-        const valor = datos[campo];
-        return valor !== null && valor !== undefined && valor !== '';
-      });
-      
-      if (!tieneAlgunDato) {
-        return { valid: false, error: 'No hay datos para guardar' };
+      if (permitirParcial) {
+        // MODO ACTUALIZACIÓN: Aceptar datos parciales
+        const tieneAlgunDato = Object.keys(datos).some(campo => {
+          const valor = datos[campo];
+          return valor !== null && valor !== undefined && valor !== '';
+        });
+        
+        if (!tieneAlgunDato) {
+          return { valid: false, error: 'No hay datos para guardar' };
+        }
+      } else {
+        // MODO COMPLETO: Validar todos los campos obligatorios
+        const camposFaltantes = [];
+        
+        camposObligatorios.forEach(campo => {
+          if (!datos[campo] || typeof datos[campo] !== 'string' || datos[campo].trim().length === 0) {
+            camposFaltantes.push(campo);
+          }
+        });
+        
+        if (camposFaltantes.length > 0) {
+          return { 
+            valid: false, 
+            error: `Campos obligatorios faltantes: ${camposFaltantes.join(', ')}`,
+            camposFaltantes: camposFaltantes
+          };
+        }
       }
 
       // Validar formato RUT básico
