@@ -40,8 +40,8 @@ class SupabaseRLSGuard {
       'organizaciones', 
       'proveedores',
       'rats',
-      'actividades_dpo',
-      'eipd_evaluaciones'
+      'actividades_dpo'
+      // 'eipd_evaluaciones' - REMOVIDO: tabla no existe en BD
     ];
 
     for (const table of mainTables) {
