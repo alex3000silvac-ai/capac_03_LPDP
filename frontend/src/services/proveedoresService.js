@@ -136,8 +136,7 @@ class ProveedoresService {
 
       if (!error && data && data.length > 0) {
         // //console.log('✅ Proveedores cargados desde Supabase:', data.length);
-        // Sincronizar con localStorage
-        data.forEach(prov => this.saveToLocalStorage(prov));
+        // Solo Supabase - NO localStorage
         return { success: true, data, source: 'supabase' };
       }
 

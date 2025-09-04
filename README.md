@@ -1,12 +1,39 @@
-# Sistema LPDP - Ley 21.719
+# 🛡️ SISTEMA LPDP - LEY PROTECCIÓN DATOS PERSONALES CHILE
 
 Sistema integral de cumplimiento de la Ley de Protección de Datos Personales de Chile.
 
+## 🚨 REGLAS CRÍTICAS DE DESARROLLO
+
+### ❌ PROHIBICIONES ABSOLUTAS
+
+1. **🚫 LOCALSTORAGE PROHIBIDO COMPLETAMENTE**
+   - NO usar `localStorage` bajo ninguna circunstancia
+   - NO usar `sessionStorage` bajo ninguna circunstancia  
+   - TODO debe persistir en Supabase database
+   - Cualquier código con localStorage debe ser eliminado inmediatamente
+
+2. **🚫 CÓDIGO COMENTADO PROHIBIDO**
+   - NO comentar llamadas de funciones
+   - NO dejar código comentado en commits
+   - Eliminar código completamente si no es necesario
+
+3. **🚫 VALIDACIONES ULTRA-RELAJADAS PROHIBIDAS**
+   - Los datos de empresa DEBEN estar completos para persistir
+   - Campos obligatorios: razon_social, rut, email_empresa, direccion_empresa, dpo_nombre
+
+### ✅ REGLAS OBLIGATORIAS
+
+- **TODA variable o input debe ser desde Supabase**
+- **Backend siempre como productivo** 
+- **UN ERROR A LA VEZ**: Metodología incremental
+- **NO localStorage NUNCA**
+
 ## 🚀 Stack Tecnológico
 
-**Backend:** FastAPI + PostgreSQL + SQLAlchemy  
+**Backend:** Supabase PostgreSQL  
 **Frontend:** React 18 + JavaScript  
 **Deploy:** Render (automatizado)
+**Persistencia:** 100% Supabase Database
 
 ## 📁 Estructura del Proyecto
 

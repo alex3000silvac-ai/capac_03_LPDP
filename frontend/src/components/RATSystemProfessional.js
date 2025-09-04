@@ -6,7 +6,7 @@ import {
   cargarDatosEmpresa, 
   autoCompletarFormulario,
   existenDatosEmpresa 
-} from '../utils/datosEmpresaPersistence';
+} from '../utils/supabaseEmpresaPersistence';
 import {
   Box,
   Container,

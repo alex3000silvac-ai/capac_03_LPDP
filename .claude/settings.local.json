@@ -23,7 +23,8 @@
       "Bash(do echo \"=== $file ===\")",
       "Bash(done)",
       "Bash(git pull:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "WebFetch(domain:dashboard.render.com)"
     ],
     "deny": [],
     "ask": [],

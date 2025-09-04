@@ -137,16 +137,9 @@ const RATSearchFilter = ({
     return () => clearTimeout(debounceTimer);
   }, [filters, onFilterChange]);
 
-  // Cargar filtros guardados al iniciar
+  // Filtros guardados en memoria solamente - NO localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('rat_saved_filters');
-    if (saved) {
-      try {
-        setSavedFilters(JSON.parse(saved));
-      } catch (e) {
-        // //console.warn('Error cargando filtros guardados:', e);
-      }
-    }
+    // Sin localStorage - solo filtros en memoria durante la sesión
   }, []);
 
   const handleFilterChange = (field, value) => {
@@ -199,7 +192,7 @@ const RATSearchFilter = ({
 
     const updated = [...savedFilters, newFilter];
     setSavedFilters(updated);
-    localStorage.setItem('rat_saved_filters', JSON.stringify(updated));
+    // Sin localStorage - solo memoria durante la sesión
     setFilterName('');
   };
 
@@ -210,7 +203,7 @@ const RATSearchFilter = ({
   const deleteSavedFilter = (filterId) => {
     const updated = savedFilters.filter(f => f.id !== filterId);
     setSavedFilters(updated);
-    localStorage.setItem('rat_saved_filters', JSON.stringify(updated));
+    // Sin localStorage - solo memoria durante la sesión
   };
 
   const getActiveFiltersCount = () => {

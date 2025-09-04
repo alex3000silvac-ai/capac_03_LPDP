@@ -33,14 +33,14 @@ if (!supabaseKey.startsWith('eyJ') && !supabaseKey.startsWith('sb_publishable_')
   keyPrefix: supabaseKey.substring(0, 20) + '...'
 }); */
 
-// Cliente real de Supabase
+// Cliente real de Supabase - SIN localStorage
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: true,
-    persistSession: true,
+    persistSession: false, // NO persistir sesión en localStorage
     detectSessionInUrl: true,
-    storageKey: 'supabase.auth.token',
-    storage: window.localStorage
+    storageKey: null, // NO usar storage
+    storage: null // SIN localStorage
   },
   realtime: {
     params: {
