@@ -7,6 +7,7 @@ import {
   autoCompletarFormulario,
   existenDatosEmpresa 
 } from '../utils/supabaseEmpresaPersistence';
+import supabaseErrorLogger from '../utils/supabaseErrorLogger';
 import {
   Box,
   Container,
@@ -346,15 +347,15 @@ const RATSystemProfessional = () => {
           persistir: true
         });
         
-        if (window.cumulativeErrorLogger) {
+        if (supabaseErrorLogger) {
           if (resultado.success) {
-            window.cumulativeErrorLogger.logMediumError('RAT_PERSISTENCE_AUTO_SAVE', {
+            supabaseErrorLogger.logMediumError('RAT_PERSISTENCE_AUTO_SAVE', {
               message: 'Datos empresa guardados automáticamente desde formulario RAT',
               campos_guardados: Object.keys(datosEmpresa).filter(k => datosEmpresa[k]),
               timestamp: new Date().toISOString()
             }, 'RAT_AUTO_PERSISTENCE');
           } else {
-            window.cumulativeErrorLogger.logCriticalError('RAT_PERSISTENCE_FAILED', {
+            supabaseErrorLogger.logCriticalError('RAT_PERSISTENCE_FAILED', {
               error: resultado.error,
               datos_intentados: datosEmpresa,
               timestamp: new Date().toISOString()
@@ -363,8 +364,8 @@ const RATSystemProfessional = () => {
         }
       }
     } catch (error) {
-      if (window.cumulativeErrorLogger) {
-        window.cumulativeErrorLogger.logCriticalError('RAT_PERSISTENCE_ERROR', {
+      if (supabaseErrorLogger) {
+        supabaseErrorLogger.logCriticalError('RAT_PERSISTENCE_ERROR', {
           error: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString()
@@ -376,8 +377,8 @@ const RATSystemProfessional = () => {
   // Cargar RATs existentes y datos comunes de empresa
   useEffect(() => {
     // Log inicio de inicialización
-    if (window.cumulativeErrorLogger) {
-      window.cumulativeErrorLogger.logMediumError('RAT_SYSTEM_INIT', {
+    if (supabaseErrorLogger) {
+      supabaseErrorLogger.logMediumError('RAT_SYSTEM_INIT', {
         message: 'RATSystemProfessional inicializando - cargando datos',
         tenant_id: currentTenant?.id,
         timestamp: new Date().toISOString()
@@ -408,8 +409,8 @@ const RATSystemProfessional = () => {
         
         if (datosGuardados.success && datosGuardados.datos) {
           // Log éxito a archivo TXT
-          if (window.cumulativeErrorLogger) {
-            window.cumulativeErrorLogger.logMediumError('RAT_AUTOCOMPLETADO_SUCCESS', {
+          if (supabaseErrorLogger) {
+            supabaseErrorLogger.logMediumError('RAT_AUTOCOMPLETADO_SUCCESS', {
               message: 'Datos empresa cargados exitosamente para autocompletado RAT',
               fuente: datosGuardados.fuente,
               campos_cargados: Object.keys(datosGuardados.datos),
@@ -440,8 +441,8 @@ const RATSystemProfessional = () => {
           return; // Salir - datos cargados exitosamente
         } else {
           // Log warning - no hay datos guardados
-          if (window.cumulativeErrorLogger) {
-            window.cumulativeErrorLogger.logMediumError('RAT_AUTOCOMPLETADO_NO_DATOS', {
+          if (supabaseErrorLogger) {
+            supabaseErrorLogger.logMediumError('RAT_AUTOCOMPLETADO_NO_DATOS', {
               message: 'No se encontraron datos empresa guardados para autocompletado',
               error: datosGuardados.error,
               timestamp: new Date().toISOString()
@@ -451,8 +452,8 @@ const RATSystemProfessional = () => {
         
       } catch (error) {
         // Log error crítico a archivo TXT
-        if (window.cumulativeErrorLogger) {
-          window.cumulativeErrorLogger.logCriticalError('RAT_AUTOCOMPLETADO_FAILED', {
+        if (supabaseErrorLogger) {
+          supabaseErrorLogger.logCriticalError('RAT_AUTOCOMPLETADO_FAILED', {
             error: error.message,
             stack: error.stack,
             timestamp: new Date().toISOString()
@@ -657,8 +658,8 @@ const RATSystemProfessional = () => {
     
     // 🔧 FIX CRÍTICO: Auto-completar datos empresa después de limpiar
     setTimeout(() => {
-      if (window.cumulativeErrorLogger) {
-        window.cumulativeErrorLogger.logMediumError('RAT_NUEVO_RELOAD_DATOS', {
+      if (supabaseErrorLogger) {
+        supabaseErrorLogger.logMediumError('RAT_NUEVO_RELOAD_DATOS', {
           message: 'Recargando datos empresa después de limpiar RAT',
           timestamp: new Date().toISOString()
         }, 'RAT_SYSTEM');
@@ -930,8 +931,8 @@ const RATSystemProfessional = () => {
       
       if (!validacionResult.valido) {
         // Log error crítico de validación
-        if (window.cumulativeErrorLogger) {
-          window.cumulativeErrorLogger.logCriticalError('RAT_VALIDACION_FAILED', {
+        if (supabaseErrorLogger) {
+          supabaseErrorLogger.logCriticalError('RAT_VALIDACION_FAILED', {
             errores: validacionResult.errores,
             datos_actuales: {
               nombre_actividad: ratData.nombreActividad,
@@ -955,8 +956,8 @@ const RATSystemProfessional = () => {
       }
       
       // Log éxito de validación
-      if (window.cumulativeErrorLogger) {
-        window.cumulativeErrorLogger.logMediumError('RAT_VALIDACION_SUCCESS', {
+      if (supabaseErrorLogger) {
+        supabaseErrorLogger.logMediumError('RAT_VALIDACION_SUCCESS', {
           message: 'Validación RAT exitosa, procediendo a guardar',
           campos_validados: validacionResult.campos_validados,
           timestamp: new Date().toISOString()
@@ -1196,8 +1197,8 @@ const RATSystemProfessional = () => {
       });
     } catch (error) {
       // Log error crítico de guardado a archivo TXT
-      if (window.cumulativeErrorLogger) {
-        window.cumulativeErrorLogger.logCriticalError('RAT_SAVE_FAILED', {
+      if (supabaseErrorLogger) {
+        supabaseErrorLogger.logCriticalError('RAT_SAVE_FAILED', {
           error: error.message,
           stack: error.stack,
           rat_data: {
