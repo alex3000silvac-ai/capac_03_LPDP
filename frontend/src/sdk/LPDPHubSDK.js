@@ -24,7 +24,7 @@ class LPDPHubSDK {
     this.eventListeners = new Map();
     
     if (this.debug) {
-      console.log('🚀 LPDP Hub SDK inicializado:', {
+      // console.log('🚀 LPDP Hub SDK inicializado:', {
         baseUrl: this.baseUrl,
         version: this.version,
         endpoints: this.baseEndpoint
@@ -433,7 +433,7 @@ class LPDPHubSDK {
 
   log(...args) {
     if (this.debug) {
-      console.log('[LPDP Hub SDK]', ...args);
+      // console.log('[LPDP Hub SDK]', ...args);
     }
   }
 

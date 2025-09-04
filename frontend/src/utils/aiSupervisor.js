@@ -698,7 +698,7 @@ class AISupervisor {
       await this.performPeriodicSupervision();
     }, 60 * 60 * 1000);
 
-    console.log('🤖 AI Supervisor iniciado - Garantía activa');
+    // AI Supervisor iniciado
   }
 
   async enableAISupervisor(userId) {

@@ -217,7 +217,7 @@ const APIPartnersIntegration = () => {
       setPartnerDialog(false);
       
       // 📧 ENVIAR CREDENCIALES POR EMAIL SEGURO
-      console.log('📧 Credenciales partner generadas:', { apiKey, partner: partnerData.company_name });
+      // console.log('📧 Credenciales partner generadas:', { apiKey, partner: partnerData.company_name });
 
     } catch (error) {
       console.error('Error creando partner:', error);

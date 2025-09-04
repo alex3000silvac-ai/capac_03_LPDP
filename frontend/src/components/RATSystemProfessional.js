@@ -349,7 +349,7 @@ const RATSystemProfessional = () => {
         const ultimoRAT = ultimosRATs && ultimosRATs.length > 0 ? ultimosRATs[0] : null;
         
         if (error) {
-          console.warn('⚠️ Error consultando último RAT:', error.message, error.code);
+          // console.warn('⚠️ Error consultando último RAT:', error.message, error.code);
           // Continuar con datos tenant básicos
         }
         
@@ -404,7 +404,7 @@ const RATSystemProfessional = () => {
           
           // Datos permanentes cargados, campos actividad limpios
         } else {
-          console.log('⚠️ No hay RATs previos, usando datos tenant básicos');
+          // console.log('⚠️ No hay RATs previos, usando datos tenant básicos');
           // Si no hay RATs previos, usar datos tenant
           setRatData(prev => ({
             ...prev,
@@ -553,7 +553,7 @@ const RATSystemProfessional = () => {
     try {
       const ratToEdit = rats.find(rat => rat.id === ratId);
       if (ratToEdit) {
-        console.log('🔧 Cargando RAT para edición:', ratId, ratToEdit);
+        // console.log('🔧 Cargando RAT para edición:', ratId, ratToEdit);
         setEditingRAT(ratId);
         
         // 🚨 MAPEO ROBUSTO - MÚLTIPLES POSIBLES ESTRUCTURAS
@@ -602,7 +602,7 @@ const RATSystemProfessional = () => {
             categorias.sensibles = rat.datos_sensibles;
           }
           
-          console.log('📊 Categorías mapeadas:', categorias);
+          // console.log('📊 Categorías mapeadas:', categorias);
           return categorias;
         };
         
@@ -759,7 +759,7 @@ const RATSystemProfessional = () => {
       };
       
       // 🧮 CÁLCULO RIESGO AUTOMÁTICO SEGÚN DIAGRAMA LÍNEAS 610-701
-      console.log('🧮 Calculando riesgo multi-dimensional...');
+      // console.log('🧮 Calculando riesgo multi-dimensional...');
       const analisisRiesgo = await riskCalculationEngine.calcularRiesgoTotal(ratData, currentTenant?.id);
       
       // APLICAR RESULTADOS ANÁLISIS RIESGO
@@ -771,7 +771,7 @@ const RATSystemProfessional = () => {
 
       // ⚖️ TEST BALANCING SI ES INTERÉS LEGÍTIMO
       if (ratData.baseLegal === 'interes_legitimo') {
-        console.log('⚖️ Ejecutando Test Balancing obligatorio...');
+        // console.log('⚖️ Ejecutando Test Balancing obligatorio...');
         const testBalancing = await testBalancingEngine.ejecutarTestBalancing(ratData, currentTenant?.id);
         ratCompleto.metadata.test_balancing = testBalancing;
         
@@ -787,7 +787,7 @@ const RATSystemProfessional = () => {
         ratCompleto.metadata.casuisticas_especiales = casuisticasEspecificas;
       }
 
-      console.log(viewMode === 'edit' ? '📝 Actualizando RAT:' : '📦 Guardando RAT con estructura completa:', ratCompleto);
+      // console.log(viewMode === 'edit' ? '📝 Actualizando RAT:' : '📦 Guardando RAT con estructura completa:', ratCompleto);
       
       let resultado;
       if (viewMode === 'edit') {
@@ -797,11 +797,11 @@ const RATSystemProfessional = () => {
       }
       
       if (resultado && resultado.id) {
-        console.log(viewMode === 'edit' ? '✅ RAT actualizado exitosamente con ID:' : '✅ RAT guardado exitosamente con ID:', resultado.id);
+        // console.log(viewMode === 'edit' ? '✅ RAT actualizado exitosamente con ID:' : '✅ RAT guardado exitosamente con ID:', resultado.id);
         
         // 🧠 PROCESAR ANÁLISIS DE CATEGORÍAS PENDIENTES
         if (viewMode !== 'edit' && ratData.categorias?.sensibles?.length > 0) {
-          console.log('🔄 Procesando análisis de categorías pendientes para RAT guardado...');
+          // console.log('🔄 Procesando análisis de categorías pendientes para RAT guardado...');
           
           // Actualizar ratData con el ID recién generado para análisis posteriores
           const ratDataConId = { ...ratData, id: resultado.id };
@@ -810,7 +810,7 @@ const RATSystemProfessional = () => {
           for (const subcategoria of ratData.categorias.sensibles) {
             try {
               await categoryAnalysisEngine.analizarCategoriaSeleccionada('sensibles', subcategoria, ratDataConId, currentTenant?.id);
-              console.log(`✅ Análisis completado para: sensibles.${subcategoria}`);
+              // console.log(`✅ Análisis completado para: sensibles.${subcategoria}`);
             } catch (error) {
               console.error(`❌ Error análisis ${subcategoria}:`, error);
             }
@@ -819,7 +819,7 @@ const RATSystemProfessional = () => {
         
         // 🚀 GENERACIÓN AUTOMÁTICA EIPD/DPIA AL CREAR RAT (Art. 25 Ley 21.719)
         if (ratCompleto.metadata.requiereEIPD || ratCompleto.metadata.requiereDPIA) {
-          console.log('🎯 Iniciando generación automática EIPD/DPIA...');
+          // console.log('🎯 Iniciando generación automática EIPD/DPIA...');
           
           // Crear EIPD automáticamente
           const eipdData = {
@@ -863,7 +863,7 @@ const RATSystemProfessional = () => {
             .single();
           
           if (!eipdError && eipdGuardado) {
-            console.log('✅ EIPD generado automáticamente:', eipdGuardado.id);
+            // console.log('✅ EIPD generado automáticamente:', eipdGuardado.id);
             
             // Asociar EIPD con el RAT
             await supabase
@@ -900,7 +900,7 @@ const RATSystemProfessional = () => {
                 status: 'pending'
               });
             
-            console.log('🔔 DPO notificado para revisión EIPD pre-generado');
+            // console.log('🔔 DPO notificado para revisión EIPD pre-generado');
             alert(`✅ RAT ${ratId} guardado + EIPD generado automáticamente. DPO notificado para revisión.`);
           } else {
             console.error('❌ Error generando EIPD:', eipdError);
@@ -908,7 +908,7 @@ const RATSystemProfessional = () => {
         }
         
         const verification = await ratService.getCompletedRATs();
-        console.log('🔍 Verificación de persistencia - Total RATs:', verification.length);
+        // console.log('🔍 Verificación de persistencia - Total RATs:', verification.length);
         
         setRats(verification);
         alert(`✅ RAT ${ratId} ${viewMode === 'edit' ? 'actualizado' : 'guardado'} exitosamente en Supabase`);
@@ -1305,7 +1305,7 @@ const RATSystemProfessional = () => {
                                   <IconButton 
                                     size="small" 
                                     onClick={() => {
-                                      console.log('🔍 Navegando a edición RAT:', rat.id);
+                                      // console.log('🔍 Navegando a edición RAT:', rat.id);
                                       navigate(`/rat-edit/${rat.id}`);
                                     }}
                                     sx={{ 
@@ -1439,7 +1439,7 @@ const RATSystemProfessional = () => {
                       variant="contained"
                       size="small"
                       onClick={() => {
-                        console.log('🔍 Navegando a vista completa RAT:', editingRAT);
+                        // console.log('🔍 Navegando a vista completa RAT:', editingRAT);
                         navigate(`/rat-edit/${editingRAT}`);
                       }}
                       sx={{ 
@@ -1829,7 +1829,7 @@ const PasoCategorias = ({ ratData, setRatData, currentTenant, setAlertas }) => {
             identificacion: [...current, value] 
           }
         });
-        console.log('✅ Categoría agregada:', value);
+        // console.log('✅ Categoría agregada:', value);
       } else {
         setRatData({
           ...ratData,
@@ -1838,7 +1838,7 @@ const PasoCategorias = ({ ratData, setRatData, currentTenant, setAlertas }) => {
             identificacion: current.filter(v => v !== value) 
           }
         });
-        console.log('❌ Categoría removida:', value);
+        // console.log('❌ Categoría removida:', value);
       }
     } catch (error) {
       console.error('🚨 Error en handleIdentificacion:', error);
@@ -1859,13 +1859,13 @@ const PasoCategorias = ({ ratData, setRatData, currentTenant, setAlertas }) => {
             sensibles: [...current, value] 
           }
         });
-        console.log('🚨 Dato sensible agregado - Trigger EIPD:', value);
+        // console.log('🚨 Dato sensible agregado - Trigger EIPD:', value);
         
         // 🧠 ANÁLISIS AUTOMÁTICO SEGÚN DIAGRAMA LÍNEAS 162-228
         if (currentTenant?.id) {
           categoryAnalysisEngine.analizarCategoriaSeleccionada('sensibles', value, ratData, currentTenant.id)
             .then(analisis => {
-              console.log('🧠 Análisis automático categoría:', analisis);
+              // console.log('🧠 Análisis automático categoría:', analisis);
               // Aplicar alertas y efectos automáticos
               if (analisis.alertas?.length > 0) {
                 setAlertas(prev => [...prev, ...analisis.alertas]);
@@ -1881,7 +1881,7 @@ const PasoCategorias = ({ ratData, setRatData, currentTenant, setAlertas }) => {
             sensibles: current.filter(v => v !== value) 
           }
         });
-        console.log('✅ Dato sensible removido:', value);
+        // console.log('✅ Dato sensible removido:', value);
       }
     } catch (error) {
       console.error('🚨 Error en handleSensibles:', error);
@@ -1892,7 +1892,7 @@ const PasoCategorias = ({ ratData, setRatData, currentTenant, setAlertas }) => {
   React.useEffect(() => {
     if (!Array.isArray(ratData.categorias.identificacion) || 
         !Array.isArray(ratData.categorias.sensibles)) {
-      console.log('🔧 Corrigiendo inicialización de categorías...');
+      // console.log('🔧 Corrigiendo inicialización de categorías...');
       setRatData(prevData => ({
         ...prevData,
         categorias: {

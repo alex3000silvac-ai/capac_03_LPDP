@@ -253,37 +253,37 @@ export const adminService = {
 
   // Métodos de escritura (mock)
   async actualizarOrganizacion(id, data) {
-    console.log('🏢 Actualizando organización:', id, data);
+    // console.log('🏢 Actualizando organización:', id, data);
     return { success: true, message: 'Organización actualizada' };
   },
 
   async crearOrganizacion(data) {
-    console.log('🏢 Creando organización:', data);
+    // console.log('🏢 Creando organización:', data);
     return { success: true, message: 'Organización creada' };
   },
 
   async desactivarOrganizacion(id) {
-    console.log('🏢 Desactivando organización:', id);
+    // console.log('🏢 Desactivando organización:', id);
     return { success: true, message: 'Organización desactivada' };
   },
 
   async actualizarUsuario(id, data) {
-    console.log('👤 Actualizando usuario:', id, data);
+    // console.log('👤 Actualizando usuario:', id, data);
     return { success: true, message: 'Usuario actualizado' };
   },
 
   async crearUsuario(data) {
-    console.log('👤 Creando usuario:', data);
+    // console.log('👤 Creando usuario:', data);
     return { success: true, message: 'Usuario creado' };
   },
 
   async desactivarUsuario(id) {
-    console.log('👤 Desactivando usuario:', id);
+    // console.log('👤 Desactivando usuario:', id);
     return { success: true, message: 'Usuario desactivado' };
   },
 
   async resetPassword(userId) {
-    console.log('🔑 Reseteando password:', userId);
+    // console.log('🔑 Reseteando password:', userId);
     return { 
       success: true, 
       new_password: 'temp' + Math.random().toString(36).slice(-6)
@@ -291,12 +291,12 @@ export const adminService = {
   },
 
   async actualizarConfiguracion(config) {
-    console.log('⚙️ Actualizando configuración:', config);
+    // console.log('⚙️ Actualizando configuración:', config);
     return { success: true, message: 'Configuración actualizada' };
   },
 
   async crearRespaldo() {
-    console.log('💾 Creando respaldo...');
+    // console.log('💾 Creando respaldo...');
     return { 
       success: true, 
       filename: `backup_${new Date().toISOString().slice(0,10)}.sql`

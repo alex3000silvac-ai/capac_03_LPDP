@@ -68,7 +68,7 @@ class ProveedoresService {
         return { success: false, error: error.message };
       }
 
-      console.log('✅ Proveedor creado:', data.id, 'Tenant:', tenantId);
+      // console.log('✅ Proveedor creado:', data.id, 'Tenant:', tenantId);
       return { success: true, data, source: 'supabase' };
 
     } catch (error) {
@@ -82,7 +82,7 @@ class ProveedoresService {
     try {
       const { client, tenantId } = await this.getSupabaseClient();
       
-      console.log('🔍 Buscando proveedores para tenant:', tenantId);
+      // console.log('🔍 Buscando proveedores para tenant:', tenantId);
 
       // Estrategia inteligente: primero intentar con el tenant calculado
       let { data, error } = await client
@@ -91,7 +91,7 @@ class ProveedoresService {
         .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false });
 
-      console.log('📊 Respuesta inicial - Tenant:', tenantId, 'Encontrados:', data?.length || 0);
+      // console.log('📊 Respuesta inicial - Tenant:', tenantId, 'Encontrados:', data?.length || 0);
 
       // Si no encuentra datos y el tenant no es exactamente 'juridica_digital', 
       // intentar con variantes comunes
@@ -103,7 +103,7 @@ class ProveedoresService {
         
         for (const variant of tenantVariants) {
           if (variant !== tenantId) {
-            console.log('🔄 Probando variante de tenant:', variant);
+            // console.log('🔄 Probando variante de tenant:', variant);
             const variantResult = await client
               .from('proveedores')
               .select('*')
@@ -111,7 +111,7 @@ class ProveedoresService {
               .order('created_at', { ascending: false });
             
             if (!variantResult.error && variantResult.data && variantResult.data.length > 0) {
-              console.log('✅ Datos encontrados con tenant:', variant, 'Cantidad:', variantResult.data.length);
+              // console.log('✅ Datos encontrados con tenant:', variant, 'Cantidad:', variantResult.data.length);
               data = variantResult.data;
               error = null;
               break;
@@ -122,12 +122,12 @@ class ProveedoresService {
 
       // Diagnóstico en caso de no encontrar datos
       if (!error && (!data || data.length === 0)) {
-        console.log('🔍 Verificando qué tenant_ids existen en la BD...');
+        // console.log('🔍 Verificando qué tenant_ids existen en la BD...');
         const { data: sampleData } = await client
           .from('proveedores')
           .select('tenant_id, nombre')
           .limit(5);
-        console.log('🔍 Muestra de datos:', sampleData?.map(p => ({ tenant: p.tenant_id, nombre: p.nombre })));
+        // console.log('🔍 Muestra de datos:', sampleData?.map(p => ({ tenant: p.tenant_id, nombre: p.nombre })));
       }
 
       if (error) {
@@ -135,14 +135,14 @@ class ProveedoresService {
       }
 
       if (!error && data && data.length > 0) {
-        console.log('✅ Proveedores cargados desde Supabase:', data.length);
+        // console.log('✅ Proveedores cargados desde Supabase:', data.length);
         // Sincronizar con localStorage
         data.forEach(prov => this.saveToLocalStorage(prov));
         return { success: true, data, source: 'supabase' };
       }
 
       // Si no hay datos, retornar array vacío
-      console.log('⚠️ Sin datos en Supabase');
+      // console.log('⚠️ Sin datos en Supabase');
       return { success: true, data: [], source: 'supabase' };
 
     } catch (error) {
@@ -175,7 +175,7 @@ class ProveedoresService {
         return { success: false, error: error.message };
       }
 
-      console.log('✅ Proveedor actualizado:', proveedorId);
+      // console.log('✅ Proveedor actualizado:', proveedorId);
       return { success: true, data, source: 'supabase' };
 
     } catch (error) {
@@ -201,7 +201,7 @@ class ProveedoresService {
         return { success: false, error: error.message };
       }
 
-      console.log('✅ Proveedor eliminado:', proveedorId);
+      // console.log('✅ Proveedor eliminado:', proveedorId);
       return { success: true };
 
     } catch (error) {
@@ -247,7 +247,7 @@ class ProveedoresService {
         }
       });
 
-      console.log('✅ DPA creado:', dpaCreated.id);
+      // console.log('✅ DPA creado:', dpaCreated.id);
       return { success: true, data: dpaCreated, source: 'supabase' };
 
     } catch (error) {
@@ -291,7 +291,7 @@ class ProveedoresService {
         }
       });
 
-      console.log('✅ Evaluación creada:', data.id);
+      // console.log('✅ Evaluación creada:', data.id);
       return { success: true, data, source: 'supabase' };
 
     } catch (error) {
@@ -324,7 +324,7 @@ class ProveedoresService {
         return { success: false, error: error.message };
       }
 
-      console.log('✅ Proveedor asociado a RAT:', proveedorId, '→', ratId);
+      // console.log('✅ Proveedor asociado a RAT:', proveedorId, '→', ratId);
       return { success: true, data, source: 'supabase' };
 
     } catch (error) {
@@ -353,7 +353,7 @@ class ProveedoresService {
         return { success: false, error: error.message, data: [] };
       }
 
-      console.log('📊 Proveedores del RAT:', data.length);
+      // console.log('📊 Proveedores del RAT:', data.length);
       return { success: true, data };
 
     } catch (error) {
@@ -368,7 +368,7 @@ class ProveedoresService {
       const tenantId = this.getCurrentTenant();
       const client = this.getSupabaseClient();
       
-      console.log('🔒 Validando aislación para tenant:', tenantId);
+      // console.log('🔒 Validando aislación para tenant:', tenantId);
 
       // Test 1: Intentar acceder a datos de otro tenant (debe fallar)
       const { data: otroTenant, error: errorOtro } = await client
@@ -400,7 +400,7 @@ class ProveedoresService {
         return { secure: false, message: 'Tenant incorrecto en resultados' };
       }
 
-      console.log('✅ Aislación multi-tenant verificada correctamente');
+      // console.log('✅ Aislación multi-tenant verificada correctamente');
       return { secure: true, message: 'Aislación correcta', tenant: tenantId };
 
     } catch (error) {
@@ -439,7 +439,7 @@ class ProveedoresService {
         }).length
       };
 
-      console.log('📊 Estadísticas tenant', tenantId, ':', stats);
+      // console.log('📊 Estadísticas tenant', tenantId, ':', stats);
       return stats;
 
     } catch (error) {

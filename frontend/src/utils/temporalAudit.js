@@ -44,7 +44,7 @@ class TemporalAudit {
 
     try {
       // 🔧 TEMPORAL: Deshabilitar audit hasta crear tabla rat_audit_trail
-      console.log('⚠️ Audit temporalmente deshabilitado - tabla rat_audit_trail no existe en Supabase');
+      // console.log('⚠️ Audit temporalmente deshabilitado - tabla rat_audit_trail no existe en Supabase');
       return { success: true, message: 'Audit deshabilitado temporalmente' };
 
       const changes = this.calculateChanges(oldData, newData);
@@ -246,14 +246,14 @@ class TemporalAudit {
       try {
         oldList = JSON.parse(oldCategorias || '[]');
       } catch (parseError) {
-        console.warn('Error parsing oldCategorias, usando array vacío');
+        // console.warn('Error parsing oldCategorias, usando array vacío');
         oldList = [];
       }
       
       try {
         newList = JSON.parse(newCategorias || '[]');
       } catch (parseError) {
-        console.warn('Error parsing newCategorias, usando array vacío');
+        // console.warn('Error parsing newCategorias, usando array vacío');
         newList = [];
       }
       

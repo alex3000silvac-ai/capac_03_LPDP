@@ -169,7 +169,7 @@ const ModuloEIPD = () => {
   useEffect(() => {
     if (esNuevo && ratOrigen) {
       // Pre-llenar desde RAT
-      console.log('🔗 Pre-llenando EIPD desde RAT:', ratOrigen);
+      // console.log('🔗 Pre-llenando EIPD desde RAT:', ratOrigen);
       setEipd(prev => ({
         ...prev,
         nombre_evaluacion: `EIPD para ${ratOrigen}`,
@@ -183,7 +183,7 @@ const ModuloEIPD = () => {
       }));
     } else if (esEdicion && documentoId) {
       // Cargar documento existente
-      console.log('✏️ Cargando EIPD existente:', documentoId);
+      // console.log('✏️ Cargando EIPD existente:', documentoId);
       // Aquí cargarías los datos del documento desde la API
       cargarDocumentoExistente(documentoId);
     }

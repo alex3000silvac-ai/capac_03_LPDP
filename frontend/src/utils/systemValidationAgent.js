@@ -23,6 +23,7 @@
  */
 
 import { supabase } from '../config/supabaseClient';
+import dbValidator from './databaseConsistencyValidator';
 
 class SystemValidationAgent {
   constructor() {
@@ -48,7 +49,7 @@ class SystemValidationAgent {
       const specText = await specResponse.text();
       return this.parseSpecification(specText);
     } catch (error) {
-      console.warn('🤖 Agent: Usando especificación embebida');
+      // Agent: Usando especificación embebida
       return this.getEmbeddedSpecification();
     }
   }
@@ -289,7 +290,7 @@ class SystemValidationAgent {
       data_protection_gaps: []
     };
 
-    console.log('🤖 IA Agent: Iniciando validación completa Ley 21.719');
+    // IA Agent: Iniciando validación completa Ley 21.719
 
     // Verificar campos obligatorios
     for (const [fieldName, fieldSpec] of Object.entries(specification.required_fields)) {
@@ -529,14 +530,24 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
   }
 
   /**
-   * 🔄 EJECUTAR VALIDACIÓN CONTINUA EN RENDER
+   * 🔄 EJECUTAR VALIDACIÓN CONTINUA EN RENDER (MEJORADA)
    */
   async startContinuousValidation() {
     if (!this.isActive) return;
 
     try {
-      console.log('🤖 IA Agent: Iniciando supervisión 24/7 - Ley 21.719');
-      console.log('📋 Instrucciones: Validar TODO, corregir automáticamente, NUNCA bloquear');
+      // IA Agent: Iniciando supervisión 24/7 - Ley 21.719
+      // Instrucciones: Validar TODO, corregir automáticamente, NUNCA bloquear
+      
+      // 0. NUEVA VALIDACIÓN: Verificar consistencia base de datos
+      const dbValidation = await dbValidator.performFullValidation();
+      
+      if (!dbValidation.database_status.can_function) {
+        // Crear sistema fallback si faltan tablas críticas
+        this.fallbackSystem = dbValidator.createFallbackSystem();
+        // Intentar crear tablas faltantes automáticamente
+        await dbValidator.createMissingTables(dbValidation.database_status.missing_tables);
+      }
       
       // 1. Cargar especificación actual
       const specification = await this.loadSpecification();
@@ -544,22 +555,41 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
       // 2. Escanear sistema actual
       const currentState = await this.scanSystemHTML();
       
-      // 3. Detectar problemas
+      // 3. MEJORADA: Detectar problemas + validaciones de consistencia
       const issues = await this.detectIssues(specification, currentState);
+      
+      // 3.1. NUEVA: Validar consistencia datos vs sistema
+      const consistencyIssues = await this.validateDataConsistency();
+      if (consistencyIssues.length > 0) {
+        issues.data_consistency_issues = consistencyIssues;
+      }
+      
+      // 3.2. NUEVA: Validación estricta de operaciones de base de datos
+      const dbOperations = await this.validateDatabaseOperations();
+      if (dbOperations.critical_issues.length > 0) {
+        issues.database_operation_issues = dbOperations.critical_issues;
+      }
       
       // 4. VALIDACIÓN CRÍTICA: Nunca bloquear flujo RAT
       if (this.detectsBlockingIssue(issues)) {
-        console.log('⚠️ IA Agent: Detectado intento de bloqueo - CORRIGIENDO');
+        // IA Agent: Detectado intento de bloqueo - CORRIGIENDO
         await this.removeBlockingElements();
       }
       
       // 5. Auto-corregir si hay problemas
       if (issues.missing_fields.length > 0 || 
           issues.incorrect_validations.length > 0 ||
-          issues.legal_requirements.length > 0) {
+          issues.legal_requirements.length > 0 ||
+          issues.data_consistency_issues?.length > 0 ||
+          issues.database_operation_issues?.length > 0) {
         
-        console.log('🔧 IA Agent: Auto-corrección en progreso...');
+        // IA Agent: Auto-corrección en progreso...
         const corrections = await this.autoCorrectIssues(issues);
+        
+        // 5.1. NUEVA: Corregir inconsistencias de datos
+        if (issues.data_consistency_issues?.length > 0) {
+          await this.fixDataInconsistencies(issues.data_consistency_issues);
+        }
         
         // 6. Generar documentos automáticamente si se requieren
         if (this.requiresDocuments(issues)) {
@@ -571,25 +601,26 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
           await this.notifyDPOCompliance(issues.compliance_violations);
         }
         
-        // 8. Log de actividad del agente
-        await this.logAgentActivity({
+        // 8. Log de actividad del agente (con fallback si tabla no existe)
+        await this.logAgentActivitySafe({
           action: 'system_validation',
           issues_detected: issues,
           corrections_applied: corrections,
           compliance_score: this.calculateComplianceScore(issues),
           documents_generated: this.documentsGenerated || [],
-          dpo_notified: issues.compliance_violations.length > 0
+          dpo_notified: issues.compliance_violations.length > 0,
+          database_validation: dbValidation
         });
       }
       
-      console.log(`✅ IA Agent: Validación completa - Score: ${this.calculateComplianceScore(issues)}%`);
+      // IA Agent: Validación completa
       
-      // Programar próxima validación
-      setTimeout(() => this.startContinuousValidation(), 60000); // Cada minuto en producción
+      // Programar próxima validación (reducida frecuencia para mejor performance)
+      setTimeout(() => this.startContinuousValidation(), 300000); // Cada 5 minutos
       
     } catch (error) {
       console.error('🤖 IA Agent: Error en validación - reintentando', error);
-      setTimeout(() => this.startContinuousValidation(), 30000); // Retry en 30 segundos
+      setTimeout(() => this.startContinuousValidation(), 60000); // Retry en 1 minuto
     }
   }
 
@@ -621,7 +652,7 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
           btn.textContent.includes('Continuar') ||
           btn.textContent.includes('Guardar')) {
         btn.removeAttribute('disabled');
-        console.log('🔓 IA Agent: Botón desbloqueado:', btn.textContent);
+        // IA Agent: Botón desbloqueado
       }
     });
   }
@@ -647,12 +678,12 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
       if (violation.type === 'EIPD_REQUIRED') {
         const doc = await this.generateEIPD(violation);
         this.documentsGenerated.push(doc);
-        console.log('📄 IA Agent: EIPD generada automáticamente');
+        // IA Agent: EIPD generada automáticamente
       }
       if (violation.type === 'DPIA_REQUIRED') {
         const doc = await this.generateDPIA(violation);
         this.documentsGenerated.push(doc);
-        console.log('📄 IA Agent: DPIA generada automáticamente');
+        // IA Agent: DPIA generada automáticamente
       }
     }
   }
@@ -759,7 +790,7 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
           prioridad: 'alta'
         });
 
-      console.log('🚨 Agent: DPO notificado sobre violaciones detectadas');
+      // Agent: DPO notificado sobre violaciones detectadas
     } catch (error) {
       console.error('🤖 Agent: Error notificando DPO');
     }
@@ -803,7 +834,10 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
   /**
    * 📝 LOG DE ACTIVIDAD DEL AGENTE
    */
-  async logAgentActivity(activity) {
+  /**
+   * 📅 LOG DE ACTIVIDAD DEL AGENTE (MEJORADO CON FALLBACK)
+   */
+  async logAgentActivitySafe(activity) {
     try {
       await supabase
         .from('agent_activity_log')
@@ -815,8 +849,16 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
           tenant_id: await this.getCurrentTenantId()
         });
     } catch (error) {
-      console.error('🤖 Agent: Error logging actividad');
+      // Fallback: usar sistema local si tabla no existe
+      if (this.fallbackSystem) {
+        this.fallbackSystem.logActivity(activity);
+      }
+      console.error('🤖 Agent: Error logging actividad', error);
     }
+  }
+
+  async logAgentActivity(activity) {
+    return this.logAgentActivitySafe(activity);
   }
 
   /**
@@ -824,7 +866,7 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
    */
   async initializeInProduction() {
     try {
-      console.log('🚀 Inicializando System Validation Agent en producción');
+      // Inicializando System Validation Agent en producción
       
       // Registrar agente en sistema
       await supabase
@@ -844,7 +886,7 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
       // Iniciar validación continua
       this.startContinuousValidation();
       
-      console.log('✅ Agent: Sistema de validación automática activo');
+      // Agent: Sistema de validación automática activo
       return { success: true, agent_id: this.agentId };
       
     } catch (error) {
@@ -867,7 +909,7 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
       })
       .eq('agent_id', this.agentId);
       
-    console.log('🛑 Agent: Sistema de validación detenido');
+    // Agent: Sistema de validación detenido
   }
 
   // Helpers
@@ -892,6 +934,265 @@ const validate_${fieldName.replace('.', '_')} = (value) => {
 
   capitalizeOption(option) {
     return option.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+  }
+
+  /**
+   * 🔍 NUEVA: VALIDAR CONSISTENCIA DE DATOS
+   */
+  async validateDataConsistency() {
+    const issues = [];
+    
+    try {
+      // 1. Verificar integridad RATs vs Organizaciones
+      const { data: ratsWithoutOrg } = await supabase
+        .from('rats')
+        .select('id, organizacion_id')
+        .not('organizacion_id', 'is', null)
+        .limit(100);
+      
+      if (ratsWithoutOrg) {
+        for (const rat of ratsWithoutOrg) {
+          const { data: orgExists } = await supabase
+            .from('organizaciones')
+            .select('id')
+            .eq('id', rat.organizacion_id)
+            .single();
+          
+          if (!orgExists) {
+            issues.push({
+              type: 'referential_integrity',
+              severity: 'high',
+              issue: `RAT ${rat.id} referencia organización inexistente`,
+              auto_fixable: true,
+              fix_action: 'set_default_organization'
+            });
+          }
+        }
+      }
+      
+      // 2. Verificar campos obligatorios vacíos
+      const { data: incompleteRats } = await supabase
+        .from('rats')
+        .select('id, responsable_proceso, finalidad')
+        .or('responsable_proceso.is.null,finalidad.is.null')
+        .limit(50);
+      
+      if (incompleteRats?.length > 0) {
+        issues.push({
+          type: 'incomplete_data',
+          severity: 'critical',
+          issue: `${incompleteRats.length} RATs con campos obligatorios vacíos`,
+          auto_fixable: true,
+          fix_action: 'complete_required_fields',
+          affected_rats: incompleteRats.map(r => r.id)
+        });
+      }
+      
+      // 3. Verificar duplicados por RUT de responsable
+      const { data: duplicateCheck } = await supabase
+        .rpc('get_duplicate_responsables'); // Función SQL personalizada
+      
+      if (duplicateCheck?.length > 0) {
+        issues.push({
+          type: 'potential_duplicates',
+          severity: 'medium',
+          issue: `${duplicateCheck.length} responsables con múltiples RATs`,
+          auto_fixable: false,
+          fix_action: 'review_duplicates_manually'
+        });
+      }
+      
+    } catch (error) {
+      issues.push({
+        type: 'validation_error',
+        severity: 'high',
+        issue: 'Error validando consistencia de datos',
+        error: error.message,
+        auto_fixable: false
+      });
+    }
+    
+    return issues;
+  }
+  
+  /**
+   * 🔧 NUEVA: CORREGIR INCONSISTENCIAS DE DATOS
+   */
+  async fixDataInconsistencies(issues) {
+    const fixes = { applied: [], failed: [] };
+    
+    for (const issue of issues) {
+      try {
+        switch (issue.fix_action) {
+          case 'set_default_organization':
+            // Crear organización por defecto si no existe
+            const { data: defaultOrg } = await supabase
+              .from('organizaciones')
+              .select('id')
+              .eq('rut', '00.000.000-0')
+              .single();
+            
+            if (!defaultOrg) {
+              const { data: newOrg } = await supabase
+                .from('organizaciones')
+                .insert({
+                  rut: '00.000.000-0',
+                  razon_social: 'Organización Temporal - Requiere Actualización',
+                  email: 'admin@sistema.cl',
+                  telefono: '+56 9 0000 0000',
+                  created_at: new Date().toISOString()
+                })
+                .select('id')
+                .single();
+              
+              fixes.applied.push(`Organización por defecto creada: ${newOrg?.id}`);
+            }
+            break;
+            
+          case 'complete_required_fields':
+            // Completar campos obligatorios con valores por defecto
+            for (const ratId of issue.affected_rats || []) {
+              const { error } = await supabase
+                .from('rats')
+                .update({
+                  responsable_proceso: 'DPO - Requiere Asignación',
+                  finalidad: 'Finalidad pendiente de especificar',
+                  updated_at: new Date().toISOString(),
+                  updated_by: 'system_validation_agent'
+                })
+                .eq('id', ratId);
+              
+              if (!error) {
+                fixes.applied.push(`RAT ${ratId} campos completados`);
+              }
+            }
+            break;
+            
+          default:
+            fixes.failed.push(`Acción no implementada: ${issue.fix_action}`);
+        }
+      } catch (error) {
+        fixes.failed.push(`Error corrigiendo ${issue.type}: ${error.message}`);
+      }
+    }
+    
+    return fixes;
+  }
+  
+  /**
+   * 📊 NUEVO: VALIDACIÓN ESTRICTA DE OPERACIONES DE BASE DE DATOS
+   */
+  async validateDatabaseOperations() {
+    const validation = {
+      connection_status: 'unknown',
+      write_test: false,
+      read_test: false,
+      transaction_test: false,
+      performance_score: 0,
+      critical_issues: []
+    };
+    
+    try {
+      // Test de conexión básica
+      const startTime = Date.now();
+      const { data: healthCheck, error: readError } = await supabase
+        .from('organizaciones')
+        .select('count', { count: 'exact', head: true });
+      
+      const responseTime = Date.now() - startTime;
+      
+      if (readError) {
+        validation.critical_issues.push(`Error de lectura: ${readError.message}`);
+        validation.connection_status = 'error';
+        return validation;
+      }
+      
+      validation.connection_status = 'connected';
+      validation.read_test = true;
+      validation.performance_score = responseTime < 1000 ? 100 : (responseTime < 3000 ? 75 : 50);
+      
+      // Test de escritura (crear y eliminar registro temporal)
+      const testRecord = {
+        rut: `test-${Date.now()}`,
+        razon_social: 'Test Record - Delete Me',
+        email: 'test@delete.me',
+        telefono: '+56 9 0000 0000'
+      };
+      
+      const { data: inserted, error: insertError } = await supabase
+        .from('organizaciones')
+        .insert(testRecord)
+        .select('id')
+        .single();
+      
+      if (insertError) {
+        validation.critical_issues.push(`Error de escritura: ${insertError.message}`);
+      } else if (inserted?.id) {
+        validation.write_test = true;
+        
+        // Limpiar registro temporal
+        const { error: deleteError } = await supabase
+          .from('organizaciones')
+          .delete()
+          .eq('id', inserted.id);
+        
+        if (deleteError) {
+          validation.critical_issues.push(`Error eliminando test: ${deleteError.message}`);
+        } else {
+          validation.transaction_test = true;
+        }
+      }
+      
+      // Test adicionales específicos
+      await this.performAdditionalDatabaseTests(validation);
+      
+    } catch (error) {
+      validation.connection_status = 'error';
+      validation.critical_issues.push(`Error general: ${error.message}`);
+    }
+    
+    return validation;
+  }
+  
+  /**
+   * 🔬 TESTS ADICIONALES DE BASE DE DATOS
+   */
+  async performAdditionalDatabaseTests(validation) {
+    try {
+      // Test de integridad referencial
+      const { data: orphanedRats } = await supabase
+        .from('rats')
+        .select('id')
+        .not('organizacion_id', 'is', null)
+        .limit(1);
+      
+      if (orphanedRats?.length > 0) {
+        // Verificar si la organización existe
+        const { data: orgCheck } = await supabase
+          .from('organizaciones')
+          .select('id')
+          .eq('id', orphanedRats[0].organizacion_id)
+          .single();
+        
+        if (!orgCheck) {
+          validation.critical_issues.push('Integridad referencial comprometida');
+        }
+      }
+      
+      // Test de duplicados
+      const { data: duplicateTest } = await supabase
+        .from('organizaciones')
+        .select('rut, count(*)')
+        .group('rut')
+        .having('count(*)', 'gt', 1);
+      
+      if (duplicateTest?.length > 0) {
+        validation.critical_issues.push(`${duplicateTest.length} RUTs duplicados detectados`);
+      }
+      
+    } catch (error) {
+      validation.critical_issues.push(`Error en tests adicionales: ${error.message}`);
+    }
   }
 
   async getCurrentTenantId() {

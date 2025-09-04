@@ -4,7 +4,7 @@
 const { supabase } = require('./config/supabaseClient.js');
 
 async function testRatIdColumns() {
-  console.log('🔍 PROBANDO COLUMNAS rat_id EN CADA TABLA...\n');
+  // console.log('🔍 PROBANDO COLUMNAS rat_id EN CADA TABLA...\n');
   
   const tablesToTest = [
     'actividades_dpo',
@@ -19,7 +19,7 @@ async function testRatIdColumns() {
   
   for (const table of tablesToTest) {
     try {
-      console.log(`\n📋 Probando tabla: ${table}`);
+      // console.log(`\n📋 Probando tabla: ${table}`);
       
       const { data, error } = await supabase
         .from(table)
@@ -28,26 +28,26 @@ async function testRatIdColumns() {
         
       if (error) {
         if (error.code === '42P01') {
-          console.log(`  ❌ TABLA NO EXISTE: ${table}`);
+          // console.log(`  ❌ TABLA NO EXISTE: ${table}`);
         } else if (error.code === '42703') {
-          console.log(`  ❌ COLUMNA rat_id NO EXISTE en tabla ${table}`);
+          // console.log(`  ❌ COLUMNA rat_id NO EXISTE en tabla ${table}`);
         } else {
-          console.log(`  ❌ ERROR: ${error.code} - ${error.message}`);
+          // console.log(`  ❌ ERROR: ${error.code} - ${error.message}`);
         }
       } else {
-        console.log(`  ✅ ÉXITO: tabla ${table} tiene columna rat_id`);
-        console.log(`  📊 Registros encontrados: ${data?.length || 0}`);
+        // console.log(`  ✅ ÉXITO: tabla ${table} tiene columna rat_id`);
+        // console.log(`  📊 Registros encontrados: ${data?.length || 0}`);
       }
       
     } catch (err) {
-      console.log(`  💥 EXCEPCIÓN: ${err.message}`);
+      // console.log(`  💥 EXCEPCIÓN: ${err.message}`);
     }
     
     // Pequeña pausa
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   
-  console.log('\n🔍 AHORA PROBANDO CONSULTA ESPECÍFICA CON .eq():');
+  // console.log('\n🔍 AHORA PROBANDO CONSULTA ESPECÍFICA CON .eq():');
   
   try {
     const { data, error } = await supabase
@@ -57,19 +57,19 @@ async function testRatIdColumns() {
       .limit(1);
       
     if (error) {
-      console.log(`❌ ERROR EN CONSULTA .eq('rat_id', 123): ${error.code} - ${error.message}`);
+      // console.log(`❌ ERROR EN CONSULTA .eq('rat_id', 123): ${error.code} - ${error.message}`);
     } else {
-      console.log(`✅ CONSULTA .eq('rat_id', 123) FUNCIONA - encontrados: ${data?.length || 0}`);
+      // console.log(`✅ CONSULTA .eq('rat_id', 123) FUNCIONA - encontrados: ${data?.length || 0}`);
     }
   } catch (err) {
-    console.log(`💥 EXCEPCIÓN EN CONSULTA: ${err.message}`);
+    // console.log(`💥 EXCEPCIÓN EN CONSULTA: ${err.message}`);
   }
 }
 
 // Ejecutar prueba
 testRatIdColumns()
   .then(() => {
-    console.log('\n🎯 PRUEBA COMPLETADA');
+    // console.log('\n🎯 PRUEBA COMPLETADA');
     process.exit(0);
   })
   .catch(err => {

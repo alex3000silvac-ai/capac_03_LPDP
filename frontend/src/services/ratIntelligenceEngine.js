@@ -10,7 +10,7 @@ const ratIntelligenceEngine = {
   // CREAR ACTIVIDADES DPO AUTOMÁTICAMENTE EN SUPABASE
   async createDPOActivities(alerts, ratId, tenantId) {
     try {
-      console.log('Iniciando creación de actividades DPO:', {
+      // console.log('Iniciando creación de actividades DPO:', {
         alertas: alerts?.length,
         ratId,
         tenantId
@@ -22,7 +22,7 @@ const ratIntelligenceEngine = {
         const { data: { user: authUser } } = await supabase.auth.getUser();
         user = authUser;
       } catch (authError) {
-        console.warn('No hay usuario autenticado, usando datos por defecto');
+        // console.warn('No hay usuario autenticado, usando datos por defecto');
       }
       
       // Usar datos por defecto si no hay usuario
@@ -32,7 +32,7 @@ const ratIntelligenceEngine = {
       };
       
       if (!alerts || alerts.length === 0) {
-        console.log('No hay alertas para crear actividades DPO');
+        // console.log('No hay alertas para crear actividades DPO');
         return { success: true, data: [], message: 'No hay alertas pendientes' };
       }
 
@@ -55,7 +55,7 @@ const ratIntelligenceEngine = {
         }
       }));
 
-      console.log('Intentando insertar actividades:', activities);
+      // console.log('Intentando insertar actividades:', activities);
       
       const { data, error } = await supabase
         .from('actividades_dpo')
@@ -84,7 +84,7 @@ const ratIntelligenceEngine = {
             .from('dpo_activities_fallback')
             .insert(fallbackActivities);
           
-          console.log('Actividades guardadas en tabla fallback Supabase');
+          // console.log('Actividades guardadas en tabla fallback Supabase');
           return { success: false, error, fallback: 'supabase_fallback', data: fallbackActivities };
         } catch (fallbackError) {
           console.error('Error guardando en fallback Supabase:', fallbackError);
@@ -92,8 +92,8 @@ const ratIntelligenceEngine = {
         }
       }
 
-      console.log('Actividades DPO creadas exitosamente:', data?.length || 0);
-      console.log('IDs de actividades creadas:', data?.map(a => a.id));
+      // console.log('Actividades DPO creadas exitosamente:', data?.length || 0);
+      // console.log('IDs de actividades creadas:', data?.map(a => a.id));
       
       return { success: true, data, count: data?.length || 0 };
 
@@ -105,7 +105,7 @@ const ratIntelligenceEngine = {
 
   evaluateRATActivity: async function(ratData) {
     const area = ratData.area || this.detectArea(ratData);
-    console.log(`ANÁLISIS COMPLETO RAT - Área: ${area}`, ratData);
+    // console.log(`ANÁLISIS COMPLETO RAT - Área: ${area}`, ratData);
     
     const alerts = [];
     const requiredDocuments = [];
@@ -240,7 +240,7 @@ const ratIntelligenceEngine = {
       fundamento_legal: alert.fundamento_legal
     }));
     
-    console.log('ANÁLISIS EXHAUSTIVO COMPLETADO:', {
+    // console.log('ANÁLISIS EXHAUSTIVO COMPLETADO:', {
       area: area,
       alerts: alerts.length,
       requiredDocuments: requiredDocuments.length,
@@ -649,7 +649,7 @@ const ratIntelligenceEngine = {
   
   // Método para simular notificación en tiempo real
   notificarDPO: async function(notificaciones) {
-    console.log('ENVIANDO NOTIFICACIONES AL DPO:', notificaciones);
+    // console.log('ENVIANDO NOTIFICACIONES AL DPO:', notificaciones);
     
     // En producción real, aquí se enviarían:
     // - Email al DPO

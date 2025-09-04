@@ -108,7 +108,7 @@ class SpecificCasesEngine {
   // DETECTAR Y PROCESAR CASUÍSTICA ESPECÍFICA
   async procesarCasuisticaEspecifica(ratData, tenantId) {
     try {
-      console.log('⚠️ Analizando casuísticas específicas...');
+      // console.log('⚠️ Analizando casuísticas específicas...');
 
       const casuisticasDetectadas = await this.detectarCasuisticas(ratData, tenantId);
       const resultados = [];

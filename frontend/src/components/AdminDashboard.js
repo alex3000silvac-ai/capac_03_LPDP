@@ -84,7 +84,7 @@ const AdminDashboard = () => {
       const tenantId = user?.tenant_id;
       
       if (!tenantId) {
-        console.log('Sin tenant ID - no cargar datos');
+        // console.log('Sin tenant ID - no cargar datos');
         return;
       }
 

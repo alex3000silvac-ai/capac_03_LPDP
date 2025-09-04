@@ -148,7 +148,7 @@ const DPAGenerator = () => {
 
   const cargarProveedores = async () => {
     try {
-      console.log('🔄 Cargando proveedores para tenant:', currentTenant?.id);
+      // console.log('🔄 Cargando proveedores para tenant:', currentTenant?.id);
       
       const { data, error } = await supabase
         .from('proveedores')
@@ -161,7 +161,7 @@ const DPAGenerator = () => {
         throw error;
       }
       
-      console.log('✅ Proveedores cargados:', data?.length || 0);
+      // console.log('✅ Proveedores cargados:', data?.length || 0);
       setProveedores(data || []);
     } catch (error) {
       console.error('❌ Error cargando proveedores:', error.message);
@@ -187,11 +187,11 @@ const DPAGenerator = () => {
 
   const cargarDatosEmpresa = async () => {
     try {
-      console.log('🔄 Cargando datos empresa para tenant:', currentTenant?.id);
+      // console.log('🔄 Cargando datos empresa para tenant:', currentTenant?.id);
       
       // 🏢 DATOS EMPRESA DESDE TENANT ACTUAL
       if (currentTenant) {
-        console.log('✅ Datos tenant disponibles:', currentTenant);
+        // console.log('✅ Datos tenant disponibles:', currentTenant);
         
         setDpaData(prev => ({
           ...prev,
@@ -211,7 +211,7 @@ const DPAGenerator = () => {
           }
         }));
         
-        console.log('✅ Datos empresa pre-llenados exitosamente');
+        // console.log('✅ Datos empresa pre-llenados exitosamente');
         return;
       }
 
@@ -225,7 +225,7 @@ const DPAGenerator = () => {
       if (error) throw error;
       
       if (data) {
-        console.log('✅ Datos desde organizaciones:', data);
+        // console.log('✅ Datos desde organizaciones:', data);
         setDpaData(prev => ({
           ...prev,
           responsable: {
@@ -261,7 +261,7 @@ const DPAGenerator = () => {
         }
       }));
       
-      console.log('✅ Datos demo pre-llenados para evitar doble digitación');
+      // console.log('✅ Datos demo pre-llenados para evitar doble digitación');
     }
   };
 
@@ -285,12 +285,12 @@ const DPAGenerator = () => {
       }
     }));
     
-    console.log('✅ Proveedor seleccionado:', proveedor.nombre);
+    // console.log('✅ Proveedor seleccionado:', proveedor.nombre);
   };
 
   const generarDPA = async () => {
     try {
-      console.log('🔄 INICIANDO GENERACIÓN DPA...');
+      // console.log('🔄 INICIANDO GENERACIÓN DPA...');
       setLoading(true);
       
       // Validar datos requeridos
@@ -304,11 +304,11 @@ const DPAGenerator = () => {
         return;
       }
       
-      console.log('✅ Generando contenido DPA...');
+      // console.log('✅ Generando contenido DPA...');
       const dpaContent = generarContenidoDPA();
       setGeneratedDPA(dpaContent);
       
-      console.log('✅ Contenido DPA generado, guardando en base de datos...');
+      // console.log('✅ Contenido DPA generado, guardando en base de datos...');
       
       // Guardar DPA en base de datos
       try {
@@ -325,16 +325,16 @@ const DPAGenerator = () => {
           }]);
 
         if (error) {
-          console.warn('⚠️ Error guardando en BD, pero DPA generado:', error);
+          // console.warn('⚠️ Error guardando en BD, pero DPA generado:', error);
           // Continuar aunque falle el guardado en BD
         } else {
-          console.log('✅ DPA guardado en base de datos:', data);
+          // console.log('✅ DPA guardado en base de datos:', data);
         }
       } catch (dbError) {
-        console.warn('⚠️ Error BD pero continuamos:', dbError);
+        // console.warn('⚠️ Error BD pero continuamos:', dbError);
       }
       
-      console.log('🎉 DPA GENERADO EXITOSAMENTE');
+      // console.log('🎉 DPA GENERADO EXITOSAMENTE');
       
       // Mostrar confirmación clara al usuario
       alert(`✅ DPA generado exitosamente!\n\n📋 Documento: ${dpaData.contrato.nombre_acuerdo}\n🏢 Responsable: ${dpaData.responsable.nombre_empresa}\n🤝 Encargado: ${dpaData.encargado.nombre_empresa}\n\n✨ Se abrirá la vista previa para descarga`);
@@ -346,7 +346,7 @@ const DPAGenerator = () => {
       console.error('❌ ERROR GENERANDO DPA:', error);
       alert(`❌ Error al generar DPA: ${error.message}\n\nPor favor revise los datos e intente nuevamente.`);
     } finally {
-      console.log('🔄 Finalizando proceso...');
+      // console.log('🔄 Finalizando proceso...');
       setLoading(false);
     }
   };

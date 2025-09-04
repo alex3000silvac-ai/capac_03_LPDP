@@ -12,7 +12,7 @@ const PreventiveAIController = () => {
   useEffect(() => {
     if (!currentTenant?.id || !user) return;
 
-    console.log('🛡️ Activando IA Preventiva para tenant:', currentTenant.id);
+    // console.log('🛡️ Activando IA Preventiva para tenant:', currentTenant.id);
 
     // 1. Inicializar IA preventiva
     const initializePreventiveAI = async () => {
@@ -27,11 +27,11 @@ const PreventiveAIController = () => {
         const initialAudit = await logicAuditor.auditarSistemaCompleto(currentTenant.id);
         
         if (initialAudit.summary.failed_rules > 0) {
-          console.log('🔧 Problemas detectados - auto-corrigiendo preventivamente');
+          // console.log('🔧 Problemas detectados - auto-corrigiendo preventivamente');
           await logicAuditor.autoFixInconsistencies(currentTenant.id, initialAudit);
         }
         
-        console.log('✅ IA Preventiva activada completamente');
+        // console.log('✅ IA Preventiva activada completamente');
         
       } catch (error) {
         console.error('❌ Error activando IA Preventiva:', error);
@@ -42,7 +42,7 @@ const PreventiveAIController = () => {
 
     // Cleanup al desmontar
     return () => {
-      console.log('🛡️ Desactivando IA Preventiva');
+      // console.log('🛡️ Desactivando IA Preventiva');
     };
   }, [currentTenant?.id, user]);
 

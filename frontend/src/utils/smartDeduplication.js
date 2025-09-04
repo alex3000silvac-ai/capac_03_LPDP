@@ -757,7 +757,7 @@ class SmartDeduplication {
       const analysis = await this.analyzeRAT(newRAT, existingRATs);
       
       // Log para métricas
-      console.log(`🔍 Análisis de duplicación: ${analysis.similarities.length} similares encontradas`);
+      // console.log(`🔍 Análisis de duplicación: ${analysis.similarities.length} similares encontradas`);
       
       return {
         success: true,

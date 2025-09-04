@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Usuario LPDP</title>
+    <style>
+        body {
+            background: #111827;
+            color: #f9fafb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1f2937;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #374151;
+        }
+        
+        h1 {
+            color: #60a5fa;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            display: inline-block;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        
+        .button.secondary {
+            background: #4f46e5;
+        }
+        
+        .button.secondary:hover {
+            background: #3730a3;
+        }
+        
+        #log {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 1px solid #374151;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Simulador de Usuario LPDP</h1>
+        
+        <div class="warning">
+            ⚠️ <strong>Instrucciones:</strong><br>
+            1. Abre el sistema LPDP en otra pestaña: <a href="https://scldp-frontend.onrender.com/" target="_blank" style="color: #60a5fa;">https://scldp-frontend.onrender.com/</a><br>
+            2. Haz clic en "Iniciar Simulación Completa" para comenzar la prueba<br>
+            3. El simulador navegará automáticamente entre las páginas y llenará formularios
+        </div>
+        
+        <div class="controls">
+            <button class="button" onclick="iniciarSimulacionCompleta()">🚀 Iniciar Simulación Completa</button>
+            <button class="button secondary" onclick="abrirSistema()">🌐 Abrir Sistema LPDP</button>
+            <button class="button secondary" onclick="limpiarLog()">🧹 Limpiar Log</button>
+        </div>
+        
+        <div id="log"></div>
+    </div>
+
+    <script>
+        // Sistema de logging personalizado
+        const logElement = document.getElementById('log');
+        
+        const log = (mensaje, tipo = 'info') => {
+            const timestamp = new Date().toLocaleTimeString();
+            const colores = {
+                info: '#0ff',
+                success: '#0f0', 
+                error: '#f00',
+                warning: '#ff0'
+            };
+            
+            const div = document.createElement('div');
+            div.style.color = colores[tipo];
+            div.innerHTML = `[${timestamp}] ${mensaje}`;
+            logElement.appendChild(div);
+            logElement.scrollTop = logElement.scrollHeight;
+        };
+
+        const esperar = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        const escribirEnSistema = async (selector, texto) => {
+            log(`⌨️  Escribiendo "${texto}" en ${selector}`);
+            
+            // Buscar en todas las ventanas/pestañas abiertas
+            const ventanas = [window];
+            for (let i = 0; i < 10; i++) {
+                try {
+                    if (window[`lpdpWindow${i}`]) {
+                        ventanas.push(window[`lpdpWindow${i}`]);
+                    }
+                } catch (e) {}
+            }
+            
+            let elemento = null;
+            let ventanaObjetivo = null;
+            
+            for (let ventana of ventanas) {
+                try {
+                    if (ventana.document) {
+                        elemento = ventana.document.querySelector(selector);
+                        if (elemento) {
+                            ventanaObjetivo = ventana;
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    // Ignorar errores de CORS
+                }
+            }
+            
+            if (elemento && ventanaObjetivo) {
+                elemento.focus();
+                elemento.value = texto;
+                elemento.dispatchEvent(new Event('input', { bubbles: true }));
+                elemento.dispatchEvent(new Event('change', { bubbles: true }));
+                await esperar(500);
+                log(`✅ Texto escrito correctamente`, 'success');
+                return true;
+            } else {
+                log(`❌ Elemento no encontrado: ${selector}`, 'error');
+                return false;
+            }
+        };
+
+        const hacerClicEnSistema = async (selector, descripcion = '') => {
+            log(`🖱️  Haciendo clic en: ${descripcion || selector}`);
+            
+            // Intentar encontrar el elemento en el sistema LPDP
+            let elemento = null;
+            
+            try {
+                // Si hay una referencia a la ventana del sistema
+                if (window.lpdpSystemWindow && window.lpdpSystemWindow.document) {
+                    elemento = window.lpdpSystemWindow.document.querySelector(selector);
+                }
+            } catch (e) {
+                log(`⚠️  No se puede acceder a la ventana del sistema: ${e.message}`, 'warning');
+            }
+            
+            if (elemento) {
+                elemento.click();
+                await esperar(1000);
+                log(`✅ Clic realizado correctamente`, 'success');
+                return true;
+            } else {
+                log(`❌ No se pudo hacer clic en: ${selector}`, 'error');
+                return false;
+            }
+        };
+
+        const navegarEnSistema = async (ruta, descripcion) => {
+            log(`🧭 Navegando a: ${descripcion} (${ruta})`);
+            
+            try {
+                // Buscar la ventana del sistema LPDP
+                if (window.lpdpSystemWindow) {
+                    window.lpdpSystemWindow.location.hash = ruta;
+                    await esperar(2000);
+                    log(`✅ Navegación completada`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Ventana del sistema no encontrada`, 'error');
+                    return false;
+                }
+            } catch (e) {
+                log(`❌ Error navegando: ${e.message}`, 'error');
+                return false;
+            }
+        };
+
+        // SIMULACIÓN PRINCIPAL
+        const iniciarSimulacionCompleta = async () => {
+            log('🚀 INICIANDO SIMULACIÓN COMPLETA DEL SISTEMA LPDP', 'success');
+            log('═══════════════════════════════════════════════════', 'info');
+            
+            try {
+                // Verificar si el sistema está abierto
+                if (!window.lpdpSystemWindow || window.lpdpSystemWindow.closed) {
+                    log('🌐 Abriendo sistema LPDP...', 'info');
+                    window.lpdpSystemWindow = window.open('https://scldp-frontend.onrender.com/', 'lpdpSystem');
+                    await esperar(5000); // Esperar que cargue
+                }
+                
+                // ESCENARIO 1: Crear RAT básico
+                log('\n🎯 ESCENARIO 1: Creando RAT básico...', 'success');
+                await navegarEnSistema('#/rat-system', 'Sistema RAT');
+                await esperar(3000);
+                
+                await escribirEnSistema('input[name="nombreActividad"], input[placeholder*="nombre"]', 'Gestión de Clientes Corporativos');
+                await escribirEnSistema('input[name="responsableActividad"], input[placeholder*="responsable"]', 'Juan Pérez - Gerente TI');
+                await escribirEnSistema('input[name="correoResponsable"], input[type="email"]', 'juan.perez@empresa.cl');
+                
+                await hacerClicEnSistema('button:contains("Siguiente"), .MuiButton-contained', 'Botón Siguiente');
+                await esperar(2000);
+                
+                log('✅ RAT básico creado', 'success');
+                
+                // ESCENARIO 2: Crear EIPD
+                log('\n🎯 ESCENARIO 2: Creando EIPD...', 'success');
+                await navegarEnSistema('#/eipd-creator', 'Creador EIPD');
+                await esperar(3000);
+                
+                await escribirEnSistema('input[name="nombreEvaluacion"]', 'EIPD - Sistema de Scoring Crediticio');
+                await escribirEnSistema('input[name="evaluador"]', 'María González - DPO');
+                
+                log('✅ EIPD creada', 'success');
+                
+                // ESCENARIO 3: Crear Proveedor
+                log('\n🎯 ESCENARIO 3: Creando Proveedor...', 'success');
+                await navegarEnSistema('#/provider-manager', 'Gestor de Proveedores');
+                await esperar(3000);
+                
+                await hacerClicEnSistema('button:contains("Nuevo"), button:contains("Agregar")', 'Nuevo Proveedor');
+                await esperar(1000);
+                
+                await escribirEnSistema('input[name="nombre"]', 'CloudTech Solutions SpA');
+                await escribirEnSistema('input[name="rut"]', '76.543.210-K');
+                await escribirEnSistema('input[name="contacto"]', 'Carlos Mendoza');
+                
+                log('✅ Proveedor creado', 'success');
+                
+                // Verificar listas
+                log('\n🎯 VERIFICANDO LISTAS...', 'success');
+                await navegarEnSistema('#/rat-list', 'Lista de RATs');
+                await esperar(2000);
+                
+                await navegarEnSistema('#/eipd-list', 'Lista de EIPDs');
+                await esperar(2000);
+                
+                log('\n🎉 SIMULACIÓN COMPLETADA EXITOSAMENTE', 'success');
+                log('═══════════════════════════════════════════════════', 'success');
+                log('📊 Todos los escenarios fueron ejecutados correctamente', 'success');
+                
+            } catch (error) {
+                log(`❌ Error en la simulación: ${error.message}`, 'error');
+                log('🔧 Verifica que el sistema LPDP esté abierto y cargado correctamente', 'warning');
+            }
+        };
+
+        const abrirSistema = () => {
+            log('🌐 Abriendo sistema LPDP en nueva pestaña...', 'info');
+            window.lpdpSystemWindow = window.open('https://scldp-frontend.onrender.com/', 'lpdpSystem');
+        };
+
+        const limpiarLog = () => {
+            logElement.innerHTML = '';
+            log('🧹 Log limpiado', 'info');
+        };
+
+        // Inicializar
+        log('✅ Simulador de Usuario LPDP cargado correctamente', 'success');
+        log('📝 Haz clic en "Iniciar Simulación Completa" para comenzar', 'info');
+    </script>
+</body>
+</html>

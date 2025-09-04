@@ -103,18 +103,18 @@ class LogicAuditor {
       }
     });
 
-    console.log('🔍 Reglas lógicas inicializadas:', this.sequenceRules.size);
+    // console.log('🔍 Reglas lógicas inicializadas:', this.sequenceRules.size);
   }
 
   // 🔍 AUDITORÍA COMPLETA SISTEMA
   async auditarSistemaCompleto(tenantId) {
     if (this.isAuditing) {
-      console.log('⏳ Auditoría ya en progreso...');
+      // console.log('⏳ Auditoría ya en progreso...');
       return;
     }
 
     this.isAuditing = true;
-    console.log('🔍 INICIANDO AUDITORÍA LÓGICA COMPLETA');
+    // console.log('🔍 INICIANDO AUDITORÍA LÓGICA COMPLETA');
     
     const auditReport = {
       tenant_id: tenantId,
@@ -134,14 +134,14 @@ class LogicAuditor {
     try {
       // Ejecutar todas las reglas de validación
       for (const rule of this.sequenceRules) {
-        console.log(`🔍 Validando: ${rule.description}`);
+        // console.log(`🔍 Validando: ${rule.description}`);
         
         try {
           const inconsistencias = await rule.validate(tenantId);
           
           if (inconsistencias.length === 0) {
             auditReport.summary.passed_rules++;
-            console.log(`✅ ${rule.id}: SIN PROBLEMAS`);
+            // console.log(`✅ ${rule.id}: SIN PROBLEMAS`);
           } else {
             auditReport.summary.failed_rules++;
             auditReport.summary.total_inconsistencies += inconsistencias.length;
@@ -150,7 +150,7 @@ class LogicAuditor {
               rule_description: rule.description,
               issues: inconsistencias
             });
-            console.log(`❌ ${rule.id}: ${inconsistencias.length} problemas`);
+            // console.log(`❌ ${rule.id}: ${inconsistencias.length} problemas`);
           }
         } catch (ruleError) {
           console.error(`Error validando regla ${rule.id}:`, ruleError);
@@ -168,7 +168,7 @@ class LogicAuditor {
       // Guardar reporte auditoría
       await this.saveAuditReport(auditReport);
 
-      console.log('📊 AUDITORÍA COMPLETADA:', auditReport.summary);
+      // console.log('📊 AUDITORÍA COMPLETADA:', auditReport.summary);
       
       return auditReport;
       
@@ -340,7 +340,7 @@ supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id'
 
   // 🔧 AUTO-CORRECCIÓN DE INCONSISTENCIAS
   async autoFixInconsistencies(tenantId, auditReport) {
-    console.log('🔧 Iniciando auto-corrección de inconsistencias');
+    // console.log('🔧 Iniciando auto-corrección de inconsistencias');
     
     const fixResults = [];
     
@@ -382,7 +382,7 @@ supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id'
       }
     }
     
-    console.log('🔧 Auto-corrección completada:', fixResults);
+    // console.log('🔧 Auto-corrección completada:', fixResults);
     return fixResults;
   }
 
@@ -421,7 +421,7 @@ supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id'
       
       if (error) throw error;
       
-      console.log('✅ EIPD auto-generada por auditor:', data.id);
+      // console.log('✅ EIPD auto-generada por auditor:', data.id);
       return data;
     } catch (error) {
       console.error('❌ Error auto-generando EIPD:', error);
@@ -467,7 +467,7 @@ supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id'
       
       if (error) throw error;
       
-      console.log('✅ RAT auto-registrado en inventario:', data.id);
+      // console.log('✅ RAT auto-registrado en inventario:', data.id);
       return data;
     } catch (error) {
       console.error('❌ Error auto-registrando en inventario:', error);
@@ -494,7 +494,7 @@ supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id'
       
       if (error) throw error;
       
-      console.log('✅ Tarea huérfana marcada como obsoleta:', data.id);
+      // console.log('✅ Tarea huérfana marcada como obsoleta:', data.id);
       return data;
     } catch (error) {
       console.error('❌ Error limpiando tarea huérfana:', error);
@@ -525,7 +525,7 @@ supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id'
       
       if (error) throw error;
       
-      console.log('💾 Reporte auditoría guardado:', data.id);
+      // console.log('💾 Reporte auditoría guardado:', data.id);
       return data;
     } catch (error) {
       console.error('❌ Error guardando reporte:', error);
@@ -535,7 +535,7 @@ supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id'
 
   // 🔄 AUDITORÍA AUTOMÁTICA PERIÓDICA
   startPeriodicAudit(tenantId, intervalMinutes = 30) {
-    console.log(`🔄 Iniciando auditoría automática cada ${intervalMinutes} minutos`);
+    // console.log(`🔄 Iniciando auditoría automática cada ${intervalMinutes} minutos`);
     
     setInterval(async () => {
       try {
@@ -543,7 +543,7 @@ supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id'
         
         // Si hay inconsistencias críticas, auto-corregir
         if (auditReport.summary.failed_rules > 0) {
-          console.log('🔧 Inconsistencias detectadas - iniciando auto-corrección');
+          // console.log('🔧 Inconsistencias detectadas - iniciando auto-corrección');
           await this.autoFixInconsistencies(tenantId, auditReport);
         }
         
@@ -555,7 +555,7 @@ supabase.from('mapeo_datos_rat').select('id', { count: 'exact' }).eq('tenant_id'
 
   // 🎯 VALIDACIÓN ESPECÍFICA ANTES DE ACCIONES CRÍTICAS
   async validateBeforeAction(tenantId, action, data) {
-    console.log(`🔍 Validando antes de: ${action}`);
+    // console.log(`🔍 Validando antes de: ${action}`);
     
     switch (action) {
       case 'CLOSE_RAT':

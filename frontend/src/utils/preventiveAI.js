@@ -76,7 +76,7 @@ class PreventiveAI {
       }
     });
 
-    console.log('📊 Diagramas de flujo cargados:', this.flowDiagrams.size);
+    // console.log('📊 Diagramas de flujo cargados:', this.flowDiagrams.size);
   }
 
   // 🛡️ REGLAS PREVENTIVAS
@@ -164,14 +164,14 @@ class PreventiveAI {
       }
     });
 
-    console.log('🛡️ Reglas preventivas cargadas:', this.preventiveRules.size);
+    // console.log('🛡️ Reglas preventivas cargadas:', this.preventiveRules.size);
   }
 
   // 🔧 CORRECCIÓN PREVENTIVA AUTOMÁTICA PRINCIPAL
   async validateAction(trigger, tenantId, data) {
     if (!this.isActive) return { canProceed: true };
     
-    console.log(`🔧 Auto-corrigiendo preventivamente: ${trigger}`);
+    // console.log(`🔧 Auto-corrigiendo preventivamente: ${trigger}`);
     
     // DETECCIÓN PREVIA INMEDIATA DE PROBLEMAS CRÍTICOS
     await this.detectAndFixCriticalIssuesImmediately(tenantId, trigger, data);
@@ -182,7 +182,7 @@ class PreventiveAI {
           const result = await rule.validate(tenantId, data.ratId || data, data.changes);
           
           if (!result.canProceed) {
-            console.log(`🔧 PROBLEMA DETECTADO - CORRIGIENDO AUTOMÁTICAMENTE: ${result.message}`);
+            // console.log(`🔧 PROBLEMA DETECTADO - CORRIGIENDO AUTOMÁTICAMENTE: ${result.message}`);
             // AUTO-CORREGIR EN LUGAR DE BLOQUEAR
             await this.autoCorrectIssue(result, tenantId, data);
             return { 
@@ -193,7 +193,7 @@ class PreventiveAI {
           }
           
           if (result.preventiveAction !== 'NONE') {
-            console.log(`🔧 Ejecutando corrección automática: ${result.preventiveAction}`);
+            // console.log(`🔧 Ejecutando corrección automática: ${result.preventiveAction}`);
             await this.performPreventiveAction(result.preventiveAction, tenantId, data);
             return {
               canProceed: true,
@@ -220,12 +220,12 @@ class PreventiveAI {
 
   // 🔧 DETECCIÓN Y CORRECCIÓN CRÍTICA INMEDIATA
   async detectAndFixCriticalIssuesImmediately(tenantId, trigger, data) {
-    console.log('🔧 SISTEMA DE CORRECCIÓN CRÍTICA INMEDIATA INICIADO');
+    // console.log('🔧 SISTEMA DE CORRECCIÓN CRÍTICA INMEDIATA INICIADO');
     
     try {
       // 1. CORREGIR IDs UNDEFINED EN CONSULTAS SUPABASE
       if (data && (data.id === undefined || data.ratId === undefined)) {
-        console.log('🔧 CORRIGIENDO ID UNDEFINED');
+        // console.log('🔧 CORRIGIENDO ID UNDEFINED');
         if (data.id === undefined && data.ratId) {
           data.id = data.ratId;
         } else if (data.ratId === undefined && data.id) {
@@ -248,7 +248,7 @@ class PreventiveAI {
 
   // 🚨 DETECCIÓN Y ALERTA CRÍTICA INMEDIATA - SOLO ALERTAS, NO CORRECCIONES
   async detectAndAlertCriticalIssuesImmediately(tenantId, trigger, data) {
-    console.log('🚨 SISTEMA DE ALERTAS CRÍTICAS INICIADO');
+    // console.log('🚨 SISTEMA DE ALERTAS CRÍTICAS INICIADO');
     
     const alertas = [];
     
@@ -275,7 +275,7 @@ class PreventiveAI {
       const userErrorAlerts = await this.anticipateUserErrors(tenantId, trigger, data);
       alertas.push(...userErrorAlerts);
       
-      console.log(`🚨 ${alertas.length} PROBLEMAS DETECTADOS - MOSTRANDO ALERTAS AL USUARIO`);
+      // console.log(`🚨 ${alertas.length} PROBLEMAS DETECTADOS - MOSTRANDO ALERTAS AL USUARIO`);
       
       // DEVOLVER ALERTAS PARA MOSTRAR EN UI
       return {
@@ -508,7 +508,7 @@ class PreventiveAI {
 
   // 🔧 CORREGIR REFERENCIAS ROTAS INMEDIATAMENTE
   async fixBrokenReferencesImmediately(tenantId) {
-    console.log('🔧 CORRIGIENDO REFERENCIAS ROTAS...');
+    // console.log('🔧 CORRIGIENDO REFERENCIAS ROTAS...');
     
     try {
       // 1. EIPDs sin RAT válido
@@ -528,7 +528,7 @@ class PreventiveAI {
             .update({ source_rat_id: validRAT.id })
             .eq('id', eipd.id);
           
-          console.log(`✅ Referencia EIPD ${eipd.id} corregida`);
+          // console.log(`✅ Referencia EIPD ${eipd.id} corregida`);
         }
       }
       
@@ -556,7 +556,7 @@ class PreventiveAI {
               })
               .eq('id', task.id);
             
-            console.log(`✅ Actividad huérfana ${task.id} marcada como obsoleta`);
+            // console.log(`✅ Actividad huérfana ${task.id} marcada como obsoleta`);
           }
         }
       }
@@ -568,7 +568,7 @@ class PreventiveAI {
 
   // 🔧 VALIDAR Y CORREGIR ESQUEMA SUPABASE
   async validateAndFixSupabaseSchema(tenantId, data) {
-    console.log('🔧 VALIDANDO ESQUEMA SUPABASE...');
+    // console.log('🔧 VALIDANDO ESQUEMA SUPABASE...');
     
     // Lista de tablas que DEBEN existir
     const requiredTables = [
@@ -590,11 +590,11 @@ class PreventiveAI {
           .limit(1);
         
         if (error && error.code === '42P01') {
-          console.log(`🚨 TABLA CRÍTICA FALTANTE: ${table} - CREANDO ALTERNATIVA`);
+          // console.log(`🚨 TABLA CRÍTICA FALTANTE: ${table} - CREANDO ALTERNATIVA`);
           await this.createTableAlternative(table, tenantId);
         }
       } catch (tableError) {
-        console.log(`🔧 Error verificando tabla ${table}: ${tableError.message}`);
+        // console.log(`🔧 Error verificando tabla ${table}: ${tableError.message}`);
         await this.handleTableValidationError(table, tableError);
       }
     }
@@ -602,7 +602,7 @@ class PreventiveAI {
 
   // 🔮 ANTICIPAR Y PREVENIR ERRORES DE USUARIO
   async anticipateAndPreventUserErrors(tenantId, trigger, data) {
-    console.log('🔮 ANTICIPANDO ERRORES DE USUARIO...');
+    // console.log('🔮 ANTICIPANDO ERRORES DE USUARIO...');
     
     // Patrones comunes de error detectados
     const errorPatterns = [
@@ -614,7 +614,7 @@ class PreventiveAI {
             data.nombre_actividad = data.nombre_actividad || 'Actividad Auto-completada';
             data.finalidad_principal = data.finalidad_principal || 'Operaciones internas';
             data.area_responsable = data.area_responsable || 'TI';
-            console.log('✅ Campos requeridos auto-completados');
+            // console.log('✅ Campos requeridos auto-completados');
           }
         }
       },
@@ -624,7 +624,7 @@ class PreventiveAI {
         fix: async () => {
           if (data) {
             data.nivel_riesgo = 'MEDIO';
-            console.log('✅ Nivel de riesgo inválido corregido a MEDIO');
+            // console.log('✅ Nivel de riesgo inválido corregido a MEDIO');
           }
         }
       },
@@ -634,7 +634,7 @@ class PreventiveAI {
         fix: async () => {
           if (data) {
             data.base_licitud = 'interes_legitimo';
-            console.log('✅ Base legal faltante establecida como interés legítimo');
+            // console.log('✅ Base legal faltante establecida como interés legítimo');
           }
         }
       }
@@ -644,7 +644,7 @@ class PreventiveAI {
     for (const errorPattern of errorPatterns) {
       try {
         if (errorPattern.check()) {
-          console.log(`🔮 PATRÓN DETECTADO: ${errorPattern.pattern} - CORRIGIENDO PREVENTIVAMENTE`);
+          // console.log(`🔮 PATRÓN DETECTADO: ${errorPattern.pattern} - CORRIGIENDO PREVENTIVAMENTE`);
           await errorPattern.fix();
         }
       } catch (patternError) {
@@ -655,7 +655,7 @@ class PreventiveAI {
 
   // 🚨 CORRECCIÓN CRÍTICA DE EMERGENCIA
   async applyCriticalEmergencyFix(tenantId, originalError) {
-    console.log('🚨 APLICANDO CORRECCIÓN CRÍTICA DE EMERGENCIA');
+    // console.log('🚨 APLICANDO CORRECCIÓN CRÍTICA DE EMERGENCIA');
     
     try {
       // Log del error crítico
@@ -677,7 +677,7 @@ class PreventiveAI {
           }
         });
       
-      console.log('✅ SISTEMA ESTABILIZADO TRAS CORRECCIÓN DE EMERGENCIA');
+      // console.log('✅ SISTEMA ESTABILIZADO TRAS CORRECCIÓN DE EMERGENCIA');
       
     } catch (logError) {
       console.error('⚠️ Error loggeando emergencia - SISTEMA CONTINÚA FUNCIONANDO');
@@ -706,7 +706,7 @@ class PreventiveAI {
       };
       
       await supabase.from('mapeo_datos_rat').insert(autoRAT);
-      console.log('✅ RAT faltante creado automáticamente:', ratId);
+      // console.log('✅ RAT faltante creado automáticamente:', ratId);
     } catch (error) {
       console.error('Error creando RAT automáticamente:', error);
     }
@@ -752,7 +752,7 @@ class PreventiveAI {
   }
 
   async attemptTableFix(tableName, error) {
-    console.log(`🔧 Intentando corrección tabla ${tableName}: ${error.message}`);
+    // console.log(`🔧 Intentando corrección tabla ${tableName}: ${error.message}`);
     
     // Simplemente loggear el error ya que no podemos crear tablas
     await supabase
@@ -767,8 +767,8 @@ class PreventiveAI {
           timestamp: new Date().toISOString()
         }
       })
-      .then(() => console.log(`✅ Error tabla ${tableName} loggeado para revisión`))
-      .catch(() => console.log(`⚠️ No se pudo loggear error tabla ${tableName}`));
+      .then(() => // console.log(`✅ Error tabla ${tableName} loggeado para revisión`))
+      .catch(() => // console.log(`⚠️ No se pudo loggear error tabla ${tableName}`));
   }
 
   async validateAndFixForeignKeys(tenantId) {
@@ -790,7 +790,7 @@ class PreventiveAI {
             .update({ tenant_id: tenantId })
             .is('tenant_id', null);
           
-          console.log(`✅ ${recordsWithoutTenant.length} registros sin tenant_id corregidos en ${table}`);
+          // console.log(`✅ ${recordsWithoutTenant.length} registros sin tenant_id corregidos en ${table}`);
         }
       } catch (error) {
         console.error(`Error verificando foreign keys en ${table}:`, error);
@@ -800,7 +800,7 @@ class PreventiveAI {
 
   async createTableAlternative(tableName, tenantId) {
     // Como no podemos crear tablas, crear entrada en log como alternativa
-    console.log(`🔧 Creando alternativa para tabla faltante: ${tableName}`);
+    // console.log(`🔧 Creando alternativa para tabla faltante: ${tableName}`);
     
     try {
       await supabase
@@ -816,14 +816,14 @@ class PreventiveAI {
             requires_manual_table_creation: true
           }
         });
-      console.log(`✅ Alternativa creada para tabla faltante ${tableName}`);
+      // console.log(`✅ Alternativa creada para tabla faltante ${tableName}`);
     } catch (error) {
       console.error(`Error creando alternativa para ${tableName}:`, error);
     }
   }
 
   async handleTableValidationError(tableName, error) {
-    console.log(`🔧 Manejando error validación tabla ${tableName}`);
+    // console.log(`🔧 Manejando error validación tabla ${tableName}`);
     // Simplemente continuar - el sistema debe ser resiliente
   }
 
@@ -939,7 +939,7 @@ class PreventiveAI {
 
   // 🔄 AUTO-CORRECCIÓN PREVENTIVA
   async performPreventiveAction(action, tenantId, data) {
-    console.log(`🔄 Ejecutando acción preventiva: ${action}`);
+    // console.log(`🔄 Ejecutando acción preventiva: ${action}`);
     
     switch (action) {
       case 'PREPARE_EIPD':
@@ -952,7 +952,7 @@ class PreventiveAI {
         return await this.cleanupRATDependencies(tenantId, data.ratId);
         
       default:
-        console.log(`Acción preventiva ${action} no implementada`);
+        // console.log(`Acción preventiva ${action} no implementada`);
         return null;
     }
   }
@@ -978,7 +978,7 @@ class PreventiveAI {
 
   // 🔧 NUEVOS MÉTODOS AUTO-CORRECTIVOS
   async autoCorrectIssue(validationResult, tenantId, data) {
-    console.log(`🔧 Auto-corrigiendo problema: ${validationResult.preventiveAction}`);
+    // console.log(`🔧 Auto-corrigiendo problema: ${validationResult.preventiveAction}`);
     
     try {
       switch (validationResult.preventiveAction) {
@@ -992,7 +992,7 @@ class PreventiveAI {
           await this.autoCleanupAllDependencies(tenantId, data.ratId, validationResult.dependencies);
           break;
         default:
-          console.log(`Tipo de corrección ${validationResult.preventiveAction} implementándose...`);
+          // console.log(`Tipo de corrección ${validationResult.preventiveAction} implementándose...`);
       }
     } catch (error) {
       console.error('Error en auto-corrección:', error);
@@ -1030,7 +1030,7 @@ class PreventiveAI {
 
       if (error) throw error;
       
-      console.log('✅ RAT consolidado automáticamente:', existingRAT.id);
+      // console.log('✅ RAT consolidado automáticamente:', existingRAT.id);
       return data;
     } catch (error) {
       console.error('❌ Error consolidando RAT:', error);
@@ -1064,7 +1064,7 @@ class PreventiveAI {
 
       if (error) throw error;
       
-      console.log('✅ EIPD auto-creada preventivamente:', data.id);
+      // console.log('✅ EIPD auto-creada preventivamente:', data.id);
       return data;
     } catch (error) {
       console.error('❌ Error auto-creando EIPD:', error);
@@ -1096,7 +1096,7 @@ class PreventiveAI {
       });
 
       await Promise.all(updatePromises);
-      console.log(`✅ ${affectedEIPDs.length} EIPDs actualizadas automáticamente`);
+      // console.log(`✅ ${affectedEIPDs.length} EIPDs actualizadas automáticamente`);
       return affectedEIPDs;
     } catch (error) {
       console.error('❌ Error auto-actualizando EIPDs:', error);
@@ -1148,7 +1148,7 @@ class PreventiveAI {
 
 
       await Promise.all(cleanupPromises);
-      console.log(`✅ ${dependencies.totalDependencies} dependencias limpiadas automáticamente`);
+      // console.log(`✅ ${dependencies.totalDependencies} dependencias limpiadas automáticamente`);
       return dependencies;
     } catch (error) {
       console.error('❌ Error limpiando dependencias:', error);
@@ -1157,7 +1157,7 @@ class PreventiveAI {
   }
 
   async attemptEmergencyCorrection(error, tenantId, data) {
-    console.log('🚨 Iniciando corrección de emergencia para error:', error.message);
+    // console.log('🚨 Iniciando corrección de emergencia para error:', error.message);
     
     try {
       // Correcciones comunes de emergencia
@@ -1172,7 +1172,7 @@ class PreventiveAI {
         await this.logUnhandledError(tenantId, data, error);
       }
       
-      console.log('✅ Corrección de emergencia aplicada');
+      // console.log('✅ Corrección de emergencia aplicada');
     } catch (emergencyError) {
       console.error('❌ Error en corrección de emergencia:', emergencyError);
       // Último recurso: solo loggear
@@ -1182,7 +1182,7 @@ class PreventiveAI {
 
   async handleDuplicateKeyError(tenantId, data, error) {
     // Si hay clave duplicada, actualizar en lugar de insertar
-    console.log('🔧 Manejando error de clave duplicada con UPDATE');
+    // console.log('🔧 Manejando error de clave duplicada con UPDATE');
     
     try {
       if (data.nombre_actividad) {
@@ -1210,7 +1210,7 @@ class PreventiveAI {
 
   async handleMissingResourceError(tenantId, data, error) {
     // Si recurso no existe, crearlo automáticamente
-    console.log('🔧 Creando recurso faltante automáticamente');
+    // console.log('🔧 Creando recurso faltante automáticamente');
     
     try {
     } catch (creationError) {
@@ -1220,7 +1220,7 @@ class PreventiveAI {
 
   async handlePermissionError(tenantId, data, error) {
     // Loggear error de permisos para revisión manual
-    console.log('🔧 Registrando error de permisos para revisión');
+    // console.log('🔧 Registrando error de permisos para revisión');
     
     await supabase
       .from('ia_agent_reports')
@@ -1283,7 +1283,7 @@ class PreventiveAI {
   async interceptAction(actionType, params) {
     if (!this.isActive) return { allowed: true };
     
-    console.log(`🔧 Interceptando y auto-corrigiendo: ${actionType}`);
+    // console.log(`🔧 Interceptando y auto-corrigiendo: ${actionType}`);
     
     const validation = await this.validateAction(
       `BEFORE_${actionType}`, 
@@ -1292,7 +1292,7 @@ class PreventiveAI {
     );
     
     // LA IA YA NO BLOQUEA - SIEMPRE PERMITE CONTINUAR DESPUÉS DE CORREGIR
-    console.log(`✅ Acción ${actionType} procesada con correcciones automáticas`);
+    // console.log(`✅ Acción ${actionType} procesada con correcciones automáticas`);
     
     return {
       allowed: true,
@@ -1409,7 +1409,7 @@ class PreventiveAI {
 
   // 🔧 CORRECCIÓN AUTOMÁTICA AGRESIVA EN TIEMPO REAL
   async autoCorrectInRealTime(tenantId, detectedIssue) {
-    console.log(`🔧 CORRECCIÓN AGRESIVA EN TIEMPO REAL: ${detectedIssue.type}`);
+    // console.log(`🔧 CORRECCIÓN AGRESIVA EN TIEMPO REAL: ${detectedIssue.type}`);
     
     try {
       switch (detectedIssue.type) {
@@ -1446,7 +1446,7 @@ class PreventiveAI {
           await this.applyGenericCorrection(tenantId, detectedIssue);
       }
       
-      console.log(`✅ CORRECCIÓN AGRESIVA COMPLETADA: ${detectedIssue.type}`);
+      // console.log(`✅ CORRECCIÓN AGRESIVA COMPLETADA: ${detectedIssue.type}`);
       
     } catch (error) {
       console.error(`❌ Error en corrección agresiva - APLICANDO CORRECCIÓN DE EMERGENCIA`);
@@ -1457,14 +1457,14 @@ class PreventiveAI {
 
   // 🔧 MONITOREO CONTINUO AGRESIVO Y AUTO-CORRECTIVO
   startPreventiveMonitoring(tenantId) {
-    console.log('🔧 INICIANDO MONITOREO AGRESIVO CON AUTO-CORRECCIÓN CONTINUA');
+    // console.log('🔧 INICIANDO MONITOREO AGRESIVO CON AUTO-CORRECCIÓN CONTINUA');
     
     setInterval(async () => {
       try {
         // Detectar TODOS los problemas posibles y corregir inmediatamente
         const allIssues = await this.detectAllPossibleIssues(tenantId);
         
-        console.log(`🔧 Detectados ${allIssues.length} problemas - CORRIGIENDO TODOS AUTOMÁTICAMENTE`);
+        // console.log(`🔧 Detectados ${allIssues.length} problemas - CORRIGIENDO TODOS AUTOMÁTICAMENTE`);
         
         // Corregir TODOS los problemas sin excepción
         for (const issue of allIssues) {
@@ -1474,7 +1474,7 @@ class PreventiveAI {
         // Verificar nuevamente después de correcciones
         const remainingIssues = await this.detectAllPossibleIssues(tenantId);
         if (remainingIssues.length > 0) {
-          console.log(`🔧 ${remainingIssues.length} problemas persisten - APLICANDO CORRECCIÓN AGRESIVA`);
+          // console.log(`🔧 ${remainingIssues.length} problemas persisten - APLICANDO CORRECCIÓN AGRESIVA`);
           for (const persistentIssue of remainingIssues) {
             await this.applyAggressiveCorrection(tenantId, persistentIssue);
           }
@@ -1660,7 +1660,7 @@ class PreventiveAI {
 
   // 🔧 AUTO-CORRECCIONES ESPECÍFICAS
   async autoRegisterMissingInventory(tenantId, ratId) {
-    console.log('✅ Inventario no requerido - tabla removida del esquema');
+    // console.log('✅ Inventario no requerido - tabla removida del esquema');
     return null;
   }
 
@@ -1696,7 +1696,7 @@ class PreventiveAI {
       
       if (error) throw error;
       
-      console.log('✅ EIPD auto-generada preventivamente:', data.id);
+      // console.log('✅ EIPD auto-generada preventivamente:', data.id);
       return data;
     } catch (error) {
       console.error('❌ Error auto-generando EIPD:', error);
@@ -1723,7 +1723,7 @@ class PreventiveAI {
       
       if (error) throw error;
       
-      console.log('✅ Tarea huérfana limpiada automáticamente:', taskId);
+      // console.log('✅ Tarea huérfana limpiada automáticamente:', taskId);
       return data;
     } catch (error) {
       console.error('❌ Error limpiando tarea huérfana:', error);
@@ -1764,7 +1764,7 @@ class PreventiveAI {
 
       if (error) throw error;
       
-      console.log('✅ Tarea DPO auto-creada:', data.id);
+      // console.log('✅ Tarea DPO auto-creada:', data.id);
       return data;
     } catch (error) {
       console.error('❌ Error auto-creando tarea DPO:', error);
@@ -1809,7 +1809,7 @@ class PreventiveAI {
 
       if (error) throw error;
       
-      console.log(`✅ Nivel de riesgo auto-corregido: ${rat.nivel_riesgo} → ${newRiskEvaluation.level}`);
+      // console.log(`✅ Nivel de riesgo auto-corregido: ${rat.nivel_riesgo} → ${newRiskEvaluation.level}`);
       return data;
     } catch (error) {
       console.error('❌ Error auto-corrigiendo nivel de riesgo:', error);
@@ -1836,7 +1836,7 @@ class PreventiveAI {
 
       if (error) throw error;
       
-      console.log('✅ Link EIPD-RAT auto-reparado:', eipdId);
+      // console.log('✅ Link EIPD-RAT auto-reparado:', eipdId);
       return data;
     } catch (error) {
       console.error('❌ Error auto-reparando link:', error);
@@ -1879,7 +1879,7 @@ class PreventiveAI {
           .eq('id', detectedIssue.recordId);
       }
       
-      console.log(`✅ ${fixes.length} campos de tenant auto-corregidos`);
+      // console.log(`✅ ${fixes.length} campos de tenant auto-corregidos`);
       return fixes;
     } catch (error) {
       console.error('❌ Error auto-corrigiendo datos tenant:', error);
@@ -1890,7 +1890,7 @@ class PreventiveAI {
   async applyGenericCorrection(tenantId, detectedIssue) {
     try {
       // Corrección genérica para problemas no catalogados
-      console.log('🔧 Aplicando corrección genérica para problema desconocido');
+      // console.log('🔧 Aplicando corrección genérica para problema desconocido');
       
       const genericSolution = {
         tenant_id: tenantId,
@@ -1910,7 +1910,7 @@ class PreventiveAI {
           report_data: genericSolution
         });
 
-      console.log('✅ Corrección genérica aplicada y registrada');
+      // console.log('✅ Corrección genérica aplicada y registrada');
       return genericSolution;
     } catch (error) {
       console.error('❌ Error en corrección genérica:', error);
@@ -1921,7 +1921,7 @@ class PreventiveAI {
   async lastResortCorrection(tenantId, detectedIssue, originalError) {
     try {
       // ÚLTIMO RECURSO: SIEMPRE CORREGIR ALGO, NUNCA FALLAR
-      console.log('🚨 APLICANDO CORRECCIÓN DE ÚLTIMO RECURSO');
+      // console.log('🚨 APLICANDO CORRECCIÓN DE ÚLTIMO RECURSO');
       
       await supabase
         .from('ia_agent_reports')
@@ -1938,7 +1938,7 @@ class PreventiveAI {
           }
         });
 
-      console.log('✅ Sistema estabilizado con corrección de último recurso');
+      // console.log('✅ Sistema estabilizado con corrección de último recurso');
       return true;
     } catch (finalError) {
       // Incluso si esto falla, no propagar el error
@@ -2098,7 +2098,7 @@ class PreventiveAI {
   }
 
   async applyAggressiveCorrection(tenantId, persistentIssue) {
-    console.log(`🚨 APLICANDO CORRECCIÓN AGRESIVA PARA: ${persistentIssue.type}`);
+    // console.log(`🚨 APLICANDO CORRECCIÓN AGRESIVA PARA: ${persistentIssue.type}`);
     
     try {
       switch (persistentIssue.type) {
@@ -2122,7 +2122,7 @@ class PreventiveAI {
           await this.forceSystemStabilization(tenantId, persistentIssue);
       }
       
-      console.log(`✅ CORRECCIÓN AGRESIVA APLICADA: ${persistentIssue.type}`);
+      // console.log(`✅ CORRECCIÓN AGRESIVA APLICADA: ${persistentIssue.type}`);
     } catch (error) {
       console.error('❌ Error en corrección agresiva:', error);
       await this.forceSystemStabilization(tenantId, persistentIssue);
@@ -2130,7 +2130,7 @@ class PreventiveAI {
   }
 
   async forceCreateInventoryEntry(tenantId, ratId) {
-    console.log('✅ Inventario no requerido - tabla removida del esquema');
+    // console.log('✅ Inventario no requerido - tabla removida del esquema');
     return null;
   }
 
@@ -2151,7 +2151,7 @@ class PreventiveAI {
           status: 'BORRADOR',
           created_at: new Date().toISOString()
         });
-      console.log('✅ EIPD básica forzada para RAT:', ratId);
+      // console.log('✅ EIPD básica forzada para RAT:', ratId);
     } catch (error) {
       console.error('❌ Error creando EIPD forzada:', error);
     }
@@ -2174,7 +2174,7 @@ class PreventiveAI {
             forced_approval: true
           }
         });
-      console.log('✅ Aprobación forzada creada para RAT:', ratId);
+      // console.log('✅ Aprobación forzada creada para RAT:', ratId);
     } catch (error) {
       console.error('❌ Error creando aprobación forzada:', error);
     }
@@ -2195,7 +2195,7 @@ class PreventiveAI {
             timestamp: new Date().toISOString()
           }
         });
-      console.log('✅ Sistema forzado a estabilidad');
+      // console.log('✅ Sistema forzado a estabilidad');
     } catch (error) {
       console.error('⚠️ Incluso estabilización forzada falló - Sistema continúa');
     }
@@ -2210,7 +2210,7 @@ class PreventiveAI {
       if (!data.id && !data.ratId) {
         data.id = `rat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         data.ratId = data.id;
-        console.log('🔧 ID de RAT generado:', data.id);
+        // console.log('🔧 ID de RAT generado:', data.id);
       }
       
       // Asegurar estructura mínima requerida
@@ -2222,7 +2222,7 @@ class PreventiveAI {
       };
       
       Object.assign(data, requiredFields);
-      console.log('🔧 Estructura de datos RAT corregida');
+      // console.log('🔧 Estructura de datos RAT corregida');
       
     } catch (error) {
       console.error('Error corrigiendo estructura RAT:', error);
@@ -2240,12 +2240,12 @@ class PreventiveAI {
           .single();
           
         if (!tenant) {
-          console.warn('🔧 Tenant no encontrado, usando tenant por defecto');
+          // console.warn('🔧 Tenant no encontrado, usando tenant por defecto');
           if (data) data.tenant_id = '1'; // Fallback a tenant por defecto
         }
       }
       
-      console.log('🔧 Referencias validadas y corregidas');
+      // console.log('🔧 Referencias validadas y corregidas');
       
     } catch (error) {
       console.error('Error corrigiendo referencias:', error);

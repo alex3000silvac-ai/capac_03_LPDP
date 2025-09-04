@@ -101,7 +101,7 @@ const AppContent = () => {
   // 🛡️ ACTIVAR IA PREVENTIVA AUTOMÁTICAMENTE
   useEffect(() => {
     if (user && currentTenant?.id) {
-      console.log('🛡️ Activando IA Preventiva para ecosistema completo');
+      // console.log('🛡️ Activando IA Preventiva para ecosistema completo');
       // El controlador se activa automáticamente cuando hay usuario y tenant
     }
   }, [user, currentTenant?.id]);

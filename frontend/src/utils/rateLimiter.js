@@ -91,7 +91,7 @@ class RateLimiter {
    */
   block(key) {
     this.blocked.set(key, Date.now());
-    console.warn(`⚠️ Rate limiter: Bloqueado ${key}`);
+    // console.warn(`⚠️ Rate limiter: Bloqueado ${key}`);
   }
 
   /**

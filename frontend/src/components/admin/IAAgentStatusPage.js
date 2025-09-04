@@ -98,7 +98,7 @@ const IAAgentStatusPage = () => {
           );
         }
       } catch (dbError) {
-        console.warn('No se pudo verificar en DB, usando solo contexto auth');
+        // console.warn('No se pudo verificar en DB, usando solo contexto auth');
       }
 
       const isUserAdmin = adminChecks.some(check => check === true);

@@ -17,7 +17,7 @@ class IAAgentReporter {
    */
   async generateFullReport() {
     const timestamp = new Date().toISOString();
-    console.log(`🤖 Generando informe IA Agent - ${timestamp}`);
+    // Informe IA Agent en progreso
 
     try {
       const report = {
@@ -417,7 +417,7 @@ class IAAgentReporter {
           report_type: 'full_status'
         });
       
-      console.log('📋 Informe IA guardado en Supabase:', this.reportId);
+      // Informe guardado en Supabase
     } catch (error) {
       console.error('Error guardando informe:', error);
     }
@@ -427,52 +427,14 @@ class IAAgentReporter {
    * 🖨️ FORMATEAR INFORME PARA CONSOLA
    */
   formatConsoleReport(report) {
-    console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║                    📊 INFORME IA AGENT                        ║
-║                      ${report.timestamp}                      ║
-╠══════════════════════════════════════════════════════════════╣
-║ 🚀 ESTADO DESPLIEGUE:                                         ║
-║    Frontend: ${report.deployment_status?.frontend_status || 'N/A'}                                    ║
-║    Ambiente: ${report.deployment_status?.environment || 'N/A'}                               ║
-║    IA Cargada: ${report.deployment_status?.ia_agent_loaded ? 'SÍ' : 'NO'}                             ║
-╠══════════════════════════════════════════════════════════════╣
-║ 🤖 ESTADO AGENTE IA:                                          ║
-║    Status: ${report.agent_status?.status || 'UNKNOWN'}                                   ║
-║    Activo: ${report.agent_status?.is_active ? 'SÍ' : 'NO'}                                ║
-║    Última actividad: ${report.agent_status?.minutes_since_activity || 'N/A'} min              ║
-╠══════════════════════════════════════════════════════════════╣
-║ 📈 ACTIVIDAD RECIENTE:                                        ║
-║    Validaciones 24h: ${report.recent_activity?.last_24h || 0}                            ║
-║    Total actividades: ${report.recent_activity?.total_activities || 0}                         ║
-╠══════════════════════════════════════════════════════════════╣
-║ 🎯 COMPLIANCE:                                                ║
-║    Score general: ${report.compliance_metrics?.overall_compliance || 0}%                            ║
-║    RATs totales: ${report.compliance_metrics?.rat_metrics?.total || 0}                             ║
-║    Con datos sensibles: ${report.compliance_metrics?.rat_metrics?.with_sensitive_data || 0}                       ║
-║    Notificaciones pendientes: ${report.compliance_metrics?.notification_metrics?.pending || 0}                  ║
-╠══════════════════════════════════════════════════════════════╣
-║ 💾 SALUD SUPABASE:                                            ║
-║    Estado: ${report.supabase_health?.status || 'N/A'}                                  ║
-║    Tiempo respuesta: ${report.supabase_health?.response_time_ms || 'N/A'}ms                       ║
-║    Performance: ${report.supabase_health?.performance || 'N/A'}                             ║
-╠══════════════════════════════════════════════════════════════╣
-║ 💡 RECOMENDACIONES:                                           ║`);
-
-    report.recommendations?.forEach((rec, idx) => {
-      console.log(`║    ${idx + 1}. [${rec.priority}] ${rec.issue}`);
-      console.log(`║       Acción: ${rec.action}`);
-    });
-
-    console.log(`╚══════════════════════════════════════════════════════════════╝`);
+    // Formato de reporte silencioso - datos disponibles en dashboard
+    return report;
   }
 
   /**
    * 🎯 EJECUTAR INFORME Y MOSTRAR EN CONSOLA
    */
   async executeReport() {
-    console.log('🤖 Iniciando análisis completo del IA Agent...');
-    
     const report = await this.generateFullReport();
     this.formatConsoleReport(report);
     
@@ -483,7 +445,7 @@ class IAAgentReporter {
 // Instancia global
 const iaAgentReporter = new IAAgentReporter();
 
-// Auto-ejecutar informe cada 5 minutos en producción
+// Auto-ejecutar informe cada 5 minutos en producción (modo silencioso)
 if (process.env.NODE_ENV === 'production') {
   setInterval(() => {
     iaAgentReporter.executeReport();

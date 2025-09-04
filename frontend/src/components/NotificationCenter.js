@@ -155,7 +155,7 @@ const NotificationCenter = () => {
       setLoading(true);
       const tenantId = currentTenant?.id || 'default';
       
-      console.log('🔔 Cargando notificaciones para tenant:', tenantId);
+      // console.log('🔔 Cargando notificaciones para tenant:', tenantId);
       
       // Consulta simplificada sin join para evitar errores de relación
       const { data, error } = await supabase
@@ -199,7 +199,7 @@ const NotificationCenter = () => {
       }
 
       const notificationsData = data || [];
-      console.log('✅ Notificaciones cargadas:', notificationsData.length);
+      // console.log('✅ Notificaciones cargadas:', notificationsData.length);
 
       // Formatear notificaciones para el componente
       const formattedNotifications = notificationsData.map(notif => ({
@@ -221,7 +221,7 @@ const NotificationCenter = () => {
 
   const cargarConfiguracion = async () => {
     try {
-      console.log('📋 Cargando configuración de notificaciones...');
+      // console.log('📋 Cargando configuración de notificaciones...');
       
       // Usar configuración por defecto hasta que se implemente tabla específica
       const configData = {
@@ -245,7 +245,7 @@ const NotificationCenter = () => {
         modo_no_molestar: false
       };
       
-      console.log('✅ Configuración cargada:', configData);
+      // console.log('✅ Configuración cargada:', configData);
       setSettings(configData);
     } catch (error) {
       console.error('❌ Error cargando configuración:', error);

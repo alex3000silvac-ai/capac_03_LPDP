@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../config/supabaseClient';
 
-console.log('🚀 Iniciando AuthContext en modo PRODUCCIÓN SUPABASE');
+// console.log('🚀 Iniciando AuthContext en modo PRODUCCIÓN SUPABASE');
 
 const AuthContext = createContext();
 
@@ -22,14 +22,14 @@ export const AuthProvider = ({ children }) => {
 
   // Verificar sesión de Supabase al iniciar
   useEffect(() => {
-    console.log('🚀 Verificando sesión Supabase');
+    // console.log('🚀 Verificando sesión Supabase');
     
     // Obtener sesión inicial
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
-        console.log('🚀 Sesión encontrada:', session.user.email);
+        // console.log('🚀 Sesión encontrada:', session.user.email);
         const userData = {
           id: session.user.id,
           username: session.user.email.split('@')[0],
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         setToken(session.access_token);
       } else {
-        console.log('🚀 No hay sesión activa');
+        // console.log('🚀 No hay sesión activa');
       }
       setLoading(false);
     };
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     // Escuchar cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🚀 Auth state change:', event, session?.user?.email);
+        // console.log('🚀 Auth state change:', event, session?.user?.email);
         
         if (session?.user) {
           const userData = {
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password, tenantId = 'default') => {
-    console.log('🚀 Login Supabase:', { email, tenantId });
+    // console.log('🚀 Login Supabase:', { email, tenantId });
     setLoading(true);
     
     try {
@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error(error.message);
       }
       
-      console.log('🚀 Login exitoso:', data.user.email);
+      // console.log('🚀 Login exitoso:', data.user.email);
       
       const userData = {
         id: data.user.id,
@@ -134,7 +134,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    console.log('🚀 Logout Supabase');
+    // console.log('🚀 Logout Supabase');
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('🚀 Error logout:', error);
@@ -150,7 +150,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshToken = async () => {
-    console.log('🚀 Renovando sesión');
+    // console.log('🚀 Renovando sesión');
     const { data, error } = await supabase.auth.refreshSession();
     if (error) {
       console.error('🚀 Error al renovar sesión');

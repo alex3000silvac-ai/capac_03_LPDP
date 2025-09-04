@@ -1,7 +1,7 @@
 // 🚀 SUPABASE CLIENTE REAL - PRODUCCIÓN
 import { createClient } from '@supabase/supabase-js';
 
-console.log('🚀 Iniciando cliente Supabase REAL para producción');
+// console.log('🚀 Iniciando cliente Supabase REAL para producción');
 
 // Configuración de Supabase desde variables de entorno
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
@@ -28,7 +28,7 @@ if (!supabaseKey.startsWith('eyJ') && !supabaseKey.startsWith('sb_publishable_')
   throw new Error('CRÍTICO: API Key de Supabase debe ser JWT (eyJ...) o publishable (sb_publishable_...)');
 }
 
-console.log('🚀 Configurando Supabase:', {
+// console.log('🚀 Configurando Supabase:', {
   url: supabaseUrl,
   keyPrefix: supabaseKey.substring(0, 20) + '...'
 });
@@ -49,11 +49,11 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 });
 
-console.log('🚀 Cliente Supabase inicializado exitosamente');
+// console.log('🚀 Cliente Supabase inicializado exitosamente');
 
 // Helper para operaciones con tenant (modo online)
 export const supabaseWithTenant = (tenantId) => {
-  console.log(`🏢 Operación tenant: ${tenantId} (modo online)`);
+  // console.log(`🏢 Operación tenant: ${tenantId} (modo online)`);
   return supabase;
 };
 
@@ -119,7 +119,7 @@ supabase.auth.getSession().then(({ data, error }) => {
   if (error) {
     console.error('🚀 Error inicial Supabase:', error);
   } else {
-    console.log('🚀 Supabase conectado correctamente, sesión:', data.session ? 'activa' : 'ninguna');
+    // console.log('🚀 Supabase conectado correctamente, sesión:', data.session ? 'activa' : 'ninguna');
   }
 });
 
