@@ -53,14 +53,14 @@ class SupabaseEmpresaPersistence {
         updated_at: new Date().toISOString()
       };
 
-      // Buscar si ya existe un template para este tenant
+      // Buscar si ya existe un template para este tenant (sin RLS por ahora)
       const { data: existing, error: selectError } = await supabase
         .from(this.tableName)
         .select('id')
-        .eq('tenant_id', tenantId)
         .eq('template_name', templateName)
         .eq('is_active', true)
-        .single();
+        .limit(1)
+        .maybeSingle();
 
       if (selectError && selectError.code !== 'PGRST116') {
         throw selectError;
@@ -119,12 +119,11 @@ class SupabaseEmpresaPersistence {
       const { data, error } = await supabase
         .from(this.tableName)
         .select('*')
-        .eq('tenant_id', tenantId)
         .eq('template_name', templateName)
         .eq('is_active', true)
         .order('updated_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -257,7 +256,6 @@ class SupabaseEmpresaPersistence {
       const { error } = await supabase
         .from(this.tableName)
         .update({ is_active: false })
-        .eq('tenant_id', tenantId)
         .eq('template_name', templateName);
 
       if (error) throw error;
