@@ -95,6 +95,35 @@ class RATService {
       return { success: false, data: null };
     }
   }
+
+  // FIX: Función faltante para TenantContext
+  async setCurrentTenant(tenant, userId) {
+    try {
+      console.log('🏢 setCurrentTenant llamado:', tenant, userId);
+      // Por ahora solo log - implementación completa después
+      return { success: true };
+    } catch (error) {
+      console.error('Error setCurrentTenant:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // FIX: Función faltante para RATSystemProfessional  
+  async getCompletedRATs() {
+    try {
+      const { data, error } = await supabase
+        .from(this.tableName)
+        .select('*')
+        .eq('estado', 'completado')
+        .limit(100);
+
+      if (error) throw error;
+      return { success: true, data: data || [] };
+    } catch (error) {
+      console.error('Error getCompletedRATs:', error);
+      return { success: false, data: [] };
+    }
+  }
 }
 
 // Instancia única
