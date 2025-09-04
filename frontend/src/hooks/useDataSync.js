@@ -15,13 +15,13 @@ export const useDataSync = (moduleName) => {
     
     try {
       setLoading(true);
-      // console.log(`🔄 [${moduleName}] Cargando datos sincronizados`);
+      // //console.log(`🔄 [${moduleName}] Cargando datos sincronizados`);
       
       const moduleData = await dataSyncService.getDataForModule(moduleName, currentTenant.id);
       setData(moduleData);
       setLastSync(new Date().toISOString());
       
-      // console.log(`✅ [${moduleName}] Datos sincronizados:`, moduleData);
+      // //console.log(`✅ [${moduleName}] Datos sincronizados:`, moduleData);
       
     } catch (error) {
       console.error(`❌ [${moduleName}] Error cargando datos:`, error);
@@ -42,7 +42,7 @@ export const useDataSync = (moduleName) => {
       moduleName, 
       currentTenant.id, 
       (newMasterData) => {
-        // console.log(`🔔 [${moduleName}] Recibiendo actualización automática`);
+        // //console.log(`🔔 [${moduleName}] Recibiendo actualización automática`);
         const moduleData = dataSyncService.getDataForModule(moduleName, currentTenant.id);
         moduleData.then(data => {
           setData(data);
@@ -63,7 +63,7 @@ export const useDataSync = (moduleName) => {
   const notifyChange = useCallback(async (changeType, newData) => {
     if (!currentTenant?.id) return;
     
-    // console.log(`🔄 [${moduleName}] Notificando cambio:`, changeType);
+    // //console.log(`🔄 [${moduleName}] Notificando cambio:`, changeType);
     
     switch (changeType) {
       case 'RAT_CREATED':
@@ -87,7 +87,7 @@ export const useDataSync = (moduleName) => {
   const forceRefresh = useCallback(async () => {
     if (!currentTenant?.id) return;
     
-    // console.log(`🔄 [${moduleName}] Forzando refresh manual`);
+    // //console.log(`🔄 [${moduleName}] Forzando refresh manual`);
     await dataSyncService.invalidateAndRefresh(currentTenant.id, 'MANUAL_REFRESH');
   }, [moduleName, currentTenant?.id]);
 

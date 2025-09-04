@@ -51,7 +51,7 @@ const EIPDListPage = () => {
   const cargarEIPDs = async () => {
     try {
       setLoading(true);
-      // console.log('🔍 Cargando EIPDs para tenant:', currentTenant?.id);
+      // //console.log('🔍 Cargando EIPDs para tenant:', currentTenant?.id);
       
       const { data, error } = await supabase
         .from('evaluaciones_impacto')
@@ -87,7 +87,7 @@ const EIPDListPage = () => {
         setEipds(eipdDemo);
         calcularEstadisticas(eipdDemo);
       } else {
-        // console.log('✅ EIPDs cargadas:', data?.length || 0);
+        // //console.log('✅ EIPDs cargadas:', data?.length || 0);
         setEipds(data || []);
         calcularEstadisticas(data || []);
       }

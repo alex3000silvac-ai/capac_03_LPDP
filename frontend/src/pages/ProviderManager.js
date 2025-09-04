@@ -163,7 +163,7 @@ const ProviderManager = () => {
 
   const cargarTransferencias = async (tenantId) => {
     try {
-      // console.log('🔄 Cargando transferencias para tenant:', tenantId);
+      // //console.log('🔄 Cargando transferencias para tenant:', tenantId);
       
       // ❌ PROBLEM: tabla transfers probablemente no existe o tiene estructura diferente
       // Vamos a usar datos demo hasta arreglar la BD
@@ -191,7 +191,7 @@ const ProviderManager = () => {
         }
       ];
       
-      // console.log('✅ Transferencias demo cargadas:', transferenciasDemo.length);
+      // //console.log('✅ Transferencias demo cargadas:', transferenciasDemo.length);
       setTransfers(transferenciasDemo);
       
       /*

@@ -89,7 +89,7 @@ class RiskCalculationEngine {
   // FÓRMULA FINAL DIAGRAMA LÍNEA 661
   async calcularRiesgoTotal(ratData, tenantId) {
     try {
-      // console.log('🧮 Iniciando cálculo riesgo multi-dimensional...');
+      // //console.log('🧮 Iniciando cálculo riesgo multi-dimensional...');
 
       const puntosCategorias = this.calcularPuntosCategorias(ratData.categorias_datos);
       const puntosFinalidad = this.calcularPuntosFinalidad(ratData.finalidad_principal);
@@ -99,7 +99,7 @@ class RiskCalculationEngine {
 
       const riesgoTotal = puntosCategorias + puntosFinalidad + puntosTransferencias + puntosVolumen + puntosTecnologia;
 
-      /* console.log('📊 Desglose puntuación riesgo:', {
+      /* //console.log('📊 Desglose puntuación riesgo:', {
         categorias: puntosCategorias,
         finalidad: puntosFinalidad,
         transferencias: puntosTransferencias,

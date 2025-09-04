@@ -42,7 +42,7 @@ const getCurrentTenantId = async (userId = null) => {
     // Si no hay sesión activa, usar tenant por defecto
     return 'default';
   } catch (error) {
-    // console.warn('Usando tenant por defecto debido a error:', error.message);
+    // //console.warn('Usando tenant por defecto debido a error:', error.message);
     return 'default';
   }
 };
@@ -60,12 +60,12 @@ export const ratService = {
       });
       
       if (!validation.allowed) {
-        // console.log('🚫 Creación RAT bloqueada preventivamente:', validation.reason);
+        // //console.log('🚫 Creación RAT bloqueada preventivamente:', validation.reason);
         throw new Error(`Acción preventiva requerida: ${validation.reason}`);
       }
       
       if (validation.preventiveActionExecuted) {
-        // console.log('🔄 Acción preventiva ejecutada:', validation.preventiveActionExecuted);
+        // //console.log('🔄 Acción preventiva ejecutada:', validation.preventiveActionExecuted);
       }
       
       const { data: { user } } = await supabase.auth.getUser();
@@ -278,7 +278,7 @@ export const ratService = {
       if (fetchError) throw fetchError;
 
       // Eliminar referencias dependientes ANTES de eliminar RAT
-      // console.log('🗑️ Eliminando actividades DPO relacionadas...');
+      // //console.log('🗑️ Eliminando actividades DPO relacionadas...');
       await supabase
         .from('actividades_dpo')
         .delete()
@@ -286,20 +286,20 @@ export const ratService = {
         .eq('tenant_id', effectiveTenantId);
 
       // Eliminar otras referencias dependientes
-      // console.log('🗑️ Eliminando documentos generados relacionados...');
+      // //console.log('🗑️ Eliminando documentos generados relacionados...');
       await supabase
         .from('actividades_dpo')
         .delete()
         .eq('rat_id', ratId);
 
-      // console.log('🗑️ Eliminando notificaciones relacionadas...');
+      // //console.log('🗑️ Eliminando notificaciones relacionadas...');
       await supabase
         .from('dpo_notifications')
         .delete()
         .eq('rat_id', ratId);
 
       // Ahora eliminar el RAT principal
-      // console.log('🗑️ Eliminando RAT principal...');
+      // //console.log('🗑️ Eliminando RAT principal...');
       const { error } = await supabase
         .from('mapeo_datos_rat')
         .delete()
@@ -473,12 +473,12 @@ export const ratService = {
         }, { onConflict: 'user_id' });
 
       if (error) {
-        // console.warn('Tabla user_sessions no disponible, usando modo sin persistencia de sesión');
+        // //console.warn('Tabla user_sessions no disponible, usando modo sin persistencia de sesión');
       }
 
       return { success: true };
     } catch (error) {
-      // console.warn('Error estableciendo tenant actual, continuando sin persistencia:', error.message);
+      // //console.warn('Error estableciendo tenant actual, continuando sin persistencia:', error.message);
       return { success: true }; // No fallar por esto
     }
   },
@@ -493,7 +493,7 @@ export const ratService = {
         .single();
 
       if (error) {
-        // console.warn('No hay sesión activa, usando tenant por defecto');
+        // //console.warn('No hay sesión activa, usando tenant por defecto');
         return { id: 'default', company_name: 'Empresa Default' };
       }
       
@@ -649,7 +649,7 @@ export const ratService = {
       const effectiveUser = user || { id: userId };
       const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUser.id);
       
-      // console.log('🔍 Buscando RAT por ID:', ratId, 'Tenant:', effectiveTenantId);
+      // //console.log('🔍 Buscando RAT por ID:', ratId, 'Tenant:', effectiveTenantId);
       
       const { data, error } = await supabase
         .from('mapeo_datos_rat')
@@ -663,7 +663,7 @@ export const ratService = {
         throw error;
       }
       
-      // console.log('✅ RAT encontrado:', data.nombre_actividad);
+      // //console.log('✅ RAT encontrado:', data.nombre_actividad);
       return data;
     } catch (error) {
       console.error('Error en getRATById:', error);
@@ -671,28 +671,41 @@ export const ratService = {
     }
   },
 
-  // 🔄 FUNCIÓN CRÍTICA: updateRAT con integraciones automáticas
+  // 🔄 FUNCIÓN CRÍTICA: updateRAT con validación de ID
   updateRAT: async (ratId, updatedData, tenantId = null, userId = null) => {
     try {
-      // 🛡️ VALIDACIÓN PREVENTIVA - ANTES DE ACTUALIZAR RAT
-      const validation = await preventiveAI.interceptAction('UPDATE_RAT', {
-        tenantId: tenantId,
-        ratId: ratId,
-        changes: updatedData
-      });
+      // 🛡️ VALIDACIÓN CRÍTICA - VERIFICAR ID ANTES DE UPDATE
+      if (!ratId || ratId === 'undefined' || ratId === undefined) {
+        console.error('❌ Error crítico: ratId es undefined o inválido:', ratId);
+        throw new Error('No se puede actualizar RAT: ID inválido o undefined');
+      }
       
-      if (!validation.allowed) {
-        // console.log('🚫 Actualización RAT bloqueada preventivamente:', validation.reason);
-        throw new Error(`Acción preventiva requerida: ${validation.reason}`);
+      // Validar que ratId sea numérico
+      if (isNaN(ratId) || ratId <= 0) {
+        console.error('❌ Error: ratId debe ser un número válido:', ratId);
+        throw new Error('ID de RAT debe ser un número válido mayor que 0');
       }
       
       const { data: { user } } = await supabase.auth.getUser();
       const effectiveUser = user || { id: userId };
       const effectiveTenantId = tenantId || await getCurrentTenantId(effectiveUser.id);
       
-      // console.log('🔄 Actualizando RAT:', ratId);
+      //console.log('🔄 Actualizando RAT ID:', ratId, 'Tenant:', effectiveTenantId);
       
-      // Actualizar RAT en BD
+      // VALIDACIÓN ADICIONAL: Verificar que el RAT existe antes de actualizar
+      const { data: existingRAT, error: checkError } = await supabase
+        .from('mapeo_datos_rat')
+        .select('id, nombre_actividad')
+        .eq('id', ratId)
+        .eq('tenant_id', effectiveTenantId)
+        .single();
+        
+      if (checkError) {
+        console.error('❌ RAT no encontrado para actualizar:', ratId);
+        throw new Error(`RAT con ID ${ratId} no existe o no tiene permisos`);
+      }
+      
+      // Actualizar RAT en BD solo si existe
       const { data, error } = await supabase
         .from('mapeo_datos_rat')
         .update({
@@ -729,7 +742,7 @@ export const ratService = {
         console.error('Error en integraciones automáticas update:', integrationError);
       }
       
-      // console.log('✅ RAT actualizado con integraciones:', data.id);
+      // //console.log('✅ RAT actualizado con integraciones:', data.id);
       return data;
       
     } catch (error) {
@@ -743,7 +756,7 @@ export const ratService = {
 
 const autoGenerarEIPD = async (ratId, ratData, tenantId, userId) => {
   try {
-    // console.log('🔄 Auto-generando EIPD para RAT:', ratId);
+    // //console.log('🔄 Auto-generando EIPD para RAT:', ratId);
     
     // Verificar si ya existe EIPD para este RAT
     const { data: existingEIPD } = await supabase
@@ -754,7 +767,7 @@ const autoGenerarEIPD = async (ratId, ratData, tenantId, userId) => {
       .single();
     
     if (existingEIPD) {
-      // console.log('✅ EIPD ya existe para RAT:', ratId);
+      // //console.log('✅ EIPD ya existe para RAT:', ratId);
       return existingEIPD;
     }
     
@@ -791,7 +804,7 @@ const autoGenerarEIPD = async (ratId, ratData, tenantId, userId) => {
     
     if (error) throw error;
     
-    // console.log('✅ EIPD auto-generada:', data.id);
+    // //console.log('✅ EIPD auto-generada:', data.id);
     return data;
     
   } catch (error) {
@@ -802,7 +815,7 @@ const autoGenerarEIPD = async (ratId, ratData, tenantId, userId) => {
 
 const registrarEnInventarioRAT = async (ratData, tenantId) => {
   try {
-    // console.log('🔄 Verificando RAT en inventario (usando vista):', ratData.id);
+    // //console.log('🔄 Verificando RAT en inventario (usando vista):', ratData.id);
     
     // CORREGIDO: Solo verificar en VISTA (READ-ONLY)
     const { data: existing } = await supabase
@@ -813,11 +826,11 @@ const registrarEnInventarioRAT = async (ratData, tenantId) => {
       .single();
     
     if (existing) {
-      // console.log('✅ RAT ya visible en inventario');
+      // //console.log('✅ RAT ya visible en inventario');
       return existing;
     }
     
-    // console.log('📋 RAT creado, inventario se actualizará automáticamente via vista');
+    // //console.log('📋 RAT creado, inventario se actualizará automáticamente via vista');
     
     // NO INTENTAR INSERT EN VISTA - La vista se actualiza automáticamente
     // desde mapeo_datos_rat que ya contiene todos los datos necesarios
@@ -836,7 +849,7 @@ const registrarEnInventarioRAT = async (ratData, tenantId) => {
 
 const notificarDPOAutomatico = async (ratData, evaluation, tenantId) => {
   try {
-    // console.log('🔔 Enviando notificación automática a DPO');
+    // //console.log('🔔 Enviando notificación automática a DPO');
     
     const notificacion = {
       tenant_id: tenantId,
@@ -863,7 +876,7 @@ const notificarDPOAutomatico = async (ratData, evaluation, tenantId) => {
     
     if (error) throw error;
     
-    // console.log('✅ DPO notificado automáticamente');
+    // //console.log('✅ DPO notificado automáticamente');
     return data;
     
   } catch (error) {
@@ -874,11 +887,11 @@ const notificarDPOAutomatico = async (ratData, evaluation, tenantId) => {
 
 const actualizarInventarioRAT = async (ratData, tenantId) => {
   try {
-    // console.log('🔄 Verificando RAT actualizado en inventario:', ratData.id);
+    // //console.log('🔄 Verificando RAT actualizado en inventario:', ratData.id);
     
     // CORREGIDO: NO actualizar vista - se actualiza automáticamente
     // La vista inventario_rats se actualiza cuando se modifica mapeo_datos_rat
-    // console.log('📋 Inventario se actualiza automáticamente via vista desde mapeo_datos_rat');
+    // //console.log('📋 Inventario se actualiza automáticamente via vista desde mapeo_datos_rat');
     
     // Solo verificar que esté visible en la vista
     const { data, error } = await supabase
@@ -889,10 +902,10 @@ const actualizarInventarioRAT = async (ratData, tenantId) => {
       .single();
     
     if (error && error.code !== 'PGRST116') {
-      // console.warn('⚠️ RAT no visible en inventario aún:', error.message);
+      // //console.warn('⚠️ RAT no visible en inventario aún:', error.message);
     }
     
-    // console.log('✅ Inventario verificado');
+    // //console.log('✅ Inventario verificado');
     return data || { id: ratData.id, status: 'pending_view_update' };
     
   } catch (error) {
@@ -903,7 +916,7 @@ const actualizarInventarioRAT = async (ratData, tenantId) => {
 
 const notificarCambiosRATaDPO = async (ratData, evaluation, tenantId) => {
   try {
-    // console.log('🔔 Notificando cambios RAT a DPO');
+    // //console.log('🔔 Notificando cambios RAT a DPO');
     
     const notificacion = {
       tenant_id: tenantId,
@@ -931,7 +944,7 @@ const notificarCambiosRATaDPO = async (ratData, evaluation, tenantId) => {
     
     if (error) throw error;
     
-    // console.log('✅ DPO notificado de cambios RAT');
+    // //console.log('✅ DPO notificado de cambios RAT');
     return data;
     
   } catch (error) {

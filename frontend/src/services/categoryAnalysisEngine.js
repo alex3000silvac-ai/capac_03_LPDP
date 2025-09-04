@@ -99,7 +99,7 @@ class CategoryAnalysisEngine {
   // ANÁLISIS AUTOMÁTICO PRINCIPAL
   async analizarCategoriaSeleccionada(categoria, subcategoria, ratData, tenantId) {
     try {
-      // console.log(`🧠 Analizando categoría: ${categoria}.${subcategoria}`);
+      // //console.log(`🧠 Analizando categoría: ${categoria}.${subcategoria}`);
 
       let resultado = {
         categoria,
@@ -138,7 +138,7 @@ class CategoryAnalysisEngine {
       if (ratData.id) {
         await this.guardarAnalisisCategoria(resultado, ratData.id, tenantId);
       } else {
-        // console.log('🔄 RAT sin ID - análisis temporal hasta que se guarde');
+        // //console.log('🔄 RAT sin ID - análisis temporal hasta que se guarde');
       }
 
       return resultado;
@@ -310,7 +310,7 @@ class CategoryAnalysisEngine {
   async guardarAnalisisCategoria(resultado, ratId, tenantId) {
     // 🔒 VALIDACIÓN CRÍTICA: No proceder si ratId es undefined
     if (!ratId || ratId === 'undefined') {
-      // console.warn('⚠️ guardarAnalisisCategoria: ratId inválido, omitiendo guardado');
+      // //console.warn('⚠️ guardarAnalisisCategoria: ratId inválido, omitiendo guardado');
       return;
     }
 
@@ -345,7 +345,7 @@ class CategoryAnalysisEngine {
         })
         .eq('id', ratId);
         
-      // console.log('✅ Análisis categoría guardado:', resultado.categoria);
+      // //console.log('✅ Análisis categoría guardado:', resultado.categoria);
     } catch (error) {
       console.error('❌ Error guardando análisis categoría:', error);
       // No lanzar error para no romper el flujo principal
@@ -356,7 +356,7 @@ class CategoryAnalysisEngine {
   async verificarProfesionalSalud(tenantId) {
     // 🔒 VALIDACIÓN: No proceder si tenantId es inválido
     if (!tenantId || tenantId === 'undefined') {
-      // console.warn('⚠️ verificarProfesionalSalud: tenantId inválido');
+      // //console.warn('⚠️ verificarProfesionalSalud: tenantId inválido');
       return false;
     }
 

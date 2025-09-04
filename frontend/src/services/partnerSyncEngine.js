@@ -15,7 +15,7 @@ class PartnerSyncEngine {
   // ANÁLISIS CLIENTE DESDE PARTNER (LÍNEAS 1007-1032)
   async analizarClientePartner(partnerData) {
     try {
-      // console.log('🔌 Procesando análisis cliente desde partner...');
+      // //console.log('🔌 Procesando análisis cliente desde partner...');
 
       // VALIDAR PARTNER AUTORIZADO
       const partnerValido = await this.validarPartner(partnerData.partner_id);

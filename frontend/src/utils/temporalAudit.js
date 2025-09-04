@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabaseClient';
+import ratAuditLogger from './ratAuditLogger';
 
 class TemporalAudit {
   constructor() {
@@ -8,33 +9,11 @@ class TemporalAudit {
 
   async initializeRAT(ratData, userId, tenantId) {
     try {
-      const auditEntry = {
-        rat_id: ratData.id,
-        user_id: userId,
-        tenant_id: tenantId,
-        operation: 'create',
-        timestamp: new Date().toISOString(),
-        snapshot_before: null,
-        snapshot_after: this.sanitizeSnapshot(ratData),
-        changed_fields: Object.keys(ratData),
-        change_summary: 'RAT inicial creado',
-        version_number: 1,
-        session_id: this.generateSessionId(),
-        metadata: {
-          creation_context: 'user_interface',
-          initial_state: true
-        }
-      };
-
-      const { error } = await supabase
-        .from('rat_audit_trail')
-        .insert(auditEntry);
-
-      if (error) throw error;
-
-      return { success: true, auditId: auditEntry.id };
+      // Usar nuevo sistema de auditoría con archivos TXT
+      const result = await ratAuditLogger.initializeRAT(ratData, userId, tenantId);
+      return result;
     } catch (error) {
-      console.error('Error iniciando auditoría RAT');
+      // Error ya logged por ratAuditLogger
       return { success: false, error: error.message };
     }
   }
@@ -43,9 +22,9 @@ class TemporalAudit {
     if (!this.trackingEnabled) return { success: true };
 
     try {
-      // 🔧 TEMPORAL: Deshabilitar audit hasta crear tabla rat_audit_trail
-      // console.log('⚠️ Audit temporalmente deshabilitado - tabla rat_audit_trail no existe en Supabase');
-      return { success: true, message: 'Audit deshabilitado temporalmente' };
+      // Usar nuevo sistema de auditoría con archivos TXT
+      const result = await ratAuditLogger.trackRATChange(ratId, oldData, newData, userId, tenantId, changeContext);
+      return result;
 
       const changes = this.calculateChanges(oldData, newData);
       
@@ -246,14 +225,14 @@ class TemporalAudit {
       try {
         oldList = JSON.parse(oldCategorias || '[]');
       } catch (parseError) {
-        // console.warn('Error parsing oldCategorias, usando array vacío');
+        // //console.warn('Error parsing oldCategorias, usando array vacío');
         oldList = [];
       }
       
       try {
         newList = JSON.parse(newCategorias || '[]');
       } catch (parseError) {
-        // console.warn('Error parsing newCategorias, usando array vacío');
+        // //console.warn('Error parsing newCategorias, usando array vacío');
         newList = [];
       }
       

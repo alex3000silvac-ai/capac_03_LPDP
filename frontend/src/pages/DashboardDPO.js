@@ -57,7 +57,7 @@ const DashboardDPO = () => {
   useEffect(() => {
     if (!syncedData) return;
     
-    // console.log('🔄 [DashboardDPO] Actualizando con datos sincronizados:', syncedData);
+    // //console.log('🔄 [DashboardDPO] Actualizando con datos sincronizados:', syncedData);
     
     // Actualizar stats con datos sincronizados (TODO desde Supabase)
     setStats([

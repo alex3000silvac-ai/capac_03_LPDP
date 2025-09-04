@@ -40,9 +40,9 @@ class AISystemValidator {
         this.startIntelligentMonitoring();
       }
 
-      // console.log('🤖 IA Sistema: Inteligencia mejorada activada');
-      // console.log('📊 Reglas prevención:', this.errorPreventionRules.size);
-      // console.log('🧠 Patrones aprendizaje:', this.learningPatterns.size);
+      // //console.log('🤖 IA Sistema: Inteligencia mejorada activada');
+      // //console.log('📊 Reglas prevención:', this.errorPreventionRules.size);
+      // //console.log('🧠 Patrones aprendizaje:', this.learningPatterns.size);
 
       return { success: true, enabled: this.isEnabled, intelligence: 'enhanced' };
     } catch (error) {
@@ -605,7 +605,7 @@ class AISystemValidator {
   async validarFlujoRATaEIPD() {
     try {
       // TODO: Implementar validación real con datos de Supabase
-      // console.warn('validarFlujoRATaEIPD: Funcionalidad deshabilitada - solo datos reales permitidos');
+      // //console.warn('validarFlujoRATaEIPD: Funcionalidad deshabilitada - solo datos reales permitidos');
       
       return {
         valid: false,
@@ -626,7 +626,7 @@ class AISystemValidator {
   async validarFlujoMultiTenant() {
     try {
       // TODO: Implementar validación real consultando datos Supabase
-      // console.warn('validarFlujoMultiTenant: Funcionalidad deshabilitada - solo datos reales permitidos');
+      // //console.warn('validarFlujoMultiTenant: Funcionalidad deshabilitada - solo datos reales permitidos');
       
       return {
         valid: false,
@@ -671,7 +671,7 @@ class AISystemValidator {
   async validarFlujoDerechosARCOP() {
     try {
       // TODO: Implementar validación real con solicitudes de Supabase
-      // console.warn('validarFlujoDerechosARCOP: Funcionalidad deshabilitada - solo datos reales permitidos');
+      // //console.warn('validarFlujoDerechosARCOP: Funcionalidad deshabilitada - solo datos reales permitidos');
       const pasosSolicitud = {
         recepcion_solicitud: true,
         verificacion_identidad: true, // TODO: Implementar verificación desde Supabase
@@ -956,7 +956,7 @@ class AISystemValidator {
       const problemasDetectados = detecciones.filter(d => d.riesgo === 'ALTO');
       
       if (problemasDetectados.length > 0) {
-        // console.warn('🚨 IA DETECTÓ PROBLEMAS CRÍTICOS:', problemasDetectados);
+        // //console.warn('🚨 IA DETECTÓ PROBLEMAS CRÍTICOS:', problemasDetectados);
         
         // Aplicar prevenciones automáticas
         for (const problema of problemasDetectados) {
@@ -1043,28 +1043,28 @@ class AISystemValidator {
   async aplicarPrevencion(problema) {
     const prevenciones = {
       'cambiar_tabla_automatico': async () => {
-        // console.log('🔧 IA PREVENCIÓN: Cambiando rat_completos → mapeo_datos_rat');
+        // //console.log('🔧 IA PREVENCIÓN: Cambiando rat_completos → mapeo_datos_rat');
         return { aplicada: true, resultado: 'Tabla corregida automáticamente' };
       },
       
       'agregar_panel_id_automatico': async () => {
-        // console.log('🔧 IA PREVENCIÓN: Agregando panel ID en edición');
+        // //console.log('🔧 IA PREVENCIÓN: Agregando panel ID en edición');
         return { aplicada: true, resultado: 'Panel ID agregado' };
       },
       
       'expandir_vista_automatico': async () => {
-        // console.log('🔧 IA PREVENCIÓN: Expandiendo vista RAT completa');
+        // //console.log('🔧 IA PREVENCIÓN: Expandiendo vista RAT completa');
         return { aplicada: true, resultado: '9 secciones implementadas' };
       },
       
       'fallback_offline_mode': async () => {
-        // console.log('🔧 IA PREVENCIÓN: Activando modo offline por error backend');
+        // //console.log('🔧 IA PREVENCIÓN: Activando modo offline por error backend');
         localStorage.setItem('fallback_mode', 'true');
         return { aplicada: true, resultado: 'Modo offline activado' };
       },
       
       'validar_tenant_obligatorio': async () => {
-        // console.log('🔧 IA PREVENCIÓN: Validando tenant_id obligatorio');
+        // //console.log('🔧 IA PREVENCIÓN: Validando tenant_id obligatorio');
         return { aplicada: true, resultado: 'Validación tenant forzada' };
       }
     };
@@ -1139,7 +1139,7 @@ class AISystemValidator {
   // 🔧 NUEVOS MÉTODOS DE CORRECCIÓN AUTOMÁTICA
   async corregirTablaSupabase(context) {
     try {
-      // console.log('🔧 IA AUTOFIX: Corrigiendo tabla Supabase rat_completos → mapeo_datos_rat');
+      // //console.log('🔧 IA AUTOFIX: Corrigiendo tabla Supabase rat_completos → mapeo_datos_rat');
       // En entorno real, esto modificaría el código automáticamente
       return { 
         success: true, 
@@ -1153,7 +1153,7 @@ class AISystemValidator {
 
   async agregarIDEnEdicion(context) {
     try {
-      // console.log('🔧 IA AUTOFIX: Agregando ID visible en modo edición');
+      // //console.log('🔧 IA AUTOFIX: Agregando ID visible en modo edición');
       // En entorno real, esto modificaría el JSX automáticamente
       return { 
         success: true,
@@ -1167,7 +1167,7 @@ class AISystemValidator {
 
   async activarModoFallback(context) {
     try {
-      // console.log('🔧 IA AUTOFIX: Activando modo fallback por error backend');
+      // //console.log('🔧 IA AUTOFIX: Activando modo fallback por error backend');
       localStorage.setItem('backend_fallback', 'true');
       localStorage.setItem('fallback_timestamp', new Date().toISOString());
       
@@ -1227,7 +1227,7 @@ class AISystemValidator {
     this.errorPreventionRules.add('REQUIRE_NAVIGATION_BUTTONS_IN_FORMS');
     this.errorPreventionRules.add('VALIDATE_LAYOUT_REFERENCE_BEFORE_CREATE');
     
-    // console.log('🛡️ IA: Reglas de prevención inicializadas');
+    // //console.log('🛡️ IA: Reglas de prevención inicializadas');
   }
 
   async loadLearningPatterns() {
@@ -1271,7 +1271,7 @@ class AISystemValidator {
         occurrences: 1
       });
 
-      // console.log('🧠 IA: Patrones de aprendizaje cargados:', this.learningPatterns.size);
+      // //console.log('🧠 IA: Patrones de aprendizaje cargados:', this.learningPatterns.size);
     } catch (error) {
       console.error('Error cargando patrones IA:', error);
     }
@@ -1285,7 +1285,7 @@ class AISystemValidator {
       await this.validateUserFlows();
     }, 30000);
 
-    // console.log('🔍 IA: Monitoreo inteligente iniciado');
+    // //console.log('🔍 IA: Monitoreo inteligente iniciado');
   }
 
   async analyzeSystemHealth() {
@@ -1401,7 +1401,7 @@ class AISystemValidator {
 
   async autoFixUIIssues() {
     try {
-      // console.log('🔧 IA AUTO-FIX: Detectando problemas UI paleta colores');
+      // //console.log('🔧 IA AUTO-FIX: Detectando problemas UI paleta colores');
       
       // En entorno real, analizaría el DOM y corregiría automáticamente
       const uiIssues = [
@@ -1422,7 +1422,7 @@ class AISystemValidator {
 
   async autoFixRATFlow() {
     try {
-      // console.log('🔧 IA AUTO-FIX: Corrigiendo flujo creación RAT');
+      // //console.log('🔧 IA AUTO-FIX: Corrigiendo flujo creación RAT');
       
       // Verificar que pasos 1-6 fluyen correctamente
       const flowIssues = [];
@@ -1443,7 +1443,7 @@ class AISystemValidator {
 
   async autoFixEIPDGeneration() {
     try {
-      // console.log('🔧 IA AUTO-FIX: Corrigiendo generación automática EIPD');
+      // //console.log('🔧 IA AUTO-FIX: Corrigiendo generación automática EIPD');
       
       // EIPD debe generarse AL CREAR RAT, no al aprobar DPO
       this.flowAnalysis.eipdGeneration.autoTrigger = true;
@@ -1495,7 +1495,7 @@ class AISystemValidator {
           enabled: true
         });
 
-      // console.log('🧠 IA APRENDIZAJE: Nuevo patrón registrado:', errorType);
+      // //console.log('🧠 IA APRENDIZAJE: Nuevo patrón registrado:', errorType);
       return { success: true, pattern };
     } catch (error) {
       console.error('Error en aprendizaje IA:', error);
@@ -1543,8 +1543,8 @@ class AISystemValidator {
     const hasErrors = validations.some(v => !v.valid);
     
     if (hasErrors) {
-      // console.log('🚫 IA PREVENCIÓN: Acción bloqueada por validación');
-      // console.log('❌ Errores:', validations.filter(v => !v.valid));
+      // //console.log('🚫 IA PREVENCIÓN: Acción bloqueada por validación');
+      // //console.log('❌ Errores:', validations.filter(v => !v.valid));
     }
 
     return {
@@ -1705,7 +1705,7 @@ class AISystemValidator {
 
   // CICLO COMPLETO GESTIÓN RAT - VALIDACIÓN EXHAUSTIVA
   async validateCompleteRATLifecycle(ratData, operation = 'create') {
-    // console.log('🔄 IA: Iniciando validación ciclo completo RAT');
+    // //console.log('🔄 IA: Iniciando validación ciclo completo RAT');
     
     const lifecycle = {
       timestamp: new Date().toISOString(),
@@ -1742,7 +1742,7 @@ class AISystemValidator {
       // PERSISTIR VALIDACIÓN
       await this.persistLifecycleValidation(lifecycle);
       
-      // console.log('✅ IA: Ciclo RAT validado:', lifecycle.success ? 'ÉXITO' : 'ERRORES');
+      // //console.log('✅ IA: Ciclo RAT validado:', lifecycle.success ? 'ÉXITO' : 'ERRORES');
       return lifecycle;
 
     } catch (error) {
@@ -2021,7 +2021,7 @@ class AISystemValidator {
 
   // CASUÍSTICA COMPLETA DE ERRORES
   async validateSystemCasuistry() {
-    // console.log('📋 IA: Ejecutando casuística completa sistema');
+    // //console.log('📋 IA: Ejecutando casuística completa sistema');
     
     const casuistica = {
       timestamp: new Date().toISOString(),
@@ -2058,7 +2058,7 @@ class AISystemValidator {
     const passed = casuistica.test_cases.filter(tc => tc.passed).length;
     casuistica.coverage = (passed / casuistica.test_cases.length) * 100;
     
-    // console.log(`📊 IA: Cobertura casuística: ${casuistica.coverage}%`);
+    // //console.log(`📊 IA: Cobertura casuística: ${casuistica.coverage}%`);
     return casuistica;
   }
 
@@ -2171,7 +2171,7 @@ class AISystemValidator {
 
   // Validación persistencia completa
   async validateCompletePersistence() {
-    // console.log('🔍 IA: Validando persistencia completa sistema');
+    // //console.log('🔍 IA: Validando persistencia completa sistema');
     
     const persistence = {
       timestamp: new Date().toISOString(),
@@ -2207,7 +2207,7 @@ class AISystemValidator {
       const allTablesHealthy = Object.values(persistence.table_validations).every(t => t.healthy);
       persistence.success = allTablesHealthy && persistence.data_integrity.valid;
 
-      // console.log('📊 IA: Persistencia validada:', persistence.success ? 'SALUDABLE' : 'PROBLEMAS');
+      // //console.log('📊 IA: Persistencia validada:', persistence.success ? 'SALUDABLE' : 'PROBLEMAS');
       return persistence;
 
     } catch (error) {
@@ -2244,7 +2244,7 @@ class AISystemValidator {
 
   // CARGAR REVISIÓN EMPÍRICA COMPLETA DE FLUJOS A LA IA
   async loadCompleteFlowAnalysis() {
-    // console.log('🔍 IA: Cargando análisis empírico completo de flujos');
+    // //console.log('🔍 IA: Cargando análisis empírico completo de flujos');
     
     const flowAnalysis = {
       timestamp: new Date().toISOString(),
@@ -2340,16 +2340,16 @@ class AISystemValidator {
     this.errorPreventionRules.add('ENSURE_EIPD_RAT_CREATION_TIMING');
     this.errorPreventionRules.add('VALIDATE_TABLE_STRUCTURE_BEFORE_OPS');
 
-    // console.log('✅ IA: Análisis empírico completo cargado');
-    // console.log(`📊 Flujos críticos: ${flowAnalysis.critical_flows.length}`);
-    // console.log(`🛡️ Reglas prevención actualizadas: ${this.errorPreventionRules.size}`);
+    // //console.log('✅ IA: Análisis empírico completo cargado');
+    // //console.log(`📊 Flujos críticos: ${flowAnalysis.critical_flows.length}`);
+    // //console.log(`🛡️ Reglas prevención actualizadas: ${this.errorPreventionRules.size}`);
     
     return flowAnalysis;
   }
 
   // Método para validar cambios futuros contra análisis empírico
   async validateChangeAgainstFlowAnalysis(changeType, changeData) {
-    // console.log('🔍 IA: Validando cambio contra análisis empírico');
+    // //console.log('🔍 IA: Validando cambio contra análisis empírico');
     
     const validation = {
       change_type: changeType,

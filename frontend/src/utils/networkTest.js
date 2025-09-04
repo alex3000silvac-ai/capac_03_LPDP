@@ -25,7 +25,7 @@ export const testSupabaseConnectivity = async (timeoutMs = 2000) => {
     })
     .catch(error => {
       clearTimeout(timeout);
-      // console.log('🚨 Error de conectividad:', error.message);
+      // //console.log('🚨 Error de conectividad:', error.message);
       
       // Detectar tipos específicos de error
       if (error.message.includes('Failed to fetch') || 
@@ -67,10 +67,10 @@ export const testSupabaseConnectivityImage = async () => {
 export const shouldUseLocalStorageFirst = async () => {
   try {
     await testSupabaseConnectivity(1500);
-    // console.log('✅ Supabase disponible');
+    // //console.log('✅ Supabase disponible');
     return false;
   } catch (error) {
-    // console.warn('⚠️ Supabase no disponible:', error.message);
+    // //console.warn('⚠️ Supabase no disponible:', error.message);
     return true;
   }
 };

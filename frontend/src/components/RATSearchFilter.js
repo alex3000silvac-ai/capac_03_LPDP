@@ -144,7 +144,7 @@ const RATSearchFilter = ({
       try {
         setSavedFilters(JSON.parse(saved));
       } catch (e) {
-        // console.warn('Error cargando filtros guardados:', e);
+        // //console.warn('Error cargando filtros guardados:', e);
       }
     }
   }, []);

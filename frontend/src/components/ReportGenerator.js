@@ -192,7 +192,7 @@ const ReportGenerator = () => {
 
   const generarPDFConsolidado = async (reportData) => {
     try {
-      // console.log('🔄 Generando PDF consolidado RATs:', reportData.rats.length);
+      // //console.log('🔄 Generando PDF consolidado RATs:', reportData.rats.length);
       
       // Crear contenido HTML para el PDF
       const htmlContent = `
@@ -286,7 +286,7 @@ const ReportGenerator = () => {
 
   const generarExcelConsolidado = async (reportData) => {
     try {
-      // console.log('🔄 Generando Excel consolidado RATs:', reportData.rats.length);
+      // //console.log('🔄 Generando Excel consolidado RATs:', reportData.rats.length);
       
       // 📊 CREAR CONTENIDO CSV PARA EXCEL
       const csvContent = generarCSVConsolidado(reportData);
@@ -300,7 +300,7 @@ const ReportGenerator = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       
-      // console.log('✅ Excel/CSV generado exitosamente');
+      // //console.log('✅ Excel/CSV generado exitosamente');
       
     } catch (error) {
       console.error('❌ Error generando Excel:', error);
@@ -521,7 +521,7 @@ const ReportGenerator = () => {
                     <Button
                       size="small"
                       startIcon={<DownloadIcon />}
-                      onClick={() => {/* console.log('Descargando reporte:', reporte.id) */}}
+                      onClick={() => {/* //console.log('Descargando reporte:', reporte.id) */}}
                     >
                       Descargar
                     </Button>

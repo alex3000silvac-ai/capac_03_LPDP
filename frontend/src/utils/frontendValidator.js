@@ -18,7 +18,7 @@ class FrontendValidator {
    * 🧪 VALIDAR TODOS LOS MÓDULOS PRINCIPALES
    */
   async validateAllModules() {
-    // console.log('🔍 Iniciando validación completa de módulos frontend...');
+    // //console.log('🔍 Iniciando validación completa de módulos frontend...');
     
     const modules = [
       { name: 'RATSystemProfessional', component: 'RATSystemProfessional', path: '/rat-system' },
@@ -41,7 +41,7 @@ class FrontendValidator {
     
     for (const module of modules) {
       try {
-        // console.log(`📋 Validando módulo: ${module.name}`);
+        // //console.log(`📋 Validando módulo: ${module.name}`);
         const validation = await this.validateModule(module);
         results.push(validation);
         this.moduleStatus.set(module.name, validation.status);
@@ -397,7 +397,7 @@ class FrontendValidator {
       if (error) {
         console.error('Error guardando reporte validación:', error);
       } else {
-        // console.log('✅ Reporte validación guardado en Supabase');
+        // //console.log('✅ Reporte validación guardado en Supabase');
       }
     } catch (error) {
       console.error('Error saving validation report:', error);
@@ -741,7 +741,7 @@ class FrontendValidator {
    * 🎯 VALIDACIÓN RÁPIDA EN DESARROLLO
    */
   async quickValidation() {
-    // console.log('⚡ Ejecutando validación rápida...');
+    // //console.log('⚡ Ejecutando validación rápida...');
     
     const quickChecks = {
       supabaseConnection: await this.validateSupabaseIntegration('quickcheck'),
@@ -750,7 +750,7 @@ class FrontendValidator {
       timestamp: new Date().toISOString()
     };
 
-    // console.log('⚡ Validación rápida completada:', quickChecks);
+    // //console.log('⚡ Validación rápida completada:', quickChecks);
     return quickChecks;
   }
 
@@ -758,7 +758,7 @@ class FrontendValidator {
    * 📋 REPORTE DE ESTADO PARA CONSOLA
    */
   printStatusReport(report) {
-    /* console.log(`
+    /* //console.log(`
 ╔══════════════════════════════════════════════════════════════╗
 ║                🔍 REPORTE VALIDACIÓN FRONTEND                 ║
 ╠══════════════════════════════════════════════════════════════╣
@@ -770,20 +770,20 @@ class FrontendValidator {
 ║ 🚨 PROBLEMAS CRÍTICOS:                                       ║`);
 
     if (report.errorCount === 0) {
-      // console.log('║    No hay errores críticos detectados ✅                    ║');
+      // //console.log('║    No hay errores críticos detectados ✅                    ║');
     } else {
       report.moduleResults
         .filter(r => r.status === 'ERROR')
         .forEach(module => {
-          // console.log(`║    ❌ ${module.module}: ${(module.errors?.[0] || 'Error desconocido').substring(0, 40)}... ║`);
+          // //console.log(`║    ❌ ${module.module}: ${(module.errors?.[0] || 'Error desconocido').substring(0, 40)}... ║`);
         });
     }
 
-    // console.log(`╠══════════════════════════════════════════════════════════════╣
+    // //console.log(`╠══════════════════════════════════════════════════════════════╣
 ║ 💡 RECOMENDACIONES:                                          ║`);
 
     report.recommendations.forEach((rec, idx) => {
-      // console.log(`║    ${idx + 1}. [${rec.priority}] ${rec.issue.substring(0, 45)}... ║`);
+      // //console.log(`║    ${idx + 1}. [${rec.priority}] ${rec.issue.substring(0, 45)}... ║`);
     });
 
 ╚══════════════════════════════════════════════════════════════╝`); */
@@ -796,7 +796,7 @@ const frontendValidator = new FrontendValidator();
 // Auto-ejecutar validación en desarrollo
 if (process.env.NODE_ENV === 'development') {
   window.frontendValidator = frontendValidator;
-  // console.log('🔍 Frontend Validator disponible en window.frontendValidator');
+  // //console.log('🔍 Frontend Validator disponible en window.frontendValidator');
 }
 
 export default frontendValidator;

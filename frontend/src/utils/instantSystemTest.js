@@ -28,7 +28,7 @@ class InstantSystemTest {
       recommendations: []
     };
 
-    // console.log('🚀 INICIANDO TESTS AUTOMÁTICOS DEL SISTEMA...');
+    // //console.log('🚀 INICIANDO TESTS AUTOMÁTICOS DEL SISTEMA...');
 
     try {
       // Test 1: Base de datos
@@ -425,60 +425,60 @@ class InstantSystemTest {
    * 🖨️ MOSTRAR RESULTADOS
    */
   displayResults(report) {
-    // console.log('\n' + '='.repeat(60));
-    // console.log('🏥 REPORTE DE SALUD DEL SISTEMA LPDP');
-    // console.log('='.repeat(60));
+    // //console.log('\n' + '='.repeat(60));
+    // //console.log('🏥 REPORTE DE SALUD DEL SISTEMA LPDP');
+    // //console.log('='.repeat(60));
     
-    // console.log(`⏱️  Tiempo total: ${report.summary.execution_time}`);
-    // console.log(`📊 Tasa de éxito: ${report.summary.success_rate}%`);
-    // console.log(`✅ Tests exitosos: ${report.summary.passed}`);
-    // console.log(`⚠️  Advertencias: ${report.summary.warnings}`);
-    // console.log(`❌ Errores: ${report.summary.failed}`);
-    // console.log(`🎯 Estado general: ${report.summary.overall_status}\n`);
+    // //console.log(`⏱️  Tiempo total: ${report.summary.execution_time}`);
+    // //console.log(`📊 Tasa de éxito: ${report.summary.success_rate}%`);
+    // //console.log(`✅ Tests exitosos: ${report.summary.passed}`);
+    // //console.log(`⚠️  Advertencias: ${report.summary.warnings}`);
+    // //console.log(`❌ Errores: ${report.summary.failed}`);
+    // //console.log(`🎯 Estado general: ${report.summary.overall_status}\n`);
 
     // Detalles por test
     Object.values(report.tests).forEach(test => {
-      // console.log(`${test.status} ${test.name}`);
+      // //console.log(`${test.status} ${test.name}`);
       
       if (test.error) {
-        // console.log(`   Error: ${test.error}`);
+        // //console.log(`   Error: ${test.error}`);
       }
       
       if (test.issues?.length > 0) {
-        test.issues.forEach(issue => // console.log(`   ⚠️ ${issue}`));
+        test.issues.forEach(issue => // //console.log(`   ⚠️ ${issue}`));
       }
 
       // Mostrar métricas específicas
       if (test.tables) {
         Object.entries(test.tables).forEach(([table, status]) => {
-          // console.log(`   📊 ${table}: ${status}`);
+          // //console.log(`   📊 ${table}: ${status}`);
         });
       }
 
       if (test.operations) {
         Object.entries(test.operations).forEach(([op, result]) => {
-          // console.log(`   🔄 ${op.toUpperCase()}: ${result.message}`);
+          // //console.log(`   🔄 ${op.toUpperCase()}: ${result.message}`);
         });
       }
 
       if (test.metrics) {
         Object.entries(test.metrics).forEach(([metric, value]) => {
-          // console.log(`   ⚡ ${metric}: ${value}`);
+          // //console.log(`   ⚡ ${metric}: ${value}`);
         });
       }
     });
 
-    // console.log('\n' + '='.repeat(60));
+    // //console.log('\n' + '='.repeat(60));
     
     if (report.summary.overall_status === 'NEEDS_ATTENTION') {
-      // console.log('🚨 ACCIÓN REQUERIDA: Se encontraron problemas que requieren atención');
+      // //console.log('🚨 ACCIÓN REQUERIDA: Se encontraron problemas que requieren atención');
     } else if (report.summary.overall_status === 'GOOD') {
-      // console.log('✅ SISTEMA FUNCIONANDO: Advertencias menores detectadas');
+      // //console.log('✅ SISTEMA FUNCIONANDO: Advertencias menores detectadas');
     } else {
-      // console.log('🎉 SISTEMA EXCELENTE: Todos los tests pasaron correctamente');
+      // //console.log('🎉 SISTEMA EXCELENTE: Todos los tests pasaron correctamente');
     }
     
-    // console.log('='.repeat(60));
+    // //console.log('='.repeat(60));
   }
 }
 

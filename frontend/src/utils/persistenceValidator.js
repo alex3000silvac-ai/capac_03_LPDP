@@ -604,7 +604,7 @@ class PersistenceValidator {
 
       Storage.prototype.setItem = function(key, value) {
         if (this === localStorage && key.includes('lpdp')) {
-          // console.warn(`🚫 PERSISTENCIA BLOQUEADA: Intento de usar localStorage para ${key}`);
+          // //console.warn(`🚫 PERSISTENCIA BLOQUEADA: Intento de usar localStorage para ${key}`);
           throw new Error('localStorage prohibido - usar Supabase únicamente');
         }
         return originalSetItem.call(this, key, value);
@@ -612,13 +612,13 @@ class PersistenceValidator {
 
       Storage.prototype.getItem = function(key) {
         if (this === localStorage && key.includes('lpdp')) {
-          // console.warn(`🚫 ACCESO BLOQUEADO: Intento de leer localStorage para ${key}`);
+          // //console.warn(`🚫 ACCESO BLOQUEADO: Intento de leer localStorage para ${key}`);
           return null;
         }
         return originalGetItem.call(this, key);
       };
 
-      // console.log('🔒 Modo Supabase-únicamente activado');
+      // //console.log('🔒 Modo Supabase-únicamente activado');
       return { success: true };
     } catch (error) {
       console.error('Error enforcing Supabase-only mode');

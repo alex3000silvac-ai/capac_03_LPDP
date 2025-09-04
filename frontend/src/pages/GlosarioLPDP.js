@@ -1833,7 +1833,7 @@ const GlosarioLPDP = () => {
   const terminosFiltrados = Object.entries(terminos).filter(([key, termino]) => {
     // Verificar que el término tenga la estructura mínima requerida
     if (!termino || typeof termino !== 'object' || !termino.termino || !termino.definicion) {
-      // console.warn('Término inválido encontrado:', key, termino);
+      // //console.warn('Término inválido encontrado:', key, termino);
       return false;
     }
     const matchSearch = termino.termino.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1855,7 +1855,7 @@ const GlosarioLPDP = () => {
                        ));
     // Verificar que la categoría exista
     if (!termino.categoria || !categorias[termino.categoria]) {
-      // console.warn('Categoría inválida o faltante para término:', key, termino.categoria);
+      // //console.warn('Categoría inválida o faltante para término:', key, termino.categoria);
       return false;
     }
     

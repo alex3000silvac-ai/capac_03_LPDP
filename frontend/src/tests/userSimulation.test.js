@@ -32,7 +32,7 @@ class UserSimulator {
       await this.delay(speed);
     }
     
-    // console.log(`✅ Texto escrito en ${selector}: "${text}"`);
+    // //console.log(`✅ Texto escrito en ${selector}: "${text}"`);
   }
 
   // Simular click humano
@@ -53,7 +53,7 @@ class UserSimulator {
     element.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
     element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     
-    // console.log(`✅ Click en: ${selector}`);
+    // //console.log(`✅ Click en: ${selector}`);
     await this.delay(500);
   }
 
@@ -68,7 +68,7 @@ class UserSimulator {
     element.value = value;
     element.dispatchEvent(new Event('change', { bubbles: true }));
     
-    // console.log(`✅ Opción seleccionada en ${selector}: ${value}`);
+    // //console.log(`✅ Opción seleccionada en ${selector}: ${value}`);
     await this.delay(300);
   }
 
@@ -85,14 +85,14 @@ class UserSimulator {
       element.dispatchEvent(new Event('change', { bubbles: true }));
     }
     
-    // console.log(`✅ Checkbox ${selector}: ${checked ? 'marcado' : 'desmarcado'}`);
+    // //console.log(`✅ Checkbox ${selector}: ${checked ? 'marcado' : 'desmarcado'}`);
     await this.delay(200);
   }
 
   // Navegar a una ruta
   async navigateTo(path) {
     window.location.href = path;
-    // console.log(`✅ Navegando a: ${path}`);
+    // //console.log(`✅ Navegando a: ${path}`);
     await this.delay(2000); // Esperar carga de página
   }
 
@@ -102,7 +102,7 @@ class UserSimulator {
     
     while (Date.now() - startTime < timeout) {
       if (document.querySelector(selector)) {
-        // console.log(`✅ Elemento encontrado: ${selector}`);
+        // //console.log(`✅ Elemento encontrado: ${selector}`);
         return true;
       }
       await this.delay(100);
@@ -134,14 +134,14 @@ class TestScenarios {
 
   // ESCENARIO 1: Crear RAT básico
   async crearRATBasico() {
-    // console.log('🚀 INICIANDO: Creación RAT básico');
+    // //console.log('🚀 INICIANDO: Creación RAT básico');
     
     // Navegar al sistema RAT
     await this.user.navigateTo(`${this.baseUrl}/rat-system`);
     await this.user.waitForElement('#rat-form');
     
     // PASO 1: Datos de la Empresa
-    // console.log('📝 Paso 1: Datos de la empresa');
+    // //console.log('📝 Paso 1: Datos de la empresa');
     await this.user.typeText('#razon-social', 'Empresa Test Automatizado S.A.');
     await this.user.typeText('#rut-empresa', '76.123.456-7');
     await this.user.typeText('#direccion', 'Av. Providencia 1234, Santiago');
@@ -156,7 +156,7 @@ class TestScenarios {
     await this.user.delay(1000);
     
     // PASO 2: Categorías de Datos
-    // console.log('📝 Paso 2: Categorías de datos');
+    // //console.log('📝 Paso 2: Categorías de datos');
     await this.user.toggleCheckbox('input[value="nombre"]', true);
     await this.user.toggleCheckbox('input[value="rut"]', true);
     await this.user.toggleCheckbox('input[value="email"]', true);
@@ -170,7 +170,7 @@ class TestScenarios {
     await this.user.delay(1000);
     
     // PASO 3: Base Legal
-    // console.log('📝 Paso 3: Base legal');
+    // //console.log('📝 Paso 3: Base legal');
     await this.user.clickButton('input[value="consentimiento"]');
     await this.user.typeText('#argumento-juridico', 
       'El consentimiento ha sido obtenido de forma libre, informada y específica mediante formulario web con checkbox de aceptación explícita. Se cumple con el Art. 12 de la Ley 21.719.'
@@ -180,7 +180,7 @@ class TestScenarios {
     await this.user.delay(1000);
     
     // PASO 4: Finalidad y Conservación
-    // console.log('📝 Paso 4: Finalidad y conservación');
+    // //console.log('📝 Paso 4: Finalidad y conservación');
     await this.user.typeText('#finalidad', 
       'Gestión integral de clientes para prestación de servicios tecnológicos, incluyendo soporte técnico, facturación y mejora continua del servicio.'
     );
@@ -190,7 +190,7 @@ class TestScenarios {
     await this.user.delay(1000);
     
     // PASO 5: Transferencias
-    // console.log('📝 Paso 5: Transferencias');
+    // //console.log('📝 Paso 5: Transferencias');
     await this.user.toggleCheckbox('#transferencias-internacionales', true);
     await this.user.typeText('#pais-destino', 'Estados Unidos');
     await this.user.typeText('#destinatario', 'AWS - Amazon Web Services');
@@ -200,11 +200,11 @@ class TestScenarios {
     await this.user.delay(1000);
     
     // PASO 6: Revisión y Generación
-    // console.log('📝 Paso 6: Revisión final');
+    // //console.log('📝 Paso 6: Revisión final');
     await this.user.scrollToElement('#generar-rat');
     await this.user.clickButton('#btn-generar-rat');
     
-    // console.log('✅ RAT #1 creado exitosamente');
+    // //console.log('✅ RAT #1 creado exitosamente');
     await this.user.delay(2000);
     
     return { ratId: 'rat-001', tieneDataSensible: true };
@@ -212,13 +212,13 @@ class TestScenarios {
 
   // ESCENARIO 2: Crear EIPD/DPIA
   async crearEIPD(ratId) {
-    // console.log('🚀 INICIANDO: Creación EIPD/DPIA');
+    // //console.log('🚀 INICIANDO: Creación EIPD/DPIA');
     
     await this.user.navigateTo(`${this.baseUrl}/eipd-creator?rat=${ratId}`);
     await this.user.waitForElement('#eipd-form');
     
     // Paso 1: Información General
-    // console.log('📝 Paso 1: Información general EIPD');
+    // //console.log('📝 Paso 1: Información general EIPD');
     await this.user.typeText('#nombre-evaluacion', 'EIPD - Sistema Gestión Clientes');
     await this.user.typeText('#evaluador', 'María González Silva');
     await this.user.typeText('#fecha-evaluacion', '2024-01-15');
@@ -227,7 +227,7 @@ class TestScenarios {
     await this.user.delay(1000);
     
     // Paso 2: Evaluación de Riesgos
-    // console.log('📝 Paso 2: Evaluación de riesgos');
+    // //console.log('📝 Paso 2: Evaluación de riesgos');
     
     // Riesgo 1: Acceso no autorizado
     await this.user.selectOption('#riesgo-acceso', 'alto');
@@ -245,7 +245,7 @@ class TestScenarios {
     await this.user.delay(1000);
     
     // Paso 3: Medidas de Seguridad
-    // console.log('📝 Paso 3: Medidas de seguridad');
+    // //console.log('📝 Paso 3: Medidas de seguridad');
     await this.user.toggleCheckbox('#medida-encriptacion', true);
     await this.user.toggleCheckbox('#medida-anonimizacion', true);
     await this.user.toggleCheckbox('#medida-acceso-restringido', true);
@@ -255,7 +255,7 @@ class TestScenarios {
     await this.user.delay(1000);
     
     // Paso 4: Derechos de los Interesados
-    // console.log('📝 Paso 4: Derechos ARCO');
+    // //console.log('📝 Paso 4: Derechos ARCO');
     await this.user.typeText('#procedimiento-acceso', 
       'Portal web con autenticación para descarga de datos en formato JSON/PDF'
     );
@@ -272,7 +272,7 @@ class TestScenarios {
     
     await this.user.clickButton('button:contains("Completar EIPD")');
     
-    // console.log('✅ EIPD creada y asociada al RAT');
+    // //console.log('✅ EIPD creada y asociada al RAT');
     await this.user.delay(2000);
     
     return { eipdId: 'eipd-001' };
@@ -280,7 +280,7 @@ class TestScenarios {
 
   // ESCENARIO 3: Crear Proveedor
   async crearProveedor() {
-    // console.log('🚀 INICIANDO: Creación de Proveedor');
+    // //console.log('🚀 INICIANDO: Creación de Proveedor');
     
     await this.user.navigateTo(`${this.baseUrl}/provider-manager`);
     await this.user.waitForElement('#provider-list');
@@ -289,7 +289,7 @@ class TestScenarios {
     await this.user.clickButton('button:contains("Agregar Proveedor")');
     await this.user.waitForElement('#dialog-proveedor');
     
-    // console.log('📝 Completando datos del proveedor');
+    // //console.log('📝 Completando datos del proveedor');
     
     await this.user.typeText('#nombre-proveedor', 'CloudTech Solutions SpA');
     await this.user.typeText('#rut-proveedor', '77.234.567-8');
@@ -310,7 +310,7 @@ class TestScenarios {
     // Guardar proveedor
     await this.user.clickButton('button:contains("Guardar")');
     
-    // console.log('✅ Proveedor creado exitosamente');
+    // //console.log('✅ Proveedor creado exitosamente');
     await this.user.delay(2000);
     
     return { proveedorId: 'prov-001', nombre: 'CloudTech Solutions SpA' };
@@ -318,13 +318,13 @@ class TestScenarios {
 
   // ESCENARIO 4: Crear RAT con EIPD asociada
   async crearRATConEIPD(eipdId) {
-    // console.log('🚀 INICIANDO: RAT #2 con EIPD asociada');
+    // //console.log('🚀 INICIANDO: RAT #2 con EIPD asociada');
     
     await this.user.navigateTo(`${this.baseUrl}/rat-system`);
     await this.user.waitForElement('#rat-form');
     
     // Paso rápido con datos mínimos
-    // console.log('📝 Creando RAT con referencia a EIPD');
+    // //console.log('📝 Creando RAT con referencia a EIPD');
     
     // Paso 1: Empresa
     await this.user.typeText('#razon-social', 'Empresa Servicios Digitales Ltda');
@@ -359,13 +359,13 @@ class TestScenarios {
     await this.user.clickButton('button[data-step="next"]');
     
     // Paso 6: Vincular EIPD existente
-    // console.log('📝 Vinculando EIPD existente');
+    // //console.log('📝 Vinculando EIPD existente');
     await this.user.toggleCheckbox('#vincular-eipd', true);
     await this.user.selectOption('#select-eipd', eipdId);
     
     await this.user.clickButton('#btn-generar-rat');
     
-    // console.log('✅ RAT #2 creado con EIPD vinculada');
+    // //console.log('✅ RAT #2 creado con EIPD vinculada');
     await this.user.delay(2000);
     
     return { ratId: 'rat-002' };
@@ -373,12 +373,12 @@ class TestScenarios {
 
   // ESCENARIO 5: Crear RAT completo con Proveedor y EIPD
   async crearRATCompleto(proveedorId, eipdId) {
-    // console.log('🚀 INICIANDO: RAT #3 completo (Proveedor + EIPD)');
+    // //console.log('🚀 INICIANDO: RAT #3 completo (Proveedor + EIPD)');
     
     await this.user.navigateTo(`${this.baseUrl}/rat-system`);
     await this.user.waitForElement('#rat-form');
     
-    // console.log('📝 Creando RAT completo con todas las relaciones');
+    // //console.log('📝 Creando RAT completo con todas las relaciones');
     
     // Paso 1
     await this.user.typeText('#razon-social', 'Corporación Innovación Global S.A.');
@@ -413,7 +413,7 @@ class TestScenarios {
     await this.user.clickButton('button[data-step="next"]');
     
     // Paso 5: Agregar proveedor
-    // console.log('📝 Agregando proveedor como encargado');
+    // //console.log('📝 Agregando proveedor como encargado');
     await this.user.toggleCheckbox('#tiene-encargados', true);
     await this.user.clickButton('#btn-agregar-encargado');
     
@@ -435,7 +435,7 @@ class TestScenarios {
     
     await this.user.clickButton('#btn-generar-rat');
     
-    // console.log('✅ RAT #3 completo creado con Proveedor y EIPD');
+    // //console.log('✅ RAT #3 completo creado con Proveedor y EIPD');
     await this.user.delay(2000);
     
     return { ratId: 'rat-003' };
@@ -443,10 +443,10 @@ class TestScenarios {
 
   // ESCENARIO 6: Editar registros existentes
   async editarRegistros(ratId, proveedorId, eipdId) {
-    // console.log('🚀 INICIANDO: Edición de registros existentes');
+    // //console.log('🚀 INICIANDO: Edición de registros existentes');
     
     // EDITAR RAT
-    // console.log('📝 Editando RAT');
+    // //console.log('📝 Editando RAT');
     await this.user.navigateTo(`${this.baseUrl}/rat-list`);
     await this.user.waitForElement('#rat-table');
     
@@ -465,11 +465,11 @@ class TestScenarios {
     await this.user.toggleCheckbox('input[value="datos_navegacion"]', true);
     
     await this.user.clickButton('#btn-guardar-cambios');
-    // console.log('✅ RAT editado');
+    // //console.log('✅ RAT editado');
     await this.user.delay(1500);
     
     // EDITAR PROVEEDOR
-    // console.log('📝 Editando Proveedor');
+    // //console.log('📝 Editando Proveedor');
     await this.user.navigateTo(`${this.baseUrl}/provider-manager`);
     await this.user.waitForElement('#provider-table');
     
@@ -485,11 +485,11 @@ class TestScenarios {
     );
     
     await this.user.clickButton('button:contains("Actualizar")');
-    // console.log('✅ Proveedor editado');
+    // //console.log('✅ Proveedor editado');
     await this.user.delay(1500);
     
     // EDITAR EIPD
-    // console.log('📝 Editando EIPD');
+    // //console.log('📝 Editando EIPD');
     await this.user.navigateTo(`${this.baseUrl}/eipd-list`);
     await this.user.waitForElement('#eipd-table');
     
@@ -510,18 +510,18 @@ class TestScenarios {
     );
     
     await this.user.clickButton('#btn-guardar-eipd');
-    // console.log('✅ EIPD editada');
+    // //console.log('✅ EIPD editada');
     
-    // console.log('🎉 TODAS LAS EDICIONES COMPLETADAS');
+    // //console.log('🎉 TODAS LAS EDICIONES COMPLETADAS');
     await this.user.delay(2000);
   }
 
   // EJECUTAR PRUEBA COMPLETA
   async ejecutarPruebaCompleta() {
-    // console.log('═══════════════════════════════════════════');
-    // console.log('🚀 INICIANDO PRUEBA E2E COMPLETA');
-    // console.log('═══════════════════════════════════════════');
-    // console.log('Simulando interacción humana real...\n');
+    // //console.log('═══════════════════════════════════════════');
+    // //console.log('🚀 INICIANDO PRUEBA E2E COMPLETA');
+    // //console.log('═══════════════════════════════════════════');
+    // //console.log('Simulando interacción humana real...\n');
     
     try {
       // 1. Crear RAT básico
@@ -547,15 +547,15 @@ class TestScenarios {
       // 6. Editar todos los registros
       await this.editarRegistros(rat3.ratId, proveedor.proveedorId, eipd.eipdId);
       
-      // console.log('\n═══════════════════════════════════════════');
-      // console.log('✅ PRUEBA E2E COMPLETADA EXITOSAMENTE');
-      // console.log('═══════════════════════════════════════════');
-      // console.log('\n📊 RESUMEN DE PRUEBAS:');
-      // console.log('- RATs creados: 3');
-      // console.log('- EIPDs creadas: 1');
-      // console.log('- Proveedores creados: 1');
-      // console.log('- Ediciones realizadas: 3');
-      // console.log('\n🎯 Todas las funcionalidades probadas correctamente');
+      // //console.log('\n═══════════════════════════════════════════');
+      // //console.log('✅ PRUEBA E2E COMPLETADA EXITOSAMENTE');
+      // //console.log('═══════════════════════════════════════════');
+      // //console.log('\n📊 RESUMEN DE PRUEBAS:');
+      // //console.log('- RATs creados: 3');
+      // //console.log('- EIPDs creadas: 1');
+      // //console.log('- Proveedores creados: 1');
+      // //console.log('- Ediciones realizadas: 3');
+      // //console.log('\n🎯 Todas las funcionalidades probadas correctamente');
       
       return {
         success: true,
@@ -583,16 +583,16 @@ class TestScenarios {
 // Función para inyectar y ejecutar el test en la consola del navegador
 async function iniciarTestAutomatizado() {
   console.clear();
-  // console.log('🤖 SISTEMA DE PRUEBAS AUTOMATIZADAS LPDP');
-  // console.log('=========================================\n');
+  // //console.log('🤖 SISTEMA DE PRUEBAS AUTOMATIZADAS LPDP');
+  // //console.log('=========================================\n');
   
   const tester = new TestScenarios();
   const resultado = await tester.ejecutarPruebaCompleta();
   
   if (resultado.success) {
-    // console.log('\n✅ SISTEMA VALIDADO - TODO FUNCIONA CORRECTAMENTE');
+    // //console.log('\n✅ SISTEMA VALIDADO - TODO FUNCIONA CORRECTAMENTE');
   } else {
-    // console.log('\n❌ SE ENCONTRARON ERRORES - REVISAR LOGS');
+    // //console.log('\n❌ SE ENCONTRARON ERRORES - REVISAR LOGS');
   }
   
   return resultado;
@@ -611,5 +611,5 @@ if (typeof window !== 'undefined') {
     iniciar: iniciarTestAutomatizado
   };
   
-  // console.log('✅ Test cargado. Ejecuta: testLPDP.iniciar()');
+  // //console.log('✅ Test cargado. Ejecuta: testLPDP.iniciar()');
 }

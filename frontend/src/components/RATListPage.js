@@ -72,7 +72,7 @@ const RATListPage = () => {
       
       // TEMPORAL: Funcionalidad deshabilitada hasta integración completa
       setRats([]);
-      // console.warn('RATListPage: Funcionalidad deshabilitada - solo datos de Supabase permitidos');
+      // //console.warn('RATListPage: Funcionalidad deshabilitada - solo datos de Supabase permitidos');
       
     } catch (error) {
       console.error('Error cargando RATs:', error);
@@ -132,7 +132,7 @@ const RATListPage = () => {
       setLoading(true);
       
       // En prod: llamar API delete
-      // console.log('Eliminando RAT:', selectedRat.id);
+      // //console.log('Eliminando RAT:', selectedRat.id);
       
       // Actualizar lista
       setRats(prev => prev.filter(r => r.id !== selectedRat.id));

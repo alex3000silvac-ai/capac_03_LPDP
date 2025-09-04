@@ -130,7 +130,7 @@ const RATEditPage = () => {
   const loadRAT = async () => {
     try {
       setLoading(true);
-      // console.log('🔄 Cargando RAT desde Supabase:', ratId);
+      // //console.log('🔄 Cargando RAT desde Supabase:', ratId);
       
       // CONEXIÓN REAL SUPABASE - tabla mapeo_datos_rat
       const { data: ratData, error } = await supabase
@@ -150,7 +150,7 @@ const RATEditPage = () => {
         throw new Error('RAT no encontrado');
       }
       
-      // console.log('✅ RAT cargado exitosamente:', ratData);
+      // //console.log('✅ RAT cargado exitosamente:', ratData);
       
       // MAPEAR DATOS DE SUPABASE A ESTADO LOCAL
       setRat({
@@ -278,10 +278,10 @@ const RATEditPage = () => {
   const handleSave = async (asDraft = true) => {
     try {
       setSaving(true);
-      // console.log('💾 Iniciando guardado RAT en Supabase...');
+      // //console.log('💾 Iniciando guardado RAT en Supabase...');
       
       // 🛡️ IA PREVENTIVA INTERCEPTA ANTES DE GUARDAR (líneas 335-343 diagrama)
-      // console.log('🛡️ IA Preventiva interceptando modificaciones RAT...');
+      // //console.log('🛡️ IA Preventiva interceptando modificaciones RAT...');
       
       const preventiveCheck = await preventiveAI.validateAction(
         'RAT_EDIT_SAVE', 
@@ -295,7 +295,7 @@ const RATEditPage = () => {
       );
       
       if (preventiveCheck.alerts && Array.isArray(preventiveCheck.alerts) && preventiveCheck.alerts.length > 0) {
-        // console.log('🚨 IA Preventiva detectó problemas:', preventiveCheck.alerts);
+        // //console.log('🚨 IA Preventiva detectó problemas:', preventiveCheck.alerts);
         
         // Mostrar alertas críticas al usuario
         const criticalAlerts = preventiveCheck.alerts.filter(a => a.severity === 'CRITICA');
@@ -356,7 +356,7 @@ const RATEditPage = () => {
       
       if (ratId && ratId !== 'new') {
         // ACTUALIZAR RAT EXISTENTE
-        // console.log('🔄 Actualizando RAT existente ID:', ratId);
+        // //console.log('🔄 Actualizando RAT existente ID:', ratId);
         
         const { data, error } = await supabase
           .from('mapeo_datos_rat')
@@ -369,11 +369,11 @@ const RATEditPage = () => {
         if (error) throw error;
         result = data;
         
-        // console.log('✅ RAT actualizado exitosamente:', result.id);
+        // //console.log('✅ RAT actualizado exitosamente:', result.id);
         
       } else {
         // CREAR NUEVO RAT
-        // console.log('➕ Creando nuevo RAT...');
+        // //console.log('➕ Creando nuevo RAT...');
         
         const { data, error } = await supabase
           .from('mapeo_datos_rat')
@@ -387,7 +387,7 @@ const RATEditPage = () => {
         if (error) throw error;
         result = data;
         
-        // console.log('✅ RAT creado exitosamente:', result.id);
+        // //console.log('✅ RAT creado exitosamente:', result.id);
       }
       
       // VALIDAR PERSISTENCIA
@@ -401,7 +401,7 @@ const RATEditPage = () => {
         throw new Error('Error de persistencia: RAT no se guardó correctamente');
       }
       
-      // console.log('✅ Persistencia verificada:', verification);
+      // //console.log('✅ Persistencia verificada:', verification);
       
       alert(`✅ RAT "${verification.nombre_actividad}" ${ratId !== 'new' ? 'actualizado' : 'guardado'} exitosamente`);
       navigate('/rats');

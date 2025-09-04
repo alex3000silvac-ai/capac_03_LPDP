@@ -219,7 +219,7 @@ const ComplianceMetrics = () => {
       const tenantId = currentTenant?.id;
       const acciones = [];
       
-      // console.log('🔍 Obteniendo acciones pendientes DPO para tenant:', tenantId);
+      // //console.log('🔍 Obteniendo acciones pendientes DPO para tenant:', tenantId);
       
       // 1. Obtener RATs no certificados (necesitan revisión DPO)
       const { data: ratsNoCertificados, error: ratsError } = await supabase
@@ -288,7 +288,7 @@ const ComplianceMetrics = () => {
         });
       }
       
-      // console.log('✅ Acciones pendientes obtenidas:', acciones.length);
+      // //console.log('✅ Acciones pendientes obtenidas:', acciones.length);
       return acciones;
       
     } catch (error) {

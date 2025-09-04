@@ -57,7 +57,7 @@ class TestBalancingEngine {
   // EJECUTAR TEST BALANCING COMPLETO
   async ejecutarTestBalancing(ratData, tenantId) {
     try {
-      // console.log('⚖️ Iniciando Test Balancing interés legítimo...');
+      // //console.log('⚖️ Iniciando Test Balancing interés legítimo...');
 
       // PASO 1: EVALUAR INTERÉS LEGÍTIMO EMPRESA (LÍNEAS 316-320)
       const evaluacionInteres = this.evaluarInteresEmpresa(ratData);

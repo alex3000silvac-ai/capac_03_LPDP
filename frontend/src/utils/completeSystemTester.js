@@ -17,7 +17,7 @@ class CompleteSystemTester {
    * 🚀 EJECUTAR TODAS LAS PRUEBAS
    */
   async executeCompleteTest() {
-    // console.log('🧪 INICIANDO PRUEBAS COMPLETAS DEL SISTEMA...');
+    // //console.log('🧪 INICIANDO PRUEBAS COMPLETAS DEL SISTEMA...');
     
     this.results = [];
     const startTime = performance.now();
@@ -585,40 +585,40 @@ class CompleteSystemTester {
    */
   displayReport(report) {
     console.clear();
-    // console.log('📋 REPORTE COMPLETO DE PRUEBAS DEL SISTEMA LPDP');
-    // console.log('='.repeat(80));
-    // console.log(`⏱️  Tiempo de ejecución: ${report.execution_time}`);
-    // console.log(`📊 Total de pruebas: ${report.total_tests}`);
-    // console.log(`✅ Exitosas: ${report.passed}`);
-    // console.log(`⚠️  Advertencias: ${report.warnings}`);
-    // console.log(`❌ Fallidas: ${report.failed}`);
-    // console.log(`🎯 Tasa de éxito: ${report.success_rate}%`);
-    // console.log('='.repeat(80));
+    // //console.log('📋 REPORTE COMPLETO DE PRUEBAS DEL SISTEMA LPDP');
+    // //console.log('='.repeat(80));
+    // //console.log(`⏱️  Tiempo de ejecución: ${report.execution_time}`);
+    // //console.log(`📊 Total de pruebas: ${report.total_tests}`);
+    // //console.log(`✅ Exitosas: ${report.passed}`);
+    // //console.log(`⚠️  Advertencias: ${report.warnings}`);
+    // //console.log(`❌ Fallidas: ${report.failed}`);
+    // //console.log(`🎯 Tasa de éxito: ${report.success_rate}%`);
+    // //console.log('='.repeat(80));
     
     // Tabla de resultados
-    // console.log('\n📋 RESULTADOS DETALLADOS:\n');
-    // console.log('PRUEBA'.padEnd(40) + ' | ' + 'RESULTADO'.padEnd(15) + ' | MOTIVO');
-    // console.log('-'.repeat(80));
+    // //console.log('\n📋 RESULTADOS DETALLADOS:\n');
+    // //console.log('PRUEBA'.padEnd(40) + ' | ' + 'RESULTADO'.padEnd(15) + ' | MOTIVO');
+    // //console.log('-'.repeat(80));
     
     report.results.forEach(result => {
       const prueba = result.prueba.substring(0, 38).padEnd(40);
       const resultado = result.resultado.padEnd(15);
       const motivo = result.motivo.substring(0, 50);
       
-      // console.log(`${prueba} | ${resultado} | ${motivo}`);
+      // //console.log(`${prueba} | ${resultado} | ${motivo}`);
     });
     
-    // console.log('='.repeat(80));
+    // //console.log('='.repeat(80));
     
     if (report.failed > 0) {
-      // console.log('🚨 ATENCIÓN: Se encontraron errores que requieren corrección');
+      // //console.log('🚨 ATENCIÓN: Se encontraron errores que requieren corrección');
     } else if (report.warnings > 0) {
-      // console.log('⚠️  Advertencias detectadas - Revisar elementos marcados');
+      // //console.log('⚠️  Advertencias detectadas - Revisar elementos marcados');
     } else {
-      // console.log('🎉 ¡Excelente! Todas las pruebas pasaron correctamente');
+      // //console.log('🎉 ¡Excelente! Todas las pruebas pasaron correctamente');
     }
     
-    // console.log('='.repeat(80));
+    // //console.log('='.repeat(80));
   }
 }
 

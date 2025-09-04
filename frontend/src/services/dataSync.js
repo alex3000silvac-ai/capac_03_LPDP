@@ -22,7 +22,7 @@ class DataSyncService {
         }
       }
 
-      // console.log('🔄 Cargando datos maestros para tenant:', tenantId);
+      // //console.log('🔄 Cargando datos maestros para tenant:', tenantId);
 
       // CONSULTA ÚNICA - TODOS LOS CONTEOS
       const [ratsResult, eipdResult, tareasResult, inventarioResult] = await Promise.all([
@@ -96,7 +96,7 @@ class DataSyncService {
         timestamp: Date.now()
       });
 
-      // console.log('✅ Datos maestros cargados:', masterData.counts);
+      // //console.log('✅ Datos maestros cargados:', masterData.counts);
       
       // Notificar a todos los suscriptores
       this.notifySubscribers(tenantId, masterData);
@@ -114,12 +114,12 @@ class DataSyncService {
     const key = `${componentName}_${tenantId}`;
     this.subscribers.set(key, callback);
     
-    // console.log(`📡 ${componentName} suscrito a cambios datos`);
+    // //console.log(`📡 ${componentName} suscrito a cambios datos`);
     
     // Retornar función para cancelar suscripción
     return () => {
       this.subscribers.delete(key);
-      // console.log(`📡 ${componentName} desuscrito`);
+      // //console.log(`📡 ${componentName} desuscrito`);
     };
   }
 
@@ -138,7 +138,7 @@ class DataSyncService {
 
   // 🔄 INVALIDAR CACHE Y REFRESCAR
   async invalidateAndRefresh(tenantId, changeType = 'general') {
-    // console.log(`🔄 Invalidando cache por: ${changeType}`);
+    // //console.log(`🔄 Invalidando cache por: ${changeType}`);
     
     // Limpiar cache
     const cacheKey = `master_${tenantId}`;
@@ -147,29 +147,29 @@ class DataSyncService {
     // Recargar datos maestros
     const newData = await this.getMasterData(tenantId);
     
-    // console.log(`✅ Datos refrescados por ${changeType}:`, newData.counts);
+    // //console.log(`✅ Datos refrescados por ${changeType}:`, newData.counts);
     
     return newData;
   }
 
   // 🔄 HOOKS AUTOMÁTICOS PARA CAMBIOS
   async onRATCreated(ratData, tenantId) {
-    // console.log('🔄 RAT creado - refrescando todos los módulos');
+    // //console.log('🔄 RAT creado - refrescando todos los módulos');
     await this.invalidateAndRefresh(tenantId, 'RAT_CREATED');
   }
 
   async onRATUpdated(ratData, tenantId) {
-    // console.log('🔄 RAT actualizado - refrescando todos los módulos');
+    // //console.log('🔄 RAT actualizado - refrescando todos los módulos');
     await this.invalidateAndRefresh(tenantId, 'RAT_UPDATED');
   }
 
   async onEIPDGenerated(eipdData, tenantId) {
-    // console.log('🔄 EIPD generada - refrescando todos los módulos');
+    // //console.log('🔄 EIPD generada - refrescando todos los módulos');
     await this.invalidateAndRefresh(tenantId, 'EIPD_GENERATED');
   }
 
   async onDPOTaskCreated(taskData, tenantId) {
-    // console.log('🔄 Tarea DPO creada - refrescando todos los módulos');
+    // //console.log('🔄 Tarea DPO creada - refrescando todos los módulos');
     await this.invalidateAndRefresh(tenantId, 'DPO_TASK_CREATED');
   }
 
@@ -187,14 +187,14 @@ class DataSyncService {
       }
     }, intervalMs);
     
-    // console.log(`🔄 Auto-sync iniciado cada ${intervalMs/1000}s`);
+    // //console.log(`🔄 Auto-sync iniciado cada ${intervalMs/1000}s`);
   }
 
   stopAutoSync() {
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
       this.syncInterval = null;
-      // console.log('🔄 Auto-sync detenido');
+      // //console.log('🔄 Auto-sync detenido');
     }
   }
 

@@ -67,7 +67,7 @@ export const SecureLogger = {
   
   warn: (message, data = null) => {
     const sanitized = data ? SecureLogger.sanitizeForLogging(data) : null;
-    // console.warn(`[SECURE] ${message}`, sanitized);
+    // //console.warn(`[SECURE] ${message}`, sanitized);
   },
   
   error: (message, error = null, data = null) => {

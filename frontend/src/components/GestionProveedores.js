@@ -191,7 +191,7 @@ const GestionProveedores = () => {
       ];
 
       await supabase.from('proveedores').insert(defaultProviders);
-      // console.log('✅ Proveedores predeterminados creados');
+      // //console.log('✅ Proveedores predeterminados creados');
     } catch (error) {
       console.error('Error creando proveedores:', error);
     }
@@ -200,18 +200,18 @@ const GestionProveedores = () => {
 // Cargar proveedores desde Supabase con fallback a datos demo
   useEffect(() => {
     const cargarProveedores = async () => {
-      // console.log('🔍 GestionProveedores - Cargando proveedores...');
+      // //console.log('🔍 GestionProveedores - Cargando proveedores...');
       
       try {
         // Intentar cargar desde Supabase
         const response = await proveedoresService.getProveedores();
         
         if (response.success && response.data.length > 0) {
-          // console.log('✅ Proveedores cargados desde:', response.source, '- Cantidad:', response.data.length);
+          // //console.log('✅ Proveedores cargados desde:', response.source, '- Cantidad:', response.data.length);
           setProveedores(response.data);
         } else {
           // AUTO-SETUP: Crear proveedores predeterminados
-          // console.warn('⚠️ No hay proveedores en Supabase. Creando proveedores predeterminados...');
+          // //console.warn('⚠️ No hay proveedores en Supabase. Creando proveedores predeterminados...');
           await initializeDefaultProviders();
           
           // Recargar después de crear
@@ -283,9 +283,9 @@ const GestionProveedores = () => {
         // Validar aislación multi-tenant
         const validacion = await proveedoresService.validarAislacionTenant();
         if (validacion.secure) {
-          // console.log('✅ Aislación multi-tenant verificada');
+          // //console.log('✅ Aislación multi-tenant verificada');
         } else {
-          // console.warn('⚠️ Problema de aislación:', validacion.message);
+          // //console.warn('⚠️ Problema de aislación:', validacion.message);
         }
         
       } catch (error) {
@@ -327,12 +327,12 @@ const GestionProveedores = () => {
   const handleSaveProveedor = async () => {
     try {
       if (dialogType === 'add') {
-        // console.log('💾 Guardando nuevo proveedor:', newProveedor.nombre);
+        // //console.log('💾 Guardando nuevo proveedor:', newProveedor.nombre);
         
         const response = await proveedoresService.createProveedor(newProveedor);
         
         if (response.success) {
-          // console.log('✅ Proveedor creado exitosamente desde:', response.source);
+          // //console.log('✅ Proveedor creado exitosamente desde:', response.source);
           setProveedores([...proveedores, response.data]);
         } else {
           console.error('❌ Error creando proveedor:', response.error);
@@ -340,12 +340,12 @@ const GestionProveedores = () => {
         }
         
       } else if (dialogType === 'edit') {
-        // console.log('✏️ Actualizando proveedor:', newProveedor.id);
+        // //console.log('✏️ Actualizando proveedor:', newProveedor.id);
         
         const response = await proveedoresService.updateProveedor(newProveedor.id, newProveedor);
         
         if (response.success) {
-          // console.log('✅ Proveedor actualizado exitosamente desde:', response.source);
+          // //console.log('✅ Proveedor actualizado exitosamente desde:', response.source);
           setProveedores(proveedores.map(p => 
             p.id === newProveedor.id ? response.data : p
           ));

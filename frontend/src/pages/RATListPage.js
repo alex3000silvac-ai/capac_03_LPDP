@@ -87,7 +87,7 @@ const RATListPage = () => {
     try {
       setLoading(true);
       const tenantId = currentTenant?.id;
-      // console.log('🔍 Cargando RATs para tenant:', tenantId);
+      // //console.log('🔍 Cargando RATs para tenant:', tenantId);
       
       // Primero intentar cargar todos los RATs del tenant
       const { data: ratsRaw, error } = await supabase
@@ -100,7 +100,7 @@ const RATListPage = () => {
         throw error;
       }
       
-      // console.log('📊 RATs encontrados en BD:', ratsRaw?.length || 0);
+      // //console.log('📊 RATs encontrados en BD:', ratsRaw?.length || 0);
       
       // Formatear los RATs para mostrar
       const formattedRATs = (ratsRaw || []).map(rat => ({
@@ -116,7 +116,7 @@ const RATListPage = () => {
         tenant_id: rat.tenant_id
       }));
       
-      // console.log('✅ RATs formateados:', formattedRATs.length);
+      // //console.log('✅ RATs formateados:', formattedRATs.length);
       setRats(formattedRATs);
       calcularEstadisticas(formattedRATs);
     } catch (error) {
@@ -207,7 +207,7 @@ const RATListPage = () => {
       const rat = rats.find(r => r.id === ratId);
       if (!rat) throw new Error('RAT no encontrado');
       
-      // console.log('📄 Exportando RAT a PDF:', ratId);
+      // //console.log('📄 Exportando RAT a PDF:', ratId);
       
       // Crear contenido PDF
       const pdfContent = `
@@ -238,7 +238,7 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      // console.log('✅ RAT exportado exitosamente');
+      // //console.log('✅ RAT exportado exitosamente');
     } catch (error) {
       console.error('❌ Error exportando PDF:', error);
     }
@@ -248,7 +248,7 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
   const exportAllRATsToExcel = async () => {
     try {
       setExporting(true);
-      // console.log('📊 Exportando todos los RATs a Excel');
+      // //console.log('📊 Exportando todos los RATs a Excel');
       
       const headers = [
         'ID RAT',
@@ -290,7 +290,7 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      // console.log('✅ Excel exportado exitosamente');
+      // //console.log('✅ Excel exportado exitosamente');
     } catch (error) {
       console.error('❌ Error exportando Excel:', error);
     } finally {
@@ -302,7 +302,7 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
   const generateConsolidatedPDF = async () => {
     try {
       setExporting(true);
-      // console.log('📄 Generando PDF consolidado para', rats.length, 'RATs');
+      // //console.log('📄 Generando PDF consolidado para', rats.length, 'RATs');
       
       const htmlContent = `
         <!DOCTYPE html>
@@ -424,7 +424,7 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      // console.log('✅ PDF consolidado generado exitosamente');
+      // //console.log('✅ PDF consolidado generado exitosamente');
       alert(`✅ Reporte PDF generado!\n\n📊 Total RATs: ${rats.length}\n🖨️ Se abrirá ventana de impresión para generar PDF\n📄 También se descarga como HTML de respaldo`);
       
     } catch (error) {
@@ -438,7 +438,7 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
   // 🌐 FUNCIÓN INTEGRACIÓN API PARTNERS
   const sendToPartnerAPI = async (ratId, partnerType = 'prelafit') => {
     try {
-      // console.log('🌐 Enviando RAT a Partner API:', partnerType);
+      // //console.log('🌐 Enviando RAT a Partner API:', partnerType);
       
       const rat = rats.find(r => r.id === ratId);
       if (!rat) throw new Error('RAT no encontrado');
@@ -466,7 +466,7 @@ FECHA GENERACIÓN: ${new Date().toLocaleString('es-CL')}
       };
       
       // Simular envío API (en producción sería POST real)
-      // console.log('📡 Payload enviado a partner:', partnerPayload);
+      // //console.log('📡 Payload enviado a partner:', partnerPayload);
       
       // Registrar integración
       await supabase

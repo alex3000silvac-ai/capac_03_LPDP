@@ -39,8 +39,8 @@ class ModuleValidator {
    * 🚀 VALIDACIÓN PRINCIPAL - Ejecuta todas las pruebas
    */
   async validateAllModules() {
-    // console.log('🔍 INICIANDO VALIDACIÓN EMPÍRICA COMPLETA');
-    // console.log('=' * 60);
+    // //console.log('🔍 INICIANDO VALIDACIÓN EMPÍRICA COMPLETA');
+    // //console.log('=' * 60);
     
     const modules = [
       { name: 'DataSubjectRights', path: '../components/DataSubjectRights.js' },
@@ -75,7 +75,7 @@ class ModuleValidator {
    */
   async validateModule(moduleInfo) {
     const { name, path } = moduleInfo;
-    // console.log(`\n🔍 Validando módulo: ${name}`);
+    // //console.log(`\n🔍 Validando módulo: ${name}`);
     
     const moduleResult = {
       name,
@@ -143,7 +143,7 @@ class ModuleValidator {
     this.results.push(moduleResult);
     this.moduleStatus[name] = moduleResult.status;
     
-    // console.log(`   Status: ${moduleResult.status} (${moduleResult.coverage}% cobertura)`);
+    // //console.log(`   Status: ${moduleResult.status} (${moduleResult.coverage}% cobertura)`);
     
     return moduleResult;
   }
@@ -448,7 +448,7 @@ class ModuleValidator {
    * 📋 VALIDACIONES ESPECÍFICAS POR MÓDULO
    */
   async validateSpecificModule(name) {
-    // console.log(`\n🎯 Validación específica: ${name}`);
+    // //console.log(`\n🎯 Validación específica: ${name}`);
     
     const specificTests = {
       'DataSubjectRights': [
@@ -673,19 +673,19 @@ class ModuleValidator {
   }
 
   printValidationReport(report) {
-    // console.log('\n' + '='.repeat(60));
-    // console.log('📊 REPORTE VALIDACIÓN EMPÍRICA MÓDULOS');
-    // console.log('='.repeat(60));
+    // //console.log('\n' + '='.repeat(60));
+    // //console.log('📊 REPORTE VALIDACIÓN EMPÍRICA MÓDULOS');
+    // //console.log('='.repeat(60));
     
-    // console.log(`\n📈 RESUMEN GENERAL:`);
-    // console.log(`   ✅ Módulos OK: ${report.summary.passed}/${report.summary.total_modules}`);
-    // console.log(`   ⚠️ Con advertencias: ${report.summary.warnings}`);
-    // console.log(`   ❌ Con fallas: ${report.summary.failed}`);
-    // console.log(`   💥 Con errores: ${report.summary.errors}`);
-    // console.log(`   📊 Cobertura promedio: ${report.summary.coverage_average}%`);
-    // console.log(`   🎯 Estado general: ${report.summary.overall_status}`);
+    // //console.log(`\n📈 RESUMEN GENERAL:`);
+    // //console.log(`   ✅ Módulos OK: ${report.summary.passed}/${report.summary.total_modules}`);
+    // //console.log(`   ⚠️ Con advertencias: ${report.summary.warnings}`);
+    // //console.log(`   ❌ Con fallas: ${report.summary.failed}`);
+    // //console.log(`   💥 Con errores: ${report.summary.errors}`);
+    // //console.log(`   📊 Cobertura promedio: ${report.summary.coverage_average}%`);
+    // //console.log(`   🎯 Estado general: ${report.summary.overall_status}`);
 
-    // console.log(`\n📋 DETALLES POR MÓDULO:`);
+    // //console.log(`\n📋 DETALLES POR MÓDULO:`);
     for (const module of report.modules) {
       const statusIcon = {
         'PASS': '✅',
@@ -694,31 +694,31 @@ class ModuleValidator {
         'ERROR': '💥'
       }[module.status] || '❓';
       
-      // console.log(`   ${statusIcon} ${module.name}: ${module.status} (${module.coverage}%)`);
+      // //console.log(`   ${statusIcon} ${module.name}: ${module.status} (${module.coverage}%)`);
       
       if (module.errors.length > 0) {
         module.errors.forEach(error => {
-          // console.log(`      🔍 Error: ${error.message}`);
+          // //console.log(`      🔍 Error: ${error.message}`);
         });
       }
     }
 
     if (report.recommendations.length > 0) {
-      // console.log(`\n💡 RECOMENDACIONES:`);
+      // //console.log(`\n💡 RECOMENDACIONES:`);
       report.recommendations.forEach((rec, index) => {
-        // console.log(`   ${index + 1}. [${rec.priority}] ${rec.action}`);
+        // //console.log(`   ${index + 1}. [${rec.priority}] ${rec.action}`);
       });
     }
 
-    // console.log('\n' + '='.repeat(60));
+    // //console.log('\n' + '='.repeat(60));
   }
 
   /**
    * 🚀 VALIDACIÓN RÁPIDA PARA DESARROLLO
    */
   async quickValidation() {
-    // console.log('⚡ VALIDACIÓN RÁPIDA MÓDULOS RECIENTES');
-    // console.log('-'.repeat(50));
+    // //console.log('⚡ VALIDACIÓN RÁPIDA MÓDULOS RECIENTES');
+    // //console.log('-'.repeat(50));
 
     const recentModules = [
       'DataSubjectRights',
@@ -739,14 +739,14 @@ class ModuleValidator {
         const duration = Date.now() - startTime;
         const status = importOK && syntaxOK && renderOK.success ? 'OK' : 'FAIL';
         
-        // console.log(`   ${status === 'OK' ? '✅' : '❌'} ${moduleName}: ${status} (${duration}ms)`);
+        // //console.log(`   ${status === 'OK' ? '✅' : '❌'} ${moduleName}: ${status} (${duration}ms)`);
         
       } catch (error) {
-        // console.log(`   💥 ${moduleName}: ERROR - ${error.message}`);
+        // //console.log(`   💥 ${moduleName}: ERROR - ${error.message}`);
       }
     }
 
-    // console.log('-'.repeat(50));
+    // //console.log('-'.repeat(50));
   }
 }
 
@@ -756,9 +756,9 @@ class ModuleValidator {
 export const runModuleValidation = async () => {
   const validator = new ModuleValidator();
   
-  // console.log('🚀 INICIANDO VALIDACIÓN EMPÍRICA COMPLETA');
-  // console.log('Este proceso verificará que cada módulo esté correctamente implementado');
-  // console.log('');
+  // //console.log('🚀 INICIANDO VALIDACIÓN EMPÍRICA COMPLETA');
+  // //console.log('Este proceso verificará que cada módulo esté correctamente implementado');
+  // //console.log('');
 
   // Validación completa
   const report = await validator.validateAllModules();
@@ -767,9 +767,9 @@ export const runModuleValidation = async () => {
   const reportPath = '/tmp/module_validation_report.json';
   try {
     // En implementación real: fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
-    // console.log(`📄 Reporte guardado en: ${reportPath}`);
+    // //console.log(`📄 Reporte guardado en: ${reportPath}`);
   } catch (error) {
-    // console.warn('No se pudo guardar reporte:', error.message);
+    // //console.warn('No se pudo guardar reporte:', error.message);
   }
 
   return report;

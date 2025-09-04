@@ -118,7 +118,7 @@ const DiagnosticCenter = () => {
   const runQuickDiagnostic = async () => {
     try {
       setLoading(true);
-      // console.log('🔧 Ejecutando diagnóstico rápido...');
+      // //console.log('🔧 Ejecutando diagnóstico rápido...');
       
       // Health check rápido - Implementación simplificada
       const healthCheck = { status: 'ok', modules: ['RATSystem'], timestamp: new Date() };
@@ -157,7 +157,7 @@ const DiagnosticCenter = () => {
   const runFullValidation = async () => {
     try {
       setLoading(true);
-      // console.log('🔍 Ejecutando validación completa...');
+      // //console.log('🔍 Ejecutando validación completa...');
       
       const report = await frontendValidator.validateAllModules();
       setValidationReport(report);
@@ -182,7 +182,7 @@ const DiagnosticCenter = () => {
   const runFullTesting = async () => {
     try {
       setLoading(true);
-      // console.log('🧪 Ejecutando suite completa de tests...');
+      // //console.log('🧪 Ejecutando suite completa de tests...');
       
       const results = { tests: [], passed: 0, failed: 0, warnings: 0 };
       setTestResults(results);

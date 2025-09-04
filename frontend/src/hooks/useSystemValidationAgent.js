@@ -70,10 +70,10 @@ export const useSystemValidationAgent = (componentName = 'unknown') => {
       
       if (active) {
         await systemValidationAgent.initializeInProduction();
-        // console.log(`🤖 Agent activado para componente: ${componentName}`);
+        // //console.log(`🤖 Agent activado para componente: ${componentName}`);
       } else {
         await systemValidationAgent.stopAgent();
-        // console.log(`🛑 Agent desactivado para componente: ${componentName}`);
+        // //console.log(`🛑 Agent desactivado para componente: ${componentName}`);
       }
       
     } catch (error) {
