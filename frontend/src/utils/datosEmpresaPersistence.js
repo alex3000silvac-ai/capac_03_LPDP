@@ -19,14 +19,13 @@ class DatosEmpresaPersistence {
     const {
       persistir = true,          // Guardar en localStorage permanente
       soloSesion = false,       // Solo sessionStorage (se borra al cerrar)
-      notificar = true,          // Notificar a listeners
-      permitirParcial = false    // Permitir guardar datos parciales (actualizaciones)
+      notificar = true          // Notificar a listeners
     } = opciones;
 
     console.log('🔴 DEBUG guardarDatosEmpresa llamado con:', datosEmpresa);
     
-    // VALIDACIÓN OBLIGATORIA AL GUARDAR
-    const validacion = this.validarDatos(datosEmpresa, { permitirParcial });
+    // VALIDACIÓN OBLIGATORIA: TODOS LOS CAMPOS COMPLETOS
+    const validacion = this.validarDatos(datosEmpresa);
     if (!validacion.valid) {
       console.log('❌ DEBUG: Validación fallida:', validacion);
       return { 
@@ -168,8 +167,7 @@ class DatosEmpresaPersistence {
   /**
    * ✅ VALIDAR ESTRUCTURA DE DATOS
    */
-  validarDatos(datos, opciones = {}) {
-    const { permitirParcial = false } = opciones;
+  validarDatos(datos) {
     const camposObligatorios = [
       'razon_social',
       'rut', 
@@ -190,33 +188,21 @@ class DatosEmpresaPersistence {
         return { valid: false, error: 'Datos no es un objeto válido' };
       }
 
-      if (permitirParcial) {
-        // MODO ACTUALIZACIÓN: Aceptar datos parciales
-        const tieneAlgunDato = Object.keys(datos).some(campo => {
-          const valor = datos[campo];
-          return valor !== null && valor !== undefined && valor !== '';
-        });
-        
-        if (!tieneAlgunDato) {
-          return { valid: false, error: 'No hay datos para guardar' };
+      // VALIDACIÓN ESTRICTA: TODOS LOS CAMPOS OBLIGATORIOS
+      const camposFaltantes = [];
+      
+      camposObligatorios.forEach(campo => {
+        if (!datos[campo] || typeof datos[campo] !== 'string' || datos[campo].trim().length === 0) {
+          camposFaltantes.push(campo);
         }
-      } else {
-        // MODO COMPLETO: Validar todos los campos obligatorios
-        const camposFaltantes = [];
-        
-        camposObligatorios.forEach(campo => {
-          if (!datos[campo] || typeof datos[campo] !== 'string' || datos[campo].trim().length === 0) {
-            camposFaltantes.push(campo);
-          }
-        });
-        
-        if (camposFaltantes.length > 0) {
-          return { 
-            valid: false, 
-            error: `Campos obligatorios faltantes: ${camposFaltantes.join(', ')}`,
-            camposFaltantes: camposFaltantes
-          };
-        }
+      });
+      
+      if (camposFaltantes.length > 0) {
+        return { 
+          valid: false, 
+          error: `Campos obligatorios faltantes: ${camposFaltantes.join(', ')}`,
+          camposFaltantes: camposFaltantes
+        };
       }
 
       // Validar formato RUT básico

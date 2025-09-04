@@ -1829,18 +1829,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
       responsable: nuevosResponsableData
     });
     
-    // Persistir datos empresa inmediatamente
-    const datosEmpresaGuardar = {
-      razon_social: nuevosResponsableData.razonSocial || '',
-      rut: nuevosResponsableData.rut || '',
-      direccion_empresa: nuevosResponsableData.direccion || '',
-      email_empresa: nuevosResponsableData.email || '',
-      telefono_empresa: nuevosResponsableData.telefono || '',
-      dpo_nombre: nuevosResponsableData.nombre || '',
-      dpo_email: nuevosResponsableData.email || '',
-      dpo_telefono: nuevosResponsableData.telefono || ''
-    };
-    guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
+    // NO guardar automáticamente - solo actualizar estado
     
     if (rut.length > 8) {
       if (!validarRUT(rut)) {
@@ -1897,18 +1886,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Persistir datos empresa inmediatamente
-            const datosEmpresaGuardar = {
-              razon_social: nuevosResponsableData.razonSocial || '',
-              rut: nuevosResponsableData.rut || '',
-              direccion_empresa: nuevosResponsableData.direccion || '',
-              email_empresa: nuevosResponsableData.email || '',
-              telefono_empresa: nuevosResponsableData.telefono || '',
-              dpo_nombre: nuevosResponsableData.nombre || '',
-              dpo_email: nuevosResponsableData.email || '',
-              dpo_telefono: nuevosResponsableData.telefono || ''
-            };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
+            // NO guardar automáticamente - solo actualizar estado
           }}
           helperText="Nombre legal completo de la empresa"
           required
@@ -1936,18 +1914,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Persistir datos empresa inmediatamente
-            const datosEmpresaGuardar = {
-              razon_social: nuevosResponsableData.razonSocial || '',
-              rut: nuevosResponsableData.rut || '',
-              direccion_empresa: nuevosResponsableData.direccion || '',
-              email_empresa: nuevosResponsableData.email || '',
-              telefono_empresa: nuevosResponsableData.telefono || '',
-              dpo_nombre: nuevosResponsableData.nombre || '',
-              dpo_email: nuevosResponsableData.email || '',
-              dpo_telefono: nuevosResponsableData.telefono || ''
-            };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
+            // NO guardar automáticamente - solo actualizar estado
           }}
           helperText="Dirección física de la oficina principal"
           required
@@ -1982,18 +1949,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Persistir datos empresa inmediatamente
-            const datosEmpresaGuardar = {
-              razon_social: nuevosResponsableData.razonSocial || '',
-              rut: nuevosResponsableData.rut || '',
-              direccion_empresa: nuevosResponsableData.direccion || '',
-              email_empresa: nuevosResponsableData.email || '',
-              telefono_empresa: nuevosResponsableData.telefono || '',
-              dpo_nombre: nuevosResponsableData.nombre || '',
-              dpo_email: nuevosResponsableData.email || '',
-              dpo_telefono: nuevosResponsableData.telefono || ''
-            };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
+            // NO guardar automáticamente - solo actualizar estado
           }}
           helperText="Nombre y apellidos del DPO designado"
           required
@@ -2011,18 +1967,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Persistir datos empresa inmediatamente
-            const datosEmpresaGuardar = {
-              razon_social: nuevosResponsableData.razonSocial || '',
-              rut: nuevosResponsableData.rut || '',
-              direccion_empresa: nuevosResponsableData.direccion || '',
-              email_empresa: nuevosResponsableData.email || '',
-              telefono_empresa: nuevosResponsableData.telefono || '',
-              dpo_nombre: nuevosResponsableData.nombre || '',
-              dpo_email: nuevosResponsableData.email || '',
-              dpo_telefono: nuevosResponsableData.telefono || ''
-            };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
+            // NO guardar automáticamente - solo actualizar estado
           }}
           helperText="Email oficial para consultas de privacidad"
           required
@@ -2039,18 +1984,7 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Persistir datos empresa inmediatamente
-            const datosEmpresaGuardar = {
-              razon_social: nuevosResponsableData.razonSocial || '',
-              rut: nuevosResponsableData.rut || '',
-              direccion_empresa: nuevosResponsableData.direccion || '',
-              email_empresa: nuevosResponsableData.email || '',
-              telefono_empresa: nuevosResponsableData.telefono || '',
-              dpo_nombre: nuevosResponsableData.nombre || '',
-              dpo_email: nuevosResponsableData.email || '',
-              dpo_telefono: nuevosResponsableData.telefono || ''
-            };
-            guardarDatosEmpresa(datosEmpresaGuardar, { fuente: 'formulario_rat', persistir: true, permitirParcial: true });
+            // NO guardar automáticamente - solo actualizar estado
           }}
           helperText="Teléfono directo del DPO"
           required
