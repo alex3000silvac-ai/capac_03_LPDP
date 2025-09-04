@@ -1734,14 +1734,40 @@ class PreventiveAI {
   // 🔧 NUEVOS MÉTODOS AUTO-CORRECTIVOS AGRESIVOS
   async autoCreateDPOApprovalTask(tenantId, ratId) {
     try {
-      const { data: rat } = await supabase
+      // Primero intentar sin tenant_id por si hay problema de RLS
+      let { data: rat, error: ratError } = await supabase
         .from('mapeo_datos_rat')
         .select('*')
-        .eq('tenant_id', tenantId)
         .eq('id', ratId)
-        .single();
+        .maybeSingle(); // maybeSingle() no falla si no encuentra registros
 
-      if (!rat) throw new Error('RAT no encontrado');
+      // Si no funciona sin tenant_id, intentar con tenant_id
+      if (!rat && !ratError) {
+        ({ data: rat, error: ratError } = await supabase
+          .from('mapeo_datos_rat')
+          .select('*')
+          .eq('tenant_id', tenantId)
+          .eq('id', ratId)
+          .maybeSingle());
+      }
+
+      // Log detallado del error para debug
+      if (ratError) {
+        console.error('❌ Error detallado consulta RAT:', {
+          error: ratError,
+          tenantId,
+          ratId,
+          message: ratError.message,
+          hint: ratError.hint,
+          code: ratError.code
+        });
+        throw new Error(`Error consultando RAT: ${ratError.message}`);
+      }
+
+      if (!rat) {
+        console.error('❌ RAT no encontrado:', { tenantId, ratId });
+        throw new Error('RAT no encontrado - verifique ID y permisos RLS');
+      }
 
       const { data, error } = await supabase
         .from('actividades_dpo')
