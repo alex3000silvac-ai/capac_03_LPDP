@@ -576,10 +576,15 @@ const RATSystemProfessional = () => {
 
   const cargarRATs = async () => {
     try {
-      const ratsData = await ratService.getCompletedRATs();
-      setRats(ratsData);
+      const result = await ratService.getCompletedRATs();
+      if (result.success && Array.isArray(result.data)) {
+        setRats(result.data);
+      } else {
+        setRats([]); // Fallback a array vacío
+      }
     } catch (error) {
       console.error('Error cargando RATs:', error);
+      setRats([]); // Fallback a array vacío
     }
   };
 
@@ -797,8 +802,12 @@ const RATSystemProfessional = () => {
       try {
         await ratService.deleteRAT(ratId);
         // Recargar lista
-        const ratsData = await ratService.getCompletedRATs();
-        setRats(ratsData);
+        const result = await ratService.getCompletedRATs();
+        if (result.success && Array.isArray(result.data)) {
+          setRats(result.data);
+        } else {
+          setRats([]);
+        }
         alert('RAT eliminado exitosamente');
       } catch (error) {
         console.error('Error eliminando RAT:', error);
