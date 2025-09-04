@@ -1,0 +1,1044 @@
+{
+  "diagnosis_per_table": {
+    "actividades_dpo": {
+      "table_name": "actividades_dpo",
+      "criticality": "critical_business",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:44:59.712Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:44:59.736Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:44:59.687Z"
+    },
+    "activities": {
+      "table_name": "activities",
+      "criticality": "important",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:44:59.964Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:44:59.983Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:44:59.937Z"
+    },
+    "agent_activity_log": {
+      "table_name": "agent_activity_log",
+      "criticality": "unknown",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:00.254Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:00.270Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:00.184Z"
+    },
+    "audit_log": {
+      "table_name": "audit_log",
+      "criticality": "important",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:00.492Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:00.508Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:00.471Z"
+    },
+    "audit_logs": {
+      "table_name": "audit_logs",
+      "criticality": "important",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:00.735Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:00.750Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:00.709Z"
+    },
+    "categories": {
+      "table_name": "categories",
+      "criticality": "secondary",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:00.971Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:00.992Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:00.951Z"
+    },
+    "documentos_generados": {
+      "table_name": "documentos_generados",
+      "criticality": "critical_business",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:01.212Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:01.237Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:01.193Z"
+    },
+    "dpas": {
+      "table_name": "dpas",
+      "criticality": "unknown",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:01.470Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:01.498Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:01.438Z"
+    },
+    "dpia": {
+      "table_name": "dpia",
+      "criticality": "unknown",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:01.719Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:01.734Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:01.698Z"
+    },
+    "dpo_notifications": {
+      "table_name": "dpo_notifications",
+      "criticality": "important",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:01.955Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:01.970Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:01.935Z"
+    },
+    "empresas": {
+      "table_name": "empresas",
+      "criticality": "unknown",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:02.199Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:02.214Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:02.171Z"
+    },
+    "evaluaciones_impacto": {
+      "table_name": "evaluaciones_impacto",
+      "criticality": "unknown",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:02.443Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:02.461Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:02.415Z"
+    },
+    "generated_documents": {
+      "table_name": "generated_documents",
+      "criticality": "unknown",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:02.692Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:02.708Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:02.661Z"
+    },
+    "legal_articles": {
+      "table_name": "legal_articles",
+      "criticality": "secondary",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:02.929Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:02.950Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:02.909Z"
+    },
+    "notifications": {
+      "table_name": "notifications",
+      "criticality": "critical_business",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:03.184Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:03.202Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:03.152Z"
+    },
+    "partner_access_logs": {
+      "table_name": "partner_access_logs",
+      "criticality": "unknown",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:03.433Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:03.450Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:03.403Z"
+    },
+    "rat_proveedores": {
+      "table_name": "rat_proveedores",
+      "criticality": "unknown",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:03.673Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:03.691Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:03.651Z"
+    },
+    "rats": {
+      "table_name": "rats",
+      "criticality": "critical_core",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:03.911Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:03.926Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:03.892Z"
+    },
+    "reports": {
+      "table_name": "reports",
+      "criticality": "important",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:04.148Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:04.164Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:04.127Z"
+    },
+    "system_alerts": {
+      "table_name": "system_alerts",
+      "criticality": "secondary",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:04.385Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:04.402Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:04.365Z"
+    },
+    "system_error_logs": {
+      "table_name": "system_error_logs",
+      "criticality": "support",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:04.625Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:04.643Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:04.602Z"
+    },
+    "tenant_configs": {
+      "table_name": "tenant_configs",
+      "criticality": "support",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:04.863Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:04.903Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:04.844Z"
+    },
+    "tenant_limits": {
+      "table_name": "tenant_limits",
+      "criticality": "support",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:05.122Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:05.138Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:05.104Z"
+    },
+    "tenant_settings": {
+      "table_name": "tenant_settings",
+      "criticality": "support",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:05.359Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:05.374Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:05.339Z"
+    },
+    "tenant_usage": {
+      "table_name": "tenant_usage",
+      "criticality": "support",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:05.599Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:05.614Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:05.575Z"
+    },
+    "tenants": {
+      "table_name": "tenants",
+      "criticality": "critical_core",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:05.837Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:05.854Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:05.815Z"
+    },
+    "user_preferences": {
+      "table_name": "user_preferences",
+      "criticality": "secondary",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:06.088Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:06.103Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:06.055Z"
+    },
+    "user_sessions": {
+      "table_name": "user_sessions",
+      "criticality": "unknown",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:06.333Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:06.354Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:06.304Z"
+    },
+    "users": {
+      "table_name": "users",
+      "criticality": "critical_core",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:06.583Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:06.599Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:06.555Z"
+    },
+    "usuarios": {
+      "table_name": "usuarios",
+      "criticality": "critical_core",
+      "access_attempts": {
+        "select": {
+          "success": false,
+          "status_code": 401,
+          "response_text": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}",
+          "tested_at": "2025-09-04T16:45:06.820Z"
+        },
+        "insert": {
+          "success": false,
+          "status_code": 401,
+          "tested_at": "2025-09-04T16:45:06.838Z",
+          "error_response": "{\"message\":\"Invalid API key\",\"hint\":\"Double check your Supabase `anon` or `service_role` API key.\"}"
+        }
+      },
+      "rls_status": null,
+      "blocking_reason": "TABLE_ACCESS_DENIED",
+      "recommended_action": "CHECK_TABLE_PERMISSIONS",
+      "tested_at": "2025-09-04T16:45:06.800Z"
+    }
+  },
+  "rls_policies_found": {
+    "actividades_dpo": {
+      "table": "actividades_dpo",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "activities": {
+      "table": "activities",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "agent_activity_log": {
+      "table": "agent_activity_log",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "audit_log": {
+      "table": "audit_log",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "audit_logs": {
+      "table": "audit_logs",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "categories": {
+      "table": "categories",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "documentos_generados": {
+      "table": "documentos_generados",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "dpas": {
+      "table": "dpas",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "dpia": {
+      "table": "dpia",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "dpo_notifications": {
+      "table": "dpo_notifications",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "empresas": {
+      "table": "empresas",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "evaluaciones_impacto": {
+      "table": "evaluaciones_impacto",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "generated_documents": {
+      "table": "generated_documents",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "legal_articles": {
+      "table": "legal_articles",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "notifications": {
+      "table": "notifications",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "partner_access_logs": {
+      "table": "partner_access_logs",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "rat_proveedores": {
+      "table": "rat_proveedores",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "rats": {
+      "table": "rats",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "reports": {
+      "table": "reports",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "system_alerts": {
+      "table": "system_alerts",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "system_error_logs": {
+      "table": "system_error_logs",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "tenant_configs": {
+      "table": "tenant_configs",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "tenant_limits": {
+      "table": "tenant_limits",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "tenant_settings": {
+      "table": "tenant_settings",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "tenant_usage": {
+      "table": "tenant_usage",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "tenants": {
+      "table": "tenants",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "user_preferences": {
+      "table": "user_preferences",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "user_sessions": {
+      "table": "user_sessions",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "users": {
+      "table": "users",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    },
+    "usuarios": {
+      "table": "usuarios",
+      "has_rls_enabled": null,
+      "policies_detected": [],
+      "policy_analysis": "INDIRECT_ANALYSIS"
+    }
+  },
+  "blocking_reasons": {},
+  "recommended_fixes": {},
+  "bypass_candidates": [],
+  "granular_policy_needed": [],
+  "correction_plan": {
+    "phase_1_bypass": [
+      {
+        "table": "categories",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE categories DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "legal_articles",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE legal_articles DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "system_alerts",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE system_alerts DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "system_error_logs",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE system_error_logs DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "tenant_configs",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE tenant_configs DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "tenant_limits",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE tenant_limits DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "tenant_settings",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE tenant_settings DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "tenant_usage",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE tenant_usage DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "user_preferences",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE user_preferences DISABLE ROW LEVEL SECURITY;"
+      }
+    ],
+    "phase_2_granular_policies": [],
+    "phase_3_critical_fixes": [
+      {
+        "table": "actividades_dpo",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "activities",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "agent_activity_log",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "audit_log",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "audit_logs",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "documentos_generados",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "dpas",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "dpia",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "dpo_notifications",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "empresas",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "evaluaciones_impacto",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "generated_documents",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "notifications",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "partner_access_logs",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "rat_proveedores",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "rats",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "HIGH"
+      },
+      {
+        "table": "reports",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "tenants",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "HIGH"
+      },
+      {
+        "table": "user_sessions",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "users",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "HIGH"
+      },
+      {
+        "table": "usuarios",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "HIGH"
+      }
+    ],
+    "estimated_improvement": {
+      "current_functional": 10,
+      "after_phase_1": 19,
+      "after_phase_2": 19,
+      "target_functional": 40,
+      "estimated_final_percentage": 48
+    }
+  }
+}

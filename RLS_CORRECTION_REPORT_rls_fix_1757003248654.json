@@ -1,0 +1,68 @@
+{
+  "correction_id": "rls_fix_1757003248654",
+  "timestamp": "2025-09-04T16:27:28.670Z",
+  "type": "RLS_SQL_CORRECTION",
+  "summary": {
+    "original_tables_count": 40,
+    "tables_to_configure": 39,
+    "views_excluded": 1,
+    "correction_reason": "VIEWS do not support ROW LEVEL SECURITY"
+  },
+  "tables_included": [
+    "actividades_dpo",
+    "activities",
+    "agent_activity_log",
+    "audit_log",
+    "audit_logs",
+    "categories",
+    "compliance_records",
+    "compliance_reports",
+    "documentos_generados",
+    "dpa_documents",
+    "dpas",
+    "dpia",
+    "dpo_notifications",
+    "eipd_documents",
+    "empresas",
+    "evaluaciones_impacto",
+    "generated_documents",
+    "legal_articles",
+    "mapeo_datos_rat",
+    "notifications",
+    "organizaciones",
+    "partner_access_logs",
+    "proveedores",
+    "rat_proveedores",
+    "rats",
+    "reports",
+    "system_alerts",
+    "system_config",
+    "system_error_logs",
+    "tenant_configs",
+    "tenant_limits",
+    "tenant_settings",
+    "tenant_usage",
+    "user_help_stats",
+    "user_notifications",
+    "user_preferences",
+    "user_sessions",
+    "users",
+    "usuarios"
+  ],
+  "views_excluded": [
+    {
+      "name": "tenants",
+      "reason": "VIEW - No soporta RLS",
+      "source": "schema"
+    }
+  ],
+  "files_generated": [
+    "RLS_CONFIGURATION_CORRECTED.sql",
+    "RLS_CONFIGURATION_ORIGINAL_BACKUP.sql"
+  ],
+  "next_steps": [
+    "Ejecutar RLS_CONFIGURATION_CORRECTED.sql como administrador en Supabase",
+    "Re-ejecutar testing para validar configuración",
+    "Verificar que no hay más errores de VIEW"
+  ]
+}

@@ -1,0 +1,381 @@
+{
+  "config_id": "rls_config_1757001233346",
+  "timestamp": "2025-09-04T15:54:03.651Z",
+  "type": "RLS_CRITICAL_CONFIGURATION",
+  "summary": {
+    "critical_tables_processed": 40,
+    "successful_configurations": 10,
+    "failed_configurations": 30,
+    "success_rate": 25,
+    "configuration_time_ms": 10302
+  },
+  "rls_status": {
+    "actividades_dpo": {
+      "select_allowed": true,
+      "insert_blocked_by_rls": true,
+      "current_status": "RLS_ACTIVE",
+      "tested_at": "2025-09-04T15:53:55.819Z"
+    },
+    "activities": {
+      "select_allowed": true,
+      "insert_blocked_by_rls": false,
+      "current_status": "INSERT_RESTRICTED",
+      "tested_at": "2025-09-04T15:53:56.557Z"
+    },
+    "agent_activity_log": {
+      "select_allowed": true,
+      "insert_blocked_by_rls": true,
+      "current_status": "RLS_ACTIVE",
+      "tested_at": "2025-09-04T15:53:57.144Z"
+    },
+    "audit_log": {
+      "select_allowed": true,
+      "insert_blocked_by_rls": false,
+      "current_status": "INSERT_RESTRICTED",
+      "tested_at": "2025-09-04T15:53:57.746Z"
+    },
+    "audit_logs": {
+      "select_allowed": true,
+      "insert_blocked_by_rls": false,
+      "current_status": "INSERT_RESTRICTED",
+      "tested_at": "2025-09-04T15:53:58.371Z"
+    },
+    "categories": {
+      "select_allowed": true,
+      "insert_blocked_by_rls": false,
+      "current_status": "INSERT_RESTRICTED",
+      "tested_at": "2025-09-04T15:53:58.963Z"
+    },
+    "compliance_records": {
+      "select_allowed": true,
+      "current_status": "PERMISSIVE",
+      "tested_at": "2025-09-04T15:53:59.578Z"
+    },
+    "compliance_reports": {
+      "select_allowed": true,
+      "current_status": "PERMISSIVE",
+      "tested_at": "2025-09-04T15:54:00.216Z"
+    },
+    "documentos_generados": {
+      "select_allowed": true,
+      "insert_blocked_by_rls": true,
+      "current_status": "RLS_ACTIVE",
+      "tested_at": "2025-09-04T15:54:00.832Z"
+    },
+    "dpa_documents": {
+      "select_allowed": true,
+      "current_status": "PERMISSIVE",
+      "tested_at": "2025-09-04T15:54:01.430Z"
+    }
+  },
+  "configuration_applied": {
+    "actividades_dpo": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "activities": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "agent_activity_log": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "audit_log": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "audit_logs": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "categories": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "compliance_records": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "compliance_reports": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "documentos_generados": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "dpa_documents": {
+      "success": true,
+      "message": "Configuración aplicada/ya permisiva",
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "dpas": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "dpia": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "dpo_notifications": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "eipd_documents": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "empresas": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "evaluaciones_impacto": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "generated_documents": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "legal_articles": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "mapeo_datos_rat": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "notifications": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "organizaciones": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "partner_access_logs": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "proveedores": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "rat_proveedores": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "rats": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "reports": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "system_alerts": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "system_config": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "system_error_logs": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "tenant_configs": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.630Z"
+    },
+    "tenant_limits": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    },
+    "tenant_settings": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    },
+    "tenant_usage": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    },
+    "tenants": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    },
+    "user_help_stats": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    },
+    "user_notifications": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    },
+    "user_preferences": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    },
+    "user_sessions": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    },
+    "users": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    },
+    "usuarios": {
+      "success": false,
+      "message": "Requiere configuración manual de administrador",
+      "sql_required": true,
+      "applied_at": "2025-09-04T15:54:01.631Z"
+    }
+  },
+  "post_config_tests": {
+    "actividades_dpo": {
+      "select": {
+        "success": true,
+        "status": 200
+      },
+      "insert": {
+        "success": false,
+        "status": 401,
+        "response": "{\"code\":\"42501\",\"details\":null,\"hint\":null,\"message\":\"new row violates row-level security policy for table \\\"actividades_dpo\\\"\"}"
+      },
+      "overall_success": true,
+      "tested_at": "2025-09-04T15:54:01.996Z"
+    },
+    "activities": {
+      "select": {
+        "success": true,
+        "status": 200
+      },
+      "insert": {
+        "success": false,
+        "status": 400,
+        "response": "{\"code\":\"23502\",\"details\":\"Failing row contains (b3edecce-5ab0-46a3-a8ec-85ef6e1d03bd, null, null, null, null, null, null, null, 2025-09-04 15:54:02.727324).\",\"hint\":null,\"message\":\"null value in column \\\"action\\\" of relation \\\"activities\\\" violates not-null constraint\"}"
+      },
+      "overall_success": true,
+      "tested_at": "2025-09-04T15:54:02.460Z"
+    },
+    "agent_activity_log": {
+      "select": {
+        "success": true,
+        "status": 200
+      },
+      "insert": {
+        "success": false,
+        "status": 401,
+        "response": "{\"code\":\"42501\",\"details\":null,\"hint\":null,\"message\":\"new row violates row-level security policy for table \\\"agent_activity_log\\\"\"}"
+      },
+      "overall_success": true,
+      "tested_at": "2025-09-04T15:54:02.867Z"
+    },
+    "audit_log": {
+      "select": {
+        "success": true,
+        "status": 200
+      },
+      "insert": {
+        "success": false,
+        "status": 400,
+        "response": "{\"code\":\"23502\",\"details\":null,\"hint\":null,\"message\":\"null value in column \\\"tenant_id\\\" of relation \\\"audit_log\\\" violates not-null constraint\"}"
+      },
+      "overall_success": true,
+      "tested_at": "2025-09-04T15:54:03.287Z"
+    },
+    "audit_logs": {
+      "select": {
+        "success": true,
+        "status": 200
+      },
+      "insert": {
+        "success": false,
+        "status": 400,
+        "response": "{\"code\":\"23502\",\"details\":\"Failing row contains (5f2e4e6a-82e2-4c67-b4d1-5765d59b6b78, null, null, null, null, null, null, null, null, null, 2025-09-04 15:54:03.989585).\",\"hint\":null,\"message\":\"null value in column \\\"action\\\" of relation \\\"audit_logs\\\" violates not-null constraint\"}"
+      },
+      "overall_success": true,
+      "tested_at": "2025-09-04T15:54:03.650Z"
+    }
+  },
+  "action_required": {
+    "manual_sql_execution": true,
+    "sql_file_generated": "RLS_CONFIGURATION_COMMANDS.sql",
+    "admin_access_needed": true
+  },
+  "recommendations": [
+    "Ejecutar comandos SQL como administrador en Supabase Dashboard",
+    "Aplicar políticas RLS permisivas para desarrollo",
+    "Configurar aislamiento por tenant para producción",
+    "Re-ejecutar testing después de aplicar configuración SQL"
+  ]
+}

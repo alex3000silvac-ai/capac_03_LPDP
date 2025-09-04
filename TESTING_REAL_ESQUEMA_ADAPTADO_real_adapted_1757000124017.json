@@ -1,0 +1,49 @@
+{
+  "test_id": "real_adapted_1757000124017",
+  "type": "REAL_SCHEMA_ADAPTED_TESTING",
+  "started_at": "2025-09-04T15:35:28.973Z",
+  "supabase_url": "https://symkjkbejxexgrydmvqs.supabase.co",
+  "testing_approach": "ADAPTED_TO_REAL_SCHEMA",
+  "results": {
+    "rls_protected_tables": [
+      "organizaciones",
+      "actividades_dpo",
+      "usuarios",
+      "proveedores"
+    ],
+    "accessible_tables": [],
+    "successful_inserts": [
+      {
+        "table": "generated_documents",
+        "id": 2
+      },
+      {
+        "table": "partner_tokens",
+        "id": "1c68710e-8b35-424e-ad62-271c2ffcbe0f"
+      }
+    ],
+    "successful_deletes": [],
+    "errors": [
+      "generated_documents: UPDATE 400: {\"code\":\"PGRST204\",\"details\":null,\"hint\":null,\"message\":\"Could not find the 'test_updated' column of 'generated_documents' in the schema cache\"}",
+      "partner_tokens: UPDATE 400: {\"code\":\"PGRST204\",\"details\":null,\"hint\":null,\"message\":\"Could not find the 'test_updated' column of 'partner_tokens' in the schema cache\"}",
+      "activities schema: SCHEMA INSERT 400: {\"code\":\"PGRST204\",\"details\":null,\"hint\":null,\"message\":\"Could not find the 'test_id' column of 'activities' in the schema cache\"}",
+      "mapeo_datos_rat schema: SCHEMA INSERT 400: {\"code\":\"PGRST204\",\"details\":null,\"hint\":null,\"message\":\"Could not find the 'test_id' column of 'mapeo_datos_rat' in the schema cache\"}",
+      "audit_log schema: SCHEMA INSERT 400: {\"code\":\"PGRST204\",\"details\":null,\"hint\":null,\"message\":\"Could not find the 'test_id' column of 'audit_log' in the schema cache\"}"
+    ],
+    "total_operations": 18,
+    "successful_operations": 4
+  },
+  "summary": {
+    "total_operations": 18,
+    "successful_operations": 4,
+    "success_rate": 22,
+    "accessible_tables_count": 0,
+    "rls_protected_tables_count": 4,
+    "successful_inserts_count": 2,
+    "successful_deletes_count": 0,
+    "errors_count": 5,
+    "execution_time_ms": 4953,
+    "execution_time": "5s"
+  },
+  "completed_at": "2025-09-04T15:35:28.973Z"
+}

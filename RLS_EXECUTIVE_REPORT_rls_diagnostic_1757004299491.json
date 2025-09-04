@@ -1,0 +1,253 @@
+{
+  "diagnostic_id": "rls_diagnostic_1757004299491",
+  "timestamp": "2025-09-04T16:45:07.046Z",
+  "type": "RLS_TABLE_BY_TABLE_DIAGNOSIS",
+  "summary": {
+    "tables_analyzed": 30,
+    "current_functional_tables": 10,
+    "current_score": "25%",
+    "target_score": "100%",
+    "methodology": "ONLINE_REAL_DATABASE_ONLY"
+  },
+  "blocking_analysis": {
+    "TABLE_ACCESS_DENIED": [
+      "actividades_dpo",
+      "activities",
+      "agent_activity_log",
+      "audit_log",
+      "audit_logs",
+      "categories",
+      "documentos_generados",
+      "dpas",
+      "dpia",
+      "dpo_notifications",
+      "empresas",
+      "evaluaciones_impacto",
+      "generated_documents",
+      "legal_articles",
+      "notifications",
+      "partner_access_logs",
+      "rat_proveedores",
+      "rats",
+      "reports",
+      "system_alerts",
+      "system_error_logs",
+      "tenant_configs",
+      "tenant_limits",
+      "tenant_settings",
+      "tenant_usage",
+      "tenants",
+      "user_preferences",
+      "user_sessions",
+      "users",
+      "usuarios"
+    ]
+  },
+  "correction_strategy": {
+    "phase_1_bypass": [
+      {
+        "table": "categories",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE categories DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "legal_articles",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE legal_articles DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "system_alerts",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE system_alerts DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "system_error_logs",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE system_error_logs DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "tenant_configs",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE tenant_configs DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "tenant_limits",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE tenant_limits DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "tenant_settings",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE tenant_settings DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "tenant_usage",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE tenant_usage DISABLE ROW LEVEL SECURITY;"
+      },
+      {
+        "table": "user_preferences",
+        "action": "DISABLE_RLS",
+        "priority": "LOW",
+        "sql": "ALTER TABLE user_preferences DISABLE ROW LEVEL SECURITY;"
+      }
+    ],
+    "phase_2_granular_policies": [],
+    "phase_3_critical_fixes": [
+      {
+        "table": "actividades_dpo",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "activities",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "agent_activity_log",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "audit_log",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "audit_logs",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "documentos_generados",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "dpas",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "dpia",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "dpo_notifications",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "empresas",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "evaluaciones_impacto",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "generated_documents",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "notifications",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "partner_access_logs",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "rat_proveedores",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "rats",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "HIGH"
+      },
+      {
+        "table": "reports",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "tenants",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "HIGH"
+      },
+      {
+        "table": "user_sessions",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "MEDIUM"
+      },
+      {
+        "table": "users",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "HIGH"
+      },
+      {
+        "table": "usuarios",
+        "issue": "TABLE_ACCESS_DENIED",
+        "action": "CHECK_TABLE_PERMISSIONS",
+        "priority": "HIGH"
+      }
+    ],
+    "estimated_improvement": {
+      "current_functional": 10,
+      "after_phase_1": 19,
+      "after_phase_2": 19,
+      "target_functional": 40,
+      "estimated_final_percentage": 48
+    }
+  },
+  "next_steps": [
+    "Ejecutar RLS_PHASE1_BYPASS.sql para habilitar tablas de soporte",
+    "Testing incremental para validar mejoras",
+    "Ejecutar RLS_PHASE2_GRANULAR.sql para tablas críticas",
+    "Testing final para alcanzar 100% funcionalidad"
+  ],
+  "estimated_timeline": {
+    "phase_1_execution": "5 minutos",
+    "phase_1_testing": "10 minutos",
+    "phase_2_execution": "10 minutos",
+    "phase_2_testing": "15 minutos",
+    "total_to_100_percent": "40 minutos"
+  }
+}

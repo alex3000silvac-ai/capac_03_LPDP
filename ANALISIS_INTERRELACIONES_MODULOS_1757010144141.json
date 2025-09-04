@@ -1,0 +1,583 @@
+{
+  "timestamp": "2025-09-04T18:22:23.971Z",
+  "totalModules": 11,
+  "crossReferences": {
+    "rat_constructor": {},
+    "rat_management": {
+      "rat_constructor": [
+        {
+          "type": "direct_import",
+          "target": "ratService",
+          "found": true
+        }
+      ]
+    },
+    "compliance_metrics": {
+      "rat_constructor": [
+        {
+          "type": "direct_import",
+          "target": "ratService",
+          "found": true
+        }
+      ]
+    },
+    "dpo_module": {
+      "rat_constructor": [
+        {
+          "type": "direct_import",
+          "target": "ratService",
+          "found": true
+        }
+      ]
+    },
+    "dpia_module": {
+      "rat_constructor": [
+        {
+          "type": "direct_import",
+          "target": "ratService",
+          "found": true
+        }
+      ]
+    },
+    "eipd_list": {},
+    "providers": {
+      "rat_constructor": [
+        {
+          "type": "direct_import",
+          "target": "ratService",
+          "found": true
+        }
+      ]
+    },
+    "admin_panel": {
+      "rat_constructor": [
+        {
+          "type": "direct_import",
+          "target": "ratService",
+          "found": true
+        }
+      ]
+    },
+    "dpa_generator": {},
+    "notifications": {
+      "rat_constructor": [
+        {
+          "type": "direct_import",
+          "target": "ratService",
+          "found": true
+        }
+      ]
+    },
+    "reports": {}
+  },
+  "dataFlows": {
+    "rat_constructor": {
+      "frontend/src/components/RATSystemProfessional.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "RATSystemProfessional"
+          }
+        ],
+        "supabase_tables": [
+          "mapeo_datos_rat",
+          "evaluaciones_impacto",
+          "rat_eipd_associations",
+          "dpo_notifications"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext",
+          "AuthContext"
+        ]
+      },
+      "frontend/src/services/ratService.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "ratService"
+          }
+        ],
+        "supabase_tables": [
+          "user_sessions",
+          "user_sessions"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      }
+    },
+    "rat_management": {
+      "frontend/src/pages/RATListPage.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "RATListPage"
+          }
+        ],
+        "supabase_tables": [
+          "mapeo_datos_rat",
+          "partner_integrations",
+          "partner_integrations"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      },
+      "frontend/src/components/RATEditPage.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "RATEditPage"
+          }
+        ],
+        "supabase_tables": [
+          "mapeo_datos_rat",
+          "mapeo_datos_rat",
+          "mapeo_datos_rat",
+          "mapeo_datos_rat"
+        ],
+        "shared_state": []
+      }
+    },
+    "compliance_metrics": {
+      "frontend/src/components/ComplianceMetrics.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "ComplianceMetrics"
+          }
+        ],
+        "supabase_tables": [
+          "mapeo_datos_rat",
+          "actividades_dpo",
+          "mapeo_datos_rat",
+          "mapeo_datos_rat"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      }
+    },
+    "dpo_module": {
+      "frontend/src/pages/DashboardDPO.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "DashboardDPO"
+          }
+        ],
+        "supabase_tables": [],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      },
+      "frontend/src/pages/DPOApprovalQueue.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "DPOApprovalQueue"
+          }
+        ],
+        "supabase_tables": [
+          "mapeo_datos_rat"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      }
+    },
+    "dpia_module": {
+      "frontend/src/pages/DPIAAlgoritmos.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "DPIAAlgoritmos"
+          }
+        ],
+        "supabase_tables": [],
+        "shared_state": []
+      },
+      "frontend/src/pages/EIPDCreator.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "EIPDCreator"
+          }
+        ],
+        "supabase_tables": [
+          "evaluaciones_impacto"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      }
+    },
+    "eipd_list": {
+      "frontend/src/pages/EIPDListPage.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "EIPDListPage"
+          }
+        ],
+        "supabase_tables": [
+          "evaluaciones_impacto"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      }
+    },
+    "providers": {
+      "frontend/src/pages/ProviderManager.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "ProviderManager"
+          }
+        ],
+        "supabase_tables": [
+          "proveedores",
+          "dpas",
+          "transfers",
+          "proveedores"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      },
+      "frontend/src/services/proveedoresService.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "proveedoresService"
+          }
+        ],
+        "supabase_tables": [
+          "user_sessions",
+          "organizaciones",
+          "proveedores",
+          "proveedores",
+          "proveedores",
+          "proveedores",
+          "proveedores",
+          "proveedores",
+          "dpas",
+          "evaluaciones_seguridad",
+          "rat_proveedores",
+          "rat_proveedores",
+          "proveedores",
+          "proveedores"
+        ],
+        "shared_state": []
+      }
+    },
+    "admin_panel": {
+      "frontend/src/pages/AdminDashboard.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "AdminDashboard"
+          }
+        ],
+        "supabase_tables": [
+          "tenants",
+          "usuarios",
+          "audit_logs",
+          "mapeo_datos_rat",
+          "mapeo_datos_rat",
+          "mapeo_datos_rat",
+          "tenants"
+        ],
+        "shared_state": []
+      }
+    },
+    "dpa_generator": {
+      "frontend/src/components/DPAGenerator.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "DPAGenerator"
+          }
+        ],
+        "supabase_tables": [
+          "proveedores",
+          "organizaciones",
+          "documentos_dpa"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      }
+    },
+    "notifications": {
+      "frontend/src/components/NotificationCenter.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "NotificationCenter"
+          }
+        ],
+        "supabase_tables": [
+          "dpo_notifications",
+          "dpo_notifications",
+          "dpo_notifications",
+          "dpo_notifications"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext"
+        ]
+      }
+    },
+    "reports": {
+      "frontend/src/components/ReportGenerator.js": {
+        "input": [],
+        "output": [
+          {
+            "type": "export",
+            "data": "ReportGenerator"
+          }
+        ],
+        "supabase_tables": [
+          "generated_documents",
+          "mapeo_datos_rat",
+          "generated_documents",
+          "rat_proveedores",
+          "actividades_dpo",
+          "audit_log",
+          "generated_documents"
+        ],
+        "shared_state": [
+          "React Context",
+          "TenantContext",
+          "AuthContext"
+        ]
+      }
+    }
+  },
+  "userFlows": {
+    "crear_rat": {
+      "name": "Crear nuevo RAT",
+      "steps": [
+        {
+          "module": "rat_constructor",
+          "action": "Iniciar creación RAT",
+          "screen": "RATSystemProfessional"
+        },
+        {
+          "module": "rat_constructor",
+          "action": "Completar pasos",
+          "screen": "Paso1-7"
+        },
+        {
+          "module": "dpia_module",
+          "action": "Evaluar si requiere DPIA",
+          "screen": "DPIAAlgoritmos"
+        },
+        {
+          "module": "providers",
+          "action": "Asociar proveedores",
+          "screen": "ProviderManager"
+        },
+        {
+          "module": "rat_management",
+          "action": "Guardar RAT",
+          "screen": "RATListPage"
+        },
+        {
+          "module": "notifications",
+          "action": "Notificar creación",
+          "screen": "NotificationCenter"
+        }
+      ],
+      "priority": "CRÍTICO"
+    },
+    "gestionar_rats": {
+      "name": "Gestionar RATs existentes",
+      "steps": [
+        {
+          "module": "rat_management",
+          "action": "Ver lista RATs",
+          "screen": "RATListPage"
+        },
+        {
+          "module": "rat_management",
+          "action": "Editar RAT",
+          "screen": "RATEditPage"
+        },
+        {
+          "module": "compliance_metrics",
+          "action": "Ver métricas",
+          "screen": "ComplianceMetrics"
+        },
+        {
+          "module": "reports",
+          "action": "Generar reportes",
+          "screen": "ReportGenerator"
+        }
+      ],
+      "priority": "ALTO"
+    },
+    "proceso_dpo": {
+      "name": "Proceso de aprobación DPO",
+      "steps": [
+        {
+          "module": "dpo_module",
+          "action": "Ver dashboard DPO",
+          "screen": "DashboardDPO"
+        },
+        {
+          "module": "dpo_module",
+          "action": "Revisar cola aprobación",
+          "screen": "DPOApprovalQueue"
+        },
+        {
+          "module": "dpia_module",
+          "action": "Revisar DPIAs",
+          "screen": "EIPDListPage"
+        },
+        {
+          "module": "notifications",
+          "action": "Enviar notificaciones",
+          "screen": "NotificationCenter"
+        }
+      ],
+      "priority": "ALTO"
+    },
+    "generar_documentos": {
+      "name": "Generar documentos legales",
+      "steps": [
+        {
+          "module": "dpa_generator",
+          "action": "Configurar DPA",
+          "screen": "DPAGenerator"
+        },
+        {
+          "module": "reports",
+          "action": "Generar reporte",
+          "screen": "ReportGenerator"
+        },
+        {
+          "module": "notifications",
+          "action": "Notificar generación",
+          "screen": "NotificationCenter"
+        }
+      ],
+      "priority": "MEDIO"
+    },
+    "administracion": {
+      "name": "Administración del sistema",
+      "steps": [
+        {
+          "module": "admin_panel",
+          "action": "Acceder panel admin",
+          "screen": "AdminDashboard"
+        },
+        {
+          "module": "compliance_metrics",
+          "action": "Ver métricas globales",
+          "screen": "ComplianceMetrics"
+        },
+        {
+          "module": "providers",
+          "action": "Gestionar proveedores",
+          "screen": "ProviderManager"
+        },
+        {
+          "module": "notifications",
+          "action": "Configurar notificaciones",
+          "screen": "NotificationCenter"
+        }
+      ],
+      "priority": "MEDIO"
+    }
+  },
+  "databaseRelations": {
+    "mapeo_datos_rat": {
+      "connected_to": [
+        "actividades_dpo",
+        "evaluaciones_impacto_privacidad",
+        "generated_documents"
+      ],
+      "relationship_type": "one_to_many",
+      "critical": true
+    },
+    "organizaciones": {
+      "connected_to": [
+        "mapeo_datos_rat",
+        "usuarios",
+        "proveedores"
+      ],
+      "relationship_type": "one_to_many",
+      "critical": true
+    },
+    "proveedores": {
+      "connected_to": [
+        "mapeo_datos_rat",
+        "dpas",
+        "evaluaciones_seguridad"
+      ],
+      "relationship_type": "many_to_many",
+      "critical": true
+    },
+    "actividades_dpo": {
+      "connected_to": [
+        "mapeo_datos_rat",
+        "dpo_notifications"
+      ],
+      "relationship_type": "one_to_many",
+      "critical": true
+    },
+    "generated_documents": {
+      "connected_to": [
+        "mapeo_datos_rat",
+        "documentos_dpa"
+      ],
+      "relationship_type": "one_to_one",
+      "critical": false
+    },
+    "dpo_notifications": {
+      "connected_to": [
+        "actividades_dpo",
+        "usuarios"
+      ],
+      "relationship_type": "many_to_one",
+      "critical": false
+    }
+  },
+  "summary": {
+    "executionTime": "165ms",
+    "totalCrossReferences": 7,
+    "totalDataFlows": 16,
+    "totalUserFlows": 5,
+    "totalDatabaseRelations": 6,
+    "systemComplexity": "LOW",
+    "integrationLevel": "MODERATELY_INTEGRATED"
+  }
+}

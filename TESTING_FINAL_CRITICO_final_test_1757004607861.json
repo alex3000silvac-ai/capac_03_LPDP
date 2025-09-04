@@ -1,0 +1,1504 @@
+{
+  "test_id": "final_test_1757004607861",
+  "timestamp": "2025-09-04T16:50:35.358Z",
+  "type": "FINAL_CRITICAL_TESTING",
+  "executive_summary": {
+    "total_critical_tables_tested": 40,
+    "functional_tables": 10,
+    "blocked_tables": 30,
+    "overall_functionality_score": 25,
+    "system_status": "REQUIRES_MAJOR_FIXES",
+    "testing_time_ms": 27495
+  },
+  "connectivity": {
+    "success": true,
+    "status_code": 200,
+    "message": "Conectividad OK",
+    "tested_at": "2025-09-04T16:50:08.066Z"
+  },
+  "detailed_results": {
+    "actividades_dpo": {
+      "table_name": "actividades_dpo",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'updated_at' column of 'actividades_dpo' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:08.273Z",
+            "updated_at": "2025-09-04T16:50:08.273Z",
+            "tenant_id": 1,
+            "tipo_actividad": "TEST",
+            "descripcion": "Test activity final_te",
+            "estado": "PENDIENTE",
+            "prioridad": "MEDIA"
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:08.067Z"
+    },
+    "activities": {
+      "table_name": "activities",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'updated_at' column of 'activities' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:08.774Z",
+            "updated_at": "2025-09-04T16:50:08.774Z",
+            "tenant_id": 1,
+            "action": "TEST_ACTION",
+            "details": "Test activity final_te"
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:08.603Z"
+    },
+    "agent_activity_log": {
+      "table_name": "agent_activity_log",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'agent_activity_log' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:09.295Z",
+            "updated_at": "2025-09-04T16:50:09.295Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "agent_activity_log",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:09.103Z"
+    },
+    "audit_log": {
+      "table_name": "audit_log",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'updated_at' column of 'audit_log' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:09.831Z",
+            "updated_at": "2025-09-04T16:50:09.831Z",
+            "tenant_id": 1,
+            "action": "TEST",
+            "table_name": "test_table",
+            "success": true
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:09.653Z"
+    },
+    "audit_logs": {
+      "table_name": "audit_logs",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'audit_logs' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:10.340Z",
+            "updated_at": "2025-09-04T16:50:10.340Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "audit_logs",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:10.155Z"
+    },
+    "categories": {
+      "table_name": "categories",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'categories' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:10.870Z",
+            "updated_at": "2025-09-04T16:50:10.870Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "categories",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:10.670Z"
+    },
+    "compliance_records": {
+      "table_name": "compliance_records",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:11.381Z",
+            "updated_at": "2025-09-04T16:50:11.381Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "id": "final_te"
+            }
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:11.199Z"
+    },
+    "compliance_reports": {
+      "table_name": "compliance_reports",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:12.248Z",
+            "updated_at": "2025-09-04T16:50:12.248Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "id": "final_te"
+            }
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:12.075Z"
+    },
+    "documentos_generados": {
+      "table_name": "documentos_generados",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'documentos_generados' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:13.112Z",
+            "updated_at": "2025-09-04T16:50:13.112Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "documentos_generados",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:12.940Z"
+    },
+    "dpa_documents": {
+      "table_name": "dpa_documents",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:13.641Z",
+            "updated_at": "2025-09-04T16:50:13.641Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "id": "final_te"
+            }
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:13.460Z"
+    },
+    "dpas": {
+      "table_name": "dpas",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'dpas' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:14.594Z",
+            "updated_at": "2025-09-04T16:50:14.594Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "dpas",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:14.400Z"
+    },
+    "dpia": {
+      "table_name": "dpia",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'dpia' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:15.105Z",
+            "updated_at": "2025-09-04T16:50:15.105Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "dpia",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:14.925Z"
+    },
+    "dpo_notifications": {
+      "table_name": "dpo_notifications",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'dpo_notifications' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:15.630Z",
+            "updated_at": "2025-09-04T16:50:15.630Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "dpo_notifications",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:15.437Z"
+    },
+    "eipd_documents": {
+      "table_name": "eipd_documents",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:16.120Z",
+            "updated_at": "2025-09-04T16:50:16.120Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "eipd_documents",
+              "id": "final_te"
+            }
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:15.949Z"
+    },
+    "empresas": {
+      "table_name": "empresas",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'empresas' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:16.995Z",
+            "updated_at": "2025-09-04T16:50:16.995Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "empresas",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:16.825Z"
+    },
+    "evaluaciones_impacto": {
+      "table_name": "evaluaciones_impacto",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'evaluaciones_impacto' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:17.494Z",
+            "updated_at": "2025-09-04T16:50:17.494Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "evaluaciones_impacto",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:17.312Z"
+    },
+    "generated_documents": {
+      "table_name": "generated_documents",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'generated_documents' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:17.991Z",
+            "updated_at": "2025-09-04T16:50:17.991Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:17.825Z"
+    },
+    "legal_articles": {
+      "table_name": "legal_articles",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'legal_articles' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:18.494Z",
+            "updated_at": "2025-09-04T16:50:18.494Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "legal_articles",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:18.323Z"
+    },
+    "mapeo_datos_rat": {
+      "table_name": "mapeo_datos_rat",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:18.978Z",
+            "updated_at": "2025-09-04T16:50:18.978Z",
+            "tenant_id": 1,
+            "nombre_actividad": "Test RAT final_te",
+            "descripcion": "Test mapping final_te",
+            "estado": "BORRADOR"
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:18.807Z"
+    },
+    "notifications": {
+      "table_name": "notifications",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'updated_at' column of 'notifications' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:19.855Z",
+            "updated_at": "2025-09-04T16:50:19.855Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "notifications",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:19.676Z"
+    },
+    "organizaciones": {
+      "table_name": "organizaciones",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:20.350Z",
+            "updated_at": "2025-09-04T16:50:20.350Z",
+            "company_name": "Test Org final_te",
+            "display_name": "Test Display final_te",
+            "industry": "Technology",
+            "size": "Small",
+            "country": "Chile",
+            "active": true
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:20.169Z"
+    },
+    "partner_access_logs": {
+      "table_name": "partner_access_logs",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'created_at' column of 'partner_access_logs' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:21.246Z",
+            "updated_at": "2025-09-04T16:50:21.246Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "partner_access_logs",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:21.054Z"
+    },
+    "proveedores": {
+      "table_name": "proveedores",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:21.752Z",
+            "updated_at": "2025-09-04T16:50:21.752Z",
+            "tenant_id": 1,
+            "nombre": "Test Provider final_te",
+            "tipo": "TECNOLOGIA",
+            "pais": "Chile"
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:21.573Z"
+    },
+    "rat_proveedores": {
+      "table_name": "rat_proveedores",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'rat_proveedores' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:22.616Z",
+            "updated_at": "2025-09-04T16:50:22.616Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "rat_proveedores",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:22.447Z"
+    },
+    "rats": {
+      "table_name": "rats",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'rats' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:23.123Z",
+            "updated_at": "2025-09-04T16:50:23.123Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "rats",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:22.939Z"
+    },
+    "reports": {
+      "table_name": "reports",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'reports' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:23.642Z",
+            "updated_at": "2025-09-04T16:50:23.642Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "reports",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:23.456Z"
+    },
+    "system_alerts": {
+      "table_name": "system_alerts",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'updated_at' column of 'system_alerts' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:24.152Z",
+            "updated_at": "2025-09-04T16:50:24.152Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "system_alerts",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:23.973Z"
+    },
+    "system_config": {
+      "table_name": "system_config",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:24.685Z",
+            "updated_at": "2025-09-04T16:50:24.685Z",
+            "key": "test_config_final_te",
+            "value": "test_value",
+            "description": "Test configuration"
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:24.475Z"
+    },
+    "system_error_logs": {
+      "table_name": "system_error_logs",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'system_error_logs' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:25.566Z",
+            "updated_at": "2025-09-04T16:50:25.566Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "system_error_logs",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:25.392Z"
+    },
+    "tenant_configs": {
+      "table_name": "tenant_configs",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'tenant_configs' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:26.136Z",
+            "updated_at": "2025-09-04T16:50:26.136Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "tenant_configs",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:25.925Z"
+    },
+    "tenant_limits": {
+      "table_name": "tenant_limits",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'tenant_limits' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:26.640Z",
+            "updated_at": "2025-09-04T16:50:26.640Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "tenant_limits",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:26.454Z"
+    },
+    "tenant_settings": {
+      "table_name": "tenant_settings",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'tenant_settings' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:27.176Z",
+            "updated_at": "2025-09-04T16:50:27.176Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "tenant_settings",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:26.957Z"
+    },
+    "tenant_usage": {
+      "table_name": "tenant_usage",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'created_at' column of 'tenant_usage' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:27.703Z",
+            "updated_at": "2025-09-04T16:50:27.703Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "tenant_usage",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:27.521Z"
+    },
+    "tenants": {
+      "table_name": "tenants",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'tenants' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:28.202Z",
+            "updated_at": "2025-09-04T16:50:28.202Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "tenants",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:28.031Z"
+    },
+    "user_help_stats": {
+      "table_name": "user_help_stats",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:28.695Z",
+            "updated_at": "2025-09-04T16:50:28.695Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "user_help_stats",
+              "id": "final_te"
+            }
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:28.522Z"
+    },
+    "user_notifications": {
+      "table_name": "user_notifications",
+      "select_success": true,
+      "insert_success": true,
+      "update_success": true,
+      "delete_success": true,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": true,
+          "message": "INSERT OK",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:29.621Z",
+            "updated_at": "2025-09-04T16:50:29.621Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "user_notifications",
+              "id": "final_te"
+            }
+          }
+        },
+        "update": {
+          "success": true,
+          "message": "UPDATE OK"
+        },
+        "delete": {
+          "success": true,
+          "message": "DELETE OK"
+        }
+      },
+      "tested_at": "2025-09-04T16:50:29.430Z"
+    },
+    "user_preferences": {
+      "table_name": "user_preferences",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'user_preferences' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:32.369Z",
+            "updated_at": "2025-09-04T16:50:32.369Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "user_preferences",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:32.128Z"
+    },
+    "user_sessions": {
+      "table_name": "user_sessions",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "Could not find the 'data' column of 'user_sessions' in the schema cache",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:33.971Z",
+            "updated_at": "2025-09-04T16:50:33.971Z",
+            "tenant_id": 1,
+            "data": {
+              "test": true,
+              "table": "user_sessions",
+              "id": "final_te"
+            }
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:33.747Z"
+    },
+    "users": {
+      "table_name": "users",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "null value in column \"hashed_password\" of relation \"users\" violates not-null constraint",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:34.503Z",
+            "updated_at": "2025-09-04T16:50:34.503Z",
+            "username": "user_final_te_1757004634503",
+            "email": "test_final_te@finaltest.com",
+            "first_name": "Test",
+            "last_name": "User",
+            "is_active": true
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:34.310Z"
+    },
+    "usuarios": {
+      "table_name": "usuarios",
+      "select_success": true,
+      "insert_success": false,
+      "update_success": false,
+      "delete_success": false,
+      "rls_detected": false,
+      "primary_error": null,
+      "operations": {
+        "select": {
+          "success": true,
+          "message": "SELECT OK"
+        },
+        "insert": {
+          "success": false,
+          "message": "null value in column \"id\" of relation \"usuarios\" violates not-null constraint",
+          "data_used": {
+            "created_at": "2025-09-04T16:50:35.023Z",
+            "updated_at": "2025-09-04T16:50:35.023Z",
+            "email": "usuario_final_te@finaltest.com",
+            "rol": "USER",
+            "first_name": "Test",
+            "last_name": "Usuario",
+            "is_active": true
+          }
+        }
+      },
+      "tested_at": "2025-09-04T16:50:34.850Z"
+    }
+  },
+  "functional_analysis": {
+    "total_critical_tables": 40,
+    "fully_functional": 10,
+    "read_only_rls": 0,
+    "completely_blocked": 30,
+    "functionality_score": 25
+  },
+  "functional_tables": [
+    {
+      "table": "compliance_records",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    },
+    {
+      "table": "compliance_reports",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    },
+    {
+      "table": "dpa_documents",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    },
+    {
+      "table": "eipd_documents",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    },
+    {
+      "table": "mapeo_datos_rat",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    },
+    {
+      "table": "organizaciones",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    },
+    {
+      "table": "proveedores",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    },
+    {
+      "table": "system_config",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    },
+    {
+      "table": "user_help_stats",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    },
+    {
+      "table": "user_notifications",
+      "status": "FULLY_FUNCTIONAL",
+      "operations_working": 4
+    }
+  ],
+  "blocked_tables": [
+    {
+      "table": "actividades_dpo",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "activities",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "agent_activity_log",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "audit_log",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "audit_logs",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "categories",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "documentos_generados",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "dpas",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "dpia",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "dpo_notifications",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "empresas",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "evaluaciones_impacto",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "generated_documents",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "legal_articles",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "notifications",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "partner_access_logs",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "rat_proveedores",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "rats",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "reports",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "system_alerts",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "system_error_logs",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "tenant_configs",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "tenant_limits",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "tenant_settings",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "tenant_usage",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "tenants",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "user_preferences",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "user_sessions",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "users",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    },
+    {
+      "table": "usuarios",
+      "status": "BLOCKED",
+      "reason": "Sin acceso"
+    }
+  ],
+  "recommendations": [
+    "Ejecutar comandos SQL RLS para desbloquear tablas críticas",
+    "Implementar sistema de autenticación para acceso completo",
+    "Simplificar esquema eliminando 72 tablas innecesarias identificadas"
+  ],
+  "next_steps": [
+    "Ejecutar comandos SQL RLS como administrador",
+    "Re-ejecutar testing después de configurar RLS",
+    "Implementar autenticación de usuarios para RLS",
+    "Configurar datos iniciales en tablas funcionales"
+  ]
+}

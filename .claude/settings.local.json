@@ -28,7 +28,14 @@
       "Bash(curl:*)",
       "Bash(chmod:*)",
       "Bash(./test-api-directo.sh:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(REACT_APP_SUPABASE_URL=https://scldpfrontend.supabase.co REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbGRwZnJvbnRlbmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNjAwODAzNiwiZXhwIjoyMDUxNTg0MDM2fQ.CuxYOOPzL1EgISEp0ajjLBFWW8jh8Yc5EWqq-iIB82E PATH=$PATH:./frontend/node_modules/.bin node auditor-real-simple.js)",
+      "Bash(REACT_APP_SUPABASE_URL=https://scldpfrontend.supabase.co REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbGRwZnJvbnRlbmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNjAwODAzNiwiZXhwIjoyMDUxNTg0MDM2fQ.CuxYOOPzL1EgISEp0ajjLBFWW8jh8Yc5EWqq-iIB82E NODE_PATH=./frontend/node_modules node auditor-real-simple.js)",
+      "Bash(REACT_APP_SUPABASE_URL=https://scldpfrontend.supabase.co REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbGRwZnJvbnRlbmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNjAwODAzNiwiZXhwIjoyMDUxNTg0MDM2fQ.CuxYOOPzL1EgISEp0ajjLBFWW8jh8Yc5EWqq-iIB82E node ingenieria-inversa-completa.js)",
+      "Bash(POSTGRES_PASSWORD=cW5rBh0PPhKOrMtY node test-operaciones-supabase.js)",
+      "Bash(npm install:*)",
+      "Bash(POSTGRES_PASSWORD=cW5rBh0PPhKOrMtY NODE_PATH=./frontend/node_modules node test-operaciones-supabase.js)",
+      "Bash(REACT_APP_SUPABASE_URL=https://scldpfrontend.supabase.co REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbGRwZnJvbnRlbmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNjAwODAzNiwiZXhwIjoyMDUxNTg0MDM2fQ.CuxYOOPzL1EgISEp0ajjLBFWW8jh8Yc5EWqq-iIB82E PATH=$PATH:./frontend/node_modules/.bin node ingenieria-inversa-completa.js)"
     ],
     "deny": [],
     "ask": [],

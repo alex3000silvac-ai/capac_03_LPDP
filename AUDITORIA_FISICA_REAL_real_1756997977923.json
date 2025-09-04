@@ -1,0 +1,9 @@
+{
+  "audit_id": "real_1756997977923",
+  "started_at": "2025-09-04T14:59:37.955Z",
+  "type": "REAL_PHYSICAL_TESTING",
+  "connections_tested": {},
+  "errors": [],
+  "summary": {},
+  "fatal_error": "Fallo conectividad inicial: TypeError: fetch failed"
+}
