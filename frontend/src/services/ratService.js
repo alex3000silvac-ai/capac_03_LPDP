@@ -6,10 +6,11 @@
  */
 
 import { supabase } from '../config/supabaseClient';
+import { RAT_ESTADOS } from '../constants/estados';
 
 class RATService {
   constructor() {
-    this.tableName = 'rats';
+    this.tableName = 'mapeo_datos_rat'; // FIXED: Usar tabla correcta del sistema
   }
 
   // Función básica para evitar errores de build
@@ -99,11 +100,58 @@ class RATService {
   // FIX: Función faltante para TenantContext
   async setCurrentTenant(tenant, userId) {
     try {
-      console.log('🏢 setCurrentTenant llamado:', tenant, userId);
-      // Por ahora solo log - implementación completa después
-      return { success: true };
+      console.log('🏢 setCurrentTenant llamado:', tenant?.company_name, userId);
+      
+      if (!userId || !tenant) {
+        return { success: false, error: 'Usuario o tenant requerido' };
+      }
+
+      // Upsert en user_sessions para persistir tenant seleccionado
+      const { data, error } = await supabase
+        .from('user_sessions')
+        .upsert({
+          user_id: userId,
+          tenant_id: tenant.id,
+          tenant_data: tenant,
+          is_active: true,
+          updated_at: new Date().toISOString()
+        })
+        .select();
+
+      if (error) {
+        console.error('Error guardando tenant en Supabase:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, data };
     } catch (error) {
       console.error('Error setCurrentTenant:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // FIX: Función faltante para TenantContext
+  async getCurrentTenant(userId) {
+    try {
+      if (!userId) {
+        return { success: false, error: 'Usuario requerido' };
+      }
+
+      const { data, error } = await supabase
+        .from('user_sessions')
+        .select('tenant_id, tenant_data')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .single();
+
+      if (error) {
+        console.error('Error obteniendo tenant desde Supabase:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, data: data?.tenant_data || null };
+    } catch (error) {
+      console.error('Error getCurrentTenant:', error);
       return { success: false, error: error.message };
     }
   }
@@ -114,7 +162,7 @@ class RATService {
       const { data, error } = await supabase
         .from(this.tableName)
         .select('*')
-        .eq('estado', 'completado')
+        .eq('estado', RAT_ESTADOS.CERTIFICADO)
         .limit(100);
 
       if (error) throw error;

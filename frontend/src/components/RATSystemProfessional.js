@@ -7,6 +7,7 @@ import {
   autoCompletarFormulario,
   existenDatosEmpresa 
 } from '../utils/supabaseEmpresaPersistence';
+import { RAT_ESTADOS } from '../constants/estados';
 import supabaseErrorLogger from '../utils/supabaseErrorLogger';
 import {
   Box,
@@ -1317,7 +1318,7 @@ const RATSystemProfessional = () => {
                   }}>
                     <CardContent sx={{ textAlign: 'center', py: 3 }}>
                       <Typography variant="h3" sx={{ color: '#fff', fontWeight: 'bold' }}>
-                        {rats.filter(r => r.estado === 'completado').length}
+                        {rats.filter(r => r.estado === RAT_ESTADOS.CERTIFICADO).length}
                       </Typography>
                       <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
                         Completos

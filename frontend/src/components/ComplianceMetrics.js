@@ -74,7 +74,7 @@ const ComplianceMetrics = () => {
       const tenantId = currentTenant?.id;
       
       // Obtener todos los RATs del tenant
-      const ratsData = await ratService.getCompletedRATs(tenantId);
+      const ratsData = await ratService.getCompletedRATs();
       
       // Calcular métricas generales
       const overview = calcularMetricasGenerales(ratsData);

@@ -6,6 +6,7 @@
 
 import { supabase } from '../config/supabaseClient';
 import riskCalculationEngine from './riskCalculationEngine';
+import { RAT_ESTADOS, ACTIVIDAD_DPO_ESTADOS } from '../constants/estados';
 
 class PartnerSyncEngine {
   constructor() {
@@ -255,10 +256,10 @@ class PartnerSyncEngine {
         valido_hasta: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
       })) || [],
       compliance: {
-        nivel_cumplimiento: rat.data?.estado === 'completado' ? 'COMPLETO' : 'PARCIAL',
+        nivel_cumplimiento: rat.data?.estado === RAT_ESTADOS.CERTIFICADO ? 'COMPLETO' : 'PARCIAL',
         score_compliance: this.calcularScoreCompliance(rat.data, documentos.data),
         observaciones: [],
-        certificado_listo: rat.data?.estado === 'completado',
+        certificado_listo: rat.data?.estado === RAT_ESTADOS.CERTIFICADO,
         valido_auditoria: true
       },
       integracion: {
@@ -299,7 +300,7 @@ class PartnerSyncEngine {
     if (actividades?.some(a => a.tipo_actividad.includes('EIPD'))) {
       etapas.push('EIPD_GENERADA');
     }
-    if (actividades?.some(a => a.estado === 'completada')) {
+    if (actividades?.some(a => a.estado === ACTIVIDAD_DPO_ESTADOS.COMPLETADA)) {
       etapas.push('DPO_APROBADO');
     }
     
@@ -309,7 +310,7 @@ class PartnerSyncEngine {
   calcularScoreCompliance(ratData, documentos) {
     let score = 50; // Base
     
-    if (ratData?.estado === 'completado') score += 30;
+    if (ratData?.estado === RAT_ESTADOS.CERTIFICADO) score += 30;
     if (documentos?.length > 0) score += 20;
     
     return Math.min(score, 100);

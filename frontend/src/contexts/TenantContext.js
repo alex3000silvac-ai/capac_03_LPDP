@@ -116,9 +116,9 @@ export const TenantProvider = ({ children }) => {
           // Cargar tenant guardado desde Supabase o seleccionar el primero
           let selectedTenant;
           try {
-            const savedTenant = await ratService.getCurrentTenant(user.id);
-            if (savedTenant) {
-              selectedTenant = tenants.find(t => t.id === savedTenant.id) || savedTenant;
+            const savedTenantResult = await ratService.getCurrentTenant(user.id);
+            if (savedTenantResult.success && savedTenantResult.data) {
+              selectedTenant = tenants.find(t => t.id === savedTenantResult.data.id) || savedTenantResult.data;
             }
           } catch (error) {
             // //console.log('🚀 Error obteniendo tenant guardado desde Supabase');
@@ -146,10 +146,10 @@ export const TenantProvider = ({ children }) => {
     const restoreSavedTenant = async () => {
       if (!isAuthenticated && user?.id) {
         try {
-          const savedTenant = await ratService.getCurrentTenant(user.id);
-          if (savedTenant) {
-            setCurrentTenant(savedTenant);
-            // //console.log('🚀 Tenant restaurado desde Supabase:', savedTenant.company_name);
+          const savedTenantResult = await ratService.getCurrentTenant(user.id);
+          if (savedTenantResult.success && savedTenantResult.data) {
+            setCurrentTenant(savedTenantResult.data);
+            // //console.log('🚀 Tenant restaurado desde Supabase:', savedTenantResult.data.company_name);
           }
         } catch (error) {
           // //console.log('🚀 Error obteniendo tenant guardado desde Supabase');

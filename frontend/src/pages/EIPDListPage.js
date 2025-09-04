@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { EIPD_ESTADOS } from '../constants/estados';
 import {
   Box,
   Container,
@@ -103,8 +104,8 @@ const EIPDListPage = () => {
   const calcularEstadisticas = (eipdData) => {
     const stats = {
       total: eipdData.length,
-      completadas: eipdData.filter(e => e.estado === 'COMPLETADA').length,
-      pendientes: eipdData.filter(e => e.estado === 'BORRADOR' || e.estado === 'PENDIENTE').length,
+      completadas: eipdData.filter(e => e.estado === EIPD_ESTADOS.COMPLETADA).length,
+      pendientes: eipdData.filter(e => e.estado === EIPD_ESTADOS.BORRADOR || e.estado === EIPD_ESTADOS.PENDIENTE).length,
       altoRiesgo: eipdData.filter(e => e.nivel_riesgo === 'ALTO').length
     };
     setStats(stats);

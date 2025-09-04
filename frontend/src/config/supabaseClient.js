@@ -77,7 +77,7 @@ export const getCurrentTenant = async () => {
 
     // Fallback a tenant por defecto sin localStorage
     const { data: defaultTenant, error } = await supabase
-      .from('tenants')
+      .from('organizaciones')  
       .select('id')
       .limit(1)
       .single();
