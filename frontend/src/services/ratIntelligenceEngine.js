@@ -10,11 +10,11 @@ const ratIntelligenceEngine = {
   // CREAR ACTIVIDADES DPO AUTOMÁTICAMENTE EN SUPABASE
   async createDPOActivities(alerts, ratId, tenantId) {
     try {
-      // console.log('Iniciando creación de actividades DPO:', {
+      /* console.log('Iniciando creación de actividades DPO:', {
         alertas: alerts?.length,
         ratId,
         tenantId
-      });
+      }); */
       
       // Intentar obtener usuario, pero continuar con datos por defecto si no hay
       let user = null;
@@ -240,13 +240,13 @@ const ratIntelligenceEngine = {
       fundamento_legal: alert.fundamento_legal
     }));
     
-    // console.log('ANÁLISIS EXHAUSTIVO COMPLETADO:', {
+    /* console.log('ANÁLISIS EXHAUSTIVO COMPLETADO:', {
       area: area,
       alerts: alerts.length,
       requiredDocuments: requiredDocuments.length,
       notificacionesDPO: notificacionesDPO.length,
       factoresRiesgo: factoresRiesgo.length
-    });
+    }); */
     
     return {
       area_detectada: area,
