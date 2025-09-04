@@ -121,8 +121,6 @@ class SupabaseErrorLogger {
       }
       */
 
-      return { success: !error, data, error };
-
     } catch (error) {
       console.error('❌ Exception guardando logs en Supabase:', error);
       // Mantener en memoria si falla completamente
