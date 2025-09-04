@@ -767,8 +767,8 @@ class PreventiveAI {
           timestamp: new Date().toISOString()
         }
       })
-      .then(() => // console.log(`✅ Error tabla ${tableName} loggeado para revisión`))
-      .catch(() => // console.log(`⚠️ No se pudo loggear error tabla ${tableName}`));
+      .then(() => {/* console.log(`✅ Error tabla ${tableName} loggeado para revisión`) */})
+      .catch(() => {/* console.log(`⚠️ No se pudo loggear error tabla ${tableName}`) */});
   }
 
   async validateAndFixForeignKeys(tenantId) {

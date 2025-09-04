@@ -99,14 +99,14 @@ class RiskCalculationEngine {
 
       const riesgoTotal = puntosCategorias + puntosFinalidad + puntosTransferencias + puntosVolumen + puntosTecnologia;
 
-      // console.log('📊 Desglose puntuación riesgo:', {
+      /* console.log('📊 Desglose puntuación riesgo:', {
         categorias: puntosCategorias,
         finalidad: puntosFinalidad,
         transferencias: puntosTransferencias,
         volumen: puntosVolumen,
         tecnologia: puntosTecnologia,
         total: riesgoTotal
-      });
+      }); */
 
       // CLASIFICACIÓN RIESGO SEGÚN DIAGRAMA LÍNEAS 663-700
       const clasificacion = this.clasificarRiesgo(riesgoTotal);

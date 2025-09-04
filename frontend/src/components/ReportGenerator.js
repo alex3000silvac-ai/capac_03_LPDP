@@ -521,7 +521,7 @@ const ReportGenerator = () => {
                     <Button
                       size="small"
                       startIcon={<DownloadIcon />}
-                      onClick={() => // console.log('Descargando reporte:', reporte.id)}
+                      onClick={() => {/* console.log('Descargando reporte:', reporte.id) */}}
                     >
                       Descargar
                     </Button>

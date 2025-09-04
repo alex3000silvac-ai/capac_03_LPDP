@@ -758,7 +758,7 @@ class FrontendValidator {
    * 📋 REPORTE DE ESTADO PARA CONSOLA
    */
   printStatusReport(report) {
-    // console.log(`
+    /* console.log(`
 ╔══════════════════════════════════════════════════════════════╗
 ║                🔍 REPORTE VALIDACIÓN FRONTEND                 ║
 ╠══════════════════════════════════════════════════════════════╣
@@ -786,7 +786,7 @@ class FrontendValidator {
       // console.log(`║    ${idx + 1}. [${rec.priority}] ${rec.issue.substring(0, 45)}... ║`);
     });
 
-    // console.log(`╚══════════════════════════════════════════════════════════════╝`);
+╚══════════════════════════════════════════════════════════════╝`); */
   }
 }
 

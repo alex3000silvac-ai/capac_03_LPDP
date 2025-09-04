@@ -28,10 +28,10 @@ if (!supabaseKey.startsWith('eyJ') && !supabaseKey.startsWith('sb_publishable_')
   throw new Error('CRÍTICO: API Key de Supabase debe ser JWT (eyJ...) o publishable (sb_publishable_...)');
 }
 
-// console.log('🚀 Configurando Supabase:', {
+/* console.log('🚀 Configurando Supabase:', {
   url: supabaseUrl,
   keyPrefix: supabaseKey.substring(0, 20) + '...'
-});
+}); */
 
 // Cliente real de Supabase
 export const supabase = createClient(supabaseUrl, supabaseKey, {
