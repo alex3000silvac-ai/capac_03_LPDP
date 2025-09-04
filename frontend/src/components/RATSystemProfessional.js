@@ -321,6 +321,58 @@ const RATSystemProfessional = () => {
     'Revisión y Confirmación',
   ];
 
+  /**
+   * 💾 HELPER PARA PERSISTIR DATOS EMPRESA AL CAMBIAR CAMPOS
+   */
+  const persistirDatosEmpresa = (nuevosResponsableData) => {
+    try {
+      const datosEmpresa = {
+        razon_social: nuevosResponsableData.razonSocial || '',
+        rut: nuevosResponsableData.rut || '',
+        direccion_empresa: nuevosResponsableData.direccion || '',
+        email_empresa: nuevosResponsableData.email || '',
+        telefono_empresa: nuevosResponsableData.telefono || '',
+        dpo_nombre: nuevosResponsableData.nombre || '',
+        dpo_email: nuevosResponsableData.email || '',
+        dpo_telefono: nuevosResponsableData.telefono || ''
+      };
+      
+      // Solo persistir si hay al menos un campo con datos
+      const tieneAlgunDato = Object.values(datosEmpresa).some(valor => valor && valor.trim().length > 0);
+      
+      if (tieneAlgunDato) {
+        const resultado = guardarDatosEmpresa(datosEmpresa, {
+          fuente: 'formulario_rat',
+          persistir: true
+        });
+        
+        if (window.cumulativeErrorLogger) {
+          if (resultado.success) {
+            window.cumulativeErrorLogger.logMediumError('RAT_PERSISTENCE_AUTO_SAVE', {
+              message: 'Datos empresa guardados automáticamente desde formulario RAT',
+              campos_guardados: Object.keys(datosEmpresa).filter(k => datosEmpresa[k]),
+              timestamp: new Date().toISOString()
+            }, 'RAT_AUTO_PERSISTENCE');
+          } else {
+            window.cumulativeErrorLogger.logCriticalError('RAT_PERSISTENCE_FAILED', {
+              error: resultado.error,
+              datos_intentados: datosEmpresa,
+              timestamp: new Date().toISOString()
+            }, 'RAT_AUTO_PERSISTENCE');
+          }
+        }
+      }
+    } catch (error) {
+      if (window.cumulativeErrorLogger) {
+        window.cumulativeErrorLogger.logCriticalError('RAT_PERSISTENCE_ERROR', {
+          error: error.message,
+          stack: error.stack,
+          timestamp: new Date().toISOString()
+        }, 'RAT_AUTO_PERSISTENCE');
+      }
+    }
+  };
+
   // Cargar RATs existentes y datos comunes de empresa
   useEffect(() => {
     // Log inicio de inicialización
@@ -790,58 +842,6 @@ const RATSystemProfessional = () => {
     } catch (error) {
       console.error('Error duplicando RAT:', error);
       alert('Error al duplicar el RAT');
-    }
-  };
-
-  /**
-   * 💾 HELPER PARA PERSISTIR DATOS EMPRESA AL CAMBIAR CAMPOS
-   */
-  const persistirDatosEmpresa = (nuevosResponsableData) => {
-    try {
-      const datosEmpresa = {
-        razon_social: nuevosResponsableData.razonSocial || '',
-        rut: nuevosResponsableData.rut || '',
-        direccion_empresa: nuevosResponsableData.direccion || '',
-        email_empresa: nuevosResponsableData.email || '',
-        telefono_empresa: nuevosResponsableData.telefono || '',
-        dpo_nombre: nuevosResponsableData.nombre || '',
-        dpo_email: nuevosResponsableData.email || '',
-        dpo_telefono: nuevosResponsableData.telefono || ''
-      };
-      
-      // Solo persistir si hay al menos un campo con datos
-      const tieneAlgunDato = Object.values(datosEmpresa).some(valor => valor && valor.trim().length > 0);
-      
-      if (tieneAlgunDato) {
-        const resultado = guardarDatosEmpresa(datosEmpresa, {
-          fuente: 'formulario_rat',
-          persistir: true
-        });
-        
-        if (window.cumulativeErrorLogger) {
-          if (resultado.success) {
-            window.cumulativeErrorLogger.logMediumError('RAT_PERSISTENCE_AUTO_SAVE', {
-              message: 'Datos empresa guardados automáticamente desde formulario RAT',
-              campos_guardados: Object.keys(datosEmpresa).filter(k => datosEmpresa[k]),
-              timestamp: new Date().toISOString()
-            }, 'RAT_AUTO_PERSISTENCE');
-          } else {
-            window.cumulativeErrorLogger.logCriticalError('RAT_PERSISTENCE_FAILED', {
-              error: resultado.error,
-              datos_intentados: datosEmpresa,
-              timestamp: new Date().toISOString()
-            }, 'RAT_AUTO_PERSISTENCE');
-          }
-        }
-      }
-    } catch (error) {
-      if (window.cumulativeErrorLogger) {
-        window.cumulativeErrorLogger.logCriticalError('RAT_PERSISTENCE_ERROR', {
-          error: error.message,
-          stack: error.stack,
-          timestamp: new Date().toISOString()
-        }, 'RAT_AUTO_PERSISTENCE');
-      }
     }
   };
 
