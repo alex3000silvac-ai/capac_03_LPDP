@@ -1829,8 +1829,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
       responsable: nuevosResponsableData
     });
     
-    // Auto-persistir datos empresa
-    persistirDatosEmpresa(nuevosResponsableData);
+    // TODO: Auto-persistir datos empresa (temporalmente deshabilitado)
+    // persistirDatosEmpresa(nuevosResponsableData);
     
     if (rut.length > 8) {
       if (!validarRUT(rut)) {
@@ -1887,8 +1887,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Auto-persistir datos empresa
-            persistirDatosEmpresa(nuevosResponsableData);
+            // TODO: Auto-persistir datos empresa (temporalmente deshabilitado)
+            // persistirDatosEmpresa(nuevosResponsableData);
           }}
           helperText="Nombre legal completo de la empresa"
           required
@@ -1916,8 +1916,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Auto-persistir datos empresa
-            persistirDatosEmpresa(nuevosResponsableData);
+            // TODO: Auto-persistir datos empresa (temporalmente deshabilitado)
+            // persistirDatosEmpresa(nuevosResponsableData);
           }}
           helperText="Dirección física de la oficina principal"
           required
@@ -1952,8 +1952,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Auto-persistir datos empresa
-            persistirDatosEmpresa(nuevosResponsableData);
+            // TODO: Auto-persistir datos empresa (temporalmente deshabilitado)
+            // persistirDatosEmpresa(nuevosResponsableData);
           }}
           helperText="Nombre y apellidos del DPO designado"
           required
@@ -1971,8 +1971,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Auto-persistir datos empresa
-            persistirDatosEmpresa(nuevosResponsableData);
+            // TODO: Auto-persistir datos empresa (temporalmente deshabilitado)
+            // persistirDatosEmpresa(nuevosResponsableData);
           }}
           helperText="Email oficial para consultas de privacidad"
           required
@@ -1989,8 +1989,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // Auto-persistir datos empresa
-            persistirDatosEmpresa(nuevosResponsableData);
+            // TODO: Auto-persistir datos empresa (temporalmente deshabilitado)
+            // persistirDatosEmpresa(nuevosResponsableData);
           }}
           helperText="Teléfono directo del DPO"
           required
