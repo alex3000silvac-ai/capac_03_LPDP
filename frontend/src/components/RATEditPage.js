@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../config/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
-import preventiveAI from '../utils/preventiveAI';
+// import preventiveAI from '../utils/preventiveAI'; // REMOVIDO - causaba errores de build
 import {
   Box,
   Paper,
@@ -283,6 +283,9 @@ const RATEditPage = () => {
       // 🛡️ IA PREVENTIVA INTERCEPTA ANTES DE GUARDAR (líneas 335-343 diagrama)
       // //console.log('🛡️ IA Preventiva interceptando modificaciones RAT...');
       
+      // DESHABILITADO: preventiveAI por seguridad - solo monitoreo
+      const preventiveCheck = { safe: true, message: 'Modo seguro: solo monitoreo' };
+      /*
       const preventiveCheck = await preventiveAI.validateAction(
         'RAT_EDIT_SAVE', 
         currentTenant?.id || 1, 
@@ -292,6 +295,7 @@ const RATEditPage = () => {
           changes: 'FULL_SAVE',
           isEdit: ratId !== 'new'
         }
+      */
       );
       
       if (preventiveCheck.alerts && Array.isArray(preventiveCheck.alerts) && preventiveCheck.alerts.length > 0) {

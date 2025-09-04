@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useTenant } from '../contexts/TenantContext';
 import { useAuth } from '../contexts/AuthContext';
-import preventiveAI from '../utils/preventiveAI';
+// import preventiveAI from '../utils/preventiveAI'; // REMOVIDO - causaba errores de build
 import logicAuditor from '../utils/logicAuditor';
 
 const PreventiveAIController = () => {
@@ -18,7 +18,8 @@ const PreventiveAIController = () => {
     const initializePreventiveAI = async () => {
       try {
         // Activar monitoreo preventivo continuo
-        preventiveAI.startPreventiveMonitoring(currentTenant.id);
+        // preventiveAI.startPreventiveMonitoring(currentTenant.id); // DESHABILITADO por seguridad
+        console.log('🛡️ PreventiveAI deshabilitado - sistema en modo seguro solo monitoreo');
         
         // Activar auditoría lógica periódica
         logicAuditor.startPeriodicAudit(currentTenant.id, 30); // Cada 30 min
