@@ -13,7 +13,7 @@
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   
   # Content Security Policy restrictiva
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://scldp-backend.onrender.com https://*.supabase.co; frame-ancestors 'none'; base-uri 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://scldp-backend.onrender.com https://*.supabase.co http://localhost:3001 http://127.0.0.1:3001 http://*:3001; frame-ancestors 'none'; base-uri 'self'
   
   # Prevenir leak de información del referrer
   Referrer-Policy: strict-origin-when-cross-origin
