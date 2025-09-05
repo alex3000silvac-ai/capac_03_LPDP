@@ -31,9 +31,9 @@ const AGENT_CONFIG = {
     
     // Credenciales del sistema real
     credentials: {
-        admin: { email: 'admin@empresa.cl', password: 'Padmin123!' },
-        demo: { email: 'demo@empresa.cl', password: 'Demo123!' },
-        dpo: { email: 'dpo@empresa.cl', password: 'Dpo123!' }
+        admin: { username: 'admin', password: 'admin123' },
+        demo: { username: 'demo', password: 'demo123' },
+        dpo: { username: 'dpo', password: 'dpo123' }
     },
     
     // Configuración exhaustiva
@@ -66,14 +66,13 @@ const AGENT_CONFIG = {
     // APIs críticas backend
     criticalAPIs: [
         '/health',
-        '/api/auth/login',
-        '/api/organizaciones',
-        '/api/mapeo_datos_rat',
-        '/api/proveedores',
-        '/api/evaluaciones_impacto',
-        '/api/documentos',
-        '/api/user_sessions',
-        '/api/actividades_dpo'
+        '/api/v1/demo/login',
+        '/api/v1/demo/status',
+        '/api/v1/mapeo-datos/',
+        '/api/v1/empresas-mt/',
+        '/api/v1/empresas-mt/modulos-disponibles',
+        '/api/v1/empresas-mt/demo/setup',
+        '/emergency-demo-login'
     ]
 };
 
@@ -361,13 +360,13 @@ class AgenteRigurosoCURL {
         try {
             const credentials = AGENT_CONFIG.credentials[userType];
             const loginData = {
-                email: credentials.email,
+                username: credentials.username,
                 password: credentials.password
             };
             
             // Intentar login vía API
             const loginResponse = await this.curlRequest('POST', 
-                `${AGENT_CONFIG.backendUrl}/api/auth/login`, 
+                `${AGENT_CONFIG.backendUrl}/api/v1/demo/login`, 
                 { 'Content-Type': 'application/json' }, 
                 loginData
             );
@@ -570,7 +569,7 @@ class AgenteRigurosoCURL {
             }
             
             const response = await this.curlRequest('POST', 
-                `${AGENT_CONFIG.backendUrl}/api/mapeo_datos_rat`, 
+                `${AGENT_CONFIG.backendUrl}/api/v1/mapeo-datos/`, 
                 headers, 
                 ratData
             );
@@ -628,7 +627,7 @@ class AgenteRigurosoCURL {
             }
             
             const response = await this.curlRequest('GET', 
-                `${AGENT_CONFIG.backendUrl}/api/mapeo_datos_rat/${this.createdRATId}`,
+                `${AGENT_CONFIG.backendUrl}/api/v1/mapeo-datos/${this.createdRATId}`,
                 headers, 
                 {}
             );
@@ -677,7 +676,7 @@ class AgenteRigurosoCURL {
         const endpointsPerformance = [
             `${AGENT_CONFIG.frontendUrl}/`,
             `${AGENT_CONFIG.backendUrl}/health`,
-            `${AGENT_CONFIG.backendUrl}/api/organizaciones`
+            `${AGENT_CONFIG.backendUrl}/api/v1/empresas-mt/`
         ];
         
         for (const url of endpointsPerformance) {
