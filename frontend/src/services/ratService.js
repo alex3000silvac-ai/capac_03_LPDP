@@ -1,8 +1,7 @@
 /**
- * 🛡️ RAT SERVICE - SIMPLE SUPABASE ONLY
+ * 🛡️ RAT SERVICE - ARREGLADO COMPLETO
  * 
- * Servicio simplificado sin dependencias problemáticas
- * Solo funciones esenciales para evitar build errors
+ * Servicio corregido para manejo correcto de tenants y sesiones
  */
 
 import { supabase } from '../config/supabaseClient';
@@ -10,7 +9,7 @@ import { RAT_ESTADOS } from '../constants/estados';
 
 class RATService {
   constructor() {
-    this.tableName = 'mapeo_datos_rat'; // FIXED: Usar tabla correcta del sistema
+    this.tableName = 'rat';
   }
 
   // Función básica para evitar errores de build
@@ -29,7 +28,6 @@ class RATService {
     }
   }
 
-  // Función básica para evitar errores de build
   async createRAT(ratData) {
     try {
       const { data, error } = await supabase
@@ -46,7 +44,6 @@ class RATService {
     }
   }
 
-  // Función básica para evitar errores de build
   async updateRAT(id, ratData) {
     try {
       const { data, error } = await supabase
@@ -64,7 +61,6 @@ class RATService {
     }
   }
 
-  // Función básica para evitar errores de build
   async deleteRAT(id) {
     try {
       const { error } = await supabase
@@ -80,7 +76,6 @@ class RATService {
     }
   }
 
-  // Función básica para evitar errores de build
   async getRATById(id) {
     try {
       const { data, error } = await supabase
@@ -97,68 +92,125 @@ class RATService {
     }
   }
 
-  // FIX: Función faltante para TenantContext
+  // ✅ FUNCIÓN CORREGIDA: setCurrentTenant
   async setCurrentTenant(tenant, userId) {
     try {
       console.log('🏢 setCurrentTenant llamado:', tenant?.company_name, userId);
       
-      if (!userId || !tenant) {
+      if (!userId || !tenant || !tenant.id) {
+        console.error('❌ setCurrentTenant: Datos inválidos', { userId, tenant });
         return { success: false, error: 'Usuario o tenant requerido' };
       }
 
-      // Upsert con conflict resolution específico para user_id + tenant_id
-      const { data, error } = await supabase
+      // Verificar si ya existe la sesión
+      const { data: existingSession } = await supabase
         .from('user_sessions')
-        .upsert({
-          user_id: userId,
-          tenant_id: tenant.id,
-          tenant_data: tenant,
-          is_active: true,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id,tenant_id'
-        })
-        .select();
+        .select('id')
+        .eq('user_id', userId)
+        .eq('tenant_id', tenant.id)
+        .single();
 
+      let result;
+      if (existingSession) {
+        // Actualizar sesión existente
+        result = await supabase
+          .from('user_sessions')
+          .update({
+            tenant_data: JSON.stringify(tenant),
+            is_active: true,
+            last_activity: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingSession.id)
+          .select();
+      } else {
+        // Crear nueva sesión
+        result = await supabase
+          .from('user_sessions')
+          .insert([{
+            user_id: userId,
+            tenant_id: tenant.id,
+            tenant_data: JSON.stringify(tenant),
+            is_active: true,
+            session_start: new Date().toISOString(),
+            last_activity: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }])
+          .select();
+      }
+
+      const { data, error } = result;
       if (error) {
-        console.error('Error guardando tenant en Supabase:', error);
+        console.error('❌ Error guardando tenant en Supabase:', error);
         return { success: false, error: error.message };
       }
 
+      console.log('✅ Tenant guardado exitosamente');
       return { success: true, data };
     } catch (error) {
-      console.error('Error setCurrentTenant:', error);
+      console.error('❌ Error setCurrentTenant:', error);
       return { success: false, error: error.message };
     }
   }
 
-  // FIX: Función faltante para TenantContext
+  // ✅ FUNCIÓN CORREGIDA: getCurrentTenant
   async getCurrentTenant(userId) {
     try {
       if (!userId) {
         return { success: false, error: 'Usuario requerido' };
       }
 
-      const { data, error } = await supabase
+      // Primero intentar obtener desde user_sessions
+      const { data: sessionData, error: sessionError } = await supabase
         .from('user_sessions')
         .select('tenant_id, tenant_data')
         .eq('user_id', userId)
         .eq('is_active', true)
         .single();
 
-      if (error) {
-        console.error('Error obteniendo tenant desde Supabase:', error);
-        return { success: false, error: error.message };
+      if (!sessionError && sessionData?.tenant_data) {
+        try {
+          // Intentar parsear tenant_data si es JSON string
+          let tenantData = sessionData.tenant_data;
+          if (typeof tenantData === 'string') {
+            tenantData = JSON.parse(tenantData);
+          }
+          
+          // Asegurar que tiene ID
+          if (tenantData && tenantData.id) {
+            return { success: true, data: tenantData };
+          }
+        } catch (parseError) {
+          console.warn('⚠️ Error parseando tenant_data:', parseError);
+        }
       }
 
-      return { success: true, data: data?.tenant_data || null };
+      // Fallback: obtener directamente desde organizaciones
+      console.log('🔄 Fallback: obteniendo tenant desde organizaciones');
+      const { data: orgData, error: orgError } = await supabase
+        .from('organizaciones')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (orgError || !orgData) {
+        console.error('❌ Error obteniendo organización:', orgError);
+        return { success: false, error: orgError?.message || 'No se encontró organización' };
+      }
+
+      console.log('✅ Tenant obtenido desde organizaciones:', orgData.company_name);
+      return { success: true, data: orgData };
+
     } catch (error) {
-      console.error('Error getCurrentTenant:', error);
+      console.error('❌ Error getCurrentTenant:', error);
       return { success: false, error: error.message };
     }
   }
 
-  // FIX: Función faltante para RATSystemProfessional  
   async getCompletedRATs() {
     try {
       const { data, error } = await supabase

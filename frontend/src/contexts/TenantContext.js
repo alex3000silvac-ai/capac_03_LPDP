@@ -1,10 +1,8 @@
-// 🚀 TENANTCONTEXT MODO ONLINE - PRODUCCIÓN SUPABASE
+// 🚀 TENANTCONTEXT MODO ONLINE - ARREGLADO COMPLETO
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import ratService from '../services/ratService';
 import { supabase } from '../config/supabaseClient';
-
-// //console.log('🚀 Iniciando TenantContext en modo PRODUCCIÓN SUPABASE');
 
 const TenantContext = createContext();
 
@@ -22,68 +20,90 @@ export const TenantProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { user, token, isAuthenticated } = useAuth();
 
-  // Cargar organizaciones desde Supabase
+  // ✅ FUNCIÓN CORREGIDA: Cargar organizaciones desde Supabase
   const loadAvailableTenants = async () => {
     if (!isAuthenticated || !user) {
-      // //console.log('🚀 Usuario no autenticado, no se cargan tenants');
+      console.log('🚀 Usuario no autenticado, no se cargan tenants');
+      setLoading(false);
       return [];
     }
     
     try {
-      // //console.log('🚀 Cargando organizaciones desde Supabase para user:', user.id);
+      console.log('🚀 Cargando organizaciones desde Supabase para user:', user.id);
       setLoading(true);
       
-      // SEGURIDAD: Query con validación explícita de usuario autenticado
       const { data, error } = await supabase
         .from('organizaciones')
         .select('*')
         .eq('user_id', user.id)
-        .eq('active', true) // Solo organizaciones activas
+        .eq('active', true)
         .order('created_at', { ascending: false });
       
-      // //console.log('🚀 Organizaciones cargadas:', data?.length || 0);
+      console.log('🚀 Query organizaciones result:', { data: data?.length || 0, error });
       
-      if (!data || data.length === 0) {
-        // Crear organización por defecto si no existe ninguna
-        const defaultOrg = await createDefaultOrganization();
-        setAvailableTenants([defaultOrg]);
-        return [defaultOrg];
+      if (error) {
+        console.error('❌ Error cargando organizaciones:', error);
+        throw error;
       }
       
+      if (!data || data.length === 0) {
+        console.log('⚠️ No hay organizaciones, creando por defecto');
+        const defaultOrg = await createDefaultOrganization();
+        if (defaultOrg) {
+          setAvailableTenants([defaultOrg]);
+          return [defaultOrg];
+        }
+        setAvailableTenants([]);
+        return [];
+      }
+      
+      console.log('✅ Organizaciones cargadas:', data.map(o => o.company_name));
       setAvailableTenants(data);
       return data;
       
     } catch (error) {
-      console.error('🚀 Error cargando tenants:', error);
-      const defaultOrg = await createDefaultOrganization();
-      setAvailableTenants([defaultOrg]);
-      return [defaultOrg];
+      console.error('❌ Error cargando tenants:', error);
+      // En caso de error, intentar crear organización por defecto
+      try {
+        const defaultOrg = await createDefaultOrganization();
+        if (defaultOrg) {
+          setAvailableTenants([defaultOrg]);
+          return [defaultOrg];
+        }
+      } catch (createError) {
+        console.error('❌ Error creando organización por defecto:', createError);
+      }
+      setAvailableTenants([]);
+      return [];
     } finally {
       setLoading(false);
     }
   };
   
+  // ✅ FUNCIÓN CORREGIDA: Crear organización por defecto
   const createDefaultOrganization = async () => {
     if (!user?.id) {
-      console.error('🚨 SEGURIDAD: No se puede crear organización sin usuario válido');
+      console.error('🚨 No se puede crear organización sin usuario válido');
       return null;
     }
     
-    // NO incluir ID - dejar que Supabase lo genere automáticamente (SERIAL)
     const defaultOrg = {
       company_name: `Organización de ${user.email}`,
       display_name: `Organización de ${user.email}`,
       industry: 'General',
       size: 'Pequeña',
       country: 'Chile',
-      user_id: user.id, // CRÍTICO: Siempre vincular al usuario actual
+      user_id: user.id,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       is_demo: false,
       online_mode: true,
-      active: true // SEGURIDAD: Marcado como activo por defecto
+      active: true
     };
     
     try {
+      console.log('🏢 Creando organización por defecto:', defaultOrg);
+      
       const { data, error } = await supabase
         .from('organizaciones')
         .insert([defaultOrg])
@@ -91,102 +111,149 @@ export const TenantProvider = ({ children }) => {
         .single();
         
       if (error) {
-        console.error('🚀 Error creando organización por defecto:', error);
-        // Si hay error, devolver objeto temporal para uso local
+        console.error('❌ Error creando organización por defecto:', error);
+        // Devolver objeto temporal para uso local si falla la creación
         return { ...defaultOrg, id: `temp_${Date.now()}` };
       }
       
-      // //console.log('🚀 Organización por defecto creada:', data);
+      console.log('✅ Organización por defecto creada:', data);
       return data;
+      
     } catch (error) {
-      console.error('🚀 Error creando organización por defecto:', error);
+      console.error('❌ Error en createDefaultOrganization:', error);
       return { ...defaultOrg, id: `temp_${Date.now()}` };
     }
   };
 
-  // Auto-setup cuando el usuario se autentica
+  // ✅ EFECTO CORREGIDO: Auto-setup cuando el usuario se autentica
   useEffect(() => {
     const initializeTenants = async () => {
-      if (isAuthenticated && user) {
-        // //console.log('🚀 Auto-setup tenants online');
+      if (!isAuthenticated || !user) {
+        console.log('🚀 No hay usuario autenticado, limpiando tenants');
+        setCurrentTenant(null);
+        setAvailableTenants([]);
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        console.log('🚀 Inicializando tenants para user:', user.id);
         
         const tenants = await loadAvailableTenants();
+        console.log('🚀 Tenants cargados:', tenants?.length || 0);
         
-        if (tenants && tenants.length > 0) {
-          // Cargar tenant guardado desde Supabase o seleccionar el primero
-          let selectedTenant;
-          try {
-            const savedTenantResult = await ratService.getCurrentTenant(user.id);
-            if (savedTenantResult.success && savedTenantResult.data) {
-              selectedTenant = tenants.find(t => t.id === savedTenantResult.data.id) || savedTenantResult.data;
+        if (!tenants || tenants.length === 0) {
+          console.log('⚠️ No hay tenants disponibles');
+          setCurrentTenant(null);
+          return;
+        }
+        
+        let selectedTenant = null;
+        
+        // Intentar obtener tenant guardado
+        try {
+          console.log('🔍 Buscando tenant guardado...');
+          const savedTenantResult = await ratService.getCurrentTenant(user.id);
+          
+          if (savedTenantResult.success && savedTenantResult.data && savedTenantResult.data.id) {
+            console.log('📋 Tenant guardado encontrado:', savedTenantResult.data.company_name);
+            
+            // Buscar tenant en la lista cargada
+            selectedTenant = tenants.find(t => t.id === savedTenantResult.data.id);
+            
+            if (!selectedTenant) {
+              console.log('⚠️ Tenant guardado no está en la lista actual, usando datos guardados');
+              selectedTenant = savedTenantResult.data;
             }
-          } catch (error) {
-            // //console.log('🚀 Error obteniendo tenant guardado desde Supabase');
+          } else {
+            console.log('⚠️ No hay tenant guardado o es inválido');
           }
-          
-          if (!selectedTenant) {
-            selectedTenant = tenants[0];
-          }
-          
+        } catch (error) {
+          console.warn('⚠️ Error obteniendo tenant guardado:', error);
+        }
+        
+        // Fallback: usar el primer tenant disponible
+        if (!selectedTenant) {
+          selectedTenant = tenants[0];
+          console.log('🎯 Usando primer tenant disponible:', selectedTenant?.company_name);
+        }
+        
+        if (selectedTenant) {
+          console.log('✅ Estableciendo tenant:', selectedTenant.company_name);
           setCurrentTenant(selectedTenant);
           
-          // CRÍTICO: Persistir en Supabase únicamente
-          await ratService.setCurrentTenant(selectedTenant, user.id);
-          
-          // //console.log('🚀 Tenant seleccionado automáticamente:', selectedTenant.company_name);
+          // Guardar en Supabase (sin await para no bloquear)
+          ratService.setCurrentTenant(selectedTenant, user.id)
+            .then(result => {
+              if (result.success) {
+                console.log('✅ Tenant persistido en Supabase');
+              } else {
+                console.warn('⚠️ Error persistiendo tenant:', result.error);
+              }
+            })
+            .catch(error => {
+              console.warn('⚠️ Error persistiendo tenant:', error);
+            });
+        } else {
+          console.error('❌ No se pudo establecer ningún tenant');
         }
+        
+      } catch (error) {
+        console.error('❌ Error en initializeTenants:', error);
+        setCurrentTenant(null);
       }
     };
     
     initializeTenants();
   }, [isAuthenticated, user]);
 
-  // Intentar restaurar tenant desde Supabase al inicializar
-  useEffect(() => {
-    const restoreSavedTenant = async () => {
-      if (!isAuthenticated && user?.id) {
-        try {
-          const savedTenantResult = await ratService.getCurrentTenant(user.id);
-          if (savedTenantResult.success && savedTenantResult.data) {
-            setCurrentTenant(savedTenantResult.data);
-            // //console.log('🚀 Tenant restaurado desde Supabase:', savedTenantResult.data.company_name);
-          }
-        } catch (error) {
-          // //console.log('🚀 Error obteniendo tenant guardado desde Supabase');
-        }
-      }
-    };
-    
-    restoreSavedTenant();
-  }, [user]);
-
-  // loadAvailableTenants ya está definido arriba
-
+  // ✅ FUNCIÓN CORREGIDA: Seleccionar tenant
   const selectTenant = async (tenant) => {
-    // //console.log('🚀 Seleccionando tenant online:', tenant.company_name);
+    if (!tenant || !tenant.id) {
+      console.error('❌ Tenant inválido para selección:', tenant);
+      return false;
+    }
+    
+    console.log('🎯 Seleccionando tenant:', tenant.company_name);
     
     setCurrentTenant(tenant);
     
-    // Persistir en Supabase únicamente
-    const result = await ratService.setCurrentTenant(tenant, user?.id);
+    if (user?.id) {
+      try {
+        const result = await ratService.setCurrentTenant(tenant, user.id);
+        if (result.success) {
+          console.log('✅ Tenant seleccionado y guardado');
+          return true;
+        } else {
+          console.error('❌ Error guardando tenant seleccionado:', result.error);
+          return false;
+        }
+      } catch (error) {
+        console.error('❌ Error en selectTenant:', error);
+        return false;
+      }
+    }
     
-    return result.success;
+    return true;
   };
 
   const createTenant = async (tenantData) => {
     if (!user) throw new Error('Usuario no autenticado');
     
-    // //console.log('🚀 Creando tenant online:', tenantData);
+    console.log('🏢 Creando nuevo tenant:', tenantData);
     
     const newTenantData = {
       company_name: tenantData.company_name || 'Nueva Empresa',
-      display_name: tenantData.company_name || 'Nueva Empresa',
+      display_name: tenantData.display_name || tenantData.company_name || 'Nueva Empresa',
       industry: tenantData.industry || 'Otros',
       size: tenantData.size || 'Pequeña',
-      country: 'Chile',
+      country: tenantData.country || 'Chile',
       user_id: user.id,
       is_demo: false,
       online_mode: true,
+      active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       ...tenantData
     };
     
@@ -198,35 +265,35 @@ export const TenantProvider = ({ children }) => {
         .single();
         
       if (error) {
-        console.error('🚀 Error creando organización:', error);
+        console.error('❌ Error creando organización:', error);
         throw new Error(error.message);
       }
       
       const updatedTenants = [...availableTenants, data];
       setAvailableTenants(updatedTenants);
       
-      // //console.log('🚀 Organización creada exitosamente:', data);
+      console.log('✅ Organización creada exitosamente:', data);
       return data;
       
     } catch (error) {
-      console.error('🚀 Error creando tenant:', error);
+      console.error('❌ Error creando tenant:', error);
       throw error;
     }
   };
 
   const updateTenant = async (tenantId, updateData) => {
-    // //console.log('🚀 Actualizando tenant online:', tenantId, updateData);
+    console.log('🔄 Actualizando tenant:', tenantId, updateData);
     
     try {
       const { data, error } = await supabase
         .from('organizaciones')
-        .update(updateData)
+        .update({ ...updateData, updated_at: new Date().toISOString() })
         .eq('id', tenantId)
         .select()
         .single();
         
       if (error) {
-        console.error('🚀 Error actualizando organización:', error);
+        console.error('❌ Error actualizando organización:', error);
         throw new Error(error.message);
       }
       
@@ -235,23 +302,22 @@ export const TenantProvider = ({ children }) => {
       );
       setAvailableTenants(updatedTenants);
       
-      // Si es el tenant actual, actualizarlo en Supabase
       if (currentTenant?.id === tenantId) {
         setCurrentTenant(data);
         await ratService.setCurrentTenant(data, user?.id);
       }
       
-      // //console.log('🚀 Organización actualizada exitosamente:', data);
+      console.log('✅ Organización actualizada exitosamente:', data);
       return data;
       
     } catch (error) {
-      console.error('🚀 Error actualizando tenant:', error);
+      console.error('❌ Error actualizando tenant:', error);
       throw error;
     }
   };
 
   const deleteTenant = async (tenantId) => {
-    // //console.log('🚀 Eliminando tenant online:', tenantId);
+    console.log('🗑️ Eliminando tenant:', tenantId);
     
     try {
       const { error } = await supabase
@@ -260,49 +326,48 @@ export const TenantProvider = ({ children }) => {
         .eq('id', tenantId);
         
       if (error) {
-        console.error('🚀 Error eliminando organización:', error);
+        console.error('❌ Error eliminando organización:', error);
         throw new Error(error.message);
       }
       
       const filteredTenants = availableTenants.filter(t => t.id !== tenantId);
       setAvailableTenants(filteredTenants);
       
-      // Si es el tenant actual, seleccionar otro
       if (currentTenant?.id === tenantId) {
         if (filteredTenants.length > 0) {
           const newTenant = filteredTenants[0];
           setCurrentTenant(newTenant);
           await ratService.setCurrentTenant(newTenant, user?.id);
         } else {
-          // Si no quedan tenants, crear uno por defecto
           const defaultOrg = await createDefaultOrganization();
           if (defaultOrg) {
             setCurrentTenant(defaultOrg);
             setAvailableTenants([defaultOrg]);
             await ratService.setCurrentTenant(defaultOrg, user?.id);
+          } else {
+            setCurrentTenant(null);
           }
         }
       }
       
-      // //console.log('🚀 Organización eliminada exitosamente');
+      console.log('✅ Organización eliminada exitosamente');
       return true;
       
     } catch (error) {
-      console.error('🚀 Error eliminando tenant:', error);
+      console.error('❌ Error eliminando tenant:', error);
       throw error;
     }
   };
 
   const clearTenant = async () => {
-    // //console.log('🚀 Limpiando tenant online');
+    console.log('🧹 Limpiando tenant');
     setCurrentTenant(null);
     
-    // Limpiar sesión en Supabase
     if (user?.id) {
       try {
         await supabase
           .from('user_sessions')
-          .update({ is_active: false })
+          .update({ is_active: false, updated_at: new Date().toISOString() })
           .eq('user_id', user.id);
       } catch (error) {
         console.error('Error limpiando sesión:', error);
