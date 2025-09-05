@@ -76,6 +76,88 @@ class SQLServerPASCClient {
         },
         error: null
       };
+    },
+    // CRÍTICO: Implementar onAuthStateChange que falta
+    onAuthStateChange: (callback) => {
+      console.log('🚀 SQL Server Auth State Change listener configurado');
+      // Simular sesión activa inmediatamente
+      setTimeout(() => {
+        const session = {
+          user: {
+            id: 'ca0f7530-8176-4069-be04-d65488054274',
+            email: 'admin@juridicadigital.cl',
+            user_metadata: {
+              tenant_id: 'demo_empresa',
+              organizacion_id: 'demo_empresa',
+              organizacion_nombre: 'Empresa Demo SQL Server',
+              is_superuser: false,
+              permissions: ['rat:create', 'rat:read', 'rat:update', 'eipd:create', 'providers:manage'],
+              first_name: 'Admin',
+              last_name: 'Demo'
+            }
+          },
+          access_token: 'sql-server-demo-token-' + Date.now()
+        };
+        
+        callback('SIGNED_IN', session);
+      }, 100);
+      
+      // Devolver objeto compatible con subscription
+      return {
+        data: {
+          subscription: {
+            unsubscribe: () => {
+              console.log('🚀 Auth State Change listener deshabilitado');
+            }
+          }
+        }
+      };
+    },
+    // Métodos adicionales para compatibilidad completa
+    signInWithPassword: async ({ email, password }) => {
+      console.log('🚀 SQL Server Login:', email);
+      return {
+        data: {
+          user: {
+            id: 'ca0f7530-8176-4069-be04-d65488054274',
+            email: email,
+            user_metadata: {
+              tenant_id: 'demo_empresa',
+              organizacion_id: 'demo_empresa',
+              organizacion_nombre: 'Empresa Demo',
+              is_superuser: false,
+              permissions: ['rat:create', 'rat:read', 'rat:update', 'eipd:create', 'providers:manage'],
+              first_name: email.split('@')[0],
+              last_name: 'Demo'
+            }
+          },
+          session: {
+            user: {
+              id: 'ca0f7530-8176-4069-be04-d65488054274',
+              email: email,
+              user_metadata: {
+                tenant_id: 'demo_empresa'
+              }
+            },
+            access_token: 'sql-server-login-token-' + Date.now()
+          }
+        },
+        error: null
+      };
+    },
+    signOut: async () => {
+      console.log('🚀 SQL Server Logout');
+      return { error: null };
+    },
+    refreshSession: async () => {
+      return {
+        data: {
+          session: {
+            access_token: 'sql-server-refresh-token-' + Date.now()
+          }
+        },
+        error: null
+      };
     }
   }
 }
