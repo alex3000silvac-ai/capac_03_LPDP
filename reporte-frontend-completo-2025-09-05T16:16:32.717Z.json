@@ -1,0 +1,195 @@
+{
+  "totalTests": 25,
+  "passed": 0,
+  "failed": 25,
+  "errors": [
+    "Frontend Página Principal: HTTP NaN (NaNs)",
+    "Frontend Login Page: HTTP NaN (NaNs)",
+    "Frontend Dashboard: HTTP NaN (NaNs)",
+    "Frontend Inventario Datos: HTTP NaN (NaNs)",
+    "Frontend Registro Actividades (RAT): HTTP NaN (NaNs)",
+    "Frontend Proveedores: HTTP NaN (NaNs)",
+    "Frontend Evaluación Impacto (DPIA): HTTP NaN (NaNs)",
+    "Frontend Documentos: HTTP NaN (NaNs)",
+    "Frontend Configuración: HTTP NaN (NaNs)",
+    "Frontend Usuarios: HTTP NaN (NaNs)",
+    "Frontend Reportes: HTTP NaN (NaNs)",
+    "Frontend Ayuda: HTTP NaN (NaNs)",
+    "Backend GET Health Check: HTTP NaN (NaNs)",
+    "Backend POST Demo Login: HTTP NaN (NaNs)",
+    "Backend GET Tenants: HTTP NaN (NaNs)",
+    "Backend GET Emergency Login: HTTP NaN (NaNs)",
+    "Rendimiento Frontend Principal: NaNs (máx: 3s)",
+    "Rendimiento Frontend Login: NaNs (máx: 3s)",
+    "Rendimiento Frontend Dashboard: NaNs (máx: 3s)",
+    "Rendimiento Backend Health: NaNs (máx: 1s)",
+    "Demo Login Flow: HTTP NaN",
+    "Módulo /inventario-datos: HTTP NaN",
+    "Módulo /registro-actividades: HTTP NaN",
+    "Módulo /proveedores: HTTP NaN",
+    "Módulo /evaluacion-impacto: HTTP NaN"
+  ],
+  "frontendTests": [
+    {
+      "name": "Página Principal",
+      "path": "/",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": true
+    },
+    {
+      "name": "Login Page",
+      "path": "/login",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": true
+    },
+    {
+      "name": "Dashboard",
+      "path": "/dashboard",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": true
+    },
+    {
+      "name": "Inventario Datos",
+      "path": "/inventario-datos",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": true
+    },
+    {
+      "name": "Registro Actividades (RAT)",
+      "path": "/registro-actividades",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": true
+    },
+    {
+      "name": "Proveedores",
+      "path": "/proveedores",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": true
+    },
+    {
+      "name": "Evaluación Impacto (DPIA)",
+      "path": "/evaluacion-impacto",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": true
+    },
+    {
+      "name": "Documentos",
+      "path": "/documentos",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": false
+    },
+    {
+      "name": "Configuración",
+      "path": "/configuracion",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": false
+    },
+    {
+      "name": "Usuarios",
+      "path": "/usuarios",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": false
+    },
+    {
+      "name": "Reportes",
+      "path": "/reportes",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": true
+    },
+    {
+      "name": "Ayuda",
+      "path": "/ayuda",
+      "statusCode": null,
+      "timeTotal": null,
+      "success": false,
+      "critical": false
+    }
+  ],
+  "backendTests": [
+    {
+      "name": "Health Check",
+      "method": "GET",
+      "path": "/health",
+      "statusCode": null,
+      "success": false
+    },
+    {
+      "name": "Demo Login",
+      "method": "POST",
+      "path": "/api/v1/demo/login",
+      "statusCode": null,
+      "success": false
+    },
+    {
+      "name": "Tenants",
+      "method": "GET",
+      "path": "/tenants/available",
+      "statusCode": null,
+      "success": false
+    },
+    {
+      "name": "Emergency Login",
+      "method": "GET",
+      "path": "/emergency-demo-login",
+      "statusCode": null,
+      "success": false
+    }
+  ],
+  "performanceTests": [
+    {
+      "name": "Frontend Principal",
+      "url": "https://scldp-frontend.onrender.com/",
+      "timeTotal": null,
+      "maxTime": 3,
+      "isPerformant": false,
+      "isAccessible": false
+    },
+    {
+      "name": "Frontend Login",
+      "url": "https://scldp-frontend.onrender.com/login",
+      "timeTotal": null,
+      "maxTime": 3,
+      "isPerformant": false,
+      "isAccessible": false
+    },
+    {
+      "name": "Frontend Dashboard",
+      "url": "https://scldp-frontend.onrender.com/dashboard",
+      "timeTotal": null,
+      "maxTime": 3,
+      "isPerformant": false,
+      "isAccessible": false
+    },
+    {
+      "name": "Backend Health",
+      "url": "https://scldp-backend.onrender.com/health",
+      "timeTotal": null,
+      "maxTime": 1,
+      "isPerformant": false,
+      "isAccessible": false
+    }
+  ],
+  "businessLogicTests": []
+}

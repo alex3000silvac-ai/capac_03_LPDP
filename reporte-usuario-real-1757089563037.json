@@ -1,0 +1,118 @@
+{
+  "timestamp": "2025-09-05T16:26:03.037Z",
+  "successRate": 41.67,
+  "results": {
+    "totalTests": 12,
+    "passed": 5,
+    "failed": 7,
+    "errors": [
+      "Contenido dinámico cargado: 0 caracteres",
+      "Elementos navegación encontrados: 0 elementos interactivos",
+      "Elementos LPDP encontrados: 0 elementos relacionados con LPDP",
+      "Elementos de login encontrados: 0 elementos de login",
+      "Formulario de login presente",
+      "Conexión backend: this.page.waitForTimeout is not a function",
+      "Escenario usuario real: this.page.waitForTimeout is not a function"
+    ],
+    "screenshots": [
+      "screenshot-pagina-principal-1757089556215.png",
+      "screenshot-pagina-login-1757089557885.png",
+      "screenshot-usuario-nuevo-inicio-1757089562851.png",
+      "screenshot-error-scenario-usuario-1757089562957.png"
+    ],
+    "networkErrors": [],
+    "javascriptErrors": [
+      "qa.auth.onAuthStateChange is not a function",
+      "qa.auth.onAuthStateChange is not a function",
+      "qa.auth.onAuthStateChange is not a function",
+      "qa.auth.onAuthStateChange is not a function"
+    ],
+    "userFlowResults": [
+      {
+        "name": "Inicialización Browser",
+        "success": true,
+        "details": "Puppeteer listo",
+        "timestamp": "2025-09-05T16:25:52.931Z",
+        "screenshot": null
+      },
+      {
+        "name": "Página principal carga",
+        "success": true,
+        "details": "Título: Jurídica Digital SPA - Sistema de Capacitación LPDP",
+        "timestamp": "2025-09-05T16:25:56.334Z",
+        "screenshot": "screenshot-pagina-principal-1757089556215.png"
+      },
+      {
+        "name": "React App montado",
+        "success": true,
+        "details": "Elemento #root encontrado",
+        "timestamp": "2025-09-05T16:25:56.350Z",
+        "screenshot": null
+      },
+      {
+        "name": "Contenido dinámico cargado",
+        "success": false,
+        "details": "0 caracteres",
+        "timestamp": "2025-09-05T16:25:56.351Z",
+        "screenshot": null
+      },
+      {
+        "name": "Sin mensajes de error visibles",
+        "success": true,
+        "details": "",
+        "timestamp": "2025-09-05T16:25:56.351Z",
+        "screenshot": null
+      },
+      {
+        "name": "Elementos navegación encontrados",
+        "success": false,
+        "details": "0 elementos interactivos",
+        "timestamp": "2025-09-05T16:25:56.352Z",
+        "screenshot": null
+      },
+      {
+        "name": "Elementos LPDP encontrados",
+        "success": false,
+        "details": "0 elementos relacionados con LPDP",
+        "timestamp": "2025-09-05T16:25:56.352Z",
+        "screenshot": null
+      },
+      {
+        "name": "Elementos de login encontrados",
+        "success": false,
+        "details": "0 elementos de login",
+        "timestamp": "2025-09-05T16:25:56.353Z",
+        "screenshot": null
+      },
+      {
+        "name": "Navegación a login",
+        "success": true,
+        "details": "Página /login cargada",
+        "timestamp": "2025-09-05T16:25:57.993Z",
+        "screenshot": "screenshot-pagina-login-1757089557885.png"
+      },
+      {
+        "name": "Formulario de login presente",
+        "success": false,
+        "details": "",
+        "timestamp": "2025-09-05T16:25:57.996Z",
+        "screenshot": null
+      },
+      {
+        "name": "Conexión backend",
+        "success": false,
+        "details": "this.page.waitForTimeout is not a function",
+        "timestamp": "2025-09-05T16:26:00.451Z",
+        "screenshot": null
+      },
+      {
+        "name": "Escenario usuario real",
+        "success": false,
+        "details": "this.page.waitForTimeout is not a function",
+        "timestamp": "2025-09-05T16:26:03.036Z",
+        "screenshot": "screenshot-error-scenario-usuario-1757089562957.png"
+      }
+    ]
+  },
+  "verdict": "NO_FUNCIONAL"
+}

@@ -1,0 +1,176 @@
+{
+  "totalTests": 85,
+  "passed": 79,
+  "failed": 6,
+  "errors": [
+    "Keyword LPDP 'RAT'",
+    "Keyword LPDP 'DPIA'",
+    "Keyword LPDP 'inventario'",
+    "Keyword LPDP 'proveedores'",
+    "Keyword LPDP 'evaluación'",
+    "Keyword LPDP 'impacto'"
+  ],
+  "frontendTests": [
+    {
+      "name": "Página Principal",
+      "path": "/",
+      "statusCode": 200,
+      "timeTotal": 0.592199,
+      "success": true,
+      "critical": true
+    },
+    {
+      "name": "Login Page",
+      "path": "/login",
+      "statusCode": 200,
+      "timeTotal": 0.230736,
+      "success": true,
+      "critical": true
+    },
+    {
+      "name": "Dashboard",
+      "path": "/dashboard",
+      "statusCode": 200,
+      "timeTotal": 0.255488,
+      "success": true,
+      "critical": true
+    },
+    {
+      "name": "Inventario Datos",
+      "path": "/inventario-datos",
+      "statusCode": 200,
+      "timeTotal": 0.223263,
+      "success": true,
+      "critical": true
+    },
+    {
+      "name": "Registro Actividades (RAT)",
+      "path": "/registro-actividades",
+      "statusCode": 200,
+      "timeTotal": 0.595339,
+      "success": true,
+      "critical": true
+    },
+    {
+      "name": "Proveedores",
+      "path": "/proveedores",
+      "statusCode": 200,
+      "timeTotal": 0.224809,
+      "success": true,
+      "critical": true
+    },
+    {
+      "name": "Evaluación Impacto (DPIA)",
+      "path": "/evaluacion-impacto",
+      "statusCode": 200,
+      "timeTotal": 0.208599,
+      "success": true,
+      "critical": true
+    },
+    {
+      "name": "Documentos",
+      "path": "/documentos",
+      "statusCode": 200,
+      "timeTotal": 0.225445,
+      "success": true,
+      "critical": false
+    },
+    {
+      "name": "Configuración",
+      "path": "/configuracion",
+      "statusCode": 200,
+      "timeTotal": 0.244444,
+      "success": true,
+      "critical": false
+    },
+    {
+      "name": "Usuarios",
+      "path": "/usuarios",
+      "statusCode": 200,
+      "timeTotal": 0.227809,
+      "success": true,
+      "critical": false
+    },
+    {
+      "name": "Reportes",
+      "path": "/reportes",
+      "statusCode": 200,
+      "timeTotal": 0.231479,
+      "success": true,
+      "critical": true
+    },
+    {
+      "name": "Ayuda",
+      "path": "/ayuda",
+      "statusCode": 200,
+      "timeTotal": 0.228591,
+      "success": true,
+      "critical": false
+    }
+  ],
+  "backendTests": [
+    {
+      "name": "Health Check",
+      "method": "GET",
+      "path": "/health",
+      "statusCode": 200,
+      "success": true
+    },
+    {
+      "name": "Demo Login",
+      "method": "POST",
+      "path": "/api/v1/demo/login",
+      "statusCode": 200,
+      "success": true
+    },
+    {
+      "name": "Tenants",
+      "method": "GET",
+      "path": "/tenants/available",
+      "statusCode": 200,
+      "success": true
+    },
+    {
+      "name": "Emergency Login",
+      "method": "GET",
+      "path": "/emergency-demo-login",
+      "statusCode": 200,
+      "success": true
+    }
+  ],
+  "performanceTests": [
+    {
+      "name": "Frontend Principal",
+      "url": "https://scldp-frontend.onrender.com/",
+      "timeTotal": 0.233898,
+      "maxTime": 3,
+      "isPerformant": true,
+      "isAccessible": true
+    },
+    {
+      "name": "Frontend Login",
+      "url": "https://scldp-frontend.onrender.com/login",
+      "timeTotal": 0.591144,
+      "maxTime": 3,
+      "isPerformant": true,
+      "isAccessible": true
+    },
+    {
+      "name": "Frontend Dashboard",
+      "url": "https://scldp-frontend.onrender.com/dashboard",
+      "timeTotal": 0.228721,
+      "maxTime": 3,
+      "isPerformant": true,
+      "isAccessible": true
+    },
+    {
+      "name": "Backend Health",
+      "url": "https://scldp-backend.onrender.com/health",
+      "timeTotal": 0.217427,
+      "maxTime": 1,
+      "isPerformant": true,
+      "isAccessible": true
+    }
+  ],
+  "businessLogicTests": []
+}

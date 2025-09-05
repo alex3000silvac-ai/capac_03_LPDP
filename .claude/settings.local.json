@@ -57,7 +57,13 @@
       "Bash(python:*)",
       "Bash(sudo apt-get:*)",
       "WebFetch(domain:render.com)",
-      "Bash(OPENAI_API_KEY=$OPENAI_API_KEY:-\"\"\"\" node agente-riguroso-render-lpdp.js)"
+      "Bash(OPENAI_API_KEY=$OPENAI_API_KEY:-\"\"\"\" node agente-riguroso-render-lpdp.js)",
+      "Bash(OPENAI_API_KEY=$OPENAI_API_KEY node agente-curl-riguroso-lpdp.js)",
+      "Bash(OPENAI_API_KEY=$OPENAI_API_KEY node agente-riguroso-render-lpdp.js)",
+      "WebSearch",
+      "WebFetch(domain:www.stackhawk.com)",
+      "WebFetch(domain:stackoverflow.com)",
+      "WebFetch(domain:content-security-policy.com)"
     ],
     "deny": [],
     "ask": [],

@@ -1,342 +1,81 @@
-// 🚀 SQL SERVER PASC CLIENT - CONEXIÓN LOCAL REAL
-// Conexión directa a SQL Server local corriendo en tu servidor
-console.log('🚀 Iniciando cliente SQL Server PASC para conexión local');
+// 🚀 CLIENTE SUPABASE REAL - ARQUITECTURA CLOUD COMPLETA
+// Conexión directa a Supabase Cloud - NO más localhost imposible
+import { createClient } from '@supabase/supabase-js'
 
-// Configuración SQL SERVER LOCAL (corriendo en tu servidor)
-const sqlServerUrl = process.env.REACT_APP_SQLSERVER_URL || 'http://localhost:3001/api';
-const sqlServerKey = process.env.REACT_APP_SQLSERVER_KEY || 'pasc-local-key';
+console.log('🚀 Iniciando cliente Supabase Cloud REAL para LPDP');
 
-// Validación de configuración SQL Server local
-if (!sqlServerUrl || !sqlServerKey) {
-  console.error('🚨 CONFIGURACIÓN CRÍTICA FALTANTE:');
-  console.error('   REACT_APP_SQLSERVER_URL:', sqlServerUrl ? '✅' : '❌ FALTA');
-  console.error('   REACT_APP_SQLSERVER_KEY:', sqlServerKey ? '✅' : '❌ FALTA');
-  console.warn('⚠️ Usando configuración por defecto para SQL Server local');
+// Configuración Supabase Cloud REAL - Proyecto symkjkbejxexgrydmvqs
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://symkjkbejxexgrydmvqs.supabase.co'
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5bWtqa2JlanhleGdyeWRtdnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMDc5MjksImV4cCI6MjA1MTU4MzkyOX0.ojEJUgqUinLV7WxJxUpf0Q3__rtV9rCuUoV6X6GfhWs'
+
+// Validación de configuración
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('🚨 CONFIGURACIÓN CRÍTICA FALTANTE');
+  console.error('   REACT_APP_SUPABASE_URL:', supabaseUrl ? '✅' : '❌ FALTA');
+  console.error('   REACT_APP_SUPABASE_ANON_KEY:', supabaseAnonKey ? '✅' : '❌ FALTA');
+  throw new Error('Supabase URL y Anon Key son requeridas para funcionar');
 }
 
-// Configuración validada para SQL Server
-console.log('🚀 Configurando SQL Server PASC:', {
-  url: sqlServerUrl,
-  keyPrefix: sqlServerKey.substring(0, 8) + '...'
+// Configuración validada
+console.log('✅ Configuración Supabase Cloud:', {
+  url: supabaseUrl,
+  project: supabaseUrl.split('.')[0].split('//')[1],
+  environment: 'production'
 });
 
-// Cliente SQL Server PASC - Reemplaza Supabase
-class SQLServerPASCClient {
-  constructor(url, key) {
-    this.baseUrl = url;
-    this.apiKey = key;
-    this.headers = {
-      'Content-Type': 'application/json',
-      'X-API-Key': key
-    };
-    console.log('✅ Cliente SQL Server PASC inicializado');
-  }
-
-  // Método from() que simula la API de Supabase
-  from(table) {
-    return new SQLServerQueryBuilder(table, this.baseUrl, this.headers);
-  }
-
-  // Método de autenticación (mock compatible)
-  auth = {
-    getUser: async () => {
-      return {
-        data: {
-          user: {
-            id: 'ca0f7530-8176-4069-be04-d65488054274',
-            email: 'admin@juridicadigital.cl',
-            role: 'authenticated'
-          }
-        },
-        error: null
-      };
-    },
-    getSession: async () => {
-      return {
-        data: {
-          session: {
-            user: {
-              id: 'ca0f7530-8176-4069-be04-d65488054274',
-              email: 'admin@juridicadigital.cl'
-            },
-            access_token: 'sql-server-token'
-          }
-        },
-        error: null
-      };
-    },
-    // CRÍTICO: Implementar onAuthStateChange que falta
-    onAuthStateChange: (callback) => {
-      console.log('🚀 SQL Server Auth State Change listener configurado');
-      // Simular sesión activa inmediatamente
-      setTimeout(() => {
-        const session = {
-          user: {
-            id: 'ca0f7530-8176-4069-be04-d65488054274',
-            email: 'admin@juridicadigital.cl',
-            user_metadata: {
-              tenant_id: 'demo_empresa',
-              organizacion_id: 'demo_empresa',
-              organizacion_nombre: 'Empresa Demo SQL Server',
-              is_superuser: false,
-              permissions: ['rat:create', 'rat:read', 'rat:update', 'eipd:create', 'providers:manage'],
-              first_name: 'Admin',
-              last_name: 'Demo'
-            }
-          },
-          access_token: 'sql-server-demo-token-' + Date.now()
-        };
-        
-        callback('SIGNED_IN', session);
-      }, 100);
-      
-      // Devolver objeto compatible con subscription
-      return {
-        data: {
-          subscription: {
-            unsubscribe: () => {
-              console.log('🚀 Auth State Change listener deshabilitado');
-            }
-          }
-        }
-      };
-    },
-    // Métodos adicionales para compatibilidad completa
-    signInWithPassword: async ({ email, password }) => {
-      console.log('🚀 SQL Server Login:', email);
-      return {
-        data: {
-          user: {
-            id: 'ca0f7530-8176-4069-be04-d65488054274',
-            email: email,
-            user_metadata: {
-              tenant_id: 'demo_empresa',
-              organizacion_id: 'demo_empresa',
-              organizacion_nombre: 'Empresa Demo',
-              is_superuser: false,
-              permissions: ['rat:create', 'rat:read', 'rat:update', 'eipd:create', 'providers:manage'],
-              first_name: email.split('@')[0],
-              last_name: 'Demo'
-            }
-          },
-          session: {
-            user: {
-              id: 'ca0f7530-8176-4069-be04-d65488054274',
-              email: email,
-              user_metadata: {
-                tenant_id: 'demo_empresa'
-              }
-            },
-            access_token: 'sql-server-login-token-' + Date.now()
-          }
-        },
-        error: null
-      };
-    },
-    signOut: async () => {
-      console.log('🚀 SQL Server Logout');
-      return { error: null };
-    },
-    refreshSession: async () => {
-      return {
-        data: {
-          session: {
-            access_token: 'sql-server-refresh-token-' + Date.now()
-          }
-        },
-        error: null
-      };
+// Cliente Supabase REAL con todas las funcionalidades nativas
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    storage: window.localStorage,
+    storageKey: 'supabase.auth.token',
+    flowType: 'pkce'
+  },
+  db: {
+    schema: 'public'
+  },
+  global: {
+    headers: {
+      'x-application': 'lpdp-system'
+    }
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
     }
   }
-}
+})
 
-// Query Builder que simula la interfaz de Supabase
-class SQLServerQueryBuilder {
-  constructor(table, baseUrl, headers) {
-    this.table = table;
-    this.baseUrl = baseUrl;
-    this.headers = headers;
-    this.filters = [];
-    this.selectFields = '*';
-    this.limitCount = null;
-    this.orderBy = null;
-    this.isSingle = false;
+// Test de conexión inicial
+supabase.auth.getSession().then(({ data, error }) => {
+  if (error) {
+    console.error('❌ Error inicial Supabase:', error.message);
+  } else {
+    console.log('✅ Supabase Cloud conectado:', {
+      session: data.session ? 'activa' : 'sin sesión',
+      mode: 'cloud',
+      timestamp: new Date().toISOString()
+    });
   }
+});
 
-  select(columns = '*') {
-    this.selectFields = columns;
-    return this;
-  }
-
-  eq(column, value) {
-    this.filters.push(`${column}=eq.${encodeURIComponent(value)}`);
-    return this;
-  }
-
-  neq(column, value) {
-    this.filters.push(`${column}=neq.${encodeURIComponent(value)}`);
-    return this;
-  }
-
-  limit(count) {
-    this.limitCount = count;
-    return this;
-  }
-
-  order(column, options = { ascending: true }) {
-    this.orderBy = `${column}.${options.ascending ? 'asc' : 'desc'}`;
-    return this;
-  }
-
-  single() {
-    this.isSingle = true;
-    return this;
-  }
-
-  async insert(data) {
-    try {
-      const response = await fetch(`${this.baseUrl}/${this.table}`, {
-        method: 'POST',
-        headers: this.headers,
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log(`✅ INSERT ${this.table}: Exitoso - SIN Status 400`);
-      
-      return { data: Array.isArray(result) ? result : [result], error: null };
-    } catch (error) {
-      console.error(`❌ Error INSERT ${this.table}:`, error);
-      return { data: null, error: error };
-    }
-  }
-
-  async update(data) {
-    try {
-      let url = `${this.baseUrl}/${this.table}`;
-      if (this.filters.length > 0) {
-        url += '?' + this.filters.join('&');
-      }
-
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: this.headers,
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log(`✅ UPDATE ${this.table}: Exitoso - SIN Status 400`);
-      
-      return { data: Array.isArray(result) ? result : [result], error: null };
-    } catch (error) {
-      console.error(`❌ Error UPDATE ${this.table}:`, error);
-      return { data: null, error: error };
-    }
-  }
-
-  async delete() {
-    try {
-      let url = `${this.baseUrl}/${this.table}`;
-      if (this.filters.length > 0) {
-        url += '?' + this.filters.join('&');
-      }
-
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: this.headers
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log(`✅ DELETE ${this.table}: Exitoso - SIN Status 400`);
-      
-      return { data: Array.isArray(result) ? result : [result], error: null };
-    } catch (error) {
-      console.error(`❌ Error DELETE ${this.table}:`, error);
-      return { data: null, error: error };
-    }
-  }
-
-  async execute() {
-    try {
-      let url = `${this.baseUrl}/${this.table}`;
-      
-      const params = [];
-      if (this.filters.length > 0) {
-        params.push(...this.filters);
-      }
-      if (this.selectFields !== '*') {
-        params.push(`select=${encodeURIComponent(this.selectFields)}`);
-      }
-      if (this.limitCount) {
-        params.push(`limit=${this.limitCount}`);
-      }
-      if (this.orderBy) {
-        params.push(`order=${this.orderBy}`);
-      }
-
-      if (params.length > 0) {
-        url += '?' + params.join('&');
-      }
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: this.headers
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log(`✅ SELECT ${this.table}: ${data.length || 0} registros - SIN Status 400`);
-      
-      // Si es single, devolver solo el primer elemento
-      if (this.isSingle) {
-        return { data: data[0] || null, error: null };
-      }
-
-      return { data: data, error: null };
-    } catch (error) {
-      console.error(`❌ Error SELECT ${this.table}:`, error);
-      return { data: null, error: error };
-    }
-  }
-
-  // Hacer que las consultas sean "thenable" para compatibilidad
-  then(resolve, reject) {
-    return this.execute().then(resolve, reject);
-  }
-}
-
-// Crear instancia del cliente SQL Server PASC
-export const supabase = new SQLServerPASCClient(sqlServerUrl, sqlServerKey);
-
-console.log('✅ Cliente SQL Server PASC inicializado exitosamente');
-
-// Helper para operaciones con tenant (compatibilidad)
+// Helper para operaciones con tenant específico
 export const supabaseWithTenant = (tenantId) => {
-  console.log(`🏢 Operación tenant: ${tenantId} (SQL Server PASC)`);
-  return supabase;
-};
+  // Supabase maneja el tenant via RLS automáticamente
+  return supabase.rpc('set_current_tenant', { tenant_id: tenantId })
+    .then(() => supabase)
+    .catch(() => supabase);
+}
 
-// Función para obtener tenant actual desde SQL Server PASC
+// Función para obtener tenant actual desde la sesión
 export const getCurrentTenant = async () => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (user?.id) {
+      // Primero intentar obtener de user_sessions
       const { data: session, error } = await supabase
         .from('user_sessions')
         .select('tenant_id')
@@ -345,67 +84,93 @@ export const getCurrentTenant = async () => {
         .single();
 
       if (!error && session) {
-        console.log(`✅ Tenant desde SQL Server: ${session.tenant_id}`);
+        console.log(`✅ Tenant activo: ${session.tenant_id}`);
         return session.tenant_id;
+      }
+
+      // Fallback: obtener primera organización del usuario
+      const { data: userTenant } = await supabase
+        .from('users_tenants')
+        .select('organizacion_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .single();
+
+      if (userTenant) {
+        console.log(`✅ Tenant desde users_tenants: ${userTenant.organizacion_id}`);
+        return userTenant.organizacion_id;
       }
     }
 
-    // Fallback a tenant por defecto
-    const { data: defaultTenant, error } = await supabase
-      .from('organizaciones')  
+    // Fallback final: tenant por defecto
+    const { data: defaultOrg } = await supabase
+      .from('organizaciones')
       .select('id')
       .limit(1)
       .single();
 
-    const tenantId = defaultTenant?.id || 'ca0f7530-8176-4069-be04-d65488054274';
-    console.log(`✅ Tenant fallback SQL Server: ${tenantId}`);
+    const tenantId = defaultOrg?.id || 'default';
+    console.log(`✅ Tenant fallback: ${tenantId}`);
     return tenantId;
+    
   } catch (error) {
-    console.error('Error obteniendo tenant desde SQL Server PASC:', error);
-    return 'ca0f7530-8176-4069-be04-d65488054274'; // Tenant por defecto
+    console.error('Error obteniendo tenant:', error);
+    return 'default';
   }
-};
+}
 
-// Función para verificar conectividad con SQL Server PASC
+// Función para verificar conectividad con Supabase Cloud
 export const getConnectivityStatus = async () => {
   try {
-    const response = await fetch(`${sqlServerUrl}/health`, {
-      headers: { 'X-API-Key': sqlServerKey }
-    });
+    // Test simple de conectividad
+    const { data, error } = await supabase
+      .from('organizaciones')
+      .select('count', { count: 'exact', head: true });
     
-    if (response.ok) {
-      const data = await response.json();
-      return { 
-        online: true, 
-        mode: 'sql_server_pasc',
-        message: 'Conectado exitosamente a SQL Server PASC - CERO errores Status 400',
-        database: 'LPDP_Test',
-        server: 'PASC',
-        timestamp: new Date().toISOString(),
-        records: data.records || 0
-      };
-    } else {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
+    if (error) throw error;
+    
+    return {
+      online: true,
+      mode: 'supabase_cloud',
+      message: 'Conectado exitosamente a Supabase Cloud',
+      database: 'PostgreSQL',
+      provider: 'Supabase',
+      project: supabaseUrl.split('.')[0].split('//')[1],
+      timestamp: new Date().toISOString(),
+      records: data || 0
+    };
   } catch (error) {
-    console.error('🚀 Error conectividad SQL Server PASC:', error);
+    console.error('❌ Error conectividad Supabase:', error);
     return {
       online: false,
-      mode: 'sql_server_error', 
+      mode: 'error',
       message: error.message,
       timestamp: new Date().toISOString()
     };
   }
-};
+}
 
-// Test de conexión inicial SQL Server PASC
-supabase.auth.getSession().then(({ data, error }) => {
-  if (error) {
-    console.error('🚀 Error inicial SQL Server PASC:', error);
-  } else {
-    console.log('🚀 SQL Server PASC conectado correctamente, sesión:', data.session ? 'activa' : 'simulada');
+// Configurar interceptor para manejo de errores global
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log(`🔐 Auth event: ${event}`, {
+    user: session?.user?.email,
+    tenant: session?.user?.user_metadata?.tenant_id
+  });
+  
+  // Actualizar headers con tenant si está disponible
+  if (session?.user?.user_metadata?.tenant_id) {
+    localStorage.setItem('currentTenant', session.user.user_metadata.tenant_id);
   }
 });
 
-// Exportar cliente SQL Server PASC - REEMPLAZA SUPABASE
+// Función helper para queries con tenant automático
+export const queryWithTenant = async (table, tenantId = null) => {
+  const tenant = tenantId || await getCurrentTenant();
+  return supabase
+    .from(table)
+    .select('*')
+    .eq('tenant_id', tenant);
+}
+
+// Exportar cliente Supabase como default
 export default supabase;

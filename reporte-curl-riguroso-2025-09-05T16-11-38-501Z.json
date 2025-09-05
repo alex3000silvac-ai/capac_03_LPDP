@@ -1,0 +1,2491 @@
+{
+  "startTime": "2025-09-05T16:09:36.725Z",
+  "cycles": [
+    {
+      "number": 1,
+      "startTime": "2025-09-05T16:09:37.379Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:09:45.091Z",
+      "duration": 7712
+    },
+    {
+      "number": 2,
+      "startTime": "2025-09-05T16:09:48.845Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:09:57.164Z",
+      "duration": 8319
+    },
+    {
+      "number": 3,
+      "startTime": "2025-09-05T16:10:02.173Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:10:08.989Z",
+      "duration": 6816
+    },
+    {
+      "number": 4,
+      "startTime": "2025-09-05T16:10:14.117Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:10:21.510Z",
+      "duration": 7393
+    },
+    {
+      "number": 5,
+      "startTime": "2025-09-05T16:10:26.519Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:10:33.970Z",
+      "duration": 7451
+    },
+    {
+      "number": 6,
+      "startTime": "2025-09-05T16:10:38.973Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:10:46.640Z",
+      "duration": 7667
+    },
+    {
+      "number": 7,
+      "startTime": "2025-09-05T16:10:50.389Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:10:58.694Z",
+      "duration": 8305
+    },
+    {
+      "number": 8,
+      "startTime": "2025-09-05T16:11:03.695Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:11:10.746Z",
+      "duration": 7051
+    },
+    {
+      "number": 9,
+      "startTime": "2025-09-05T16:11:15.753Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:11:21.667Z",
+      "duration": 5914
+    },
+    {
+      "number": 10,
+      "startTime": "2025-09-05T16:11:26.675Z",
+      "tests": [],
+      "endTime": "2025-09-05T16:11:33.499Z",
+      "duration": 6824
+    }
+  ],
+  "errors": [
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:41.003Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:41.501Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:42.296Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:42.942Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:43.197Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:43.589Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:43.839Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:09:44.342Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:52.722Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:53.610Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:54.390Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:54.645Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:54.907Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:55.224Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:09:55.510Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:09:56.008Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:05.494Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:06.006Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:06.765Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:07.011Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:07.247Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:07.474Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:07.724Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:10:08.226Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:18.856Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:18.508Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:19.261Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:19.528Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:19.776Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:19.999Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:20.245Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:10:20.768Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:29.809Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:30.362Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:31.240Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:31.482Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:32.118Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:32.450Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:32.699Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:10:33.243Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:42.627Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:43.160Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:43.960Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:44.210Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:44.455Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:45.087Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:45.340Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:10:45.833Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:53.733Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:54.610Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:55.340Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:55.588Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:55.846Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:56.097Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:10:56.335Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:10:56.889Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:07.056Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:07.580Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:08.316Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:08.572Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:08.839Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:09.078Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:09.336Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:11:09.832Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:19.455Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:19.954Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:20.687Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:20.952Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:19.952Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:20.195Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:20.426Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:11:20.942Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para admin: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:30.029Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "LOGIN_ERROR",
+      "message": "Login falló para dpo: HTTP 401",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:30.557Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/demo/status error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:31.299Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/mapeo-datos/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:31.561Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/ error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:31.787Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/modulos-disponibles error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:32.033Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "API_ERROR",
+      "message": "API /api/v1/empresas-mt/demo/setup error: HTTP 500",
+      "severity": "high",
+      "context": {
+        "timestamp": "2025-09-05T16:11:32.277Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "RAT_CREATION_ERROR",
+      "message": "Error creando RAT: HTTP 500",
+      "severity": "critical",
+      "context": {
+        "timestamp": "2025-09-05T16:11:32.759Z",
+        "cycle": 10
+      }
+    }
+  ],
+  "successes": [
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:38.028Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:38.286Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:38.538Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:38.776Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:39.014Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:39.260Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:39.508Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:39.745Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:40.012Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:40.264Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:40.516Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:40.755Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:09:41.258Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:41.754Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:42.045Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:44.100Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 247ms",
+      "context": {
+        "timestamp": "2025-09-05T16:09:44.590Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 256ms",
+      "context": {
+        "timestamp": "2025-09-05T16:09:44.846Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 245ms",
+      "context": {
+        "timestamp": "2025-09-05T16:09:45.091Z",
+        "cycle": 1
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:49.231Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:49.477Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:49.723Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:49.985Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:50.232Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:50.477Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:50.739Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:51.018Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:51.263Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:51.554Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:51.807Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:52.470Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:09:52.979Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:53.860Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:54.110Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:09:55.762Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 259ms",
+      "context": {
+        "timestamp": "2025-09-05T16:09:56.267Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 647ms",
+      "context": {
+        "timestamp": "2025-09-05T16:09:56.914Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 250ms",
+      "context": {
+        "timestamp": "2025-09-05T16:09:57.164Z",
+        "cycle": 2
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:02.425Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:02.677Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:02.926Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:03.213Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:03.483Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:03.734Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:03.991Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:04.237Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:04.489Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:04.743Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:04.988Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:05.256Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:10:05.747Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:06.249Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:06.513Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:07.969Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 266ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:08.492Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 266ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:08.758Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 230ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:08.988Z",
+        "cycle": 3
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:14.385Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:15.014Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:15.264Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:16.530Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:16.771Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:17.031Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:17.285Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:17.552Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:17.809Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:18.060Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:18.304Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:18.578Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:10:17.876Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:18.765Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:19.012Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:20.528Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 252ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:21.021Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 233ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:21.254Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 256ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:21.510Z",
+        "cycle": 4
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:26.760Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:27.018Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:27.264Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:27.570Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:27.827Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:28.122Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:28.360Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:28.589Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:28.836Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:29.088Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:29.310Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:29.561Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:10:30.100Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:30.608Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:30.990Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:33.006Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 255ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:33.498Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 231ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:33.729Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 241ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:33.970Z",
+        "cycle": 5
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:39.225Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:39.482Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:39.741Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:39.968Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:40.232Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:40.480Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:40.729Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:40.980Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:41.215Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:41.473Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:42.106Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:42.371Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:10:42.889Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:43.419Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:43.704Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:45.595Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 286ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:46.119Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 275ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:46.394Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 246ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:46.640Z",
+        "cycle": 6
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:50.648Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:50.916Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:51.200Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:51.455Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:51.724Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:51.972Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:52.256Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:52.511Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:52.759Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:53.006Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:53.255Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:53.502Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:10:54.362Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:54.852Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:55.097Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:10:56.587Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 252ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:57.141Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 1262ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:58.403Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 291ms",
+      "context": {
+        "timestamp": "2025-09-05T16:10:58.694Z",
+        "cycle": 7
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:03.959Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:04.184Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:04.436Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:04.688Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:04.968Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:05.306Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:05.602Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:05.838Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:06.084Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:06.330Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:06.604Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:06.830Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:11:07.320Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:07.825Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:08.074Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:09.591Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 281ms",
+      "context": {
+        "timestamp": "2025-09-05T16:11:10.113Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 260ms",
+      "context": {
+        "timestamp": "2025-09-05T16:11:10.373Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 372ms",
+      "context": {
+        "timestamp": "2025-09-05T16:11:10.745Z",
+        "cycle": 8
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:15.976Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:16.215Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:16.478Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:16.731Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:17.009Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:17.256Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:17.516Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:17.771Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:18.061Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:18.690Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:18.929Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:19.227Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:11:19.723Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:20.197Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:20.442Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:20.683Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 253ms",
+      "context": {
+        "timestamp": "2025-09-05T16:11:21.195Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 240ms",
+      "context": {
+        "timestamp": "2025-09-05T16:11:21.435Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 232ms",
+      "context": {
+        "timestamp": "2025-09-05T16:11:21.667Z",
+        "cycle": 9
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint / responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:26.939Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:27.181Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /dashboard responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:27.426Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /inventario-datos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:27.677Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /proveedores responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:27.906Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /evaluacion-impacto responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:28.180Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /documentos responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:28.485Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /actividades-dpo responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:28.736Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /reportes responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:28.982Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /configuracion responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:29.246Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /usuarios responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:29.501Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "ENDPOINT_OK",
+      "message": "Endpoint /ayuda responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:29.774Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "LOGIN_SUCCESS",
+      "message": "Login exitoso para demo",
+      "context": {
+        "timestamp": "2025-09-05T16:11:30.307Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /health responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:30.809Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /api/v1/demo/login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:31.062Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "API_SUCCESS",
+      "message": "API /emergency-demo-login responde correctamente: 200",
+      "context": {
+        "timestamp": "2025-09-05T16:11:32.534Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-frontend.onrender.com/: 249ms",
+      "context": {
+        "timestamp": "2025-09-05T16:11:33.008Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/health: 230ms",
+      "context": {
+        "timestamp": "2025-09-05T16:11:33.238Z",
+        "cycle": 10
+      }
+    },
+    {
+      "type": "PERFORMANCE_OK",
+      "message": "Tiempo respuesta aceptable https://scldp-backend.onrender.com/api/v1/empresas-mt/: 260ms",
+      "context": {
+        "timestamp": "2025-09-05T16:11:33.499Z",
+        "cycle": 10
+      }
+    }
+  ],
+  "businessLogicIssues": [],
+  "apiTests": [],
+  "performanceMetrics": {
+    "https://scldp-frontend.onrender.com/": [
+      {
+        "responseTime": 247,
+        "timestamp": "2025-09-05T16:09:44.590Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 259,
+        "timestamp": "2025-09-05T16:09:56.267Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 266,
+        "timestamp": "2025-09-05T16:10:08.492Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 252,
+        "timestamp": "2025-09-05T16:10:21.021Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 255,
+        "timestamp": "2025-09-05T16:10:33.498Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 286,
+        "timestamp": "2025-09-05T16:10:46.119Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 252,
+        "timestamp": "2025-09-05T16:10:57.141Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 281,
+        "timestamp": "2025-09-05T16:11:10.113Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 253,
+        "timestamp": "2025-09-05T16:11:21.195Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 249,
+        "timestamp": "2025-09-05T16:11:33.008Z",
+        "statusCode": 200
+      }
+    ],
+    "https://scldp-backend.onrender.com/health": [
+      {
+        "responseTime": 256,
+        "timestamp": "2025-09-05T16:09:44.846Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 647,
+        "timestamp": "2025-09-05T16:09:56.914Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 266,
+        "timestamp": "2025-09-05T16:10:08.758Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 233,
+        "timestamp": "2025-09-05T16:10:21.254Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 231,
+        "timestamp": "2025-09-05T16:10:33.729Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 275,
+        "timestamp": "2025-09-05T16:10:46.394Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 1262,
+        "timestamp": "2025-09-05T16:10:58.403Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 260,
+        "timestamp": "2025-09-05T16:11:10.373Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 240,
+        "timestamp": "2025-09-05T16:11:21.435Z",
+        "statusCode": 200
+      },
+      {
+        "responseTime": 230,
+        "timestamp": "2025-09-05T16:11:33.239Z",
+        "statusCode": 200
+      }
+    ],
+    "https://scldp-backend.onrender.com/api/v1/empresas-mt/": [
+      {
+        "responseTime": 245,
+        "timestamp": "2025-09-05T16:09:45.091Z",
+        "statusCode": 500
+      },
+      {
+        "responseTime": 250,
+        "timestamp": "2025-09-05T16:09:57.164Z",
+        "statusCode": 500
+      },
+      {
+        "responseTime": 230,
+        "timestamp": "2025-09-05T16:10:08.989Z",
+        "statusCode": 500
+      },
+      {
+        "responseTime": 256,
+        "timestamp": "2025-09-05T16:10:21.510Z",
+        "statusCode": 500
+      },
+      {
+        "responseTime": 241,
+        "timestamp": "2025-09-05T16:10:33.970Z",
+        "statusCode": 500
+      },
+      {
+        "responseTime": 246,
+        "timestamp": "2025-09-05T16:10:46.640Z",
+        "statusCode": 500
+      },
+      {
+        "responseTime": 291,
+        "timestamp": "2025-09-05T16:10:58.694Z",
+        "statusCode": 500
+      },
+      {
+        "responseTime": 372,
+        "timestamp": "2025-09-05T16:11:10.746Z",
+        "statusCode": 500
+      },
+      {
+        "responseTime": 232,
+        "timestamp": "2025-09-05T16:11:21.667Z",
+        "statusCode": 500
+      },
+      {
+        "responseTime": 260,
+        "timestamp": "2025-09-05T16:11:33.499Z",
+        "statusCode": 500
+      }
+    ]
+  },
+  "detailedLogs": [],
+  "endTime": "2025-09-05T16:11:38.501Z",
+  "duration": "121.78 segundos",
+  "totalCycles": 10,
+  "finalStatus": "🔴 SISTEMA NO APTO - REQUIERE CORRECCIONES CRÍTICAS",
+  "summary": {
+    "totalErrors": 80,
+    "criticalErrors": 10,
+    "businessLogicIssues": 0,
+    "successfulTests": 190,
+    "performanceIssues": 0
+  }
+}
