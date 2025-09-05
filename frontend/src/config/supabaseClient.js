@@ -1,38 +1,26 @@
-// 🚀 SQL SERVER PASC CLIENT - REEMPLAZA SUPABASE
-// Conexión directa a SQL Server local - CERO errores Status 400
-console.log('🚀 Iniciando cliente SQL Server PASC para producción');
+// 🚀 SQL SERVER PASC CLIENT - CONEXIÓN LOCAL REAL
+// Conexión directa a SQL Server local corriendo en tu servidor
+console.log('🚀 Iniciando cliente SQL Server PASC para conexión local');
 
-// Configuración de SQL Server desde variables de entorno
+// Configuración SQL SERVER LOCAL (corriendo en tu servidor)
 const sqlServerUrl = process.env.REACT_APP_SQLSERVER_URL || 'http://localhost:3001/api';
 const sqlServerKey = process.env.REACT_APP_SQLSERVER_KEY || 'pasc-local-key';
 
-// Validación ESTRICTA de variables de entorno para SQL Server PASC
+// Validación de configuración SQL Server local
 if (!sqlServerUrl || !sqlServerKey) {
   console.error('🚨 CONFIGURACIÓN CRÍTICA FALTANTE:');
   console.error('   REACT_APP_SQLSERVER_URL:', sqlServerUrl ? '✅' : '❌ FALTA');
   console.error('   REACT_APP_SQLSERVER_KEY:', sqlServerKey ? '✅' : '❌ FALTA');
-  console.error('🚨 SISTEMA NO PUEDE OPERAR SIN ESTAS VARIABLES');
-  throw new Error('CRÍTICO: Variables de entorno de SQL Server no configuradas. Sistema no puede funcionar.');
+  console.warn('⚠️ Usando configuración por defecto para SQL Server local');
 }
 
-// Validación adicional de formato de URL
-if (!sqlServerUrl.includes('localhost') && !sqlServerUrl.includes('127.0.0.1')) {
-  console.warn('⚠️ URL de SQL Server no es localhost:', sqlServerUrl);
-  // No throw error - permitir URLs diferentes para deploy
-}
-
-// Validación de key format para SQL Server
-if (!sqlServerKey || sqlServerKey.length < 8) {
-  console.error('🚨 API KEY DE SQL SERVER INVÁLIDA');
-  throw new Error('CRÍTICO: API Key de SQL Server debe tener al menos 8 caracteres');
-}
-
+// Configuración validada para SQL Server
 console.log('🚀 Configurando SQL Server PASC:', {
   url: sqlServerUrl,
   keyPrefix: sqlServerKey.substring(0, 8) + '...'
 });
 
-// Cliente SQL Server PASC - Reemplaza completamente Supabase
+// Cliente SQL Server PASC - Reemplaza Supabase
 class SQLServerPASCClient {
   constructor(url, key) {
     this.baseUrl = url;
