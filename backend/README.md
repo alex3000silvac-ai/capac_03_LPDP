@@ -1,506 +1,278 @@
-# 🚀 BACKEND JURÍDICA DIGITAL LPDP
+# 🚀 Backend Sistema LPDP v2.0
 
-Backend completo para el sistema de cumplimiento **Ley 21.719** (Protección de Datos Personales Chile) con APIs para partners, exportación y webhooks.
+Backend completamente nuevo construido desde cero para el Sistema LPDP (Ley de Protección de Datos Personales de Chile).
 
-## 📋 TABLA DE CONTENIDOS
+## 📋 Características
 
-- [🏗️ Arquitectura](#arquitectura)
-- [🔧 Instalación](#instalación)
-- [🌐 APIs Partners](#apis-partners)
-- [📄 Exportación](#exportación)
-- [🔔 Webhooks](#webhooks)
-- [🗄️ Base de Datos](#base-de-datos)
-- [🔒 Seguridad](#seguridad)
-- [📊 Monitoreo](#monitoreo)
-- [🚀 Despliegue](#despliegue)
+- **Arquitectura**: Node.js + Express + Supabase
+- **Autenticación**: JWT con refresh tokens
+- **Base de datos**: PostgreSQL (Supabase)
+- **Multi-tenant**: Aislamiento completo por organización
+- **Seguridad**: Row Level Security (RLS), validación completa
+- **API RESTful**: Endpoints organizados por funcionalidad
+- **Auditoría**: Logging completo de todas las operaciones
 
----
-
-## 🏗️ ARQUITECTURA
+## 🏗️ Estructura del Proyecto
 
 ```
 backend/
-├── server.js              # Servidor Express.js principal
-├── package.json           # Dependencias y scripts
-├── routes/
-│   └── partnerRoutes.js   # Rutas API partners
-├── services/
-│   ├── partnerAPIService.js  # Lógica partners
-│   └── exportService.js      # Exportación PDF/Excel
-└── README.md              # Esta documentación
+├── src/
+│   ├── app.js                 # Aplicación principal
+│   ├── config/
+│   │   └── database.js        # Configuración Supabase
+│   ├── middleware/
+│   │   ├── auth.js           # Autenticación JWT
+│   │   ├── tenant.js         # Multi-tenant
+│   │   ├── validation.js     # Validación Joi
+│   │   └── errorHandler.js   # Manejo de errores
+│   ├── routes/
+│   │   ├── auth.js          # Autenticación
+│   │   ├── rat.js           # RATs (Registro Actividades)
+│   │   ├── admin.js         # Administración
+│   │   ├── dashboard.js     # Estadísticas
+│   │   ├── audit.js         # Auditoría
+│   │   └── health.js        # Health checks
+│   └── utils/
+│       └── migration.js     # Migraciones DB
+├── database/
+│   ├── schema/              # Esquemas SQL
+│   └── seeds/              # Datos iniciales
+├── package.json
+└── server.js               # Punto de entrada
 ```
 
-### **Stack Tecnológico:**
-- **Node.js** 18+ con Express.js
-- **Supabase** (PostgreSQL + REST API)  
-- **PDFKit** para generación de PDFs
-- **ExcelJS** para archivos Excel
-- **Axios** para integraciones HTTP
-- **Rate Limiting** y autenticación
+## 🚀 Instalación
 
----
+### 1. Instalar dependencias
 
-## 🔧 INSTALACIÓN
-
-### **1. Requisitos Previos**
 ```bash
-node --version  # >= 18.0.0
-npm --version   # >= 8.0.0
-```
-
-### **2. Instalación Backend**
-```bash
-cd backend/
+cd backend
 npm install
 ```
 
-### **3. Variables de Entorno**
-```bash
-# .env
-PORT=3001
+### 2. Configurar variables de entorno
+
+Copiar `.env.example` a `.env` y configurar:
+
+```env
+# Puerto del servidor
+PORT=8000
 NODE_ENV=production
-SUPABASE_URL=https://symkjkbejxexgrydmvqs.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
-WEBHOOK_SECRET=juridica-digital-webhook-secret
+
+# Supabase Configuration
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# JWT Configuration
+JWT_SECRET=tu-jwt-secret-muy-seguro-aqui-2024
+JWT_EXPIRE_IN=24h
+
+# CORS Configuration
+FRONTEND_URLS=http://localhost:3000,https://tu-frontend.vercel.app
 ```
 
-### **4. Setup Base de Datos**
+### 3. Configurar Base de Datos
+
 ```bash
-# Ejecutar en Supabase SQL Editor:
-\i CREATE_PARTNER_INTEGRATIONS_TABLE.sql
-\i CREATE_ADDITIONAL_BACKEND_TABLES.sql
+# Ejecutar migraciones (crear tablas)
+npm run db:migrate
+
+# Cargar datos iniciales
+npm run db:seed
 ```
 
-### **5. Iniciar Servidor**
+### 4. Iniciar servidor
+
 ```bash
-npm run dev    # Desarrollo (nodemon)
-npm start      # Producción
+# Desarrollo
+npm run dev
+
+# Producción
+npm start
 ```
 
-**✅ Servidor corriendo en:** `http://localhost:3001`
+## 🔧 Scripts Disponibles
 
----
-
-## 🌐 APIs PARTNERS
-
-Implementación completa según `API_PARTNERS_INTEGRATION.md` para partners como **Prelafit**, **RSM Chile**, **DataCompliance**, etc.
-
-### **Autenticación**
-```http
-Authorization: Bearer pk_prelafit_abc123
-# O
-X-API-Key: pk_prelafit_abc123
+```bash
+npm start          # Iniciar en producción
+npm run dev        # Desarrollo con nodemon
+npm test          # Ejecutar tests
+npm run lint      # Verificar código
+npm run db:migrate # Ejecutar migraciones
+npm run db:seed   # Cargar datos iniciales
 ```
 
-### **Endpoints Principales**
+## 🌐 API Endpoints
 
-#### **📊 Obtener RATs Completados**
-```http
-GET /api/v1/partners/rats/completed?page=1&limit=50
-```
+### Autenticación
+- `POST /api/auth/login` - Iniciar sesión
+- `POST /api/auth/register` - Registrar usuario  
+- `POST /api/auth/refresh` - Renovar token
+- `POST /api/auth/logout` - Cerrar sesión
 
-**Respuesta:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "uuid",
-      "fecha_creacion": "2025-08-29T14:00:00Z",
-      "responsable": {
-        "razon_social": "Empresa Chile S.A.",
-        "email": "dpo@empresa.cl"
-      },
-      "finalidad": "Evaluación crediticia",
-      "nivel_riesgo": "ALTO",
-      "compliance_status": {
-        "requiere_eipd": true,
-        "requiere_consulta_previa": true
-      }
-    }
-  ],
-  "total": 150
-}
-```
+### RATs (Registro de Actividades de Tratamiento)
+- `GET /api/rat` - Listar RATs
+- `GET /api/rat/:id` - Obtener RAT por ID
+- `POST /api/rat` - Crear nuevo RAT
+- `PUT /api/rat/:id` - Actualizar RAT
+- `DELETE /api/rat/:id` - Eliminar RAT
 
-#### **🤖 Análisis Inteligente**
-```http
-POST /api/v1/partners/analysis/intelligent
-Content-Type: application/json
+### Dashboard
+- `GET /api/dashboard/stats` - Estadísticas generales
+- `GET /api/dashboard/trends` - Tendencias temporales
+- `GET /api/dashboard/compliance` - Análisis de cumplimiento
 
-{
-  "empresa": {
-    "razon_social": "Cliente S.A.",
-    "rut": "76.987.654-3",
-    "industria": "salud"
-  },
-  "tratamiento": {
-    "finalidad": "Gestión historiales médicos",
-    "categorias_datos": ["datos_medicos"],
-    "volumen_titulares": 50000,
-    "transferencias_internacionales": true
-  }
-}
-```
+### Administración
+- `GET /api/admin/users` - Listar usuarios
+- `POST /api/admin/users` - Crear usuario
+- `PUT /api/admin/users/:id` - Actualizar usuario
+- `GET /api/admin/organizations` - Listar organizaciones
 
-**Respuesta:**
-```json
-{
-  "success": true,
-  "analysis_result": {
-    "nivel_riesgo": "CRITICO",
-    "documentos_requeridos": [
-      {
-        "tipo": "EIPD",
-        "urgencia": "alta",
-        "plazo_dias": 15,
-        "fundamento_legal": "Art. 25 Ley 21.719"
-      }
-    ],
-    "alertas_compliance": [...],
-    "recomendaciones_partner": [...]
-  }
-}
-```
+### Auditoría
+- `GET /api/audit` - Logs de auditoría
+- `GET /api/audit/stats` - Estadísticas de auditoría
+- `GET /api/audit/security/alerts` - Alertas de seguridad
 
-#### **📄 Obtener Documentos**
-```http
-GET /api/v1/partners/documents/EIPD/rat-123
-```
+### Health Check
+- `GET /health` - Estado del servidor
+- `GET /api/health` - Estado detallado
 
-### **Rate Limits por Partner**
-- **Prelafit/RSM**: 1000 requests/15min
-- **DataCompliance**: 500 requests/15min  
-- **Amsoft/FC Group**: 200 requests/15min
+## 🔐 Autenticación
 
----
+El sistema usa JWT con refresh tokens:
 
-## 📄 EXPORTACIÓN
+1. **Login**: Enviar credenciales a `/api/auth/login`
+2. **Token**: Incluir `Authorization: Bearer <token>` en headers
+3. **Refresh**: Renovar con `/api/auth/refresh` cuando expire
+4. **Tenant**: Incluir `x-tenant-id` en headers para multi-tenant
 
-Generación profesional de **PDFs** y **Excel** para RATs y documentos de compliance.
+### Ejemplo de uso:
 
-### **PDF Individual de RAT**
-```http
-GET /api/v1/export/rat/123/pdf?download=true
-```
-- Formato A4 profesional con branding
-- Información completa del RAT
-- Footer legal cumplimiento Ley 21.719
-
-### **Excel Masivo de RATs**
-```http
-POST /api/v1/export/rats/excel
-Content-Type: application/json
-
-{
-  "tenant_id": "empresa_123",
-  "estado": "CERTIFICADO",
-  "fecha_desde": "2025-01-01",
-  "fecha_hasta": "2025-12-31"
-}
-```
-
-**Features Excel:**
-- ✅ **3 Hojas**: RATs, Estadísticas, Centro Costos
-- ✅ **Colores por estado**: Verde certificado, amarillo pendiente
-- ✅ **Filtros avanzados**: Por área, fecha, estado
-- ✅ **Estadísticas automáticas**: Compliance %, totales
-
-### **Métricas de Compliance**
-```http
-GET /api/v1/export/compliance/metrics/tenant_123
-```
-
----
-
-## 🔔 WEBHOOKS
-
-Sistema bidireccional de webhooks para notificaciones en tiempo real.
-
-### **Configurar Webhook de Partner**
-```http
-POST /api/v1/partners/webhooks/configure
-Authorization: Bearer pk_prelafit_abc123
-
-{
-  "webhook_url": "https://partner.com/webhook",
-  "events": [
-    "rat_completed",
-    "document_generated", 
-    "high_risk_detected"
-  ],
-  "signature_secret": "mi_secret_key"
-}
-```
-
-### **Webhook Enviado a Partner**
-```http
-POST https://partner.com/webhook
-X-Signature: sha256=hash
-Content-Type: application/json
-
-{
-  "event": "rat_completed",
-  "timestamp": "2025-08-29T14:00:00Z",
-  "data": {
-    "rat_id": "uuid",
-    "empresa": "Empresa Chile S.A.",
-    "nivel_riesgo": "ALTO",
-    "documentos_pendientes": ["EIPD"]
-  }
-}
-```
-
-### **Recibir Webhook de Partner**
-```http
-POST /api/v1/webhooks/partner/prelafit
-X-Signature: sha256=hash
-
-{
-  "event": "analysis_completed",
-  "data": { ... }
-}
-```
-
----
-
-## 🗄️ BASE DE DATOS
-
-### **Tablas Principales**
-
-#### **partner_integrations**
-```sql
-- id (PK)
-- tenant_id, rat_id
-- partner_type: prelafit, rsm_chile, etc.
-- payload (JSONB)
-- status: pendiente, enviado, confirmado, error
-- response_data (JSONB)
-- created_at, updated_at
-```
-
-#### **partner_api_keys**
-```sql
-- id (PK)
-- partner_type, key_name
-- api_key_hash, api_key_preview
-- permissions (JSONB)
-- rate_limit_per_minute, rate_limit_per_hour
-- is_active, expires_at
-```
-
-#### **partner_access_logs**
-```sql
-- id (PK)
-- partner_type, action, endpoint
-- ip_address, response_time_ms
-- status_code, metadata (JSONB)
-- timestamp
-```
-
-#### **documentos_generados**
-```sql
-- id (PK)
-- rat_id, tipo_documento
-- content_url, file_url
-- estado, hash_verificacion
-- generated_by_ai, template_version
-```
-
-### **Políticas RLS**
-- ✅ Separación por tenant
-- ✅ Autenticación requerida
-- ✅ Logs auditables
-
----
-
-## 🔒 SEGURIDAD
-
-### **Autenticación**
-- **API Keys** con hash SHA-256
-- **Rate Limiting** diferenciado por partner
-- **CORS** configurado para dominios específicos
-- **Helmet.js** para headers de seguridad
-
-### **Validación**
-- **Joi** para validación de payloads
-- **Express-validator** para parámetros
-- **Sanitización** de inputs maliciosos
-
-### **Webhooks**
-- **Signature verification** con HMAC SHA-256
-- **Timeout** configurables (30s default)
-- **Retry logic** con exponential backoff
-
-### **Headers de Seguridad**
 ```javascript
-helmet({
-  contentSecurityPolicy: true,
-  crossOriginEmbedderPolicy: false,
-  hsts: { maxAge: 31536000 }
-})
+// Login
+const loginResponse = await fetch('/api/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    password: 'password',
+    tenant_id: 'mi_organizacion'
+  })
+});
+
+// Usar token
+const ratsResponse = await fetch('/api/rat', {
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'x-tenant-id': 'mi_organizacion'
+  }
+});
 ```
 
----
+## 🏢 Multi-tenant
 
-## 📊 MONITOREO
+El sistema soporta múltiples organizaciones:
 
-### **Health Check**
-```http
-GET /health
+- Cada organización tiene su `tenant_id` único
+- Los datos están completamente aislados por tenant
+- Se usa Row Level Security (RLS) en PostgreSQL
+- Los headers deben incluir `x-tenant-id`
+
+## 🔒 Seguridad
+
+### Implementadas:
+- ✅ Row Level Security (RLS) en base de datos
+- ✅ Validación de entrada con Joi
+- ✅ Rate limiting
+- ✅ Helmet para headers de seguridad
+- ✅ CORS configurado
+- ✅ Logs de auditoría completos
+- ✅ Encriptación de contraseñas (bcrypt)
+- ✅ Tokens JWT seguros
+
+### Headers de seguridad:
+- Content Security Policy
+- X-Frame-Options
+- X-Content-Type-Options
+- Referrer-Policy
+
+## 📊 Logging y Monitoreo
+
+### Logs de auditoría incluyen:
+- Todas las operaciones CRUD
+- Intentos de login (exitosos y fallidos)
+- Cambios de configuración
+- Acceso a datos sensibles
+- Errores y excepciones
+
+### Health checks:
+- Estado de conexión a base de datos
+- Memoria y rendimiento
+- Tiempo de respuesta
+- Verificación de servicios externos
+
+## 🚀 Despliegue
+
+### Render.com (recomendado)
+```yaml
+# render.yaml
+services:
+  - type: web
+    name: lpdp-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
 ```
-```json
-{
-  "status": "healthy",
-  "timestamp": "2025-08-29T14:00:00Z",
-  "services": {
-    "supabase": "connected",
-    "database": "operational"
-  },
-  "uptime": 3600
-}
-```
 
-### **Estadísticas de Partners**
-```http
-GET /api/v1/partners/stats?period=7d
-```
+### Variables de entorno en producción:
+- Configurar `SUPABASE_URL` y claves
+- Generar `JWT_SECRET` seguro
+- Configurar `FRONTEND_URLS` con dominio real
+- Establecer `NODE_ENV=production`
 
-### **Logs Estructurados**
-```javascript
-console.log('🌐 [prelafit] GET /rats/completed - 200 (245ms)');
-```
+## 🛠️ Desarrollo
 
-### **Métricas Automáticas**
-- Requests por partner y período
-- Tiempos de respuesta promedio
-- Errores por endpoint
-- Volumen de datos transferidos
+### Estructura de datos confirmada del frontend:
+- Tabla principal: `mapeo_datos_rat`
+- Campos JSONB para datos complejos
+- tenant_id como INTEGER (no UUID)
+- Estados: BORRADOR, ACTIVO, INACTIVO, ARCHIVADO
+- Niveles de riesgo: BAJO, MEDIO, ALTO, CRÍTICO
 
----
-
-## 🚀 DESPLIEGUE
-
-### **Desarrollo Local**
+### Comandos útiles:
 ```bash
-npm run dev     # http://localhost:3001
-npm run lint    # ESLint
-npm test        # Jest tests
+# Ver logs en tiempo real
+npm run dev
+
+# Verificar conexión DB
+curl http://localhost:8000/health
+
+# Probar login
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@juridicadigital.cl","password":"Admin123!","tenant_id":"juridica_digital_spa"}'
 ```
 
-### **Testing**
-```bash
-npm test                    # Ejecutar tests
-npm run test:watch         # Watch mode
-npm run test:coverage      # Coverage report
-```
+## 📝 Notas Importantes
 
-### **Producción (Render.com)**
+1. **Base de datos**: El esquema está optimizado para la estructura que espera el frontend
+2. **tenant_id**: Usar INTEGER en lugar de UUID para compatibilidad
+3. **Campos JSONB**: Mantener estructura exacta para categorias_datos
+4. **Soft delete**: Usar deleted_at en lugar de eliminar registros
+5. **Estados**: Usar valores exactos del frontend (MAYÚSCULAS)
 
-#### **1. Configurar Variables de Entorno**
-```bash
-NODE_ENV=production
-PORT=3001
-SUPABASE_URL=https://symkjkbejxexgrydmvqs.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=xxx
-WEBHOOK_SECRET=xxx
-```
+## 🤝 Contribuir
 
-#### **2. Deploy Script**
-```bash
-npm run deploy  # Lint + Test + Deploy
-```
+1. Fork el proyecto
+2. Crear rama feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit cambios (`git commit -am 'Agregar nueva funcionalidad'`)
+4. Push a rama (`git push origin feature/nueva-funcionalidad`)
+5. Crear Pull Request
 
-#### **3. Health Check Automático**
-```bash
-curl https://api.juridica-digital.cl/health
-```
+## 📄 Licencia
 
-### **Docker (Opcional)**
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-EXPOSE 3001
-CMD ["npm", "start"]
-```
-
----
-
-## 📈 ESTADÍSTICAS DE USO
-
-### **Por Partner (Últimos 7 días):**
-- **Prelafit**: 1,245 requests, 189ms promedio
-- **RSM Chile**: 834 requests, 156ms promedio  
-- **DataCompliance**: 567 requests, 198ms promedio
-
-### **Endpoints Más Usados:**
-1. `GET /partners/rats/completed` (45%)
-2. `POST /partners/analysis/intelligent` (30%)
-3. `GET /partners/documents/*` (15%)
-4. `POST /integrations/send-to-partner` (10%)
-
----
-
-## 🔍 TROUBLESHOOTING
-
-### **Error Común: API Key Inválida**
-```json
-{
-  "error": "API Key inválida",
-  "code": 401,
-  "details": "La API Key proporcionada no es válida o ha expirado"
-}
-```
-**Solución:** Verificar API key en tabla `partner_api_keys`
-
-### **Error: Rate Limit Excedido**
-```json
-{
-  "error": "Rate limit excedido", 
-  "code": 429,
-  "retry_after": "15 minutos"
-}
-```
-**Solución:** Esperar o contactar para aumentar límites
-
-### **Error: Supabase Connection**
-```bash
-❌ Error conectando con Supabase: Invalid API key
-```
-**Solución:** Verificar `SUPABASE_SERVICE_ROLE_KEY` en `.env`
-
----
-
-## 📞 SOPORTE
-
-- **Email Técnico:** partners@juridica-digital.cl
-- **Documentación API:** https://api.juridica-digital.cl/docs
-- **Status Page:** https://status.juridica-digital.cl
-- **Slack:** #partners-integration
-
-**SLA Garantizado:**
-- ✅ **Disponibilidad:** 99.9%
-- ✅ **Tiempo Respuesta:** < 200ms
-- ✅ **Soporte:** 24/7 para partners premium
-
----
-
-## 📝 CHANGELOG
-
-### v1.0.0 - 2025-09-03
-- ✅ **APIs Partners completas** según especificación
-- ✅ **Exportación PDF/Excel** profesional
-- ✅ **Sistema webhooks** bidireccional  
-- ✅ **Rate limiting** diferenciado
-- ✅ **Logs y auditoría** completos
-- ✅ **Documentación** técnica completa
-
----
-
-**🎯 Sistema backend 100% operativo para producción**
-**Desarrollado por:** Jurídica Digital SpA  
-**Versión:** 1.0.0  
-**Fecha:** Septiembre 2025
+Este proyecto es propiedad de **Jurídica Digital SPA** y está protegido por derechos de autor.

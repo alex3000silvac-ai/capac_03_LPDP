@@ -63,7 +63,11 @@
       "WebSearch",
       "WebFetch(domain:www.stackhawk.com)",
       "WebFetch(domain:stackoverflow.com)",
-      "WebFetch(domain:content-security-policy.com)"
+      "WebFetch(domain:content-security-policy.com)",
+      "Bash(NODE_PATH=./node_modules node ../configurar-auth-supabase.js)",
+      "Bash(REACT_APP_SUPABASE_URL=https://symkjkbejxexgrydmvqs.supabase.co REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5bWtqa2JlanhleGdyeWRtdnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMDc5MjksImV4cCI6MjA1MTU4MzkyOX0.ojEJUgqUinLV7WxJxUpf0Q3__rtV9rCuUoV6X6GfhWs NODE_PATH=./frontend/node_modules node agente-sql-corrector.js)",
+      "Bash(REACT_APP_SUPABASE_URL=https://symkjkbejxexgrydmvqs.supabase.co REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5bWtqa2JlanhleGdyeWRtdnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMDc5MjksImV4cCI6MjA1MTU4MzkyOX0.ojEJUgqUinLV7WxJxUpf0Q3__rtV9rCuUoV6X6GfhWs PATH=$PATH:./frontend/node_modules/.bin node agente-real-usuario-lpdp.js)",
+      "Bash(NODE_PATH=./frontend/node_modules node ejecutar-sql-supabase.js)"
     ],
     "deny": [],
     "ask": [],
