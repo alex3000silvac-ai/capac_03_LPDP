@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { guardarDatosEmpresa } from '../utils/supabaseEmpresaPersistence';
 import {
   Box,
   Paper,
@@ -114,13 +115,38 @@ const EmpresaDataManager = ({ onDataUpdate, existingData = {} }) => {
     { nombre: 'SII Portal', tipo: 'publico', requiereDPA: false }
   ];
 
-  const handleSave = () => {
-    // DATOS GUARDADOS EN SUPABASE VIA CONTEXT - NO localStorage
-    setIsSaved(true);
-    setIsEditing(false);
-    
-    if (onDataUpdate) {
-      onDataUpdate(empresaData);
+  const handleSave = async () => {
+    // GUARDAR DATOS EN SQL SERVER
+    try {
+      // Transformar datos del componente al formato de BD
+      const datosParaGuardar = {
+        razon_social: empresaData.razonSocial,
+        rut: empresaData.rut,
+        email_empresa: empresaData.email,
+        telefono_empresa: empresaData.telefono,
+        direccion_empresa: empresaData.direccion,
+        dpo_nombre: empresaData.dpo.nombre,
+        dpo_email: empresaData.dpo.email,
+        dpo_telefono: empresaData.dpo.telefono
+      };
+
+      console.log('💾 Guardando datos empresa:', datosParaGuardar);
+      const resultado = await guardarDatosEmpresa(datosParaGuardar);
+      
+      if (resultado.success) {
+        setIsSaved(true);
+        setIsEditing(false);
+        console.log('✅ Datos guardados exitosamente');
+        
+        // Notificar al componente padre que los datos se guardaron
+        if (onDataUpdate) {
+          onDataUpdate(empresaData);
+        }
+      } else {
+        console.error('❌ Error guardando datos:', resultado.error);
+      }
+    } catch (error) {
+      console.error('❌ Error en handleSave:', error);
     }
 
     setTimeout(() => setIsSaved(false), 3000);
@@ -182,10 +208,10 @@ const EmpresaDataManager = ({ onDataUpdate, existingData = {} }) => {
         </Box>
 
         <Alert severity="info" sx={{ mb: 3 }}>
-          <Typography variant="body2" fontWeight="bold">
+          <Typography variant="body2" fontWeight="bold" component="div">
             Fundamento Legal: Art. 16 Ley 21.719
           </Typography>
-          <Typography variant="caption">
+          <Typography variant="caption" component="div">
             "Obligación del responsable de mantener registro de actividades de tratamiento"
             <br />
             Los datos comunes se reutilizan automáticamente en todos los RATs para simplificar el proceso.
@@ -367,7 +393,7 @@ const EmpresaDataManager = ({ onDataUpdate, existingData = {} }) => {
                 
                 {isEditing && (
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" gutterBottom>Agregar plataformas comunes:</Typography>
+                    <Typography variant="body2" gutterBottom component="div">Agregar plataformas comunes:</Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                       {plataformasComunes.map((plataforma) => (
                         <Chip
@@ -435,6 +461,8 @@ const EmpresaDataManager = ({ onDataUpdate, existingData = {} }) => {
                             </Typography>
                           </Box>
                         }
+                        primaryTypographyProps={{ component: "div" }}
+                        secondaryTypographyProps={{ component: "div" }}
                       />
                     </ListItem>
                   ))}
@@ -447,10 +475,10 @@ const EmpresaDataManager = ({ onDataUpdate, existingData = {} }) => {
         <Divider sx={{ my: 3 }} />
 
         <Alert severity="success">
-          <Typography variant="body2" fontWeight="bold">
+          <Typography variant="body2" fontWeight="bold" component="div">
             SIMPLIFICACIÓN AUTOMÁTICA ACTIVADA
           </Typography>
-          <Typography variant="caption">
+          <Typography variant="caption" component="div">
             Estos datos se aplicarán automáticamente en todos los nuevos RATs, 
             reduciendo el tiempo de creación en un 70%. Los plazos de retención 
             se asignan automáticamente según el tipo de dato y fundamento legal.

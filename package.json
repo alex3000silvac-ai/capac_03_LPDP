@@ -1,6 +1,58 @@
 {
+  "name": "sistema-lpdp",
+  "version": "3.0.0",
+  "description": "Sistema LPDP con SQL Server centralizado - Migrado desde Supabase",
+  "main": "run.py",
+  "scripts": {
+    "start": "python run.py",
+    "start:backend": "python run.py",
+    "start:frontend": "cd frontend && npm start",
+    "start:both": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "check-db": "python run.py --check-db",
+    "init-db": "python run.py --init-db",
+    "setup": "python -c \"from database_config import init_database; init_database()\"",
+    "test-connection": "python -c \"from database_config import test_database_connection; print('✅ Conectado' if test_database_connection() else '❌ Error')\"",
+    "dev": "python run.py",
+    "backend": "uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload",
+    "backend:standalone": "python backend_sqlserver_real.py",
+    "help": "python run.py --help"
+  },
+  "keywords": ["lpdp", "proteccion-datos", "sqlserver", "fastapi", "react", "ley-21719"],
+  "author": "Sistema LPDP",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "local"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "python": ">=3.8.0"
+  },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.2",
     "node-fetch": "^3.3.2",
-    "puppeteer": "^24.19.0"
+    "puppeteer": "^24.19.0",
+    "react-scripts": "^5.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "config": {
+    "database": "sqlserver",
+    "server": "PASC",
+    "database_name": "LPDP_Test",
+    "auth": "windows"
   }
 }

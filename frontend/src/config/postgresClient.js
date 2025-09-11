@@ -34,10 +34,10 @@ const getSecureConfig = () => {
 
   return {
     // Conexión pooler de Supabase
-    host: process.env.POSTGRES_HOST || 'aws-0-us-east-1.pooler.supabase.com',
+    host: process.env.POSTGRES_HOST || 'localhost',
     port: parseInt(process.env.POSTGRES_PORT || '5432'),
     database: process.env.POSTGRES_DATABASE || 'postgres',
-    user: process.env.POSTGRES_USER || 'postgres.symkjkbejxexgrydmvqs',
+    user: process.env.POSTGRES_USER || 'LOCAL_DISABLED',
     password: process.env.POSTGRES_PASSWORD, // NUNCA valor por defecto para password
     
     // 🔒 CONFIGURACIÓN DE SEGURIDAD

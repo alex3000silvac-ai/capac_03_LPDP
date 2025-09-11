@@ -181,7 +181,13 @@ render.exe
 *.ps1
 render-*.ps1
 
-# Archivos obsoletos del proyecto
+# Archivos específicos de migración a Supabase
+.supabase/
+migration/data/
+backend_backup*/
+
+# Archivos obsoletos del proyecto SQL Server
+backend/
 *.sql
 *.txt
 *.docx

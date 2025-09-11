@@ -8,7 +8,7 @@ import {
   existenDatosEmpresa 
 } from '../utils/supabaseEmpresaPersistence';
 import { RAT_ESTADOS } from '../constants/estados';
-import supabaseErrorLogger from '../utils/supabaseErrorLogger';
+import sqlServerErrorLogger from '../utils/supabaseErrorLogger';
 import {
   Box,
   Container,
@@ -46,7 +46,8 @@ import {
   CardHeader,
   Collapse,
   Avatar,
-  Tooltip
+  Tooltip,
+  Snackbar
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -273,9 +274,81 @@ const professionalTheme = createTheme({
   },
 });
 
+// FUNCIÓN PARA MOSTRAR NOTIFICACIONES
+let mostrarNotificacion = null; // Se asigna dentro del componente
+
+// PERSISTENCIA UNIFICADA SQL SERVER - onChange en tiempo real CON VALIDACIÓN Y NOTIFICACIÓN
+const guardarDatosEmpresaHelper = async (nuevosResponsableData) => {
+  console.log('🟢 PERSISTENCIA UNIFICADA onChange:', nuevosResponsableData);
+  
+  try {
+    // VALIDACIÓN PREVIA - Solo datos con contenido mínimo
+    const tieneContenidoValido = 
+      (nuevosResponsableData.razonSocial && nuevosResponsableData.razonSocial.trim().length > 2) ||
+      (nuevosResponsableData.rut && nuevosResponsableData.rut.trim().length > 5) ||
+      (nuevosResponsableData.direccion && nuevosResponsableData.direccion.trim().length > 5) ||
+      (nuevosResponsableData.nombre && nuevosResponsableData.nombre.trim().length > 2) ||
+      (nuevosResponsableData.email && nuevosResponsableData.email.includes('@'));
+
+    if (!tieneContenidoValido) {
+      console.log('⏭️ VALIDACIÓN: Datos insuficientes para persistir');
+      return { success: false, message: 'Datos insuficientes' };
+    }
+    
+    // Mapear datos de responsable a formato empresa
+    const datosEmpresaFormateados = {
+      razon_social: nuevosResponsableData.razonSocial || '',
+      rut: nuevosResponsableData.rut || '',
+      email_empresa: '', // No se llena desde responsable
+      telefono_empresa: '', // No se llena desde responsable  
+      direccion_empresa: nuevosResponsableData.direccion || '',
+      dpo_nombre: nuevosResponsableData.nombre || '',
+      dpo_email: nuevosResponsableData.email || '',
+      dpo_telefono: nuevosResponsableData.telefono || ''
+    };
+
+    console.log('📋 DATOS VALIDADOS Y MAPEADOS:', datosEmpresaFormateados);
+    
+    // Usar persistencia unificada SQL Server
+    const { guardarDatosEmpresa } = await import('../utils/supabaseEmpresaPersistence');
+    const resultado = await guardarDatosEmpresa(datosEmpresaFormateados);
+    
+    if (resultado.success) {
+      console.log('✅ PERSISTENCIA EXITOSA SQL SERVER:', resultado.datos);
+      
+      // CONFIRMACIÓN VISUAL - Notificación de éxito
+      if (mostrarNotificacion) {
+        mostrarNotificacion('💾 Datos guardados automáticamente', 'success');
+      }
+      
+      return { success: true, datos: resultado.datos };
+    } else {
+      console.warn('⚠️ PERSISTENCIA FALLÓ:', resultado.error);
+      
+      // CONFIRMACIÓN VISUAL - Notificación de error
+      if (mostrarNotificacion) {
+        mostrarNotificacion('❌ Error al guardar datos', 'error');
+      }
+      
+      return { success: false, error: resultado.error };
+    }
+    
+  } catch (error) {
+    console.error('❌ ERROR persistencia unificada:', error);
+    
+    // CONFIRMACIÓN VISUAL - Notificación de error crítico
+    if (mostrarNotificacion) {
+      mostrarNotificacion('🚨 Error crítico al guardar', 'error');
+    }
+    
+    return { success: false, error: error.message };
+  }
+};
+
 const RATSystemProfessional = () => {
   const navigate = useNavigate();
-  const { currentTenant } = useTenant();
+  const { currentTenant, getCurrentTenantInfo } = useTenant();
+  const currentTenantObj = getCurrentTenantInfo();
   const { user } = useAuth();
   
   const [currentStep, setCurrentStep] = useState(0);
@@ -287,6 +360,14 @@ const RATSystemProfessional = () => {
   const [viewMode, setViewMode] = useState('list'); // 'list', 'create', 'edit', 'view'
   
   const [alertas, setAlertas] = useState([]);
+  
+  // ESTADO PARA CONFIRMACIÓN VISUAL
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' // 'success', 'error', 'warning', 'info'
+  });
+  
   const [ratData, setRatData] = useState({
     responsable: {
       razonSocial: '',
@@ -323,40 +404,58 @@ const RATSystemProfessional = () => {
     'Revisión y Confirmación',
   ];
 
+  // FUNCIÓN PARA MOSTRAR NOTIFICACIONES - ASIGNAR A VARIABLE GLOBAL
+  const showNotification = (message, severity = 'success') => {
+    setSnackbar({
+      open: true,
+      message,
+      severity
+    });
+  };
+
+  // Asignar función a variable global para uso en guardarDatosEmpresaHelper
+  React.useEffect(() => {
+    mostrarNotificacion = showNotification;
+  }, []);
+
   /**
    * 💾 HELPER PARA PERSISTIR DATOS EMPRESA AL CAMBIAR CAMPOS
    */
-  const persistirDatosEmpresa = useCallback((nuevosResponsableData) => {
+  const persistirDatosEmpresa = useCallback(async (nuevosResponsableData) => {
     try {
+      // CARGAR DATOS EXISTENTES PRIMERO PARA HACER MERGE INTELIGENTE
+      const datosExistentes = await cargarDatosEmpresa({ tenantId: currentTenant });
+      const datosBase = datosExistentes.success && datosExistentes.datos ? datosExistentes.datos : {};
+      
       const datosEmpresa = {
-        razon_social: nuevosResponsableData.razonSocial || '',
-        rut: nuevosResponsableData.rut || '',
-        direccion_empresa: nuevosResponsableData.direccion || '',
-        email_empresa: nuevosResponsableData.email || '',
-        telefono_empresa: nuevosResponsableData.telefono || '',
-        dpo_nombre: nuevosResponsableData.nombre || '',
-        dpo_email: nuevosResponsableData.email || '',
-        dpo_telefono: nuevosResponsableData.telefono || ''
+        razon_social: nuevosResponsableData.razonSocial || datosBase.razon_social || '',
+        rut: nuevosResponsableData.rut || datosBase.rut || '',
+        direccion_empresa: nuevosResponsableData.direccion || datosBase.direccion_empresa || '',
+        email_empresa: datosBase.email_empresa || '',  // Mantener email empresa existente
+        telefono_empresa: datosBase.telefono_empresa || '',  // Mantener teléfono empresa existente
+        dpo_nombre: nuevosResponsableData.nombre || datosBase.dpo_nombre || '',
+        dpo_email: nuevosResponsableData.email || datosBase.dpo_email || '',
+        dpo_telefono: nuevosResponsableData.telefono || datosBase.dpo_telefono || ''
       };
       
       // Solo persistir si hay al menos un campo con datos
       const tieneAlgunDato = Object.values(datosEmpresa).some(valor => valor && valor.trim().length > 0);
       
       if (tieneAlgunDato) {
-        const resultado = guardarDatosEmpresa(datosEmpresa, {
+        const resultado = await guardarDatosEmpresa(datosEmpresa, {
           fuente: 'formulario_rat',
           persistir: true
         });
         
-        if (supabaseErrorLogger) {
+        if (sqlServerErrorLogger) {
           if (resultado.success) {
-            supabaseErrorLogger.logMediumError('RAT_PERSISTENCE_AUTO_SAVE', {
+            sqlServerErrorLogger.logMediumError('RAT_PERSISTENCE_AUTO_SAVE', {
               message: 'Datos empresa guardados automáticamente desde formulario RAT',
               campos_guardados: Object.keys(datosEmpresa).filter(k => datosEmpresa[k]),
               timestamp: new Date().toISOString()
             }, 'RAT_AUTO_PERSISTENCE');
           } else {
-            supabaseErrorLogger.logCriticalError('RAT_PERSISTENCE_FAILED', {
+            sqlServerErrorLogger.logCriticalError('RAT_PERSISTENCE_FAILED', {
               error: resultado.error,
               datos_intentados: datosEmpresa,
               timestamp: new Date().toISOString()
@@ -365,53 +464,67 @@ const RATSystemProfessional = () => {
         }
       }
     } catch (error) {
-      if (supabaseErrorLogger) {
-        supabaseErrorLogger.logCriticalError('RAT_PERSISTENCE_ERROR', {
+      if (sqlServerErrorLogger) {
+        sqlServerErrorLogger.logCriticalError('RAT_PERSISTENCE_ERROR', {
           error: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString()
         }, 'RAT_AUTO_PERSISTENCE');
       }
     }
-  }, []); // useCallback sin dependencias
+  }, [currentTenant, cargarDatosEmpresa, guardarDatosEmpresa]); // useCallback con dependencias
 
   // Cargar RATs existentes y datos comunes de empresa
   useEffect(() => {
-    // Log inicio de inicialización
-    if (supabaseErrorLogger) {
-      supabaseErrorLogger.logMediumError('RAT_SYSTEM_INIT', {
-        message: 'RATSystemProfessional inicializando - cargando datos',
-        tenant_id: currentTenant?.id,
-        timestamp: new Date().toISOString()
-      }, 'RAT_SYSTEM');
-    }
-    
-    cargarRATs();
-    cargarDatosComunes();
+    const inicializarComponente = async () => {
+      try {
+        // Log inicio de inicialización
+        if (sqlServerErrorLogger) {
+          sqlServerErrorLogger.logInfo('RAT_SYSTEM_INIT', {
+            message: 'RATSystemProfessional inicializando - cargando datos',
+            tenant_id: currentTenant || 'demo',
+            timestamp: new Date().toISOString()
+          }, 'RAT_SYSTEM');
+        }
+        
+        // Ejecutar carga de datos de forma secuencial
+        await cargarRATs();
+        await cargarDatosComunes();
+        
+      } catch (error) {
+        console.error('❌ Error inicializando componente RAT:', error);
+        if (sqlServerErrorLogger) {
+          sqlServerErrorLogger.logCriticalError('RAT_INIT_ERROR', error, 'RAT_SYSTEM');
+        }
+      }
+    };
+
+    inicializarComponente();
   }, []);
 
   const cargarDatosComunes = async () => {
     if (currentTenant) {
-      // VALIDAR SI YA HAY DATOS INGRESADOS - NO SOBRESCRIBIR
-      const datosYaIngresados = ratData.responsable?.nombre || 
-                               ratData.responsable?.email || 
-                               ratData.responsable?.razonSocial;
+      // VALIDAR SI YA HAY DATOS SIGNIFICATIVOS INGRESADOS - NO SOBRESCRIBIR
+      const tieneRazonSocial = ratData.responsable?.razonSocial && ratData.responsable.razonSocial.trim().length > 0;
+      const tieneNombreDPO = ratData.responsable?.nombre && ratData.responsable.nombre.trim().length > 0;
+      const tieneRUT = ratData.responsable?.rut && ratData.responsable.rut.trim().length > 0;
       
-      if (datosYaIngresados) {
-        // IA: Datos ya ingresados, NO sobrescribiendo
-        return; // NO CARGAR SI YA HAY DATOS
+      // Solo evitar auto-carga si hay datos empresariales críticos ya ingresados
+      if (tieneRazonSocial && tieneNombreDPO && tieneRUT) {
+        console.log('🚫 Auto-carga saltada: Datos críticos ya ingresados');
+        return; // NO CARGAR SI YA HAY DATOS CRÍTICOS
       }
 
       // 💾 PRIORIDAD 1: Cargar datos persistentes guardados
       //console.log('🔍 Intentando cargar datos empresa persistidos...');
       
       try {
-        const datosGuardados = cargarDatosEmpresa();
+        const datosGuardados = await cargarDatosEmpresa();
         
         if (datosGuardados.success && datosGuardados.datos) {
           // Log éxito a archivo TXT
-          if (supabaseErrorLogger) {
-            supabaseErrorLogger.logMediumError('RAT_AUTOCOMPLETADO_SUCCESS', {
+          if (sqlServerErrorLogger) {
+            sqlServerErrorLogger.logMediumError('RAT_AUTOCOMPLETADO_SUCCESS', {
               message: 'Datos empresa cargados exitosamente para autocompletado RAT',
               fuente: datosGuardados.fuente,
               campos_cargados: Object.keys(datosGuardados.datos),
@@ -427,8 +540,8 @@ const RATSystemProfessional = () => {
               rut: datosGuardados.datos.rut || '',
               direccion: datosGuardados.datos.direccion_empresa || '',
               nombre: datosGuardados.datos.dpo_nombre || '',
-              email: datosGuardados.datos.email_empresa || '',
-              telefono: datosGuardados.datos.telefono_empresa || ''
+              email: datosGuardados.datos.dpo_email || '',
+              telefono: datosGuardados.datos.dpo_telefono || ''
             }
           }));
           
@@ -442,8 +555,8 @@ const RATSystemProfessional = () => {
           return; // Salir - datos cargados exitosamente
         } else {
           // Log warning - no hay datos guardados
-          if (supabaseErrorLogger) {
-            supabaseErrorLogger.logMediumError('RAT_AUTOCOMPLETADO_NO_DATOS', {
+          if (sqlServerErrorLogger) {
+            sqlServerErrorLogger.logInfo('RAT_AUTOCOMPLETADO_NO_DATOS', {
               message: 'No se encontraron datos empresa guardados para autocompletado',
               error: datosGuardados.error,
               timestamp: new Date().toISOString()
@@ -453,8 +566,8 @@ const RATSystemProfessional = () => {
         
       } catch (error) {
         // Log error crítico a archivo TXT
-        if (supabaseErrorLogger) {
-          supabaseErrorLogger.logCriticalError('RAT_AUTOCOMPLETADO_FAILED', {
+        if (sqlServerErrorLogger) {
+          sqlServerErrorLogger.logCriticalError('RAT_AUTOCOMPLETADO_FAILED', {
             error: error.message,
             stack: error.stack,
             timestamp: new Date().toISOString()
@@ -471,7 +584,7 @@ const RATSystemProfessional = () => {
         const { data: ultimosRATs, error } = await supabase
           .from('mapeo_datos_rat')
           .select('*')
-          .eq('tenant_id', String(currentTenant.id)) // Asegurar string
+          .eq('tenant_id', String(currentTenant || 'demo')) // Asegurar string
           .order('created_at', { ascending: false })
           .limit(1);
         
@@ -497,12 +610,12 @@ const RATSystemProfessional = () => {
             ...prev,
             responsable: {
               // DATOS PERMANENTES QUE NO CAMBIAN - MAPEO CORRECTO BD
-              razonSocial: ultimoRAT.area_responsable || currentTenant.company_name || '',
-              rut: ultimoRAT.metadata?.rut_empresa || currentTenant.rut || '',
-              direccion: ultimoRAT.metadata?.direccion_empresa || currentTenant.direccion || '',
-              nombre: ultimoRAT.responsable_proceso || currentTenant.dpo?.nombre || '',
-              email: ultimoRAT.email_responsable || currentTenant.dpo?.email || user?.email || '',
-              telefono: ultimoRAT.telefono_responsable || currentTenant.dpo?.telefono || '',
+              razonSocial: ultimoRAT.area_responsable || currentTenantObj.name || '',
+              rut: ultimoRAT.metadata?.rut_empresa || currentTenantObj.rut || '',
+              direccion: ultimoRAT.metadata?.direccion_empresa || '' || '',
+              nombre: ultimoRAT.responsable_proceso || '' || '',
+              email: ultimoRAT.email_responsable || '' || user?.email || '',
+              telefono: ultimoRAT.telefono_responsable || '' || '',
               representanteLegal: ultimoRAT.responsable?.representanteLegal || {
                 esExtranjero: false,
                 nombre: '',
@@ -511,8 +624,8 @@ const RATSystemProfessional = () => {
               }
             },
             // MANTENER CONFIGURACIONES EMPRESA PERMANENTES
-            plataformasTecnologicas: ultimoRAT.plataformasTecnologicas || currentTenant.plataformasTecnologicas || [],
-            politicasRetencion: ultimoRAT.politicasRetencion || currentTenant.politicasRetencion || {},
+            plataformasTecnologicas: ultimoRAT.plataformasTecnologicas || [] || [],
+            politicasRetencion: ultimoRAT.politicasRetencion || {} || {},
             
             // CAMPOS ACTIVIDAD SIEMPRE VACÍOS (NUEVA ACTIVIDAD)
             nombreActividad: '', // NUEVA actividad
@@ -538,12 +651,12 @@ const RATSystemProfessional = () => {
           setRatData(prev => ({
             ...prev,
             responsable: {
-              razonSocial: currentTenant.company_name || '',
-              rut: currentTenant.rut || '',
-              direccion: currentTenant.direccion || '',
-              nombre: currentTenant.dpo?.nombre || '',
-              email: currentTenant.dpo?.email || user?.email || '',
-              telefono: currentTenant.dpo?.telefono || '',
+              razonSocial: currentTenantObj.name || '',
+              rut: currentTenantObj.rut || '',
+              direccion: '' || '',
+              nombre: '' || '',
+              email: '' || user?.email || '',
+              telefono: '' || '',
               representanteLegal: {
                 esExtranjero: false,
                 nombre: '',
@@ -551,23 +664,24 @@ const RATSystemProfessional = () => {
                 telefono: ''
               }
             },
-            plataformasTecnologicas: currentTenant.plataformasTecnologicas || [],
-            politicasRetencion: currentTenant.politicasRetencion || {}
+            plataformasTecnologicas: [] || [],
+            politicasRetencion: {} || {}
           }));
         }
       } catch (error) {
         console.error('❌ Error cargando datos permanentes:', error);
         // Fallback a datos tenant básicos sin sobrescribir
-        if (!datosYaIngresados) {
+        const hayDatosCriticos = ratData.responsable?.razonSocial && ratData.responsable?.nombre && ratData.responsable?.rut;
+        if (!hayDatosCriticos) {
           setRatData(prev => ({
             ...prev,
             responsable: {
-              razonSocial: currentTenant.company_name || '',
-              rut: currentTenant.rut || '',
-              direccion: currentTenant.direccion || '',
-              nombre: currentTenant.dpo?.nombre || '',
-              email: currentTenant.dpo?.email || user?.email || '',
-              telefono: currentTenant.dpo?.telefono || '',
+              razonSocial: currentTenantObj.name || '',
+              rut: currentTenantObj.rut || '',
+              direccion: '' || '',
+              nombre: '' || '',
+              email: '' || user?.email || '',
+              telefono: '' || '',
             }
           }));
         }
@@ -664,8 +778,8 @@ const RATSystemProfessional = () => {
     
     // 🔧 FIX CRÍTICO: Auto-completar datos empresa después de limpiar
     setTimeout(() => {
-      if (supabaseErrorLogger) {
-        supabaseErrorLogger.logMediumError('RAT_NUEVO_RELOAD_DATOS', {
+      if (sqlServerErrorLogger) {
+        sqlServerErrorLogger.logInfo('RAT_NUEVO_RELOAD_DATOS', {
           message: 'Recargando datos empresa después de limpiar RAT',
           timestamp: new Date().toISOString()
         }, 'RAT_SYSTEM');
@@ -941,8 +1055,8 @@ const RATSystemProfessional = () => {
       
       if (!validacionResult.valido) {
         // Log error crítico de validación
-        if (supabaseErrorLogger) {
-          supabaseErrorLogger.logCriticalError('RAT_VALIDACION_FAILED', {
+        if (sqlServerErrorLogger) {
+          sqlServerErrorLogger.logCriticalError('RAT_VALIDACION_FAILED', {
             errores: validacionResult.errores,
             datos_actuales: {
               nombre_actividad: ratData.nombreActividad,
@@ -966,8 +1080,8 @@ const RATSystemProfessional = () => {
       }
       
       // Log éxito de validación
-      if (supabaseErrorLogger) {
-        supabaseErrorLogger.logMediumError('RAT_VALIDACION_SUCCESS', {
+      if (sqlServerErrorLogger) {
+        sqlServerErrorLogger.logMediumError('RAT_VALIDACION_SUCCESS', {
           message: 'Validación RAT exitosa, procediendo a guardar',
           campos_validados: validacionResult.campos_validados,
           timestamp: new Date().toISOString()
@@ -1020,7 +1134,7 @@ const RATSystemProfessional = () => {
       
       // 🧮 CÁLCULO RIESGO AUTOMÁTICO SEGÚN DIAGRAMA LÍNEAS 610-701
       // //console.log('🧮 Calculando riesgo multi-dimensional...');
-      const analisisRiesgo = await riskCalculationEngine.calcularRiesgoTotal(ratData, currentTenant?.id);
+      const analisisRiesgo = await riskCalculationEngine.calcularRiesgoTotal(ratData, currentTenant || 'demo');
       
       // APLICAR RESULTADOS ANÁLISIS RIESGO
       ratCompleto.nivel_riesgo = analisisRiesgo.nivel_riesgo;
@@ -1032,7 +1146,7 @@ const RATSystemProfessional = () => {
       // ⚖️ TEST BALANCING SI ES INTERÉS LEGÍTIMO
       if (ratData.baseLegal === 'interes_legitimo') {
         // //console.log('⚖️ Ejecutando Test Balancing obligatorio...');
-        const testBalancing = await testBalancingEngine.ejecutarTestBalancing(ratData, currentTenant?.id);
+        const testBalancing = await testBalancingEngine.ejecutarTestBalancing(ratData, currentTenant || 'demo');
         ratCompleto.metadata.test_balancing = testBalancing;
         
         if (!testBalancing.resultado || testBalancing.resultado === 'DESFAVORABLE') {
@@ -1042,7 +1156,7 @@ const RATSystemProfessional = () => {
       }
 
       // ⚠️ PROCESAR CASUÍSTICAS ESPECÍFICAS
-      const casuisticasEspecificas = await specificCasesEngine.procesarCasuisticaEspecifica(ratData, currentTenant?.id);
+      const casuisticasEspecificas = await specificCasesEngine.procesarCasuisticaEspecifica(ratData, currentTenant || 'demo');
       if (casuisticasEspecificas.requiere_atencion_especial) {
         ratCompleto.metadata.casuisticas_especiales = casuisticasEspecificas;
       }
@@ -1069,7 +1183,7 @@ const RATSystemProfessional = () => {
           // Re-procesar análisis de categorías sensibles ahora que tenemos ID
           for (const subcategoria of ratData.categorias.sensibles) {
             try {
-              await categoryAnalysisEngine.analizarCategoriaSeleccionada('sensibles', subcategoria, ratDataConId, currentTenant?.id);
+              await categoryAnalysisEngine.analizarCategoriaSeleccionada('sensibles', subcategoria, ratDataConId, currentTenant || 'demo');
               // //console.log(`✅ Análisis completado para: sensibles.${subcategoria}`);
             } catch (error) {
               console.error(`❌ Error análisis ${subcategoria}:`, error);
@@ -1085,7 +1199,7 @@ const RATSystemProfessional = () => {
           const eipdData = {
             id: `EIPD-${ratId}-${Date.now()}`,
             rat_id: resultado.id,
-            tenant_id: currentTenant?.id,
+            tenant_id: currentTenant || 'demo',
             user_id: user?.id,
             tipo: ratCompleto.metadata.requiereDPIA ? 'DPIA' : 'EIPD',
             titulo: `Evaluación de Impacto - ${ratData.finalidad}`,
@@ -1131,7 +1245,7 @@ const RATSystemProfessional = () => {
               .insert({
                 rat_id: resultado.id,
                 eipd_id: eipdGuardado.id,
-                tenant_id: currentTenant?.id,
+                tenant_id: currentTenant || 'demo',
                 created_at: new Date().toISOString(),
                 created_by: user?.id
               });
@@ -1151,7 +1265,7 @@ const RATSystemProfessional = () => {
               .insert({
                 rat_id: resultado.id,
                 eipd_id: eipdGuardado.id,
-                tenant_id: currentTenant?.id,
+                tenant_id: currentTenant || 'demo',
                 user_id: user?.id,
                 tipo: 'revision_eipd_generado',
                 mensaje: notificacionDPO.mensaje,
@@ -1207,8 +1321,8 @@ const RATSystemProfessional = () => {
       });
     } catch (error) {
       // Log error crítico de guardado a archivo TXT
-      if (supabaseErrorLogger) {
-        supabaseErrorLogger.logCriticalError('RAT_SAVE_FAILED', {
+      if (sqlServerErrorLogger) {
+        sqlServerErrorLogger.logCriticalError('RAT_SAVE_FAILED', {
           error: error.message,
           stack: error.stack,
           rat_data: {
@@ -1218,7 +1332,7 @@ const RATSystemProfessional = () => {
             empresa: ratData.responsable?.razonSocial,
             base_legal: ratData.baseLegal
           },
-          tenant_id: currentTenant?.id,
+          tenant_id: currentTenant || 'demo',
           view_mode: viewMode,
           editing_rat: editingRAT,
           timestamp: new Date().toISOString()
@@ -1807,6 +1921,23 @@ const RATSystemProfessional = () => {
               </Box>
             </Box>
       </PageLayout>
+      
+      {/* CONFIRMACIÓN VISUAL - Snackbar para notificaciones */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 };
@@ -1840,7 +1971,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
       responsable: nuevosResponsableData
     });
     
-    // NO guardar automáticamente - solo actualizar estado
+    // AUTO-GUARDAR datos empresa usando función importada
+    await guardarDatosEmpresaHelper(nuevosResponsableData);
     
     if (rut.length > 8) {
       if (!validarRUT(rut)) {
@@ -1848,7 +1980,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
       } else {
         setRutError('');
         const ratsExistentes = await ratService.getCompletedRATs();
-        const duplicado = ratsExistentes.find(r => 
+        const ratsArray = Array.isArray(ratsExistentes) ? ratsExistentes : [];
+        const duplicado = ratsArray.find(r => 
           r.responsable?.rut === rut || r.responsable_rut === rut
         );
         if (duplicado) {
@@ -1891,13 +2024,17 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
           fullWidth
           label="Razón Social *"
           value={ratData.responsable.razonSocial}
-          onChange={(e) => {
+          onChange={async (e) => {
+            console.log('📝 onChange Razón Social llamado con:', e.target.value);
             const nuevosResponsableData = { ...ratData.responsable, razonSocial: e.target.value };
             setRatData({
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // NO guardar automáticamente - solo actualizar estado
+            console.log('🔥 LLAMANDO guardarDatosEmpresaHelper...');
+            // AUTO-GUARDAR datos empresa con await
+            await guardarDatosEmpresaHelper(nuevosResponsableData);
+            console.log('✅ guardarDatosEmpresaHelper terminado');
           }}
           helperText="Nombre legal completo de la empresa"
           required
@@ -1925,7 +2062,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // NO guardar automáticamente - solo actualizar estado
+            // AUTO-GUARDAR datos empresa
+            guardarDatosEmpresaHelper(nuevosResponsableData);
           }}
           helperText="Dirección física de la oficina principal"
           required
@@ -1960,7 +2098,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // NO guardar automáticamente - solo actualizar estado
+            // AUTO-GUARDAR datos empresa
+            guardarDatosEmpresaHelper(nuevosResponsableData);
           }}
           helperText="Nombre y apellidos del DPO designado"
           required
@@ -1978,7 +2117,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // NO guardar automáticamente - solo actualizar estado
+            // AUTO-GUARDAR datos empresa
+            guardarDatosEmpresaHelper(nuevosResponsableData);
           }}
           helperText="Email oficial para consultas de privacidad"
           required
@@ -1995,7 +2135,8 @@ const PasoIdentificacion = ({ ratData, setRatData }) => {
               ...ratData,
               responsable: nuevosResponsableData
             });
-            // NO guardar automáticamente - solo actualizar estado
+            // AUTO-GUARDAR datos empresa
+            guardarDatosEmpresaHelper(nuevosResponsableData);
           }}
           helperText="Teléfono directo del DPO"
           required
@@ -2169,7 +2310,7 @@ const PasoCategorias = ({ ratData, setRatData, currentTenant, setAlertas }) => {
         // //console.log('🚨 Dato sensible agregado - Trigger EIPD:', value);
         
         // 🧠 ANÁLISIS AUTOMÁTICO SEGÚN DIAGRAMA LÍNEAS 162-228
-        if (currentTenant?.id) {
+        if (currentTenant || 'demo') {
           categoryAnalysisEngine.analizarCategoriaSeleccionada('sensibles', value, ratData, currentTenant.id)
             .then(analisis => {
               // //console.log('🧠 Análisis automático categoría:', analisis);

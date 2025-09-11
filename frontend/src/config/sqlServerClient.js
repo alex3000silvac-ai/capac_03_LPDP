@@ -1,356 +1,413 @@
 /**
- * SQL SERVER PASC CLIENT - Reemplazo completo de Supabase
- * Conecta directamente a tu servidor SQL Server local
- * ELIMINA todos los errores Status 400
+ * ================================================================================
+ * CLIENTE SQL SERVER CENTRALIZADO - SISTEMA LPDP
+ * ================================================================================
+ * MIGRADO DESDE SUPABASE A SQL SERVER
+ * - Reemplaza completamente supabaseClient.js
+ * - Conexión unificada al backend con SQL Server
+ * - Mantiene compatibilidad con componentes existentes
+ * - Servidor: PASC\LPDP_Test (Windows Authentication)
+ * ================================================================================
  */
 
-// Configuración para servidor SQL Server PASC
-const SQL_SERVER_CONFIG = {
-    baseUrl: 'http://localhost:3001/api', // API local que conectará a SQL Server
-    server: 'PASC',
-    database: 'LPDP_Test',
-    timeout: 10000
+// Configuración del backend SQL Server
+const BACKEND_CONFIG = {
+  // URL del backend FastAPI que conecta a SQL Server
+  baseURL: process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000',
+  
+  // Endpoints principales
+  endpoints: {
+    health: '/health',
+    auth: '/api/v1/auth',
+    users: '/api/v1/usuarios',
+    organizations: '/api/v1/organizaciones',
+    rats: '/api/v1/rats',
+    eipds: '/api/v1/eipds',
+    providers: '/api/v1/proveedores',
+    notifications: '/api/v1/notificaciones',
+    audit: '/api/v1/audit'
+  },
+  
+  // Configuración de requests
+  timeout: 30000,
+  retries: 3
 };
 
+console.log('🚀 Iniciando cliente SQL Server CENTRALIZADO para LPDP');
+console.log('📡 Backend URL:', BACKEND_CONFIG.baseURL);
+console.log('🔗 Servidor SQL Server: PASC\\LPDP_Test');
+
+/**
+ * Cliente HTTP para conectar con el backend SQL Server
+ */
 class SQLServerClient {
-    constructor() {
-        this.baseUrl = SQL_SERVER_CONFIG.baseUrl;
-        console.log('🚀 SQL Server Client iniciado - PASC/LPDP_Test');
-        console.log('✅ SIN dependencias de Supabase');
+  constructor() {
+    this.baseURL = BACKEND_CONFIG.baseURL;
+    this.currentUser = null;
+    this.currentTenant = null;
+    
+    // Headers por defecto
+    this.defaultHeaders = {
+      'Content-Type': 'application/json',
+      'X-Client-Version': '3.0.0',
+      'X-Database-Type': 'SQLServer'
+    };
+  }
+
+  /**
+   * Realizar request HTTP al backend
+   */
+  async makeRequest(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    
+    const config = {
+      method: 'GET',
+      headers: {
+        ...this.defaultHeaders,
+        ...options.headers
+      },
+      timeout: BACKEND_CONFIG.timeout,
+      ...options
+    };
+
+    // Agregar token de autenticación si existe
+    if (this.currentUser?.token) {
+      config.headers['Authorization'] = `Bearer ${this.currentUser.token}`;
     }
 
-    // ========================================
-    // ORGANIZACIONES - Reemplazo directo
-    // ========================================
+    // Agregar tenant_id si existe
+    if (this.currentTenant) {
+      config.headers['X-Tenant-ID'] = this.currentTenant;
+    }
 
-    async getOrganizaciones(userId) {
-        try {
-            const response = await fetch(`${this.baseUrl}/organizaciones?user_id=${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+    try {
+      console.log(`📤 SQL Server Request: ${config.method} ${url}`);
+      
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
+      const data = await response.json();
+      console.log(`📥 SQL Server Response: ${response.status} OK`);
+      
+      return {
+        data,
+        error: null,
+        status: response.status,
+        statusText: response.statusText
+      };
 
-            const data = await response.json();
-            console.log(`✅ getOrganizaciones: ${data.length} registros - SIN Status 400`);
-            
-            return {
-                data: data,
-                error: null,
-                count: data.length
-            };
-        } catch (error) {
-            console.error('❌ Error getOrganizaciones:', error);
-            return { data: null, error: error, count: 0 };
+    } catch (error) {
+      console.error(`❌ SQL Server Error: ${error.message}`);
+      
+      return {
+        data: null,
+        error: {
+          message: error.message,
+          code: error.code || 'NETWORK_ERROR'
         }
+      };
     }
+  }
 
-    async createOrganizacion(orgData) {
-        try {
-            const response = await fetch(`${this.baseUrl}/organizaciones`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(orgData)
-            });
+  /**
+   * Simular la API de Supabase para compatibilidad
+   */
+  from(tableName) {
+    return new SQLServerQueryBuilder(this, tableName);
+  }
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('✅ createOrganizacion: Creada - SIN Status 400');
-            
-            return { data: [data], error: null };
-        } catch (error) {
-            console.error('❌ Error createOrganizacion:', error);
-            return { data: null, error: error };
+  /**
+   * Autenticación (simulada para compatibilidad)
+   */
+  get auth() {
+    return {
+      getUser: async () => {
+        const response = await this.makeRequest('/api/v1/auth/user');
+        return {
+          data: { user: response.data },
+          error: response.error
+        };
+      },
+      
+      getSession: async () => {
+        const response = await this.makeRequest('/api/v1/auth/session');
+        return {
+          data: { session: response.data },
+          error: response.error
+        };
+      },
+      
+      signInWithPassword: async ({ email, password }) => {
+        const response = await this.makeRequest('/api/v1/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+        
+        if (response.data) {
+          this.currentUser = response.data;
         }
+        
+        return response;
+      },
+      
+      signOut: async () => {
+        this.currentUser = null;
+        this.currentTenant = null;
+        
+        return await this.makeRequest('/api/v1/auth/logout', {
+          method: 'POST'
+        });
+      }
+    };
+  }
+
+  /**
+   * Health check del sistema
+   */
+  async checkHealth() {
+    try {
+      const response = await this.makeRequest('/health');
+      return {
+        online: response.data?.status === 'healthy',
+        database: response.data?.database || 'unknown',
+        server: 'SQL Server PASC\\LPDP_Test'
+      };
+    } catch (error) {
+      return {
+        online: false,
+        database: 'disconnected',
+        error: error?.message || 'Unknown error'
+      };
     }
-
-    // ========================================
-    // USER SESSIONS - Reemplazo directo
-    // ========================================
-
-    async getUserSessions(userId, isActive = true) {
-        try {
-            const response = await fetch(`${this.baseUrl}/user_sessions?user_id=${userId}&is_active=${isActive}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log(`✅ getUserSessions: ${data.length} sessions - SIN Status 400`);
-            
-            return { data: data, error: null };
-        } catch (error) {
-            console.error('❌ Error getUserSessions:', error);
-            return { data: null, error: error };
-        }
-    }
-
-    async createUserSession(sessionData) {
-        try {
-            const response = await fetch(`${this.baseUrl}/user_sessions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(sessionData)
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('✅ createUserSession: Sesión creada - SIN Status 400');
-            
-            return { data: [data], error: null };
-        } catch (error) {
-            console.error('❌ Error createUserSession:', error);
-            return { data: null, error: error };
-        }
-    }
-
-    // ========================================
-    // MAPEO DATOS RAT - Reemplazo directo
-    // ========================================
-
-    async getRATData(tenantId, filters = {}) {
-        try {
-            let url = `${this.baseUrl}/mapeo_datos_rat?tenant_id=${tenantId}`;
-            
-            // Agregar filtros
-            if (filters.nivel_riesgo) {
-                url += `&nivel_riesgo=${filters.nivel_riesgo}`;
-            }
-            if (filters.estado) {
-                url += `&estado=${filters.estado}`;
-            }
-
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log(`✅ getRATData: ${data.length} RATs - SIN Status 400`);
-            
-            return { data: data, error: null };
-        } catch (error) {
-            console.error('❌ Error getRATData:', error);
-            return { data: null, error: error };
-        }
-    }
-
-    // ========================================
-    // ACTIVIDADES DPO - Reemplazo directo
-    // ========================================
-
-    async getActivitiesDPO(tenantId, filters = {}) {
-        try {
-            let url = `${this.baseUrl}/actividades_dpo?tenant_id=${tenantId}`;
-            
-            if (filters.estado) {
-                url += `&estado=${filters.estado}`;
-            }
-
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log(`✅ getActivitiesDPO: ${data.length} actividades - SIN Status 400`);
-            
-            return { data: data, error: null };
-        } catch (error) {
-            console.error('❌ Error getActivitiesDPO:', error);
-            return { data: null, error: error };
-        }
-    }
-
-    // ========================================
-    // SIMULACIÓN DE INTERFAZ SUPABASE
-    // ========================================
-
-    // Método from() que simula la API de Supabase
-    from(table) {
-        return new SQLServerQueryBuilder(table, this.baseUrl);
-    }
-
-    // Método de autenticación (mock)
-    auth = {
-        getUser: async () => {
-            return {
-                data: {
-                    user: {
-                        id: 'ca0f7530-8176-4069-be04-d65488054274',
-                        email: 'admin@juridicadigital.cl'
-                    }
-                },
-                error: null
-            };
-        },
-        getSession: async () => {
-            return {
-                data: {
-                    session: {
-                        user: {
-                            id: 'ca0f7530-8176-4069-be04-d65488054274'
-                        }
-                    }
-                },
-                error: null
-            };
-        }
-    }
+  }
 }
 
-// Query Builder que simula la interfaz de Supabase
+/**
+ * Constructor de consultas compatible con Supabase
+ */
 class SQLServerQueryBuilder {
-    constructor(table, baseUrl) {
-        this.table = table;
-        this.baseUrl = baseUrl;
-        this.query = {};
-        this.filters = [];
+  constructor(client, tableName) {
+    this.client = client;
+    this.tableName = tableName;
+    this.query = {
+      select: '*',
+      filters: [],
+      orderBy: null,
+      limit: null,
+      offset: null
+    };
+  }
+
+  select(columns = '*') {
+    this.query.select = columns;
+    return this;
+  }
+
+  eq(column, value) {
+    this.query.filters.push({ column, operator: 'eq', value });
+    return this;
+  }
+
+  neq(column, value) {
+    this.query.filters.push({ column, operator: 'neq', value });
+    return this;
+  }
+
+  like(column, pattern) {
+    this.query.filters.push({ column, operator: 'like', value: pattern });
+    return this;
+  }
+
+  order(column, options = {}) {
+    this.query.orderBy = { column, ascending: options.ascending !== false };
+    return this;
+  }
+
+  limit(count) {
+    this.query.limit = count;
+    return this;
+  }
+
+  range(from, to) {
+    this.query.offset = from;
+    this.query.limit = to - from + 1;
+    return this;
+  }
+
+  async execute() {
+    // Construir endpoint basado en la tabla
+    let endpoint = BACKEND_CONFIG.endpoints[this.tableName] || `/api/v1/${this.tableName}`;
+    
+    // Construir query parameters
+    const params = new URLSearchParams();
+    
+    if (this.query.select !== '*') {
+      params.append('select', this.query.select);
     }
-
-    select(columns = '*') {
-        this.query.select = columns;
-        return this;
+    
+    this.query.filters.forEach(filter => {
+      params.append(`${filter.column}`, `${filter.operator}.${filter.value}`);
+    });
+    
+    if (this.query.orderBy) {
+      params.append('order', `${this.query.orderBy.column}.${this.query.orderBy.ascending ? 'asc' : 'desc'}`);
     }
-
-    eq(column, value) {
-        this.filters.push(`${column}=eq.${value}`);
-        return this;
+    
+    if (this.query.limit) {
+      params.append('limit', this.query.limit);
     }
-
-    neq(column, value) {
-        this.filters.push(`${column}=neq.${value}`);
-        return this;
+    
+    if (this.query.offset) {
+      params.append('offset', this.query.offset);
     }
-
-    limit(count) {
-        this.query.limit = count;
-        return this;
+    
+    const queryString = params.toString();
+    if (queryString) {
+      endpoint += `?${queryString}`;
     }
+    
+    return await this.client.makeRequest(endpoint);
+  }
 
-    order(column, ascending = true) {
-        this.query.order = `${column}.${ascending ? 'asc' : 'desc'}`;
-        return this;
+  // Métodos que ejecutan inmediatamente
+  then(resolve, reject) {
+    return this.execute().then(resolve, reject);
+  }
+
+  async single() {
+    const response = await this.execute();
+    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+      return {
+        ...response,
+        data: response.data[0]
+      };
     }
+    return response;
+  }
 
-    single() {
-        this.query.single = true;
-        return this;
+  async maybeSingle() {
+    const response = await this.execute();
+    if (response.data && Array.isArray(response.data)) {
+      if (response.data.length > 0) {
+        return {
+          ...response,
+          data: response.data[0]
+        };
+      } else {
+        return {
+          ...response,
+          data: null
+        };
+      }
     }
+    return response;
+  }
 
-    async execute() {
-        try {
-            let url = `${this.baseUrl}/${this.table}`;
-            
-            if (this.filters.length > 0) {
-                url += '?' + this.filters.join('&');
-            }
+  async insert(data) {
+    const endpoint = BACKEND_CONFIG.endpoints[this.tableName] || `/api/v1/${this.tableName}`;
+    
+    return await this.client.makeRequest(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
 
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
+  async update(data) {
+    const endpoint = BACKEND_CONFIG.endpoints[this.tableName] || `/api/v1/${this.tableName}`;
+    
+    return await this.client.makeRequest(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
 
-            const data = await response.json();
-            
-            // Si es single, devolver solo el primer elemento
-            if (this.query.single) {
-                return { data: data[0] || null, error: null };
-            }
-
-            return { data: data, error: null };
-        } catch (error) {
-            console.error(`❌ Error SQL Server ${this.table}:`, error);
-            return { data: null, error: error };
-        }
-    }
-
-    // Hacer que las consultas sean "thenable" para compatibilidad
-    then(resolve, reject) {
-        return this.execute().then(resolve, reject);
-    }
+  async delete() {
+    const endpoint = BACKEND_CONFIG.endpoints[this.tableName] || `/api/v1/${this.tableName}`;
+    
+    return await this.client.makeRequest(endpoint, {
+      method: 'DELETE'
+    });
+  }
 }
 
-// Crear instancia del cliente
+// =============================================================================
+// FUNCIONES DE COMPATIBILIDAD CON SUPABASE
+// =============================================================================
+
+/**
+ * Obtener tenant actual (migrado desde Supabase)
+ */
+export const getCurrentTenant = async () => {
+  try {
+    const response = await sqlServerClient.makeRequest('/api/v1/auth/tenant');
+    return response.data?.tenant_id || null;
+  } catch (error) {
+    console.error('Error obteniendo tenant actual:', error);
+    return null;
+  }
+};
+
+/**
+ * Estado de conectividad (migrado desde Supabase)
+ */
+export const getConnectivityStatus = async () => {
+  return await sqlServerClient.checkHealth();
+};
+
+/**
+ * Cliente con contexto de tenant (migrado desde Supabase)
+ */
+export const sqlServerWithTenant = (tenantId) => {
+  const client = new SQLServerClient();
+  client.currentTenant = tenantId;
+  return client;
+};
+
+// =============================================================================
+// INSTANCIA GLOBAL Y EXPORTACIONES
+// =============================================================================
+
+// Instancia global del cliente SQL Server
 const sqlServerClient = new SQLServerClient();
 
-// Funciones helper compatibles con el código existente
-export const getCurrentTenant = async () => {
-    try {
-        const userId = 'ca0f7530-8176-4069-be04-d65488054274';
-        const sessions = await sqlServerClient.getUserSessions(userId, true);
-        
-        if (sessions.data && sessions.data.length > 0) {
-            return sessions.data[0].tenant_id;
-        }
+// Verificar conexión inicial
+sqlServerClient.checkHealth().then(status => {
+  if (status.online) {
+    console.log('✅ SQL Server conectado correctamente');
+    console.log(`🗄️ Base de datos: ${status.database}`);
+  } else {
+    console.log('❌ SQL Server desconectado');
+    console.error('Error:', status.error);
+  }
+});
 
-        // Fallback a organización
-        const orgs = await sqlServerClient.getOrganizaciones(userId);
-        return orgs.data && orgs.data.length > 0 ? orgs.data[0].id : 'default';
-    } catch (error) {
-        console.error('Error getCurrentTenant SQL Server:', error);
-        return 'default';
-    }
-};
-
-export const getConnectivityStatus = async () => {
-    try {
-        const response = await fetch(`${SQL_SERVER_CONFIG.baseUrl}/health`);
-        
-        if (response.ok) {
-            return {
-                online: true,
-                mode: 'sql_server_pasc',
-                message: 'Conectado a SQL Server PASC - CERO errores',
-                timestamp: new Date().toISOString()
-            };
-        }
-    } catch (error) {
-        return {
-            online: false,
-            mode: 'sql_server_error',
-            message: error.message,
-            timestamp: new Date().toISOString()
-        };
-    }
-};
-
-// Exportar cliente compatible con Supabase
-export const supabase = sqlServerClient;
-export const supabaseWithTenant = (tenantId) => sqlServerClient;
-
+// Exportar cliente principal (compatible con import { supabase })
+export { sqlServerClient as supabase };
 export default sqlServerClient;
+
+// Exportar también como sqlServerClient para claridad
+export { sqlServerClient };
+
+/**
+ * INSTRUCCIONES DE MIGRACIÓN PARA DESARROLLADORES:
+ * 
+ * 1. Cambiar imports:
+ *    // Antes:
+ *    import { supabase } from '../config/supabaseClient';
+ *    
+ *    // Después:
+ *    import { supabase } from '../config/sqlServerClient';
+ * 
+ * 2. La API sigue siendo compatible:
+ *    const { data, error } = await supabase
+ *      .from('usuarios')
+ *      .select('*')
+ *      .eq('email', 'usuario@example.com');
+ * 
+ * 3. Las funciones auxiliares siguen funcionando:
+ *    const tenant = await getCurrentTenant();
+ *    const status = await getConnectivityStatus();
+ */

@@ -42,12 +42,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Servir archivos estáticos desde el directorio build
-app.use(express.static(path.join(__dirname, 'build')));
+// Servir archivos estáticos desde el directorio public (modo desarrollo)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Manejar rutas de React Router (SPA)
+// Ruta principal para la interfaz de pruebas LPDP
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'app.html'));
+});
+
+// Manejar todas las rutas con la interfaz de pruebas
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'app.html'));
 });
 
 // Iniciar el servidor

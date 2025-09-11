@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backend Connection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: white; }
+        .card { background: #2a2a2a; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .success { border-left: 4px solid #4caf50; }
+        .error { border-left: 4px solid #f44336; }
+        button { background: #2196f3; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #1976d2; }
+        pre { background: #0a0a0a; padding: 15px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test de Conexión Backend LPDP</h1>
+    
+    <div class="card">
+        <h2>Estado del Backend</h2>
+        <p id="backend-status">Verificando...</p>
+    </div>
+    
+    <div class="card">
+        <h2>Datos de Organizaciones</h2>
+        <p id="org-count">Cargando...</p>
+        <pre id="org-data"></pre>
+    </div>
+    
+    <div class="card">
+        <h2>Datos de RATs</h2>
+        <p id="rat-count">Cargando...</p>
+        <pre id="rat-data"></pre>
+    </div>
+    
+    <button onclick="testBackend()">🔄 Probar Nuevamente</button>
+    
+    <script>
+        async function testBackend() {
+            const backendUrl = 'http://localhost:8000';
+            
+            // Test 1: Health Check
+            try {
+                const healthResponse = await fetch(`${backendUrl}/api/health`);
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    document.getElementById('backend-status').innerHTML = 
+                        `✅ ${healthData.status} - ${healthData.message}<br>
+                         📊 Módulos: ${JSON.stringify(healthData.modules)}`;
+                } else {
+                    document.getElementById('backend-status').innerHTML = 
+                        `❌ Error ${healthResponse.status}`;
+                }
+            } catch (error) {
+                document.getElementById('backend-status').innerHTML = 
+                    `❌ Error: ${error.message}`;
+            }
+            
+            // Test 2: Organizations
+            try {
+                const orgResponse = await fetch(`${backendUrl}/api/v1/organizaciones`);
+                if (orgResponse.ok) {
+                    const orgData = await orgResponse.json();
+                    document.getElementById('org-count').innerHTML = 
+                        `✅ ${orgData.length} organizaciones encontradas`;
+                    document.getElementById('org-data').textContent = 
+                        JSON.stringify(orgData.slice(0, 2), null, 2);
+                } else {
+                    document.getElementById('org-count').innerHTML = 
+                        `❌ Error ${orgResponse.status}`;
+                }
+            } catch (error) {
+                document.getElementById('org-count').innerHTML = 
+                    `❌ Error: ${error.message}`;
+            }
+            
+            // Test 3: RATs
+            try {
+                const ratResponse = await fetch(`${backendUrl}/api/v1/rats?tenant_id=demo`);
+                if (ratResponse.ok) {
+                    const ratData = await ratResponse.json();
+                    document.getElementById('rat-count').innerHTML = 
+                        `✅ ${ratData.length} RATs encontrados`;
+                    document.getElementById('rat-data').textContent = 
+                        JSON.stringify(ratData.slice(0, 2), null, 2);
+                } else {
+                    document.getElementById('rat-count').innerHTML = 
+                        `❌ Error ${ratResponse.status}`;
+                }
+            } catch (error) {
+                document.getElementById('rat-count').innerHTML = 
+                    `❌ Error: ${error.message}`;
+            }
+        }
+        
+        // Ejecutar test al cargar la página
+        document.addEventListener('DOMContentLoaded', testBackend);
+    </script>
+</body>
+</html>

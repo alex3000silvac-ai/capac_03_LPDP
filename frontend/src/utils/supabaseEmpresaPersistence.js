@@ -1,21 +1,22 @@
 /**
- * 💾 SUPABASE EMPRESA PERSISTENCE - SISTEMA 100% SUPABASE
+ * 💾 SQL SERVER EMPRESA PERSISTENCE - SISTEMA 100% SQL SERVER
  * 
- * Reemplaza completamente localStorage - TODO desde Supabase
- * Usa tabla company_data_templates para persistencia
+ * PERSISTENCIA UNIFICADA - SOLO SQL SERVER
+ * Sin validaciones estrictas - Guardado progresivo en tiempo real
  */
 
-import { supabase } from '../config/supabaseClient';
+import { sqlServerClient } from '../config/sqlServerClient';
 
-class SupabaseEmpresaPersistence {
+class SqlServerEmpresaPersistence {
   constructor() {
-    this.tableName = 'company_data_templates';
+    this.tableName = 'organizaciones';
     this.listeners = new Set();
-    this.currentTenantId = 1; // Default tenant
+    this.currentTenantId = 'demo'; // Default tenant
   }
 
   /**
-   * 💾 GUARDAR DATOS DE EMPRESA - SOLO SUPABASE
+   * 💾 GUARDAR DATOS DE EMPRESA - PERSISTENCIA UNIFICADA SQL SERVER
+   * Sin validaciones estrictas - Guardado progresivo
    */
   async guardarDatosEmpresa(datosEmpresa, opciones = {}) {
     const {
@@ -24,21 +25,14 @@ class SupabaseEmpresaPersistence {
       notificar = true
     } = opciones;
 
-    console.log('🔴 DEBUG guardarDatosEmpresa SUPABASE:', datosEmpresa);
+    console.log('🟢 PERSISTENCIA SQL SERVER:', datosEmpresa);
     
-    // VALIDACIÓN OBLIGATORIA
-    const validacion = this.validarDatos(datosEmpresa);
-    if (!validacion.valid) {
-      console.log('❌ DEBUG: Validación fallida:', validacion);
-      return { 
-        success: false, 
-        error: validacion.error,
-        camposFaltantes: validacion.camposFaltantes || []
-      };
-    }
+    // SIN VALIDACIÓN ESTRICTA - Guardado progresivo
+    console.log('✅ GUARDADO PROGRESIVO - Sin validaciones restrictivas');
     
     try {
-      const datosParaGuardar = {
+      // INCLUIR TODOS LOS METADATOS PARA QUE LA CONSULTA POSTERIOR LOS ENCUENTRE
+      const registro = {
         tenant_id: tenantId,
         template_name: templateName,
         razon_social: datosEmpresa.razon_social,
@@ -53,10 +47,11 @@ class SupabaseEmpresaPersistence {
         updated_at: new Date().toISOString()
       };
 
-      // Buscar si ya existe un template para este tenant (sin RLS por ahora)
-      const { data: existing, error: selectError } = await supabase
+      // UPSERT DIRECTO SQL SERVER - Buscar existente por tenant_id + template_name
+      const { data: existing, error: selectError } = await sqlServerClient
         .from(this.tableName)
         .select('id')
+        .eq('tenant_id', tenantId)
         .eq('template_name', templateName)
         .eq('is_active', true)
         .limit(1)
@@ -68,29 +63,29 @@ class SupabaseEmpresaPersistence {
 
       let result;
       if (existing) {
-        // Actualizar existente
-        const { data, error } = await supabase
+        // ACTUALIZAR SQL SERVER
+        const { data, error } = await sqlServerClient
           .from(this.tableName)
-          .update(datosParaGuardar)
+          .update(registro)
           .eq('id', existing.id)
           .select()
           .single();
         
         if (error) throw error;
         result = data;
+        console.log('🔄 UPDATE SQL SERVER exitoso:', result);
       } else {
-        // Insertar nuevo
-        const { data, error } = await supabase
+        // INSERTAR NUEVO SQL SERVER
+        const { data, error } = await sqlServerClient
           .from(this.tableName)
-          .insert([datosParaGuardar])
+          .insert([registro])
           .select()
           .single();
         
         if (error) throw error;
         result = data;
+        console.log('➕ INSERT SQL SERVER exitoso:', result);
       }
-
-      console.log('🟢 DEBUG: Guardado en Supabase exitoso:', result);
 
       if (notificar) {
         this.notificarCambio('datos_guardados', result);
@@ -99,13 +94,13 @@ class SupabaseEmpresaPersistence {
       return { success: true, datos: result };
 
     } catch (error) {
-      console.error('❌ ERROR guardando en Supabase:', error);
+      console.error('❌ ERROR persistencia SQL Server:', error);
       return { success: false, error: error.message };
     }
   }
 
   /**
-   * 📖 CARGAR DATOS DE EMPRESA - SOLO SUPABASE
+   * 📖 CARGAR DATOS DE EMPRESA - SOLO SQL SERVER
    */
   async cargarDatosEmpresa(opciones = {}) {
     const {
@@ -113,12 +108,13 @@ class SupabaseEmpresaPersistence {
       templateName = 'default_company_data'
     } = opciones;
 
-    console.log('🔵 DEBUG cargarDatosEmpresa SUPABASE');
+    console.log('🔵 CARGAR desde SQL SERVER unificado');
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await sqlServerClient
         .from(this.tableName)
         .select('*')
+        .eq('tenant_id', tenantId)
         .eq('template_name', templateName)
         .eq('is_active', true)
         .order('updated_at', { ascending: false })
@@ -127,7 +123,7 @@ class SupabaseEmpresaPersistence {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          console.log('📖 No se encontraron datos empresa en Supabase');
+          console.log('📖 No se encontraron datos empresa en SQL Server');
           return { success: false, datos: null };
         }
         throw error;
@@ -136,24 +132,24 @@ class SupabaseEmpresaPersistence {
       if (data) {
         // Convertir de formato BD a formato componente
         const datosFormateados = {
-          razon_social: data.razon_social,
-          rut: data.rut_empresa,
-          email_empresa: data.email_empresa,
+          razon_social: data.razon_social || '',
+          rut: data.rut_empresa || '',
+          email_empresa: data.email_empresa || '',
           telefono_empresa: data.telefono_empresa || '',
-          direccion_empresa: data.direccion_empresa,
-          dpo_nombre: data.dpo_nombre,
+          direccion_empresa: data.direccion_empresa || '',
+          dpo_nombre: data.dpo_nombre || '',
           dpo_email: data.dpo_email || '',
           dpo_telefono: data.dpo_telefono || ''
         };
 
-        console.log('🔶 DEBUG: Datos cargados desde Supabase:', datosFormateados);
+        console.log('🔶 DEBUG: Datos cargados desde SQL Server:', datosFormateados);
         return { success: true, datos: datosFormateados };
       }
 
       return { success: false, datos: null };
 
     } catch (error) {
-      console.error('❌ ERROR cargando desde Supabase:', error);
+      console.error('❌ ERROR cargando desde SQL Server:', error);
       return { success: false, error: error.message };
     }
   }
@@ -253,12 +249,18 @@ class SupabaseEmpresaPersistence {
     } = opciones;
 
     try {
-      const { error } = await supabase
-        .from(this.tableName)
-        .update({ is_active: false })
-        .eq('template_name', templateName);
+      // Usar SQL Server en lugar de Supabase
+      const response = await this.sqlServerClient.put(
+        `${this.apiUrl}/organizaciones`,
+        {
+          is_active: false,
+          template_name: templateName
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok && response.status !== 200) {
+        throw new Error(`Error actualizando datos: ${response.statusText}`);
+      }
 
       if (notificar) {
         this.notificarCambio('datos_limpiados', null);
@@ -341,28 +343,28 @@ class SupabaseEmpresaPersistence {
 }
 
 // Instancia global
-const supabaseEmpresaPersistence = new SupabaseEmpresaPersistence();
+const sqlServerEmpresaPersistence = new SqlServerEmpresaPersistence();
 
 // Exports para uso desde componentes - SOLO SUPABASE
 export const guardarDatosEmpresa = (datos, opciones) => 
-  supabaseEmpresaPersistence.guardarDatosEmpresa(datos, opciones);
+  sqlServerEmpresaPersistence.guardarDatosEmpresa(datos, opciones);
 
 export const cargarDatosEmpresa = (opciones) => 
-  supabaseEmpresaPersistence.cargarDatosEmpresa(opciones);
+  sqlServerEmpresaPersistence.cargarDatosEmpresa(opciones);
 
 export const actualizarDatosEmpresa = (datos, opciones) => 
-  supabaseEmpresaPersistence.actualizarDatosEmpresa(datos, opciones);
+  sqlServerEmpresaPersistence.actualizarDatosEmpresa(datos, opciones);
 
 export const limpiarDatosEmpresa = (opciones) => 
-  supabaseEmpresaPersistence.limpiarDatos(opciones);
+  sqlServerEmpresaPersistence.limpiarDatos(opciones);
 
 export const existenDatosEmpresa = (opciones) => 
-  supabaseEmpresaPersistence.existenDatos(opciones);
+  sqlServerEmpresaPersistence.existenDatos(opciones);
 
 export const autoCompletarFormulario = (setValues, opciones) => 
-  supabaseEmpresaPersistence.autoCompletarFormulario(setValues, opciones);
+  sqlServerEmpresaPersistence.autoCompletarFormulario(setValues, opciones);
 
 export const agregarListenerDatosEmpresa = (callback) => 
-  supabaseEmpresaPersistence.agregarListener(callback);
+  sqlServerEmpresaPersistence.agregarListener(callback);
 
-export default supabaseEmpresaPersistence;
+export default sqlServerEmpresaPersistence;

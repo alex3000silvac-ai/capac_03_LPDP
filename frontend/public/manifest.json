@@ -1,15 +1,1 @@
-{
-  "short_name": "SCLDP",
-  "name": "Sistema de Capacitación y Levantamiento de Datos Personales",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#1976d2",
-  "background_color": "#ffffff"
-}
+{"name":"Sistema LPDP","short_name":"LPDP","theme_color":"#1a365d","background_color":"#f5f7fa","display":"standalone","start_url":"."}

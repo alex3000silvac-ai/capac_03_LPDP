@@ -1,13 +1,13 @@
 /**
- * 📊 SUPABASE ERROR LOGGER - SISTEMA 100% SUPABASE
+ * 📊 SQL SERVER ERROR LOGGER - SISTEMA 100% SQL SERVER
  * 
- * Reemplaza localStorage con Supabase y memoria
+ * Reemplaza localStorage con SQL Server y memoria
  * Sistema de logging de errores persistente
  */
 
-import { supabase } from '../config/supabaseClient';
+import { sqlServerClient as supabase } from '../config/sqlServerClient';
 
-class SupabaseErrorLogger {
+class SqlServerErrorLogger {
   constructor() {
     this.tableName = 'system_error_logs';
     this.errorBuffer = new Map();
@@ -15,27 +15,30 @@ class SupabaseErrorLogger {
     this.batchSize = 10;
     this.flushInterval = 30000; // 30 segundos
     this.currentTenantId = 1;
+    this.consoleLogging = true; // Mantener logs críticos activos
     
     this.startAutoFlush();
   }
 
   /**
-   * 🔥 CRÍTICO: LOG ERROR CRÍTICO A SUPABASE
+   * 🔥 CRÍTICO: LOG ERROR CRÍTICO A SQL SERVER
    */
   async logCriticalError(errorCode, errorData, source = 'UNKNOWN', category = 'CRITICAL') {
     const logEntry = this.createLogEntry('CRITICAL', errorCode, errorData, source, category);
     
-    // Guardar inmediatamente en Supabase para errores críticos
-    await this.saveToSupabase([logEntry]);
+    // Guardar inmediatamente en SQL Server para errores críticos
+    await this.saveToSqlServer([logEntry]);
     
     // También mantener en buffer de memoria
     this.addToBuffer(logEntry);
     
-    console.error(`🔥 CRÍTICO [${source}]: ${errorCode}`, errorData);
+    if (this.consoleLogging) {
+      console.error(`🔥 CRÍTICO [${source}]: ${errorCode}`, errorData);
+    }
   }
 
   /**
-   * ⚠️ MEDIO: LOG ERROR MEDIO A SUPABASE
+   * ⚠️ MEDIO: LOG ERROR MEDIO A SQL SERVER
    */
   async logMediumError(errorCode, errorData, source = 'UNKNOWN', category = 'MEDIUM') {
     const logEntry = this.createLogEntry('MEDIUM', errorCode, errorData, source, category);
@@ -43,11 +46,11 @@ class SupabaseErrorLogger {
     // Agregar a buffer para flush posterior
     this.addToBuffer(logEntry);
     
-    console.warn(`⚠️ MEDIO [${source}]: ${errorCode}`, errorData);
+    // LOGS MEDIO SILENCIOSOS - Solo a SQL Server, no en consola
   }
 
   /**
-   * ℹ️ INFO: LOG INFO A SUPABASE
+   * ℹ️ INFO: LOG INFO A SQL SERVER
    */
   async logInfo(infoCode, infoData, source = 'UNKNOWN', category = 'INFO') {
     const logEntry = this.createLogEntry('INFO', infoCode, infoData, source, category);
@@ -55,7 +58,7 @@ class SupabaseErrorLogger {
     // Agregar a buffer para flush posterior
     this.addToBuffer(logEntry);
     
-    console.info(`ℹ️ INFO [${source}]: ${infoCode}`, infoData);
+    // LOGS INFO SILENCIOSOS - Solo a SQL Server, no en consola
   }
 
   /**
@@ -91,14 +94,14 @@ class SupabaseErrorLogger {
     
     // Auto-flush si el buffer está lleno
     if (this.errorBuffer.get(key).length >= this.batchSize) {
-      this.flushBufferToSupabase(key);
+      this.flushBufferToSqlServer(key);
     }
   }
 
   /**
    * 💾 GUARDAR DIRECTAMENTE EN SUPABASE
    */
-  async saveToSupabase(logEntries) {
+  async saveToSqlServer(logEntries) {
     if (!Array.isArray(logEntries) || logEntries.length === 0) return;
 
     try {
@@ -113,16 +116,16 @@ class SupabaseErrorLogger {
         .select();
 
       if (error) {
-        console.error('❌ Error guardando logs en Supabase:', error);
-        // Mantener en memoria si falla Supabase
+        console.error('❌ Error guardando logs en SQL Server:', error);
+        // Mantener en memoria si falla SQL Server
         logEntries.forEach(entry => this.addToMemoryFallback(entry));
       } else {
-        console.log(`✅ Guardados ${logEntries.length} logs en Supabase`);
+        console.log(`✅ Guardados ${logEntries.length} logs en SQL Server`);
       }
       */
 
     } catch (error) {
-      console.error('❌ Exception guardando logs en Supabase:', error);
+      console.error('❌ Exception guardando logs en SQL Server:', error);
       // Mantener en memoria si falla completamente
       logEntries.forEach(entry => this.addToMemoryFallback(entry));
       return { success: false, error: error.message };
@@ -130,23 +133,23 @@ class SupabaseErrorLogger {
   }
 
   /**
-   * 🔄 FLUSH BUFFER ESPECÍFICO A SUPABASE
+   * 🔄 FLUSH BUFFER ESPECÍFICO A SQL SERVER
    */
-  async flushBufferToSupabase(bufferKey) {
+  async flushBufferToSqlServer(bufferKey) {
     const entries = this.errorBuffer.get(bufferKey);
     if (!entries || entries.length === 0) return;
 
     // Limpiar buffer antes de enviar
     this.errorBuffer.delete(bufferKey);
 
-    // Enviar a Supabase
-    await this.saveToSupabase(entries);
+    // Enviar a SQL Server
+    await this.saveToSqlServer(entries);
   }
 
   /**
-   * 🔄 FLUSH TODOS LOS BUFFERS A SUPABASE
+   * 🔄 FLUSH TODOS LOS BUFFERS A SQL SERVER
    */
-  async flushAllBuffersToSupabase() {
+  async flushAllBuffersToSqlServer() {
     const allEntries = [];
     
     // Recopilar todas las entradas
@@ -159,8 +162,8 @@ class SupabaseErrorLogger {
     // Limpiar todos los buffers
     this.errorBuffer.clear();
 
-    // Enviar todo a Supabase
-    await this.saveToSupabase(allEntries);
+    // Enviar todo a SQL Server
+    await this.saveToSqlServer(allEntries);
   }
 
   /**
@@ -168,12 +171,12 @@ class SupabaseErrorLogger {
    */
   startAutoFlush() {
     setInterval(() => {
-      this.flushAllBuffersToSupabase();
+      this.flushAllBuffersToSqlServer();
     }, this.flushInterval);
   }
 
   /**
-   * 💾 FALLBACK A MEMORIA SI SUPABASE FALLA
+   * 💾 FALLBACK A MEMORIA SI SQL SERVER FALLA
    */
   addToMemoryFallback(logEntry) {
     const fallbackKey = 'memory_fallback';
@@ -199,7 +202,7 @@ class SupabaseErrorLogger {
       total_entries: 0,
       buffers: {},
       memory_fallback: 0,
-      supabase_connected: true // Asumir conectado hasta probar lo contrario
+      sqlserver_connected: true // Asumir conectado hasta probar lo contrario
     };
 
     for (const [key, entries] of this.errorBuffer) {
@@ -215,9 +218,9 @@ class SupabaseErrorLogger {
   }
 
   /**
-   * 📥 DESCARGAR LOGS DESDE SUPABASE
+   * 📥 DESCARGAR LOGS DESDE SQL SERVER
    */
-  async downloadLogsFromSupabase(options = {}) {
+  async downloadLogsFromSqlServer(options = {}) {
     const {
       category = null,
       level = null,
@@ -248,7 +251,7 @@ class SupabaseErrorLogger {
       return { success: true, logs: data || [] };
 
     } catch (error) {
-      console.error('❌ Error descargando logs desde Supabase:', error);
+      console.error('❌ Error descargando logs desde SQL Server:', error);
       return { success: false, error: error.message, logs: [] };
     }
   }
@@ -257,7 +260,7 @@ class SupabaseErrorLogger {
    * 💾 DESCARGAR ARCHIVO DE LOGS
    */
   async downloadLogsFile(options = {}) {
-    const result = await this.downloadLogsFromSupabase(options);
+    const result = await this.downloadLogsFromSqlServer(options);
     
     if (!result.success || result.logs.length === 0) {
       console.warn('⚠️ No hay logs para descargar');
@@ -290,7 +293,7 @@ class SupabaseErrorLogger {
    */
   formatLogsForFile(logs) {
     let content = '===================================\n';
-    content += '📊 SYSTEM ERROR LOGS - SUPABASE\n';
+    content += '📊 SYSTEM ERROR LOGS - SQL SERVER\n';
     content += `📅 Generado: ${new Date().toISOString()}\n`;
     content += `📈 Total Entradas: ${logs.length}\n`;
     content += '===================================\n\n';
@@ -315,7 +318,7 @@ class SupabaseErrorLogger {
   }
 
   /**
-   * 🧹 LIMPIAR LOGS ANTIGUOS DE SUPABASE
+   * 🧹 LIMPIAR LOGS ANTIGUOS DE SQL SERVER
    */
   async cleanupOldLogs(daysToKeep = 30) {
     const cutoffDate = new Date();
@@ -343,11 +346,11 @@ class SupabaseErrorLogger {
 }
 
 // Instancia global
-const supabaseErrorLogger = new SupabaseErrorLogger();
+const sqlServerErrorLogger = new SqlServerErrorLogger();
 
 // Hacer disponible globalmente
 if (typeof window !== 'undefined') {
-  window.supabaseErrorLogger = supabaseErrorLogger;
+  window.sqlServerErrorLogger = sqlServerErrorLogger;
 }
 
-export default supabaseErrorLogger;
+export default sqlServerErrorLogger;

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1a365d" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Sistema LPDP - Interfaz de Pruebas</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', Arial, sans-serif; 
+            background: #f5f7fa; 
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1a365d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin: 4px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn:hover {
+            background: #2c5282;
+            transform: translateY(-1px);
+        }
+        .btn-success { background: #38a169; }
+        .btn-success:hover { background: #2f855a; }
+        .btn-warning { background: #d69e2e; }
+        .btn-warning:hover { background: #b7791f; }
+        .status {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 8px 0;
+        }
+        .status-success { background: #c6f6d5; color: #22543d; }
+        .status-error { background: #fed7d7; color: #742a2a; }
+        .status-info { background: #bee3f8; color: #2a4365; }
+        .data-display {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .icon { font-size: 1.5rem; margin-right: 8px; }
+        .metric { text-align: center; padding: 16px; }
+        .metric-value { font-size: 2rem; font-weight: 700; color: #3182ce; }
+        .metric-label { font-size: 0.875rem; color: #718096; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🏛️ Sistema LPDP - Ley 21.719</h1>
+            <p>Interfaz de Pruebas Profesional - Backend Local Activo</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="connection-status" class="status status-info">
+            ⏳ Verificando conexión con el backend...
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Estado del Sistema -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">⚡</span>
+                    Estado del Sistema
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="system-status">--</div>
+                    <div class="metric-label">Estado General</div>
+                </div>
+                <button class="btn" onclick="checkSystemHealth()">🔍 Verificar Estado</button>
+            </div>
+
+            <!-- Organizaciones -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">🏢</span>
+                    Organizaciones
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="org-count">--</div>
+                    <div class="metric-label">Organizaciones Registradas</div>
+                </div>
+                <button class="btn" onclick="loadOrganizations()">📋 Ver Organizaciones</button>
+                <button class="btn btn-success" onclick="createTestOrg()">➕ Crear Prueba</button>
+            </div>
+
+            <!-- RATs -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📊</span>
+                    Actividades de Tratamiento (RAT)
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="rat-count">--</div>
+                    <div class="metric-label">RATs Registrados</div>
+                </div>
+                <button class="btn" onclick="loadRATs()">📋 Ver RATs</button>
+                <button class="btn btn-success" onclick="createTestRAT()">➕ Crear RAT</button>
+            </div>
+
+            <!-- EIPDs -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">🛡️</span>
+                    Evaluaciones de Impacto (EIPD)
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="eipd-count">--</div>
+                    <div class="metric-label">EIPDs Completados</div>
+                </div>
+                <button class="btn" onclick="loadEIPDs()">📋 Ver EIPDs</button>
+                <button class="btn btn-warning" onclick="createTestEIPD()">⚠️ Nueva Evaluación</button>
+            </div>
+
+            <!-- Métricas de Cumplimiento -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📈</span>
+                    Métricas de Cumplimiento
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="compliance-score">--</div>
+                    <div class="metric-label">Score de Cumplimiento</div>
+                </div>
+                <button class="btn" onclick="loadCompliance()">📊 Ver Métricas</button>
+            </div>
+
+            <!-- APIs y Documentación -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">🔧</span>
+                    APIs y Documentación
+                </div>
+                <a href="http://localhost:8000/api/docs" target="_blank" class="btn">📚 API Docs</a>
+                <a href="http://localhost:8000/api/health" target="_blank" class="btn btn-success">💚 Health Check</a>
+                <a href="http://localhost:3001/test_frontend.html" target="_blank" class="btn btn-warning">🧪 Test Diagnóstico</a>
+            </div>
+        </div>
+
+        <!-- Área de Resultados -->
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">
+                <span class="icon">📄</span>
+                Resultados de Pruebas
+            </div>
+            <div id="results-area" class="data-display">
+Presiona cualquier botón para empezar las pruebas del sistema LPDP...
+            </div>
+            <button class="btn btn-warning" onclick="clearResults()">🗑️ Limpiar Resultados</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api/v1';
+        const BACKEND_URL = 'http://localhost:8000';
+
+        // Mostrar resultados
+        function showResult(title, data, isError = false) {
+            const results = document.getElementById('results-area');
+            const timestamp = new Date().toLocaleTimeString();
+            const status = isError ? '❌ ERROR' : '✅ ÉXITO';
+            
+            const newResult = `[${timestamp}] ${status} - ${title}\n${JSON.stringify(data, null, 2)}\n\n`;
+            results.textContent = newResult + results.textContent;
+        }
+
+        function clearResults() {
+            document.getElementById('results-area').textContent = 'Resultados limpiados...\n';
+        }
+
+        function updateConnectionStatus(isOnline, message) {
+            const statusDiv = document.getElementById('connection-status');
+            if (isOnline) {
+                statusDiv.className = 'status status-success';
+                statusDiv.innerHTML = `✅ <strong>Backend Conectado:</strong> ${message}`;
+            } else {
+                statusDiv.className = 'status status-error';
+                statusDiv.innerHTML = `❌ <strong>Backend Desconectado:</strong> ${message}`;
+            }
+        }
+
+        // Verificar estado del sistema
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                const data = await response.json();
+                showResult('Health Check', data);
+                updateConnectionStatus(true, `Versión ${data.version} funcionando correctamente`);
+                document.getElementById('system-status').textContent = data.status;
+            } catch (error) {
+                showResult('Health Check', {error: error.message}, true);
+                updateConnectionStatus(false, error.message);
+                document.getElementById('system-status').textContent = 'Error';
+            }
+        }
+
+        // Cargar organizaciones
+        async function loadOrganizations() {
+            try {
+                const response = await fetch(`${API_BASE}/organizaciones`);
+                const data = await response.json();
+                showResult('Organizaciones Cargadas', data);
+                document.getElementById('org-count').textContent = data.length || 0;
+            } catch (error) {
+                showResult('Organizaciones', {error: error.message}, true);
+            }
+        }
+
+        // Cargar RATs
+        async function loadRATs() {
+            try {
+                const response = await fetch(`${API_BASE}/rats?tenant_id=demo`);
+                const data = await response.json();
+                showResult('RATs Cargados', data);
+                document.getElementById('rat-count').textContent = data.length || 0;
+            } catch (error) {
+                showResult('RATs', {error: error.message}, true);
+            }
+        }
+
+        // Cargar EIPDs
+        async function loadEIPDs() {
+            try {
+                const response = await fetch(`${API_BASE}/eipds?tenant_id=demo`);
+                const data = await response.json();
+                showResult('EIPDs Cargados', data);
+                document.getElementById('eipd-count').textContent = data.length || 0;
+            } catch (error) {
+                showResult('EIPDs', {error: error.message}, true);
+            }
+        }
+
+        // Cargar métricas de cumplimiento
+        async function loadCompliance() {
+            try {
+                const response = await fetch(`${API_BASE}/compliance/metrics?tenant_id=demo`);
+                const data = await response.json();
+                showResult('Métricas de Cumplimiento', data);
+                document.getElementById('compliance-score').textContent = data.overall_score?.toFixed(1) + '%' || '--';
+            } catch (error) {
+                showResult('Métricas de Cumplimiento', {error: error.message}, true);
+            }
+        }
+
+        // Crear organización de prueba
+        async function createTestOrg() {
+            const testOrg = {
+                name: `Org Prueba ${Date.now()}`,
+                description: 'Organización creada para pruebas del sistema',
+                industry: 'Tecnología',
+                size: 'medium'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/organizaciones`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(testOrg)
+                });
+                const data = await response.json();
+                showResult('Organización Creada', data);
+                loadOrganizations(); // Refresh count
+            } catch (error) {
+                showResult('Crear Organización', {error: error.message}, true);
+            }
+        }
+
+        // Crear RAT de prueba
+        async function createTestRAT() {
+            const testRAT = {
+                name: `RAT Prueba ${Date.now()}`,
+                description: 'RAT creado para pruebas del sistema',
+                purpose: 'Pruebas de funcionalidad',
+                data_categories: ['datos_identificacion', 'datos_contacto'],
+                legal_basis: 'consentimiento',
+                retention_period: '2 años',
+                recipients: ['departamento_pruebas'],
+                risk_level: 'bajo'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/rats`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({...testRAT, tenant_id: 'demo'})
+                });
+                const data = await response.json();
+                showResult('RAT Creado', data);
+                loadRATs(); // Refresh count
+            } catch (error) {
+                showResult('Crear RAT', {error: error.message}, true);
+            }
+        }
+
+        // Crear EIPD de prueba
+        async function createTestEIPD() {
+            const testEIPD = {
+                name: `EIPD Prueba ${Date.now()}`,
+                description: 'EIPD creado para pruebas del sistema',
+                risk_assessment: {
+                    privacy_impact: 'medio',
+                    data_minimization: 'cumple',
+                    security_measures: 'adecuadas'
+                },
+                mitigation_measures: ['Revisar políticas de seguridad', 'Implementar monitoreo']
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/eipds`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({...testEIPD, tenant_id: 'demo'})
+                });
+                const data = await response.json();
+                showResult('EIPD Creado', data);
+                loadEIPDs(); // Refresh count
+            } catch (error) {
+                showResult('Crear EIPD', {error: error.message}, true);
+            }
+        }
+
+        // Cargar datos iniciales
+        window.onload = function() {
+            setTimeout(() => {
+                console.log('🚀 Iniciando interfaz de pruebas LPDP...');
+                checkSystemHealth();
+                loadOrganizations();
+                loadRATs();
+                loadEIPDs();
+                loadCompliance();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

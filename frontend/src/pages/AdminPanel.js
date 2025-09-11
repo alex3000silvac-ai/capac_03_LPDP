@@ -100,7 +100,7 @@ import {
   organizacionService, 
   usuarioService,
   reporteService 
-} from '../services/api';
+} from '../services/adminService';
 import IAAgentStatusPage from '../components/admin/IAAgentStatusPage';
 
 const AdminPanel = () => {
