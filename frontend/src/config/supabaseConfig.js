@@ -20,6 +20,30 @@ export const signIn = async (email, password) => {
   return { success: true, user: { ...data.user, ...userData }, session: data.session };
 };
 
+export const signUp = async (email, password, userData = {}) => {
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) return { success: false, error: error.message };
+  
+  // Si el usuario se crea exitosamente, crear registro en tabla usuarios
+  if (data.user) {
+    const tenantId = userData.tenant_id || data.user.id; // usar user.id como tenant_id por defecto
+    const { error: userError } = await supabase
+      .from('usuarios')
+      .insert({
+        id: data.user.id,
+        tenant_id: tenantId,
+        email: email,
+        nombre: userData.nombre || 'Admin',
+        rol: userData.rol || 'admin',
+        is_active: true
+      });
+      
+    if (userError) console.warn('Error creando perfil usuario:', userError.message);
+  }
+  
+  return { success: true, user: data.user, session: data.session };
+};
+
 export const signOut = async () => {
   const { error } = await supabase.auth.signOut();
   return error ? { success: false, error: error.message } : { success: true };

@@ -1,11 +1,12 @@
 /**
- * TenantContext Simplificado - Sin Supabase
- * Para desarrollo local con backend SQL Server
+ * TenantContext Supabase - SOLO SUPABASE
+ * Máxima simplicidad para usar únicamente Supabase como plataforma única
  */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { getCurrentTenant, getOrganizaciones } from '../config/supabaseConfig';
 
-console.log('🚀 TenantContext LOCAL MODE - SQL Server Backend');
+console.log('🚀 TenantContext SUPABASE-ONLY MODE');
 
 const TenantContext = createContext();
 
@@ -18,100 +19,69 @@ export const useTenant = () => {
 };
 
 export const TenantProvider = ({ children }) => {
-  const [currentTenant, setCurrentTenant] = useState('demo');
+  const [currentTenant, setCurrentTenant] = useState(null);
   const [availableTenants, setAvailableTenants] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user, isAuthenticated } = useAuth();
 
-  // Cargar tenants simulados para desarrollo local
-  const loadAvailableTenants = async () => {
-    console.log('🚀 Cargando tenants locales');
-    
+  // Cargar tenant del usuario actual desde Supabase
+  const loadCurrentTenant = async () => {
+    if (!user) {
+      setCurrentTenant(null);
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Tenants demo para desarrollo
-      const demoTenants = [
-        {
-          id: 'demo',
-          name: 'Empresa Demo',
-          description: 'Organización de demostración',
-          industry: 'Tecnología',
-          status: 'active'
-        },
-        {
-          id: 'test',
-          name: 'Empresa Test',
-          description: 'Organización de pruebas',
-          industry: 'Servicios',
-          status: 'active'
+      console.log('🚀 Cargando tenant desde Supabase para usuario:', user.email);
+      
+      // Obtener el tenant_id del usuario
+      const tenantId = await getCurrentTenant();
+      if (tenantId) {
+        setCurrentTenant(tenantId);
+        console.log('✅ Tenant cargado:', tenantId);
+        
+        // Cargar organizaciones del tenant
+        const orgResult = await getOrganizaciones();
+        if (orgResult.success) {
+          const tenants = orgResult.data.map(org => ({
+            id: org.tenant_id,
+            name: org.razon_social || org.template_name || 'Organización',
+            organizacion: org
+          }));
+          setAvailableTenants(tenants);
         }
-      ];
-      
-      setAvailableTenants(demoTenants);
-      
-      if (!currentTenant && demoTenants.length > 0) {
-        setCurrentTenant(demoTenants[0].id);
       }
-      
-      console.log('✅ Tenants cargados:', demoTenants.length);
-      return demoTenants;
     } catch (error) {
-      console.error('❌ Error cargando tenants:', error);
-      return [];
+      console.error('❌ Error cargando tenant:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Inicializar tenants
+  // Efecto para cargar tenant cuando cambia el usuario
   useEffect(() => {
-    if (isAuthenticated) {
-      loadAvailableTenants();
+    if (isAuthenticated && user) {
+      loadCurrentTenant();
     } else {
-      // Si no está autenticado, usar tenant por defecto
-      setCurrentTenant('demo');
-      setAvailableTenants([{
-        id: 'demo',
-        name: 'Demo',
-        description: 'Modo demostración'
-      }]);
+      setCurrentTenant(null);
+      setAvailableTenants([]);
       setLoading(false);
     }
-  }, [isAuthenticated, user]);
+  }, [user, isAuthenticated]);
 
   // Cambiar tenant actual
   const switchTenant = async (tenantId) => {
-    try {
-      console.log('🔄 Cambiando a tenant:', tenantId);
-      setCurrentTenant(tenantId);
-      
-      // Aquí se podría hacer una llamada al backend para cambiar el tenant
-      // Por ahora solo cambiamos el estado local
-      
-      console.log('✅ Tenant cambiado a:', tenantId);
-      return true;
-    } catch (error) {
-      console.error('❌ Error cambiando tenant:', error);
-      return false;
-    }
-  };
-
-  // Obtener información del tenant actual
-  const getCurrentTenantInfo = () => {
-    return availableTenants.find(t => t.id === currentTenant) || {
-      id: currentTenant,
-      name: 'Tenant Actual',
-      description: 'Información no disponible'
-    };
+    console.log('🔄 Cambiando a tenant:', tenantId);
+    setCurrentTenant(tenantId);
   };
 
   const value = {
     currentTenant,
     availableTenants,
     loading,
-    loadAvailableTenants,
     switchTenant,
-    getCurrentTenantInfo,
-    setCurrentTenant
+    reloadTenants: loadCurrentTenant
   };
 
   return (
