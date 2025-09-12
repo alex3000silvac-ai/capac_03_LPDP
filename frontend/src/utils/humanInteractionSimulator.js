@@ -17,6 +17,7 @@ class HumanInteractionSimulator {
     this.currentTest = null;
     this.testResults = [];
     this.isRunning = false;
+    this.disabled = true; // DESHABILITADO temporalmente
     this.humanDelays = {
       click: 100,
       typing: 50,
@@ -93,6 +94,11 @@ class HumanInteractionSimulator {
    * 🔄 EJECUTAR TEST ESPECÍFICO
    */
   async executeTest(testName) {
+    if (this.disabled) {
+      console.log('🤖 Simulator deshabilitado');
+      return;
+    }
+    
     this.currentTest = testName;
     const testResult = {
       test: testName,
