@@ -2,14 +2,13 @@
  * 🚀 SERVICIOS API BÁSICOS - SIN REFERENCIAS CIRCULARES
  */
 
-import { supabase } from '../config/supabaseClient';
-import smartSupabase from '../utils/smartSupabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 // Servicio de inventario básico
 export const inventarioService = {
   async getInventario() {
     try {
-      const { data, error } = await smartSupabase
+      const { data, error } = await supabase
         .from('mapeo_datos_rat')
         .select('*')
         .order('created_at', { ascending: false });
@@ -25,7 +24,7 @@ export const inventarioService = {
 
   async createItem(item) {
     try {
-      const { data, error } = await smartSupabase
+      const { data, error } = await supabase
         .from('mapeo_datos_rat')
         .insert([item])
         .select()

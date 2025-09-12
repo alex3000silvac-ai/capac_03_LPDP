@@ -288,7 +288,7 @@ class DataIntegrityValidator {
       if (value) {
         try {
           // Verificar que la referencia existe
-          const { supabase } = await import('../config/supabaseClient');
+          const { supabase } = await import('../config/supabaseConfig');
           const { count, error } = await supabase
             .from(refRule.references)
             .select(refRule.field, { count: 'exact', head: true })
@@ -366,7 +366,7 @@ class DataIntegrityValidator {
     }
     
     try {
-      const { supabase } = await import('../config/supabaseClient');
+      const { supabase } = await import('../config/supabaseConfig');
       const { count } = await supabase
         .from('organizaciones')
         .select('rut', { count: 'exact', head: true })
@@ -392,7 +392,7 @@ class DataIntegrityValidator {
     }
     
     try {
-      const { supabase } = await import('../config/supabaseClient');
+      const { supabase } = await import('../config/supabaseConfig');
       const { count } = await supabase
         .from('mapeo_datos_rat')
         .select('id', { count: 'exact', head: true })
@@ -477,7 +477,7 @@ class DataIntegrityValidator {
    */
   async validateRecordExists(tableName, whereClause) {
     try {
-      const { supabase } = await import('../config/supabaseClient');
+      const { supabase } = await import('../config/supabaseConfig');
       
       let query = supabase.from(tableName).select('id', { count: 'exact', head: true });
       

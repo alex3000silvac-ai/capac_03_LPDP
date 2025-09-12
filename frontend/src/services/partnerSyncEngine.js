@@ -4,7 +4,7 @@
  * Partner → Sistema LPDP ↔ Sistema LPDP → Partner
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import riskCalculationEngine from './riskCalculationEngine';
 import { RAT_ESTADOS, ACTIVIDAD_DPO_ESTADOS } from '../constants/estados';
 

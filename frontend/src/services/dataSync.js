@@ -1,5 +1,5 @@
 // 🔄 SERVICIO SINCRONIZACIÓN DATOS - CONSISTENCIA ENTRE MÓDULOS
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class DataSyncService {
   constructor() {

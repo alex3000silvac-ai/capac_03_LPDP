@@ -1,10 +1,11 @@
 /**
- * AuthContext Simplificado - Sin Supabase
- * Para desarrollo local con backend SQL Server
+ * AuthContext Ultra Simplificado - SOLO SUPABASE
+ * Máxima simplicidad para usar únicamente Supabase como plataforma única
  */
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase, signIn, signOut, getCurrentUser } from '../config/supabaseConfig';
 
-console.log('🚀 AuthContext LOCAL MODE - SQL Server Backend');
+console.log('🚀 AuthContext SUPABASE-ONLY MODE');
 
 const AuthContext = createContext();
 
@@ -18,99 +19,65 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState('demo-token');
   const [loading, setLoading] = useState(true);
-  const [demoMode, setDemoMode] = useState(true);
 
-  // Inicialización simple para desarrollo local
+  // Inicialización con Supabase
   useEffect(() => {
-    console.log('🚀 Iniciando Auth Local');
+    console.log('🚀 Iniciando Auth Supabase');
     
-    // Simular usuario demo automáticamente
-    setTimeout(() => {
-      const demoUser = {
-        id: 'demo-user-001',
-        email: 'demo@lpdp.cl',
-        name: 'Usuario Demo',
-        tenant_id: 'demo'
-      };
+    // Escuchar cambios de autenticación
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Supabase Auth event:', event);
       
-      setUser(demoUser);
+      if (session?.user) {
+        const userData = await getCurrentUser();
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+      
       setLoading(false);
-      console.log('✅ Usuario demo cargado:', demoUser.email);
-    }, 1000);
+    });
+
+    // Verificar sesión actual
+    const checkUser = async () => {
+      const userData = await getCurrentUser();
+      setUser(userData);
+      setLoading(false);
+    };
+    
+    checkUser();
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, []);
 
-  // Función de login simplificada
+  // Login simplificado
   const login = async (email, password) => {
-    try {
-      setLoading(true);
-      
-      // Simular login exitoso
-      const user = {
-        id: 'user-' + Date.now(),
-        email: email,
-        name: email.split('@')[0],
-        tenant_id: 'demo'
-      };
-      
-      setUser(user);
-      setToken('local-token-' + Date.now());
-      setDemoMode(false);
-      
-      console.log('✅ Login exitoso:', user.email);
-      return { success: true, user };
-    } catch (error) {
-      console.error('❌ Error en login:', error);
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
+    const result = await signIn(email, password);
+    if (result.success) {
+      setUser(result.user);
+      return { success: true };
     }
+    return { success: false, error: result.error };
   };
 
-  // Función de logout simplificada
+  // Logout simplificado
   const logout = async () => {
-    setUser(null);
-    setToken(null);
-    setDemoMode(true);
-    console.log('✅ Logout exitoso');
-  };
-
-  // Función para obtener usuario actual
-  const getCurrentUser = () => {
-    return user;
-  };
-
-  // Función para verificar si el usuario tiene restricciones
-  const isRestricted = () => {
-    // En modo demo, el usuario tiene restricciones limitadas
-    if (demoMode) {
-      return true;
+    const result = await signOut();
+    if (result.success) {
+      setUser(null);
+      return { success: true };
     }
-    
-    // Si el usuario no tiene permisos específicos, está restringido
-    if (!user || !user.permissions || user.permissions.length === 0) {
-      return true;
-    }
-    
-    // Si es superuser, no tiene restricciones
-    if (user.is_superuser) {
-      return false;
-    }
-    
-    // Por defecto, no restringido si tiene usuario válido
-    return false;
+    return { success: false, error: result.error };
   };
 
   const value = {
     user,
-    token,
     loading,
-    demoMode,
     login,
     logout,
-    getCurrentUser,
-    isRestricted,
     isAuthenticated: !!user
   };
 
@@ -120,5 +87,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export default AuthContext;

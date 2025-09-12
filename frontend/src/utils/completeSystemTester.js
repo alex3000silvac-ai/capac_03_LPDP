@@ -5,7 +5,7 @@
  * Genera reporte simple: PRUEBA | RESULTADO | MOTIVO
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class CompleteSystemTester {
   constructor() {

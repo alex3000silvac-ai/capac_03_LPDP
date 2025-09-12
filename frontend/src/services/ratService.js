@@ -4,7 +4,7 @@
  * Servicio corregido para manejo correcto de tenants y sesiones
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import { RAT_ESTADOS } from '../constants/estados';
 
 class RATService {

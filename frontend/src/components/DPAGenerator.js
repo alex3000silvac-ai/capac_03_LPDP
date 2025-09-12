@@ -47,7 +47,7 @@ import {
   Preview as PreviewIcon
 } from '@mui/icons-material';
 import { useTenant } from '../contexts/TenantContext';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 const DPAGenerator = () => {
   const navigate = useNavigate();

@@ -9,7 +9,7 @@
  * - Detección automática de errores
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class HumanInteractionSimulator {
   constructor() {

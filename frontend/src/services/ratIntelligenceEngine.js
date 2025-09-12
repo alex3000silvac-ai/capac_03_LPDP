@@ -4,7 +4,7 @@
  * Cobertura: 100% de los triggers de la Ley 21.719
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 const ratIntelligenceEngine = {
   // CREAR ACTIVIDADES DPO AUTOMÁTICAMENTE EN SUPABASE

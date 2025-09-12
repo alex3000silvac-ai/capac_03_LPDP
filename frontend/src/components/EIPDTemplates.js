@@ -60,7 +60,7 @@ import {
   Description as DocumentIcon
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import { useTenant } from '../contexts/TenantContext';
 
 const EIPDTemplates = () => {

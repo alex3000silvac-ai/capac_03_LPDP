@@ -8,7 +8,7 @@ import {
   existenDatosEmpresa 
 } from '../utils/supabaseEmpresaPersistence';
 import { RAT_ESTADOS } from '../constants/estados';
-import sqlServerErrorLogger from '../utils/supabaseErrorLogger';
+// Eliminado logger - usando console.log para simplicidad máxima
 import {
   Box,
   Container,
@@ -78,7 +78,7 @@ import specificCasesEngine from '../services/specificCasesEngine';
 import { fuentesNormativas, obtenerInformacionSectorial } from '../services/industryStandardsService';
 import EmpresaDataManager from './EmpresaDataManager';
 import PageLayout from './PageLayout';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import { useTenant } from '../contexts/TenantContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -447,15 +447,15 @@ const RATSystemProfessional = () => {
           persistir: true
         });
         
-        if (sqlServerErrorLogger) {
+        {
           if (resultado.success) {
-            sqlServerErrorLogger.logMediumError('RAT_PERSISTENCE_AUTO_SAVE', {
+            console.log('RAT_PERSISTENCE_AUTO_SAVE', {
               message: 'Datos empresa guardados automáticamente desde formulario RAT',
               campos_guardados: Object.keys(datosEmpresa).filter(k => datosEmpresa[k]),
               timestamp: new Date().toISOString()
             }, 'RAT_AUTO_PERSISTENCE');
           } else {
-            sqlServerErrorLogger.logCriticalError('RAT_PERSISTENCE_FAILED', {
+            console.log('RAT_PERSISTENCE_FAILED', {
               error: resultado.error,
               datos_intentados: datosEmpresa,
               timestamp: new Date().toISOString()
@@ -464,8 +464,8 @@ const RATSystemProfessional = () => {
         }
       }
     } catch (error) {
-      if (sqlServerErrorLogger) {
-        sqlServerErrorLogger.logCriticalError('RAT_PERSISTENCE_ERROR', {
+      {
+        console.log('RAT_PERSISTENCE_ERROR', {
           error: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString()
@@ -479,8 +479,8 @@ const RATSystemProfessional = () => {
     const inicializarComponente = async () => {
       try {
         // Log inicio de inicialización
-        if (sqlServerErrorLogger) {
-          sqlServerErrorLogger.logInfo('RAT_SYSTEM_INIT', {
+        {
+          console.log('RAT_SYSTEM_INIT', {
             message: 'RATSystemProfessional inicializando - cargando datos',
             tenant_id: currentTenant || 'demo',
             timestamp: new Date().toISOString()
@@ -493,8 +493,8 @@ const RATSystemProfessional = () => {
         
       } catch (error) {
         console.error('❌ Error inicializando componente RAT:', error);
-        if (sqlServerErrorLogger) {
-          sqlServerErrorLogger.logCriticalError('RAT_INIT_ERROR', error, 'RAT_SYSTEM');
+        {
+          console.log('RAT_INIT_ERROR', error, 'RAT_SYSTEM');
         }
       }
     };
@@ -523,8 +523,8 @@ const RATSystemProfessional = () => {
         
         if (datosGuardados.success && datosGuardados.datos) {
           // Log éxito a archivo TXT
-          if (sqlServerErrorLogger) {
-            sqlServerErrorLogger.logMediumError('RAT_AUTOCOMPLETADO_SUCCESS', {
+          {
+            console.log('RAT_AUTOCOMPLETADO_SUCCESS', {
               message: 'Datos empresa cargados exitosamente para autocompletado RAT',
               fuente: datosGuardados.fuente,
               campos_cargados: Object.keys(datosGuardados.datos),
@@ -555,8 +555,8 @@ const RATSystemProfessional = () => {
           return; // Salir - datos cargados exitosamente
         } else {
           // Log warning - no hay datos guardados
-          if (sqlServerErrorLogger) {
-            sqlServerErrorLogger.logInfo('RAT_AUTOCOMPLETADO_NO_DATOS', {
+          {
+            console.log('RAT_AUTOCOMPLETADO_NO_DATOS', {
               message: 'No se encontraron datos empresa guardados para autocompletado',
               error: datosGuardados.error,
               timestamp: new Date().toISOString()
@@ -566,8 +566,8 @@ const RATSystemProfessional = () => {
         
       } catch (error) {
         // Log error crítico a archivo TXT
-        if (sqlServerErrorLogger) {
-          sqlServerErrorLogger.logCriticalError('RAT_AUTOCOMPLETADO_FAILED', {
+        {
+          console.log('RAT_AUTOCOMPLETADO_FAILED', {
             error: error.message,
             stack: error.stack,
             timestamp: new Date().toISOString()
@@ -778,8 +778,8 @@ const RATSystemProfessional = () => {
     
     // 🔧 FIX CRÍTICO: Auto-completar datos empresa después de limpiar
     setTimeout(() => {
-      if (sqlServerErrorLogger) {
-        sqlServerErrorLogger.logInfo('RAT_NUEVO_RELOAD_DATOS', {
+      {
+        console.log('RAT_NUEVO_RELOAD_DATOS', {
           message: 'Recargando datos empresa después de limpiar RAT',
           timestamp: new Date().toISOString()
         }, 'RAT_SYSTEM');
@@ -1055,8 +1055,8 @@ const RATSystemProfessional = () => {
       
       if (!validacionResult.valido) {
         // Log error crítico de validación
-        if (sqlServerErrorLogger) {
-          sqlServerErrorLogger.logCriticalError('RAT_VALIDACION_FAILED', {
+        {
+          console.log('RAT_VALIDACION_FAILED', {
             errores: validacionResult.errores,
             datos_actuales: {
               nombre_actividad: ratData.nombreActividad,
@@ -1080,8 +1080,8 @@ const RATSystemProfessional = () => {
       }
       
       // Log éxito de validación
-      if (sqlServerErrorLogger) {
-        sqlServerErrorLogger.logMediumError('RAT_VALIDACION_SUCCESS', {
+      {
+        console.log('RAT_VALIDACION_SUCCESS', {
           message: 'Validación RAT exitosa, procediendo a guardar',
           campos_validados: validacionResult.campos_validados,
           timestamp: new Date().toISOString()
@@ -1321,8 +1321,8 @@ const RATSystemProfessional = () => {
       });
     } catch (error) {
       // Log error crítico de guardado a archivo TXT
-      if (sqlServerErrorLogger) {
-        sqlServerErrorLogger.logCriticalError('RAT_SAVE_FAILED', {
+      {
+        console.log('RAT_SAVE_FAILED', {
           error: error.message,
           stack: error.stack,
           rat_data: {

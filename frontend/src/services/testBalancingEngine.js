@@ -4,7 +4,7 @@
  * Art. 12 f) Ley 21.719 - Evaluación equilibrio
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class TestBalancingEngine {
   constructor() {

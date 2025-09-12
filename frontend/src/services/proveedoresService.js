@@ -1,7 +1,7 @@
 // SERVICIO DE PROVEEDORES - MULTI-TENANT CON AISLACIÓN TOTAL
 // Sistema LPDP v3.0.1 - Ley 21.719
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class ProveedoresService {
   // Obtener tenant actual del usuario desde Supabase

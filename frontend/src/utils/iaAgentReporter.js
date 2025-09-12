@@ -5,7 +5,7 @@
  * en el sistema desplegado en Render
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class IAAgentReporter {
   constructor() {

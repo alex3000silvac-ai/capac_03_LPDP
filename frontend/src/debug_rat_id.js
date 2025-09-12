@@ -1,7 +1,7 @@
 /**
  * 🔍 SCRIPT DEBUG - Encontrar exactamente qué tabla causa error rat_id
  */
-const { supabase } = require('./config/supabaseClient.js');
+const { supabase } = require('../config/supabaseConfig.js');
 
 async function testRatIdColumns() {
   // //console.log('🔍 PROBANDO COLUMNAS rat_id EN CADA TABLA...\n');

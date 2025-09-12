@@ -40,7 +40,7 @@ import {
   Warning as WarningIcon,
   Schedule as ScheduleIcon
 } from '@mui/icons-material';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import { useTenant } from '../contexts/TenantContext';
 import { useAuth } from '../contexts/AuthContext';
 import PageLayout from './PageLayout';

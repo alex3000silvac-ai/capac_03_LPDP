@@ -30,7 +30,7 @@ import {
   Add as AddIcon,
   Download as DownloadIcon
 } from '@mui/icons-material';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import { useTenant } from '../contexts/TenantContext';
 
 const EIPDListPage = () => {

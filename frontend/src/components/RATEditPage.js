@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import { useAuth } from '../hooks/useAuth';
 // import preventiveAI from '../utils/preventiveAI'; // REMOVIDO - causaba errores de build
 import {

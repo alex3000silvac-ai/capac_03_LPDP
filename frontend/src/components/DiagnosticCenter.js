@@ -53,7 +53,7 @@ import {
   Html as HtmlIcon
 } from '@mui/icons-material';
 import frontendValidator from '../utils/frontendValidator';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 const DiagnosticCenter = () => {
   const [loading, setLoading] = useState(false);

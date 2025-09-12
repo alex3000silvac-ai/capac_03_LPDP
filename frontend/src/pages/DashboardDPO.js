@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import { useTenant } from '../contexts/TenantContext';
 import { useDataSync } from '../hooks/useDataSync';
 import { Box, Container, Typography, Paper, Grid, Card, CardContent, Chip, Alert, Button } from '@mui/material';

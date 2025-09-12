@@ -61,7 +61,7 @@ import {
   CheckCircle as ActiveIcon
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

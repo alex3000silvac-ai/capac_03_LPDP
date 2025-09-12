@@ -47,7 +47,7 @@ import {
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
 import { useTenant } from '../contexts/TenantContext';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 const RATListPage = () => {
   const navigate = useNavigate();

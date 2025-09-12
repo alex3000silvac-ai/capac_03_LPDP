@@ -4,7 +4,7 @@
  * Calcula riesgo automático según factores múltiples
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class RiskCalculationEngine {
   constructor() {

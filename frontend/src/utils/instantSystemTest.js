@@ -5,7 +5,7 @@
  * Se ejecuta inmediatamente al cargar
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class InstantSystemTest {
   constructor() {

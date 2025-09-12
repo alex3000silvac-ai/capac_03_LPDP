@@ -5,7 +5,7 @@
  * Identifica problemas de infraestructura vs lógica de código
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 export class SupabaseAuditor {
   constructor() {

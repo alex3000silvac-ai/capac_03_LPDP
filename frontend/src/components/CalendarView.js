@@ -52,7 +52,7 @@ import {
   Assessment as TaskIcon
 } from '@mui/icons-material';
 import { ratService } from '../services/ratService';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import { useTenant } from '../contexts/TenantContext';
 
 const CalendarView = () => {

@@ -1,5 +1,5 @@
 // 🔍 IA AUDITOR LÓGICO - VALIDADOR AUTOMÁTICO DE PROCESOS Y SECUENCIAS
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class LogicAuditor {
   constructor() {

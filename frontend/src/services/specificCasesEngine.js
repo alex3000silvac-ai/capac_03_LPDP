@@ -4,7 +4,7 @@
  * Flujos especializados por industria
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class SpecificCasesEngine {
   constructor() {

@@ -5,7 +5,7 @@
  * Intercepta y valida todas las consultas Supabase
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class SupabaseRLSGuard {
   constructor() {

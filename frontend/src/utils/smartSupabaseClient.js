@@ -5,7 +5,7 @@
  * Intercepta TODAS las consultas y aplica correcciones preventivas
  */
 
-import { supabase as originalSupabase } from '../config/supabaseClient';
+import { supabase as originalSupabase } from '../config/supabaseConfig';
 import rlsGuard from './supabaseRLSGuard';
 
 class SmartSupabaseClient {

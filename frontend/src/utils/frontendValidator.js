@@ -5,7 +5,7 @@
  * Detecta errores HTML, JavaScript y problemas de rendering
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 
 class FrontendValidator {
   constructor() {

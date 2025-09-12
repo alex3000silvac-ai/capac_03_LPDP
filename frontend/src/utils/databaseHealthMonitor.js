@@ -11,7 +11,7 @@
  * GENERA REPORTES EN ARCHIVOS TXT
  */
 
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseConfig';
 import fileErrorLogger from './fileErrorLogger';
 
 class DatabaseHealthMonitor {

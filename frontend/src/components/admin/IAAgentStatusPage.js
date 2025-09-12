@@ -40,7 +40,7 @@ import {
   AdminPanelSettings as AdminIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../config/supabaseClient';
+import { supabase } from '../../config/supabaseConfig';
 import iaAgentReporter from '../../utils/iaAgentReporter';
 
 const IAAgentStatusPage = () => {

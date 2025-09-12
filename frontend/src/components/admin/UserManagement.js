@@ -30,7 +30,7 @@ import {
   CheckCircle as ActiveIcon,
   Cancel as InactiveIcon,
 } from '@mui/icons-material';
-import { supabase } from '../../config/supabaseClient';
+import { supabase } from '../../config/supabaseConfig';
 
 function UserManagement() {
   const [users, setUsers] = useState([]);
