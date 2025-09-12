@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Configuración de Supabase - Proyecto de Producción
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://vkyhsnlivgwgrhdbvynm.supabase.co';
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || atob('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5acmVXaHpibXhwZG1kM1ozSm9aR0oyZVc1dElpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTlRjMk16RTVOalFzSW1WNGNDSTZNakEzTXpJd056azJOSDAuSklaMmtKcFRGMUhabk40X0xfVnhUTmVQY2Z4a1lrUm5tUU51R244SmRBUQ==');
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || atob('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5acmVXaHpibXhwZG1kM1ozSm9aR0oyZVc1dElpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTlRjMk16RTVOalFzSW1WNGNDSTZNakEzTXpJd056azJOSDAua3NLZm9sY0ZyeFB2eHRlOUEyVXJWNS1vRFdTUkt0dzA0NFVHYkp2clc4cwo=');
 
 console.log('🔧 Configuración Supabase cargada');
 
