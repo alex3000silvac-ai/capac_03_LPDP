@@ -4,8 +4,8 @@
   "description": "Sistema LPDP con SQL Server centralizado - Migrado desde Supabase",
   "main": "run.py",
   "scripts": {
-    "start": "python run.py",
-    "start:backend": "python run.py",
+    "build": "cd frontend && npm ci && npm run build",
+    "start": "cd frontend && npm start",
     "start:frontend": "cd frontend && npm start",
     "start:both": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "check-db": "python run.py --check-db",

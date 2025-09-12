@@ -1,0 +1,13 @@
+[build]
+  base = "frontend/"
+  publish = "build/"
+  command = "npm run build"
+
+[build.environment]
+  REACT_APP_SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co"
+  REACT_APP_SUPABASE_ANON_KEY = "YOUR_ANON_KEY"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

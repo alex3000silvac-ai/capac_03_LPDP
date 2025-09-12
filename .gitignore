@@ -30,12 +30,16 @@ env.bak/
 venv.bak/
 .venv
 
-# Environment variables
+# Environment variables - INFORMACIÓN SENSIBLE
 .env
 .env.local
 .env.*.local
 .env.production
 .env.development
+.env.secrets
+*secrets*
+*password*
+*credentials*
 
 # IDEs
 .vscode/
