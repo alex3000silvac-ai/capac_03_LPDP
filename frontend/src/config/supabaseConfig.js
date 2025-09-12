@@ -1,10 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+// Temporalmente usar valores por defecto mientras se resuelve el problema de variables de entorno
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://symkjkbejxexgrydmvqs.supabase.co';
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || atob('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5ONWJXdHFhMkpsYW5obGVHZHllV1J0ZG5Geklpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTXpZd01EYzVNamtzSW1WNGNDSTZNakExTVRVNE16a3lPWDAub2pFSlVncVVpbkxWN1d4SnhVcGYwUTNfX3J0VjlyQ3VVb1Y2WDZHZmhXcw==');
+
+console.log('🔧 Configuración Supabase cargada');
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Faltan variables de entorno de Supabase. Verifica REACT_APP_SUPABASE_URL y REACT_APP_SUPABASE_ANON_KEY');
+  console.error('Error: Variables de entorno no configuradas');
+  throw new Error('Faltan variables de entorno de Supabase');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

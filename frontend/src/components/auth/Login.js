@@ -48,7 +48,10 @@ const Login = () => {
       }
 
       // Login con email para Supabase
-      await login(formData.email, formData.password, 'default');
+      const result = await login(formData.email, formData.password);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
     } catch (err) {
       setError(err.message || 'Error al iniciar sesión');
     } finally {
