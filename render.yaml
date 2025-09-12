@@ -9,9 +9,9 @@ services:
       - key: REACT_APP_USE_LOCAL_BACKEND
         value: false
       - key: REACT_APP_SUPABASE_URL
-        value: https://symkjkbejxexgrydmvqs.supabase.co
+        value: https://vkyhsnlivgwgrhdbvynm.supabase.co
       - key: REACT_APP_SUPABASE_ANON_KEY
-        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5bWtqa2JlanhleGdyeWRtdnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMDc5MjksImV4cCI6MjA1MTU4MzkyOX0.ojEJUgqUinLV7WxJxUpf0Q3__rtV9rCuUoV6X6GfhWs
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZreWhzbmxpdmd3Z3JoZGJ2eW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzE5NjQsImV4cCI6MjA3MzIwNzk2NH0.JIZ3kJpTF1HZnN4_L_VxTNePcfxkYkRnmQNuGn8JdAQ
     routes:
       - type: rewrite
         source: /*
