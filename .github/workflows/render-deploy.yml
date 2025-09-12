@@ -1,0 +1,49 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+        
+    - name: Build
+      run: |
+        cd frontend
+        npm run build
+      env:
+        REACT_APP_USE_LOCAL_BACKEND: false
+        
+    - name: Deploy to Render
+      run: |
+        echo "Build completed successfully"
+        echo "Files ready for Render deployment"
+        ls -la frontend/build/
+        
+    - name: Create deployment marker
+      run: |
+        echo "$(date): Deployment ready for Render" >> deployment.log
+        
+    - name: Commit deployment log
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add deployment.log
+        git commit -m "Update deployment log [skip ci]" || exit 0
+        git push || exit 0
