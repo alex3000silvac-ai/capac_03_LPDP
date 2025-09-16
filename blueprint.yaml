@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: lpdp-backend-v2
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SUPABASE_URL
+        value: https://vkyhsnlivgwgrhdbvynm.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZreWhzbmxpdmd3Z3JoZGJ2eW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzE5NjQsImV4cCI6MjA3MzIwNzk2NH0.ksKfolcFrxPvxte9A2UrV5-oDWSRKtw044UGbJvrW8s
+
+  - type: static
+    name: lpdp-frontend-v2
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/build
+    envVars:
+      - key: REACT_APP_SUPABASE_URL
+        value: https://vkyhsnlivgwgrhdbvynm.supabase.co
+      - key: REACT_APP_SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZreWhzbmxpdmd3Z3JoZGJ2eW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzE5NjQsImV4cCI6MjA3MzIwNzk2NH0.ksKfolcFrxPvxte9A2UrV5-oDWSRKtw044UGbJvrW8s
+      - key: REACT_APP_BACKEND_URL
+        value: https://lpdp-backend-v2.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
