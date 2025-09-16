@@ -1,6 +1,33 @@
 services:
+  # Backend Node.js API
   - type: web
-    name: lpdp-supabase-system
+    name: lpdp-backend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SUPABASE_URL
+        value: https://vkyhsnlivgwgrhdbvynm.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZreWhzbmxpdmd3Z3JoZGJ2eW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzE5NjQsImV4cCI6MjA3MzIwNzk2NH0.ksKfolcFrxPvxte9A2UrV5-oDWSRKtw044UGbJvrW8s
+      - key: FRONTEND_URLS
+        value: "http://localhost:3000,https://lpdp-frontend.onrender.com"
+
+  # Frontend React App
+  - type: web
+    name: lpdp-frontend
     env: node
     plan: free
     buildCommand: cd frontend && NODE_ENV=production npm ci && npm run build
@@ -12,6 +39,8 @@ services:
         value: https://vkyhsnlivgwgrhdbvynm.supabase.co
       - key: REACT_APP_SUPABASE_ANON_KEY
         value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZreWhzbmxpdmd3Z3JoZGJ2eW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzE5NjQsImV4cCI6MjA3MzIwNzk2NH0.ksKfolcFrxPvxte9A2UrV5-oDWSRKtw044UGbJvrW8s
+      - key: REACT_APP_BACKEND_URL
+        value: https://lpdp-backend.onrender.com
     routes:
       - type: rewrite
         source: /*

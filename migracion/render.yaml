@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: lpdp-supabase-system
+    env: node
+    plan: free
+    buildCommand: cd frontend && NODE_ENV=production npm ci && npm run build
+    staticPublishPath: ./frontend/build
+    envVars:
+      - key: REACT_APP_USE_LOCAL_BACKEND
+        value: false
+      - key: REACT_APP_SUPABASE_URL
+        value: https://vkyhsnlivgwgrhdbvynm.supabase.co
+      - key: REACT_APP_SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZreWhzbmxpdmd3Z3JoZGJ2eW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzE5NjQsImV4cCI6MjA3MzIwNzk2NH0.ksKfolcFrxPvxte9A2UrV5-oDWSRKtw044UGbJvrW8s
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
