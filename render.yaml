@@ -5,7 +5,7 @@ services:
     env: node
     region: oregon
     plan: free
-    rootDir: backend
+    rootDir: ./backend
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /health
@@ -30,8 +30,9 @@ services:
     name: lpdp-frontend
     env: node
     plan: free
-    buildCommand: cd frontend && NODE_ENV=production npm ci && npm run build
-    staticPublishPath: ./frontend/build
+    rootDir: ./frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./build
     envVars:
       - key: REACT_APP_USE_LOCAL_BACKEND
         value: false
