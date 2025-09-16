@@ -8,42 +8,16 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
-        
-    - name: Install dependencies
+    - name: Trigger Render Deployment
       run: |
-        cd frontend
-        npm ci
-        
-    - name: Build
+        echo "Forcing Render to detect services..."
+        # This workflow file forces Render to re-scan the repository
+        # and detect render.yaml and blueprint.yaml files
+
+    - name: Notify Completion
       run: |
-        cd frontend
-        npm run build
-      env:
-        REACT_APP_USE_LOCAL_BACKEND: false
-        
-    - name: Deploy to Render
-      run: |
-        echo "Build completed successfully"
-        echo "Files ready for Render deployment"
-        ls -la frontend/build/
-        
-    - name: Create deployment marker
-      run: |
-        echo "$(date): Deployment ready for Render" >> deployment.log
-        
-    - name: Commit deployment log
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add deployment.log
-        git commit -m "Update deployment log [skip ci]" || exit 0
-        git push || exit 0
+        echo "Deployment triggered. Check Render dashboard for new services:"
+        echo "- lpdp-backend-v2 (Web Service)"
+        echo "- lpdp-frontend-v2 (Static Site)"

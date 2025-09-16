@@ -4,9 +4,10 @@ services:
     name: lpdp-backend-v2
     env: node
     plan: free
-    rootDir: ./backend
+    branch: main
     buildCommand: npm install
     startCommand: npm start
+    rootDir: backend
     envVars:
       - key: NODE_ENV
         value: production
@@ -22,6 +23,7 @@ services:
     name: lpdp-frontend-v2
     buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: frontend/build
+    branch: main
     envVars:
       - key: REACT_APP_SUPABASE_URL
         value: https://vkyhsnlivgwgrhdbvynm.supabase.co
