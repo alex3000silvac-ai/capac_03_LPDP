@@ -1,0 +1,34 @@
+{
+  "name": "lpdp-system-trigger",
+  "trigger": "render-yaml-detection",
+  "services": [
+    {
+      "type": "web",
+      "name": "lpdp-backend-final",
+      "env": "node",
+      "repo": "https://github.com/alex3000silvac-ai/capac_03_LPDP",
+      "branch": "main",
+      "buildCommand": "cd backend && npm install",
+      "startCommand": "cd backend && npm start",
+      "envVars": {
+        "NODE_ENV": "production",
+        "PORT": "10000",
+        "SUPABASE_URL": "https://vkyhsnlivgwgrhdbvynm.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZreWhzbmxpdmd3Z3JoZGJ2eW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzE5NjQsImV4cCI6MjA3MzIwNzk2NH0.ksKfolcFrxPvxte9A2UrV5-oDWSRKtw044UGbJvrW8s"
+      }
+    },
+    {
+      "type": "static",
+      "name": "lpdp-frontend-final",
+      "repo": "https://github.com/alex3000silvac-ai/capac_03_LPDP",
+      "branch": "main",
+      "buildCommand": "cd frontend && npm ci && npm run build",
+      "staticPublishPath": "frontend/build",
+      "envVars": {
+        "REACT_APP_SUPABASE_URL": "https://vkyhsnlivgwgrhdbvynm.supabase.co",
+        "REACT_APP_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZreWhzbmxpdmd3Z3JoZGJ2eW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzE5NjQsImV4cCI6MjA3MzIwNzk2NH0.ksKfolcFrxPvxte9A2UrV5-oDWSRKtw044UGbJvrW8s",
+        "REACT_APP_BACKEND_URL": "https://lpdp-backend-final.onrender.com"
+      }
+    }
+  ]
+}
