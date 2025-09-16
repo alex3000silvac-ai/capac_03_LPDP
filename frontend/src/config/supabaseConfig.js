@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Configuración de Supabase - Proyecto de Producción
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://vkyhsnlivgwgrhdbvynm.supabase.co';
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || atob('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5acmVXaHpibXhwZG1kM1ozSm9aR0oyZVc1dElpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTlRjMk16RTVOalFzSW1WNGNDSTZNakEzTXpJd056azJOSDAua3NLZm9sY0ZyeFB2eHRlOUEyVXJWNS1vRFdTUkt0dzA0NFVHYkp2clc4cwo=');
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZreWhzbmxpdmd3Z3JoZGJ2eW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MzE5NjQsImV4cCI6MjA3MzIwNzk2NH0.ksKfolcFrxPvxte9A2UrV5-oDWSRKtw044UGbJvrW8s';
 
 console.log('🔧 Configuración Supabase cargada');
 
