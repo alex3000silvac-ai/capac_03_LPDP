@@ -1,1 +1,9 @@
-{"name":"Sistema LPDP","short_name":"LPDP","theme_color":"#1a365d","background_color":"#f5f7fa","display":"standalone","start_url":"."}
+{
+  "name": "Sistema LPDP",
+  "short_name": "LPDP",
+  "theme_color": "#1a365d",
+  "background_color": "#f5f7fa",
+  "display": "standalone",
+  "start_url": ".",
+  "icons": []
+}
